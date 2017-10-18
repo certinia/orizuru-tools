@@ -41,19 +41,19 @@
   },
   "devDependencies": {
     "@financialforcedev/eslint-config": "^3.0.1",
-    "app-root-path": "^2.0.1",
-    "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1",
-    "eslint": "^4.9.0",
-    "mocha": "^4.0.1",
-    "nyc": "^11.2.1",
-    "proxyquire": "^1.8.0",
-    "sinon": "^4.0.1"
+    "app-root-path": "2.0.1",
+    "chai": "4.1.2",
+    "chai-as-promised": "7.1.1",
+    "eslint": "4.9.0",
+    "mocha": "4.0.1",
+    "nyc": "11.2.1",
+    "proxyquire": "1.8.0",
+    "sinon": "4.0.1"
   },
   "dependencies": {
-    "bluebird": "^3.5.1",
-    "fs-extra": "^4.0.2",
-    "klaw": "^2.1.0",
-    "yargs": "^9.0.1"
+    "bluebird": "3.5.1",
+    "fs-extra": "4.0.2",
+    "klaw": "2.1.0",
+    "yargs": "9.0.1"
   }
 }
