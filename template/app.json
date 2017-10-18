@@ -1,0 +1,10 @@
+{
+	"name": "{{npm-module-name}}",
+	"scripts": {},
+	"env": {},
+	"formation": {},
+	"addons": [],
+	"buildpacks": [{
+		"url": "heroku/nodejs"
+	}]
+}
