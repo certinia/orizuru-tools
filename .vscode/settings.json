@@ -1,0 +1,39 @@
+{
+	"beautify.language": {
+		"js": {
+			"type": [
+				"javascript",
+				"json",
+				"apex"
+			],
+			"filename": [
+				".jsbeautifyrc"
+			]
+		}
+	},
+	"beautify.ignore": [
+		"package.json"
+	],
+	"editor.detectIndentation": false,
+	"editor.formatOnSave": true,
+	"editor.insertSpaces": false,
+	"files.exclude": {
+		"**/.nyc_output": true,
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/CVS": true,
+		"**/.DS_Store": true,
+		"**/coverage": true
+	},
+	"lcov.path": "coverage/lcov.info",
+	"lcov.watch": [{
+		"pattern": "**/*.js",
+		"command": "npm test"
+	}],
+	"runCurrentTest.run": "npm run single-test -- ${relativeTestPath}",
+	"terminal.integrated.scrollback": 10000,
+	"workbench.colorCustomizations": {
+		"activityBar.foreground": "#E6E6E6"
+	}
+}

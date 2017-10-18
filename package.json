@@ -1,0 +1,59 @@
+{
+  "name": "@financialforcedev/orizuru-tools",
+  "version": "1.0.0",
+  "description": "Development tools for the Orizuru framework.",
+  "bin": {
+    "orizuru": "src/lib/bin/cli.js"
+  },
+  "main": "lib/src/index.js",
+  "scripts": {
+    "pretest": "eslint src",
+    "test": "nyc mocha --recursive src/spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@stash.dev.financialforce.com:29418/research/orizuru-tools.git"
+  },
+  "keywords": [
+    "Orizuru",
+    "tools"
+  ],
+  "author": "sfry@financialforce.com",
+  "license": "BSD-3-Clause",
+  "nyc": {
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+    "branches": 100,
+    "include": [
+      "src"
+    ],
+    "reporter": [
+      "lcov",
+      "html",
+      "text",
+      "text-summary"
+    ],
+    "cache": true,
+    "all": true
+  },
+  "devDependencies": {
+    "@financialforcedev/eslint-config": "^3.0.1",
+    "app-root-path": "2.0.1",
+    "chai": "4.1.2",
+    "chai-as-promised": "7.1.1",
+    "eslint": "4.9.0",
+    "mocha": "4.0.1",
+    "nyc": "11.2.1",
+    "proxyquire": "1.8.0",
+    "sinon": "4.0.1"
+  },
+  "dependencies": {
+    "bluebird": "3.5.1",
+    "fs-extra": "4.0.2",
+    "klaw": "2.1.0",
+    "yargs": "9.0.1"
+  }
+}
