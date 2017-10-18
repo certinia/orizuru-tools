@@ -1,0 +1,52 @@
+{
+	"name": "test",
+	"version": "0.0.0",
+	"description": "Test",
+	"scripts": {
+		"orizuru": "orizuru",
+		"lint-fix": "eslint src --fix",
+		"pretest": "eslint src",
+		"single-test": "nyc --all=false mocha",
+		"test": "nyc mocha --recursive src/spec"
+	},
+	"main": "src/lib/index.js",
+	"repository": {
+		"type": "git",
+		"url": "test"
+	},
+	"keywords": [],
+	"author": "FinancialForce.com",
+	"license": "ISC",
+	"dependencies": {
+
+	},
+	"devDependencies": {
+		"@financialforcedev/orizuru-tools": "^1.0.0",
+		"chai": "4.1.1",
+		"mocha": "3.5.0",
+		"nyc": "11.1.0",
+		"sinon": "3.2.1"
+	},
+	"engines": {
+		"node": "6.11.2"
+	},
+	"nyc": {
+		"check-coverage": true,
+		"per-file": true,
+		"lines": 100,
+		"statements": 100,
+		"functions": 100,
+		"branches": 100,
+		"include": [
+			"src"
+		],
+		"reporter": [
+			"lcov",
+			"html",
+			"text",
+			"text-summary"
+		],
+		"cache": true,
+		"all": true
+	}
+}
