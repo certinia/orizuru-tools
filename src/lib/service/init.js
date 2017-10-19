@@ -27,14 +27,16 @@
 'use strict';
 
 const
-	createPackageJson = require('./init/createPackageJson').createPackageJson,
+	createPackageJson = require('./init/createPackageJson'),
+	copyResources = require('./init/copyResources'),
 	{ logStart, logFinish, logError } = require('../util/logger');
 
 class Init {
 
 	static init(options) {
 		return Promise.resolve(logStart('Building new project'))
-			.then(createPackageJson)
+			.then(createPackageJson.createPackageJson)
+			.then(copyResources.copyResources)
 			.then(() => logFinish('Built project'))
 			.catch(logError);
 	}
