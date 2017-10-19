@@ -145,7 +145,7 @@ exports.devDependencies = {
 	"sinon": "3.2.1"
 }
 
-// overrode scrupts
+// overrode scripts
 exports.scripts = {
 	"lint-fix": "eslint src --fix",
 	"pretest": "eslint src",
