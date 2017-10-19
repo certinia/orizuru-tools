@@ -27,22 +27,15 @@
 'use strict';
 
 const
-	initFunctions = require('./init/initFunctions'),
+	createPackageJson = require('./init/createPackageJson').createPackageJson,
 	{ logStart, logFinish, logError } = require('../util/logger');
 
 class Init {
 
 	static init(options) {
 		return Promise.resolve(logStart('Building new project'))
-			/*.then(initFunctions.askQuestions)
-			.then(initFunctions.copyResources)
-			.then(initFunctions.walkResources)
-			.then(initFunctions.filterOutDirectories)
-			.then(initFunctions.readFiles)
-			.then(initFunctions.replaceTokensWithAnswers)
-			.then(initFunctions.saveFiles)
-			.then(() => logFinish('Built project'))*/
-			.then(initFunctions.test)
+			.then(createPackageJson)
+			.then(() => logFinish('Built project'))
 			.catch(logError);
 	}
 

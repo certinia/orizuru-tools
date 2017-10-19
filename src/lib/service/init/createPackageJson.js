@@ -27,24 +27,24 @@
 'use strict';
 
 const
-	_ = require('lodash'),
+	initPackageJson = require('init-package-json'),
+	path = require('path'),
+	CWD = process.cwd(),
 
-	validateNotEmpty = result => {
-		if (_.isEmpty(result)) {
-			return 'You must provide a value.';
-		}
-		return true;
-	},
+	CONFIG_FILE_PATH = path.join(__dirname, 'createPackageJson', '.init-package-json.config.js'),
 
-	validateHexColor = result => {
-		const regex = /^[A-F0-9]{6}$/;
-		if (result && result.match(regex)) {
-			return true;
-		}
-		return 'You must provide a valid HEX color, e.g. FF0000.';
+	createPackageJson = config => {
+		return new Promise((resolve, reject) => {
+			initPackageJson(CWD, CONFIG_FILE_PATH, (err) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(config);
+				}
+			});
+		});
 	};
 
 module.exports = {
-	validateNotEmpty,
-	validateHexColor
+	createPackageJson
 };
