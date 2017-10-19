@@ -34,10 +34,11 @@ const
 class Init {
 
 	static init(options) {
-		return Promise.resolve(logStart('Building new project'))
+		return Promise.resolve()
+			.then(logStart('Building new project'))
 			.then(createPackageJson.createPackageJson)
 			.then(copyResources.copyResources)
-			.then(() => logFinish('Built project'))
+			.then(logFinish('Built project'))
 			.catch(logError);
 	}
 

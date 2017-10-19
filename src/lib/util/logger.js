@@ -58,16 +58,18 @@ const
 		log(NEW_LINE + message);
 	},
 
-	logStart = (message) => {
+	logStart = message => config => {
 		logLns(message);
+		return config;
 	},
 
 	logError = (error) => {
 		logLn(error.message);
 	},
 
-	logFinish = (message) => {
+	logFinish = message => config => {
 		logLn(message);
+		return config;
 	};
 
 module.exports = {

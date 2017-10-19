@@ -34,10 +34,10 @@ const
 	RESOURCE_FOLDER = path.resolve(__dirname, '../../../../template'),
 	CWD = process.cwd(),
 
-	copyResources = ({ answers }) => {
+	copyResources = config => {
 		log('Copying resources to ' + CWD);
 		return fs.copy(RESOURCE_FOLDER, CWD)
-			.then(() => ({ answers }));
+			.then(() => config);
 	};
 
 module.exports = {
