@@ -34,14 +34,15 @@ class Init {
 
 	static init(options) {
 		return Promise.resolve(logStart('Building new project'))
-			.then(initFunctions.askQuestions)
+			/*.then(initFunctions.askQuestions)
 			.then(initFunctions.copyResources)
 			.then(initFunctions.walkResources)
 			.then(initFunctions.filterOutDirectories)
 			.then(initFunctions.readFiles)
 			.then(initFunctions.replaceTokensWithAnswers)
 			.then(initFunctions.saveFiles)
-			.then(() => logFinish('Built project'))
+			.then(() => logFinish('Built project'))*/
+			.then(initFunctions.test)
 			.catch(logError);
 	}
 

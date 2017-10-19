@@ -3,7 +3,6 @@
 	"version": "0.0.0",
 	"description": "{{npm-module-description}}",
 	"scripts": {
-		"orizuru": "orizuru",
 		"lint-fix": "eslint src --fix",
 		"pretest": "eslint src",
 		"single-test": "nyc --all=false mocha",

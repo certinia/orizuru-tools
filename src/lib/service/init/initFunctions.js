@@ -110,6 +110,16 @@ const
 		log('Finalizing');
 		return Promise.map(files, file => fs.writeFile(file.path, file.content, UTF8))
 			.then(_.noop);
+	},
+
+	test = () => {
+		const
+			ini = require('init-package-json'),
+			pth = path.join(__dirname, '.init-package-json.config.js');
+		console.log(pth);
+		ini(CWD, pth, (err) => {
+			console.log(err);
+		});
 	};
 
 module.exports = {
@@ -119,5 +129,6 @@ module.exports = {
 	filterOutDirectories: config => filterOutDirectories(config),
 	readFiles: config => readFiles(config),
 	replaceTokensWithAnswers: config => replaceTokensWithAnswers(config),
-	saveFiles: config => saveFiles(config)
+	saveFiles: config => saveFiles(config),
+	test: config => test(config)
 };
