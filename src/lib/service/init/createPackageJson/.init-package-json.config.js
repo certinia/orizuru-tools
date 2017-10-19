@@ -137,6 +137,7 @@ exports.dependencies = {
 // overrode devDependencies
 exports.devDependencies = {
 	"@financialforcedev/eslint-config": "^3.0.0",
+	"app-root-path": "2.0.1",
 	"chai": "4.1.1",
 	"mocha": "3.5.0",
 	"nyc": "11.1.0",
