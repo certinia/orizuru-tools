@@ -27,9 +27,10 @@
 /*
  * Forked from https://github.com/npm/init-package-json/blob/master/default-input.js
  * 
- * Sadly, due to some short sighted architectural design, we can't simply require this file from
- * init-package-json, and override its exported members. It seems to reference vars that don't exist,
- * leading me to believe that the code here is wrapped in something before it is ran.
+ * We can't simply require this file from init-package-json, and override its exported members. 
+ * It seems to reference vars that don't exist, leading me to believe that the code here is wrapped in something before it is ran.
+ * 
+ * Therefore, we have to copy the entire file over and override the bits we want to change.
  */
 
 var fs = require('fs')
