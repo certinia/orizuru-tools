@@ -43,9 +43,9 @@ const
 
 chai.use(chaiAsPromised);
 
-describe('service/init/initFunctions.js', () => {
+describe('service/init/copyResources.js', () => {
 
-	let mocks, initFunctions;
+	let mocks, copyResources;
 
 	beforeEach(() => {
 
@@ -56,7 +56,7 @@ describe('service/init/initFunctions.js', () => {
 
 		mocks.logger.log = sandbox.stub();
 
-		initFunctions = proxyquire(root + '/src/lib/service/init/initFunctions', {
+		copyResources = proxyquire(root + '/src/lib/service/init/copyResources', {
 			'../../util/logger': mocks.logger
 		});
 
@@ -68,7 +68,7 @@ describe('service/init/initFunctions.js', () => {
 
 		it('should call fs-extra copy with the correct arguments, and return input', () => {
 
-			return expect(initFunctions.copyResources({ answers: 'test' })).to.eventually.eql({
+			return expect(copyResources.copyResources({ answers: 'test' })).to.eventually.eql({
 				answers: 'test'
 			}).then(() => {
 				calledOnce(mocks.logger.log);
