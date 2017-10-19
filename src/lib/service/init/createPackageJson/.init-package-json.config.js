@@ -136,7 +136,7 @@ exports.dependencies = {
 
 // overrode devDependencies
 exports.devDependencies = {
-	"@financialforcedev/orizuru-tools": "^1.0.0",
+	"@financialforcedev/eslint-config": "^3.0.0",
 	"chai": "4.1.1",
 	"mocha": "3.5.0",
 	"nyc": "11.1.0",
