@@ -27,32 +27,19 @@
 'use strict';
 
 const
-	checkboxField = (message, prop, validate, choices) => ({
-		type: 'checkbox',
-		message,
-		name: prop,
-		choices,
-		validate
-	}),
+	path = require('path'),
+	fs = require('fs-extra'),
+	{ log } = require('../../util/logger'),
 
-	inputField = (message, prop, validate, defaultValue) => ({
-		type: 'input',
-		message,
-		name: prop,
-		validate,
-		['default']: defaultValue
-	}),
+	RESOURCE_FOLDER = path.resolve(__dirname, '../../../../template'),
+	CWD = process.cwd(),
 
-	passwordField = (message, prop, validate, defaultValue) => ({
-		type: 'password',
-		message,
-		name: prop,
-		validate,
-		['default']: defaultValue
-	});
+	copyResources = ({ answers }) => {
+		log('Copying resources to ' + CWD);
+		return fs.copy(RESOURCE_FOLDER, CWD)
+			.then(() => ({ answers }));
+	};
 
 module.exports = {
-	checkboxField,
-	inputField,
-	passwordField
+	copyResources: config => copyResources(config)
 };

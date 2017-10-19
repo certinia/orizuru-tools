@@ -32,8 +32,5 @@
 		"command": "npm test"
 	}],
 	"runCurrentTest.run": "npm run single-test -- ${relativeTestPath}",
-	"terminal.integrated.scrollback": 10000,
-	"workbench.colorCustomizations": {
-		"activityBar.foreground": "#E6E6E6"
-	}
+	"terminal.integrated.scrollback": 10000
 }

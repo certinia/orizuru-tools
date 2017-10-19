@@ -23,28 +23,62 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
-
 'use strict';
 
 const
-	_ = require('lodash'),
+	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
+	root = require('app-root-path'),
+	sinon = require('sinon'),
+	proxyquire = require('proxyquire'),
 
-	validateNotEmpty = result => {
-		if (_.isEmpty(result)) {
-			return 'You must provide a value.';
-		}
-		return true;
-	},
+	fs = require('fs-extra'),
 
-	validateHexColor = result => {
-		const regex = /^[A-F0-9]{6}$/;
-		if (result && result.match(regex)) {
-			return true;
-		}
-		return 'You must provide a valid HEX color, e.g. FF0000.';
-	};
+	expect = chai.expect,
 
-module.exports = {
-	validateNotEmpty,
-	validateHexColor
-};
+	calledOnce = sinon.assert.calledOnce,
+	calledWith = sinon.assert.calledWith,
+
+	sandbox = sinon.sandbox.create();
+
+chai.use(chaiAsPromised);
+
+describe('service/init/initFunctions.js', () => {
+
+	let mocks, initFunctions;
+
+	beforeEach(() => {
+
+		mocks = {
+			logger: sandbox.stub(),
+			fsCopy: sandbox.stub(fs, 'copy').resolves()
+		};
+
+		mocks.logger.log = sandbox.stub();
+
+		initFunctions = proxyquire(root + '/src/lib/service/init/initFunctions', {
+			'../../util/logger': mocks.logger
+		});
+
+	});
+
+	afterEach(() => sandbox.restore());
+
+	describe('copyResources', () => {
+
+		it('should call fs-extra copy with the correct arguments, and return input', () => {
+
+			return expect(initFunctions.copyResources({ answers: 'test' })).to.eventually.eql({
+				answers: 'test'
+			}).then(() => {
+				calledOnce(mocks.logger.log);
+				calledWith(mocks.logger.log, 'Copying resources to ' + process.cwd());
+				calledOnce(mocks.fsCopy);
+				calledWith(mocks.fsCopy, root + '/template', process.cwd());
+			});
+
+		});
+
+	});
+
+});
