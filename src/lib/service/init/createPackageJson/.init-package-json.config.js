@@ -132,6 +132,10 @@ exports.directories = function (cb) {
 
 // overrode dependencies
 exports.dependencies = {
+	"@financialforcedev/orizuru": "^5.0.2",
+	"@financialforcedev/orizuru-transport-rabbitmq": "^3.0.3",
+	"debug-plus": "1.2.2",
+	"klaw-sync": "3.0.0"
 
 }
 
