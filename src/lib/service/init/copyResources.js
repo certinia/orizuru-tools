@@ -23,60 +23,23 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
+
 'use strict';
 
 const
-	ui = require('cliui'),
+	path = require('path'),
+	fs = require('fs-extra'),
+	{ log } = require('../../util/logger'),
 
-	EMPTY = '',
-	NEW_LINE = '\n',
+	RESOURCE_FOLDER = path.resolve(__dirname, '../../../../template'),
+	CWD = process.cwd(),
 
-	addOutput = (output, message) => {
-
-		if (Array.isArray(message)) {
-			message.forEach((line) => {
-				addOutput(output, line);
-			});
-		} else {
-			output.div(message);
-		}
-
-	},
-
-	log = (message) => {
-		const output = ui({ width: 200 });
-		addOutput(output, message);
-		output.div(EMPTY);
-		process.stdout.write(output.toString());
-	},
-
-	logLn = (message) => {
-		log(message + NEW_LINE);
-	},
-
-	logLns = (message) => {
-		log(NEW_LINE + message);
-	},
-
-	logStart = message => config => {
-		logLns(message);
-		return config;
-	},
-
-	logError = (error) => {
-		logLn(error.message);
-	},
-
-	logFinish = message => config => {
-		logLn(message);
-		return config;
+	copyResources = config => {
+		log('Copying resources to ' + CWD);
+		return fs.copy(RESOURCE_FOLDER, CWD)
+			.then(() => config);
 	};
 
 module.exports = {
-	log,
-	logLn,
-	logLns,
-	logError,
-	logStart,
-	logFinish
+	copyResources: config => copyResources(config)
 };

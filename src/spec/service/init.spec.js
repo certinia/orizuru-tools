@@ -32,13 +32,13 @@ const
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 
-	initFunctions = require('../../lib/service/init/initFunctions'),
+	createPackageJson = require('../../lib/service/init/createPackageJson'),
+	copyResources = require('../../lib/service/init/copyResources'),
 
 	expect = chai.expect,
 
 	calledOnce = sinon.assert.calledOnce,
 	calledWith = sinon.assert.calledWith,
-	notCalled = sinon.assert.notCalled,
 
 	sandbox = sinon.sandbox.create();
 
@@ -51,13 +51,8 @@ describe('service/init.js', () => {
 	beforeEach(() => {
 		mocks = {
 			logger: sandbox.stub(),
-			askQuestions: sandbox.stub(initFunctions, 'askQuestions').resolves('test1'),
-			copyResources: sandbox.stub(initFunctions, 'copyResources').resolves('test2'),
-			walkResources: sandbox.stub(initFunctions, 'walkResources').resolves('test3'),
-			filterOutDirectories: sandbox.stub(initFunctions, 'filterOutDirectories').resolves('test4'),
-			readFiles: sandbox.stub(initFunctions, 'readFiles').resolves('test5'),
-			replaceTokensWithAnswers: sandbox.stub(initFunctions, 'replaceTokensWithAnswers').resolves('test6'),
-			saveFiles: sandbox.stub(initFunctions, 'saveFiles').resolves('test7')
+			createPackageJson: sandbox.stub(createPackageJson, 'createPackageJson').resolves('test1'),
+			copyResources: sandbox.stub(copyResources, 'copyResources').resolves('test2')
 		};
 
 		mocks.logger.logStart = sandbox.stub();
@@ -82,22 +77,10 @@ describe('service/init.js', () => {
 				.then(() => {
 					calledOnce(mocks.logger.logStart);
 					calledWith(mocks.logger.logStart, 'Building new project');
-					calledOnce(mocks.askQuestions);
+					calledOnce(mocks.createPackageJson);
+					calledWith(mocks.createPackageJson, undefined);
 					calledOnce(mocks.copyResources);
 					calledWith(mocks.copyResources, 'test1');
-					calledOnce(mocks.walkResources);
-					calledWith(mocks.walkResources, 'test2');
-					calledOnce(mocks.filterOutDirectories);
-					calledWith(mocks.filterOutDirectories, 'test3');
-					calledOnce(mocks.readFiles);
-					calledWith(mocks.readFiles, 'test4');
-					calledOnce(mocks.replaceTokensWithAnswers);
-					calledWith(mocks.replaceTokensWithAnswers, 'test5');
-					calledOnce(mocks.saveFiles);
-					calledWith(mocks.saveFiles, 'test6');
-					calledOnce(mocks.logger.logFinish);
-					calledWith(mocks.logger.logFinish, 'Built project');
-					notCalled(mocks.logger.logError);
 				});
 
 		});
@@ -108,7 +91,7 @@ describe('service/init.js', () => {
 			const
 				expectedError = new Error('errorTest');
 
-			mocks.askQuestions.rejects(expectedError);
+			mocks.createPackageJson.rejects(expectedError);
 
 			// when/then
 			return expect(InitService.init())

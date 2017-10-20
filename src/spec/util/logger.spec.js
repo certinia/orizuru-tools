@@ -119,7 +119,7 @@ describe('util/logger.js', () => {
 				expectedMessage = message + '\n\n';
 
 			// when
-			logger.logFinish(message);
+			logger.logFinish(message)();
 
 			// then
 			calledOnce(process.stdout.write);
@@ -179,7 +179,7 @@ describe('util/logger.js', () => {
 				expectedMessage = '\n' + message + '\n';
 
 			// when
-			logger.logStart(message);
+			logger.logStart(message)();
 
 			// then
 			calledOnce(process.stdout.write);

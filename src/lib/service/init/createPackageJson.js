@@ -27,32 +27,24 @@
 'use strict';
 
 const
-	checkboxField = (message, prop, validate, choices) => ({
-		type: 'checkbox',
-		message,
-		name: prop,
-		choices,
-		validate
-	}),
+	initPackageJson = require('init-package-json'),
+	path = require('path'),
+	CWD = process.cwd(),
 
-	inputField = (message, prop, validate, defaultValue) => ({
-		type: 'input',
-		message,
-		name: prop,
-		validate,
-		['default']: defaultValue
-	}),
+	CONFIG_FILE_PATH = path.join(__dirname, 'createPackageJson', '.init-package-json.config.js'),
 
-	passwordField = (message, prop, validate, defaultValue) => ({
-		type: 'password',
-		message,
-		name: prop,
-		validate,
-		['default']: defaultValue
-	});
+	createPackageJson = config => {
+		return new Promise((resolve, reject) => {
+			initPackageJson(CWD, CONFIG_FILE_PATH, (err) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(config);
+				}
+			});
+		});
+	};
 
 module.exports = {
-	checkboxField,
-	inputField,
-	passwordField
+	createPackageJson
 };

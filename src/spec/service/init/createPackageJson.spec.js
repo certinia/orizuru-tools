@@ -23,64 +23,65 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
-
 'use strict';
+
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
+	root = require('app-root-path'),
+	sinon = require('sinon'),
+	proxyquire = require('proxyquire'),
 
-	questions = require(root + '/src/lib/util/questions.js'),
+	expect = chai.expect,
 
-	expect = chai.expect;
+	calledOnce = sinon.assert.calledOnce,
+	calledWith = sinon.assert.calledWith,
 
-describe('util/questions.js', () => {
+	sandbox = sinon.sandbox.create();
 
-	describe('checkboxField', () => {
+chai.use(chaiAsPromised);
 
-		it('should return the config for an input field', () => {
+describe('service/init/createPackageJson.js', () => {
 
-			// when/then
-			expect(questions.checkboxField('a', 'b', 'c', 'd')).to.eql({
-				type: 'checkbox',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
+	let mocks, createPackageJson;
 
+	beforeEach(() => {
+
+		mocks = {
+			initPackageJson: sandbox.stub()
+		};
+
+		createPackageJson = proxyquire(root + '/src/lib/service/init/createPackageJson', {
+			'init-package-json': mocks.initPackageJson
 		});
 
 	});
 
-	describe('inputField', () => {
+	afterEach(() => sandbox.restore());
 
-		it('should return the config for an input field', () => {
+	describe('createPackageJson', () => {
 
-			// when/then
-			expect(questions.inputField('a', 'b', 'c', 'd')).to.eql({
-				type: 'input',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
+		it('should call initPackageJson and resolve with input if initPackageJson callback has no error', () => {
+
+			mocks.initPackageJson.callsArgWith(2, null);
+
+			return expect(createPackageJson.createPackageJson({ test: 'test' })).to.eventually.eql({ test: 'test' })
+				.then(() => {
+					calledOnce(mocks.initPackageJson);
+					calledWith(mocks.initPackageJson, process.cwd(), root + '/src/lib/service/init/createPackageJson/.init-package-json.config.js', sinon.match.func);
+				});
 
 		});
 
-	});
+		it('should call initPackageJson and reject with error if initPackageJson callback has an error', () => {
 
-	describe('passwordField', () => {
+			mocks.initPackageJson.callsArgWith(2, new Error('err'));
 
-		it('should return the config for an password field', () => {
-
-			// when/then
-			expect(questions.passwordField('a', 'b', 'c', 'd')).to.eql({
-				type: 'password',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
+			return expect(createPackageJson.createPackageJson({ test: 'test' })).to.eventually.be.rejectedWith('err')
+				.then(() => {
+					calledOnce(mocks.initPackageJson);
+					calledWith(mocks.initPackageJson, process.cwd(), root + '/src/lib/service/init/createPackageJson/.init-package-json.config.js', sinon.match.func);
+				});
 
 		});
 
