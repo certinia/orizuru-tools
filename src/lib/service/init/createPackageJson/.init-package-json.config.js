@@ -88,9 +88,6 @@ if (!package.description) {
 	exports.description = yes ? '' : prompt('description')
 }
 
-// overrode main
-exports.main = 'src/lib/index.js'
-
 if (!package.bin) {
 	exports.bin = function (cb) {
 		fs.readdir(path.resolve(dirname, 'bin'), function (er, d) {
