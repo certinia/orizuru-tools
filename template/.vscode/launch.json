@@ -9,7 +9,17 @@
 		],
 		"env": {
 			"DEBUG": "*"
-		},
+		}
+	}, {
+		"type": "node",
+		"request": "launch",
+		"name": "Debug worker dyno",
+		"runtimeArgs": [
+			"src/lib/boilerplate/worker.js"
+		],
+		"env": {
+			"DEBUG": "*"
+		}
 	}, {
 		"type": "node",
 		"request": "launch",
