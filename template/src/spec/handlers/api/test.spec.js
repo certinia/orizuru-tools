@@ -26,15 +26,22 @@
 
 'use strict';
 
-/*const
+const
 	root = require('app-root-path'),
 
-	chai = require('chai'),
-	expect = chai.expect;*/
+	testHandler = require(root + '/src/lib/handlers/api/test');
 
-describe('index.js', () => {
+describe('handlers/api/test.js', () => {
 
-	it('should return an empty object', () => {
+	it('should return a function that does nothing', () => {
+
+		// given - when - then
+		testHandler({
+			message: {
+				message: 'test'
+			},
+			context: {}
+		});
 
 	});
 
