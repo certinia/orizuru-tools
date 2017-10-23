@@ -88,9 +88,6 @@ if (!package.description) {
 	exports.description = yes ? '' : prompt('description')
 }
 
-// overrode main
-exports.main = 'src/lib/index.js'
-
 if (!package.bin) {
 	exports.bin = function (cb) {
 		fs.readdir(path.resolve(dirname, 'bin'), function (er, d) {
@@ -132,6 +129,10 @@ exports.directories = function (cb) {
 
 // overrode dependencies
 exports.dependencies = {
+	"@financialforcedev/orizuru": "^5.0.2",
+	"@financialforcedev/orizuru-transport-rabbitmq": "^3.0.3",
+	"debug-plus": "1.2.2",
+	"klaw-sync": "3.0.0"
 
 }
 
@@ -140,6 +141,7 @@ exports.devDependencies = {
 	"@financialforcedev/eslint-config": "^3.0.0",
 	"app-root-path": "2.0.1",
 	"chai": "4.1.1",
+	"lodash": "4.17.4",
 	"mocha": "3.5.0",
 	"nyc": "11.1.0",
 	"sinon": "3.2.1"

@@ -3,6 +3,26 @@
 	"configurations": [{
 		"type": "node",
 		"request": "launch",
+		"name": "Debug web dyno",
+		"runtimeArgs": [
+			"src/lib/boilerplate/web.js"
+		],
+		"env": {
+			"DEBUG": "*"
+		}
+	}, {
+		"type": "node",
+		"request": "launch",
+		"name": "Debug worker dyno",
+		"runtimeArgs": [
+			"src/lib/boilerplate/worker.js"
+		],
+		"env": {
+			"DEBUG": "*"
+		}
+	}, {
+		"type": "node",
+		"request": "launch",
 		"name": "Debug Tests",
 		"program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
 		"args": [
@@ -14,6 +34,9 @@
 			"--recursive",
 			"${workspaceRoot}/src/spec"
 		],
+		"env": {
+			"DEBUG": "*"
+		},
 		"internalConsoleOptions": "openOnSessionStart"
 	}]
 }
