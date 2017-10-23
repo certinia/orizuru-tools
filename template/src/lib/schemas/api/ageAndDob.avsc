@@ -1,6 +1,6 @@
 {
-	"namespace": "com.yournamespace.test",
-	"name": "Test",
+	"namespace": "com.yournamespace.ageAndDob",
+	"name": "AgeAndDob",
 	"type": "record",
 	"fields": [{
 		"name": "age",
