@@ -29,7 +29,7 @@
 const debug = require('debug-plus')('financialforcedev:orizuru~tools:example:handlers:api:test');
 
 module.exports = ({ message, context }) => {
-	debug.log('Handled event for schema \'api/ageAndDob\'...');
+	debug.log('Handled event for schema \'api/account\'...');
 	debug.log('Context:');
 	debug.log(JSON.stringify(context));
 	debug.log('Message:');

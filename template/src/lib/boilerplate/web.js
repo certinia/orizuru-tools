@@ -40,8 +40,19 @@ const
 	{ Server } = require('@financialforcedev/orizuru'),
 	serverInstance = new Server(transport),
 
+	// get the auth 
+	auth = require('@financialforcedev/orizuru-auth').middleware,
+
 	// get all files in our 'schemas' directory
-	schemas = require('./shared/schemas');
+	schemas = require('./shared/schemas'),
+
+	// define the environment for authentication
+	authenticationEnv = {
+		jwtSigningKey: process.env.JWT_SIGNING_KEY,
+		openidClientId: process.env.OPENID_CLIENT_ID,
+		openidHTTPTimeout: parseInt(process.env.OPENID_HTTP_TIMEOUT, 10),
+		openidIssuerURI: process.env.OPENID_ISSUER_URI
+	};
 
 // function to add a route input object to an object if needed
 function addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, path) {
@@ -49,7 +60,7 @@ function addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, path) 
 		sharedPathToAddRouteInput[path] = {
 			schemaNameToDefinition: {},
 			apiEndpoint: path,
-			middlewares: []
+			middlewares: [auth.tokenValidator(authenticationEnv), auth.grantChecker(authenticationEnv)]
 		};
 	}
 }
