@@ -33,14 +33,16 @@ function addPathToUnionObjectIfRequired(path) {
 
 // map schemas on to the union
 _.each(schemas, schema => {
-	addPathToUnionObjectIfRequired(schema.sharedPath + '/' + schema.fileName);
-	schemaAndHandlersFilePathUnion[schema.sharedPath].schema = JSON.parse(fs.readFileSync(schema.path));
+	const fullyQualifiedName = schema.sharedPath + '/' + schema.fileName;
+	addPathToUnionObjectIfRequired(fullyQualifiedName);
+	schemaAndHandlersFilePathUnion[fullyQualifiedName].schema = JSON.parse(fs.readFileSync(schema.path));
 });
 
 // map handlers on to the union
 _.each(handlers, handler => {
-	addPathToUnionObjectIfRequired(handler.sharedPath + '/' + handler.fileName);
-	schemaAndHandlersFilePathUnion[handler.sharedPath].handler = require(handler.path);
+	const fullyQualifiedName = handler.sharedPath + '/' + handler.fileName;
+	addPathToUnionObjectIfRequired(fullyQualifiedName);
+	schemaAndHandlersFilePathUnion[fullyQualifiedName].handler = require(handler.path);
 });
 
 // map tuples to handler handle promises and catch any errors
@@ -55,8 +57,8 @@ Promise.all(_.map(schemaAndHandlersFilePathUnion, (schemaHandlerTuple, sharedPat
 	}
 	return handlerInstance.handle({
 		schema: schemaHandlerTuple.schema,
-		callback: schemaHandlerTuple.handle
+		callback: schemaHandlerTuple.handler
 	});
 })).catch(err => {
-	debug.error('Failed to initialise handlers: \'%s\'', err.message);
+	debug.error('Failed to initialise handlers: ' + err.message); //%s doesn't work for debug.error for some reason
 });

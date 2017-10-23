@@ -29,20 +29,18 @@ function addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, path) 
 }
 
 // add routes for each shared path to the server
-_(schemas)
-	.reduce((sharedPathToAddRouteInput, schema) => {
-		addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, schema.sharedPath);
-		debug.log('Found schema \'%s\' at \'%s\'', schema.fileName, schema.sharedPath);
-		sharedPathToAddRouteInput[schema.sharedPath].schemaNameToDefinition[schema.fileName] = JSON.parse(fs.readFileSync(schema.path));
-		return sharedPathToAddRouteInput;
-	}, {})
-	.each(routeInfo => {
-		debug.log('Adding route(s) for \'%s\'', routeInfo.apiEndpoint);
-		_.each(routeInfo.schemaNameToDefinition, (value, key) => {
-			debug.log('Adding route \'%s\'', key);
-		});
-		serverInstance.addRoute(routeInfo);
+_.each(_.reduce(schemas, (sharedPathToAddRouteInput, schema) => {
+	addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, schema.sharedPath);
+	debug.log('Found schema \'%s\' at \'%s\'', schema.fileName, schema.sharedPath);
+	sharedPathToAddRouteInput[schema.sharedPath].schemaNameToDefinition[schema.fileName] = JSON.parse(fs.readFileSync(schema.path));
+	return sharedPathToAddRouteInput;
+}, {}), routeInfo => {
+	debug.log('Adding route(s) for \'%s\'', routeInfo.apiEndpoint);
+	_.each(routeInfo.schemaNameToDefinition, (value, key) => {
+		debug.log('Adding route \'%s\'', key);
 	});
+	serverInstance.addRoute(routeInfo);
+});
 
 // get the express server and listen to a port
 serverInstance
