@@ -31,7 +31,7 @@ const
 	// get utils
 	_ = require('lodash'),
 	debug = require('debug-plus')('financialforcedev:orizuru~tools:example:boilerplate:web'),
-	fs = require('fs'),
+	{ readSchema } = require('./shared/read'),
 
 	// define transport
 	transport = require('./shared/transport'),
@@ -41,7 +41,7 @@ const
 	serverInstance = new Server(transport),
 
 	// get all files in our 'schemas' directory
-	schemas = require('./shared/schemas');
+	schemas = require('./shared/schemas').get();
 
 // function to add a route input object to an object if needed
 function addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, path) {
@@ -58,7 +58,7 @@ function addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, path) 
 _.each(_.reduce(schemas, (sharedPathToAddRouteInput, schema) => {
 	addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, schema.sharedPath);
 	debug.log('Found schema \'%s\' at \'%s\'', schema.fileName, schema.sharedPath);
-	sharedPathToAddRouteInput[schema.sharedPath].schemaNameToDefinition[schema.fileName] = JSON.parse(fs.readFileSync(schema.path));
+	sharedPathToAddRouteInput[schema.sharedPath].schemaNameToDefinition[schema.fileName] = readSchema(schema.path);
 	return sharedPathToAddRouteInput;
 }, {}), routeInfo => {
 	debug.log('Adding route(s) for \'%s\'', routeInfo.apiEndpoint);

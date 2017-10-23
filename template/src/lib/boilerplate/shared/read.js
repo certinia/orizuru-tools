@@ -26,23 +26,9 @@
 
 'use strict';
 
-const
-	root = require('app-root-path'),
+const fs = require('fs');
 
-	testHandler = require(root + '/src/lib/handlers/api/test');
-
-describe('handlers/api/test.js', () => {
-
-	it('should return a function that does nothing', () => {
-
-		// given - when - then
-		testHandler({
-			message: {
-				message: 'test'
-			},
-			context: {}
-		});
-
-	});
-
-});
+module.exports = {
+	readSchema: path => JSON.parse(fs.readFileSync(path)),
+	readHandler: path => require(path)
+};

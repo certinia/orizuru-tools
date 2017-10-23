@@ -35,7 +35,8 @@ const
 	sandbox = sinon.sandbox.create(),
 	restore = sandbox.restore.bind(sandbox),
 
-	fs = require('fs'),
+	schemas = require(root + '/src/lib/boilerplate/shared/schemas'),
+	read = require(root + '/src/lib/boilerplate/shared/read'),
 	defaultTransport = require(root + '/src/lib/boilerplate/shared/transport'),
 	orizuru = require('@financialforcedev/orizuru');
 
@@ -53,6 +54,16 @@ describe('boilerplate/web.js', () => {
 			this.addRoute = addRouteSpy;
 			this.getServer = getServerStub;
 		});
+		sandbox.stub(read, 'readSchema').returns({ mock: true });
+		sandbox.stub(schemas, 'get').returns([{
+			path: 'api/test1.avsc',
+			sharedPath: '/api',
+			fileName: 'test1'
+		}, {
+			path: 'api/test2.avsc',
+			sharedPath: '/api',
+			fileName: 'test2'
+		}]);
 		orizuru.Server.emitter = {
 			on: sandbox.stub()
 		};
@@ -73,8 +84,8 @@ describe('boilerplate/web.js', () => {
 		calledOnce(addRouteSpy);
 		calledWith(addRouteSpy, {
 			schemaNameToDefinition: {
-				account: JSON.parse(fs.readFileSync(root + '/src/lib/schemas/api/account.avsc')),
-				test: JSON.parse(fs.readFileSync(root + '/src/lib/schemas/api/test.avsc'))
+				test1: { mock: true },
+				test2: { mock: true }
 			},
 			apiEndpoint: '/api',
 			middlewares: []

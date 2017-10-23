@@ -31,7 +31,7 @@ const
 	// get utils
 	_ = require('lodash'),
 	debug = require('debug-plus')('financialforcedev:orizuru~tools:example:boilerplate:worker'),
-	fs = require('fs'),
+	{ readSchema, readHandler } = require('./shared/read'),
 
 	// define transport
 	transport = require('./shared/transport'),
@@ -41,8 +41,8 @@ const
 	handlerInstance = new Handler(transport),
 
 	// get all files in our 'schemas' and 'handlers' directories
-	schemas = require('./shared/schemas'),
-	handlers = require('./shared/handlers'),
+	schemas = require('./shared/schemas').get(),
+	handlers = require('./shared/handlers').get(),
 
 	// create an object to contain the union of schema and handler paths
 	schemaAndHandlersFilePathUnion = {};
@@ -61,14 +61,14 @@ function addPathToUnionObjectIfRequired(path) {
 _.each(schemas, schema => {
 	const fullyQualifiedName = schema.sharedPath + '/' + schema.fileName;
 	addPathToUnionObjectIfRequired(fullyQualifiedName);
-	schemaAndHandlersFilePathUnion[fullyQualifiedName].schema = JSON.parse(fs.readFileSync(schema.path));
+	schemaAndHandlersFilePathUnion[fullyQualifiedName].schema = readSchema(schema.path);
 });
 
 // map handlers on to the union
 _.each(handlers, handler => {
 	const fullyQualifiedName = handler.sharedPath + '/' + handler.fileName;
 	addPathToUnionObjectIfRequired(fullyQualifiedName);
-	schemaAndHandlersFilePathUnion[fullyQualifiedName].handler = require(handler.path);
+	schemaAndHandlersFilePathUnion[fullyQualifiedName].handler = readHandler(handler.path);
 });
 
 // debug out errors and info
