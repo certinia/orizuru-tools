@@ -80,12 +80,9 @@ _.each(_.reduce(schemas, (sharedPathToAddRouteInput, schema) => {
 });
 
 // debug out errors and info
-Server.emitter.on(Server.emitter.ERROR, error => {
-	debug.error('Server error: ' + error);
-});
-Server.emitter.on(Server.emitter.INFO, info => {
-	debug.log('Server info: ' + info);
-});
+Server.emitter.on(Server.emitter.ERROR, debug.error);
+auth.emitter.on('denied', debug.error);
+Server.emitter.on(Server.emitter.INFO, debug.log);
 
 // get the express server and listen to a port
 serverInstance

@@ -72,12 +72,8 @@ _.each(handlers, handler => {
 });
 
 // debug out errors and info
-Handler.emitter.on(Handler.emitter.ERROR, error => {
-	debug.error('Handler error: ' + error);
-});
-Handler.emitter.on(Handler.emitter.INFO, info => {
-	debug.log('Handler info: ' + info);
-});
+Handler.emitter.on(Handler.emitter.ERROR, debug.error);
+Handler.emitter.on(Handler.emitter.INFO, debug.log);
 
 // map tuples to handler handle promises and swallow any errors
 Promise.all(_.map(schemaAndHandlersFilePathUnion, (schemaHandlerTuple, sharedPath) => {
