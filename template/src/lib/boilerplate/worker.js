@@ -89,4 +89,4 @@ Promise.all(_.map(schemaAndHandlersFilePathUnion, (schemaHandlerTuple, sharedPat
 		schema: schemaHandlerTuple.schema,
 		callback: schemaHandlerTuple.handler
 	});
-})).catch(err => {});
+}));

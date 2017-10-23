@@ -26,6 +26,9 @@
 
 'use strict';
 
+const
+	walk = require('./walk');
+
 module.exports = {
-	get: () => require('./walk').walk('schemas', '.avsc')
+	get: () => walk.walk('schemas', '.avsc')
 };

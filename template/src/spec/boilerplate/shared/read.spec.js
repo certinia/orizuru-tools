@@ -27,8 +27,42 @@
 'use strict';
 
 const
-	walk = require('./walk');
+	root = require('app-root-path'),
 
-module.exports = {
-	get: () => walk.walk('handlers', '.js')
-};
+	{ expect } = require('chai'),
+
+	{ readSchema, readHandler } = require(root + '/src/lib/boilerplate/shared/read');
+
+describe('boilerplate/shared/read.js', () => {
+
+	describe('readSchema', () => {
+
+		it('should read a schema file to json', () => {
+
+			// given - when - then
+			expect(readSchema(root + '/src/lib/schemas/api/account.avsc')).to.eql({
+				namespace: 'com.financialforce.account',
+				name: 'Account',
+				type: 'record',
+				fields: [{
+					name: 'accountId',
+					type: 'string'
+				}]
+			});
+
+		});
+
+	});
+
+	describe('readHandler', () => {
+
+		it('should require a handler file', () => {
+
+			// given - when - then
+			expect(readHandler(root + '/src/lib/handlers/api/account.js')).to.eql(require(root + '/src/lib/handlers/api/account.js'));
+
+		});
+
+	});
+
+});

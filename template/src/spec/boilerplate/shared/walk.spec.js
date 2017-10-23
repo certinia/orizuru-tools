@@ -26,9 +26,8 @@
 
 'use strict';
 
-const
-	walk = require('./walk');
+describe('boilerplate/shared/walk.js', () => {
 
-module.exports = {
-	get: () => walk.walk('handlers', '.js')
-};
+	describe('walk', () => it('should be tested via ./shared/schemas and ./shared/handlers'));
+
+});

@@ -27,8 +27,27 @@
 'use strict';
 
 const
-	walk = require('./walk');
+	root = require('app-root-path'),
 
-module.exports = {
-	get: () => walk.walk('handlers', '.js')
-};
+	{ expect } = require('chai'),
+
+	handlers = require(root + '/src/lib/boilerplate/shared/handlers');
+
+describe('boilerplate/shared/handlers.js', () => {
+
+	describe('get', () => {
+
+		it('should return all handlers in the handlers folder', () => {
+
+			// given - when - then
+			expect(handlers.get()).to.eql([{
+				path: root + '/src/lib/handlers/api/account.js',
+				sharedPath: '/api',
+				fileName: 'account'
+			}]);
+
+		});
+
+	});
+
+});
