@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./walk')('handlers', '.js');
+module.exports = require('./walk').walk('handlers', '.js');

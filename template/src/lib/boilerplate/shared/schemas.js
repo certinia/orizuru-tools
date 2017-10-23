@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./walk')('schemas', '.avsc');
+module.exports = require('./walk').walk('schemas', '.avsc');
