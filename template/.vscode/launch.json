@@ -7,7 +7,9 @@
 		"runtimeArgs": [
 			"src/lib/boilerplate/web.js"
 		],
-		"envFile": "${workspaceRoot}/local.run.properties"
+		"env": {
+			"DEBUG": "*"
+		},
 	}, {
 		"type": "node",
 		"request": "launch",
@@ -22,7 +24,9 @@
 			"--recursive",
 			"${workspaceRoot}/src/spec"
 		],
-		"envFile": "${workspaceRoot}/local.run.properties",
+		"env": {
+			"DEBUG": "*"
+		},
 		"internalConsoleOptions": "openOnSessionStart"
 	}]
 }
