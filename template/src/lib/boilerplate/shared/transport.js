@@ -3,6 +3,6 @@
 module.exports = {
 	transport: require('@financialforcedev/orizuru-transport-rabbitmq'),
 	transportConfig: {
-		cloudamqpUrl: process.env.CLOUDAMQP_URL
+		cloudamqpUrl: process.env.CLOUDAMQP_URL || 'amqp://localhost'
 	}
 };

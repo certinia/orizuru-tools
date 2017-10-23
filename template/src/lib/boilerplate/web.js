@@ -57,6 +57,7 @@ klawSync(SCHEMA_DIR, { nodir: true, filter: SEARCH_FILTER })
 		serverInstance.addRoute(routeInfo);
 	});
 
+// get the express server and listen to a port
 serverInstance
 	.getServer()
-	.listen(3000);
+	.listen(process.env.PORT || 8080);
