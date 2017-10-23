@@ -70,7 +70,7 @@ _.each(_.reduce(schemas, (sharedPathToAddRouteInput, schema) => {
 
 // debug out errors and info
 Server.emitter.on(Server.emitter.ERROR, error => {
-	debug.error('Server error: ' + error.message);
+	debug.error('Server error: ' + error);
 });
 Server.emitter.on(Server.emitter.INFO, info => {
 	debug.log('Server info: ' + info);

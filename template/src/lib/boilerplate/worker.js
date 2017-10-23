@@ -73,7 +73,7 @@ _.each(handlers, handler => {
 
 // debug out errors and info
 Handler.emitter.on(Handler.emitter.ERROR, error => {
-	debug.error('Handler error: ' + error.message);
+	debug.error('Handler error: ' + error);
 });
 Handler.emitter.on(Handler.emitter.INFO, info => {
 	debug.log('Handler info: ' + info);
