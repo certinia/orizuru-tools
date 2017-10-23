@@ -2,8 +2,8 @@
 
 const
 
-
 	// get utils
+	_ = require('lodash'),
 	debug = require('debug-plus')('financialforcedev:orizuru~tools:example:boilerplate:web'),
 	fs = require('fs'),
 
@@ -17,26 +17,30 @@ const
 	// get all files in our 'schemas' directory
 	schemas = require('./shared/schemas');
 
-schemas
-	.reduce((sharedPathToAddRouteInput, { path, sharedPath, filename }) => {
-		// create route input object if it doesn't exist for the path
-		if (!sharedPathToAddRouteInput.get(sharedPath)) {
-			sharedPathToAddRouteInput.set(sharedPath, {
-				schemaNameToDefinition: {},
-				apiEndpoint: sharedPath,
-				middlewares: []
-			});
-		}
-		// debug out the schema name and address
-		debug.log('Found schema \'%s\' at \'%s\'', filename, sharedPath);
-		// add the schema json to the sharedPath schemaNameToDefinition map
-		sharedPathToAddRouteInput.get(sharedPath).schemaNameToDefinition[filename] = JSON.parse(fs.readFileSync(path));
-		// return the reduce object
+// function to add a route input object to an object if needed
+function addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, path) {
+	if (!sharedPathToAddRouteInput[path]) {
+		sharedPathToAddRouteInput[path] = {
+			schemaNameToDefinition: {},
+			apiEndpoint: path,
+			middlewares: []
+		};
+	}
+}
+
+// add routes for each shared path to the server
+_(schemas)
+	.reduce((sharedPathToAddRouteInput, schema) => {
+		addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, schema.sharedPath);
+		debug.log('Found schema \'%s\' at \'%s\'', schema.fileName, schema.sharedPath);
+		sharedPathToAddRouteInput.get(schema.sharedPath).schemaNameToDefinition[schema.fileName] = JSON.parse(fs.readFileSync(schema.path));
 		return sharedPathToAddRouteInput;
-	}, new Map())
-	.forEach(routeInfo => {
-		// add a route to the server for each result
-		debug.log('Adding route for \'%s\'', routeInfo.apiEndpoint);
+	}, {})
+	.each(routeInfo => {
+		debug.log('Adding route(s) for \'%s\'', routeInfo.apiEndpoint);
+		_.each(routeInfo.schemaNameToDefinition, (value, key) => {
+			debug.log('Adding route \'%s\'', key);
+		});
 		serverInstance.addRoute(routeInfo);
 	});
 

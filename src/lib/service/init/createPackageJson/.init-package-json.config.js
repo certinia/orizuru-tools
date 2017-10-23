@@ -141,6 +141,7 @@ exports.devDependencies = {
 	"@financialforcedev/eslint-config": "^3.0.0",
 	"app-root-path": "2.0.1",
 	"chai": "4.1.1",
+	"lodash": "4.17.4",
 	"mocha": "3.5.0",
 	"nyc": "11.1.0",
 	"sinon": "3.2.1"
