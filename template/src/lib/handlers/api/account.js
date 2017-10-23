@@ -26,7 +26,7 @@
 
 'use strict';
 
-const debug = require('debug-plus')('financialforcedev:orizuru~tools:example:handlers:api:test');
+const debug = require('debug-plus')('financialforcedev:orizuru~tools:example:handlers:api:account');
 
 module.exports = ({ message, context }) => {
 	debug.log('Handled event for schema \'api/account\'...');
