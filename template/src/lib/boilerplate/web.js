@@ -33,7 +33,7 @@ _(schemas)
 	.reduce((sharedPathToAddRouteInput, schema) => {
 		addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, schema.sharedPath);
 		debug.log('Found schema \'%s\' at \'%s\'', schema.fileName, schema.sharedPath);
-		sharedPathToAddRouteInput.get(schema.sharedPath).schemaNameToDefinition[schema.fileName] = JSON.parse(fs.readFileSync(schema.path));
+		sharedPathToAddRouteInput[schema.sharedPath].schemaNameToDefinition[schema.fileName] = JSON.parse(fs.readFileSync(schema.path));
 		return sharedPathToAddRouteInput;
 	}, {})
 	.each(routeInfo => {

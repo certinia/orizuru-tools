@@ -43,7 +43,7 @@ _.each(handlers, handler => {
 	schemaAndHandlersFilePathUnion[handler.sharedPath].handler = require(handler.path);
 });
 
-// map tuples to handler promises and catch any errors
+// map tuples to handler handle promises and catch any errors
 Promise.all(_.map(schemaAndHandlersFilePathUnion, (schemaHandlerTuple, sharedPath) => {
 	if (!schemaHandlerTuple.schema) {
 		debug.warn('no schema found for handler \'%s\'', sharedPath);
