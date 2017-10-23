@@ -47,7 +47,7 @@ Server.emitter.on(Server.emitter.ERROR, error => {
 	debug.error('Server error: ' + error.message);
 });
 Server.emitter.on(Server.emitter.INFO, info => {
-	debug.error('Server info: ' + info);
+	debug.log('Server info: ' + info);
 });
 
 // get the express server and listen to a port

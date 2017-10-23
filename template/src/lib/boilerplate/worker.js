@@ -50,7 +50,7 @@ Handler.emitter.on(Handler.emitter.ERROR, error => {
 	debug.error('Handler error: ' + error.message);
 });
 Handler.emitter.on(Handler.emitter.INFO, info => {
-	debug.error('Handler info: ' + info);
+	debug.log('Handler info: ' + info);
 });
 
 // map tuples to handler handle promises and swallow any errors
