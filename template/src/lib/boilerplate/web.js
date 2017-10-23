@@ -42,6 +42,14 @@ _.each(_.reduce(schemas, (sharedPathToAddRouteInput, schema) => {
 	serverInstance.addRoute(routeInfo);
 });
 
+// debug out errors and info
+Server.emitter.on(Server.emitter.ERROR, error => {
+	debug.error('Server error: ' + error.message);
+});
+Server.emitter.on(Server.emitter.INFO, info => {
+	debug.error('Server info: ' + info);
+});
+
 // get the express server and listen to a port
 serverInstance
 	.getServer()

@@ -45,7 +45,15 @@ _.each(handlers, handler => {
 	schemaAndHandlersFilePathUnion[fullyQualifiedName].handler = require(handler.path);
 });
 
-// map tuples to handler handle promises and catch any errors
+// debug out errors and info
+Handler.emitter.on(Handler.emitter.ERROR, error => {
+	debug.error('Handler error: ' + error.message);
+});
+Handler.emitter.on(Handler.emitter.INFO, info => {
+	debug.error('Handler info: ' + info);
+});
+
+// map tuples to handler handle promises and swallow any errors
 Promise.all(_.map(schemaAndHandlersFilePathUnion, (schemaHandlerTuple, sharedPath) => {
 	if (!schemaHandlerTuple.schema) {
 		debug.warn('no schema found for handler \'%s\'', sharedPath);
@@ -59,6 +67,4 @@ Promise.all(_.map(schemaAndHandlersFilePathUnion, (schemaHandlerTuple, sharedPat
 		schema: schemaHandlerTuple.schema,
 		callback: schemaHandlerTuple.handler
 	});
-})).catch(err => {
-	debug.error('Failed to initialise handlers: ' + err.message); //%s doesn't work for debug.error for some reason
-});
+})).catch(err => {});
