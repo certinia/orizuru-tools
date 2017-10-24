@@ -4,13 +4,16 @@ public class ExampleCallout
     @TestVisible private static final String POST_METHOD = 'POST';
     @TestVisible private static final String AUTHORIZATION_HEADER = 'Authorization';
     @TestVisible private static final String AUTHORIZATION_PREFIX = 'bearer ';
+    @TestVisible private static final String CONTENT_TYPE_HEADER = 'Content-Type';
+    @TestVisible private static final String CONTENT_TYPE_VALUE = 'application/json';
     
     public static void call(String instanceUrl, Id accountId) 
     {
         HttpRequest req = new HttpRequest();
 		req.setEndpoint(instanceUrl + ACCOUNT_ENDPOINT);
     	req.setMethod(POST_METHOD);
-        req.Setheader(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + UserInfo.getSessionId());
+		req.setHeader(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE);
+        req.setHeader(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + UserInfo.getSessionId());
         req.setBody(new PostBody(accountId).serialize());
 		send(req);
     }
