@@ -149,10 +149,10 @@ exports.devDependencies = {
 
 // overrode scripts
 exports.scripts = {
-	"lint-fix": "eslint src --fix",
-	"pretest": "eslint src",
+	"lint-fix": "eslint src/node --fix",
+	"pretest": "eslint src/node",
 	"single-test": "nyc --all=false mocha",
-	"test": "nyc mocha --recursive src/spec"
+	"test": "nyc mocha --recursive src/node/spec"
 }
 
 // added nyc
