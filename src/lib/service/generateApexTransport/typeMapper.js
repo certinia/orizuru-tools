@@ -170,8 +170,18 @@ function generateComplexTypeToken(type) {
 	throw new Error('Complex type tokens can only be generated for complex types.');
 }
 
+function generateTypeToken(type) {
+	if (isComplexType(type)) {
+		return generateComplexTypeToken(type);
+	} else {
+		return generateSimpleTypeToken(type);
+	}
+}
+
 module.exports = {
 	mapType,
 	isComplexType,
-	generateComplexTypeToken
+	generateSimpleTypeToken,
+	generateComplexTypeToken,
+	generateTypeToken
 };

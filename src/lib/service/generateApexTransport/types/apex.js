@@ -26,24 +26,12 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
-
-	{ mapType, generateTypeToken } = require('./typeMapper'),
-	{ generateTransportExtension, generateInnerClass } = require('./generateClass');
-
-function generateClassesFromSchema(schema) {
-	const rootType = mapType(schema);
-
-	if (rootType.type !== 'record') {
-		throw new Error('Avro schema root type must be record.');
-	}
-
-	let className = generateTypeToken(rootType);
-
-	return className;
-}
-
-module.exports = {
-	generateClassesFromSchema
-};
+module.exports = Object.freeze({
+	BOOLEAN: 'Boolean',
+	INTEGER: 'Integer',
+	LONG: 'Long',
+	DOUBLE: 'Double',
+	STRING: 'String',
+	array: inner => 'List<' + inner + '>',
+	map: inner => 'Map<String, ' + inner + '>'
+});

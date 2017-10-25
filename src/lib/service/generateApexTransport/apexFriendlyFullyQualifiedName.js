@@ -29,7 +29,7 @@
 const
 	_ = require('lodash'),
 
-	DELIMITER = ',',
+	DELIMITER = '.',
 	UNDERSCORE = '_';
 
 function apexFriendlyFullyQualifiedName(qualifiedName) {
