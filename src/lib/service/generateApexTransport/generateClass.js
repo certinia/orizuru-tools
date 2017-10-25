@@ -92,7 +92,7 @@ function generateClass(fieldNamesToFieldTypesMap, qualifiedName, template) {
 		constructorParams = generateConstructorParams(fieldNamesToFieldTypesMap),
 		getSetParamAssignments = generateGetSetParamAssignments(Object.keys(fieldNamesToFieldTypesMap));
 
-	return _.trimStart(findAndReplace({ getSetParams, constructorParams, getSetParamAssignments, qualifiedName }, template));
+	return findAndReplace({ getSetParams, constructorParams, getSetParamAssignments, qualifiedName }, template);
 }
 
 function generateTransportExtension(fieldNamesToFieldTypesMap, qualifiedName) {

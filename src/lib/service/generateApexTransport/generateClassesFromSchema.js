@@ -26,16 +26,16 @@
 
 'use strict';
 
-const { generateClassesFromSchema } = require('./generateApexTransport/generateClassesFromSchema'),
+const
+	_ = require('lodash'),
 
-	testSchema = {
-		namespace: 'com.financialforce.account',
-		name: 'Account',
-		type: 'record',
-		fields: [{
-			name: 'accountId',
-			type: 'string'
-		}]
-	};
+	{ mapType } = require('./typeMapper'),
+	{ generateTransportExtension, generateInnerClass } = require('./generateClass');
 
-console.log(generateClassesFromSchema(testSchema));
+function generateClassesFromSchema(schema) {
+	return mapType(schema);
+}
+
+module.exports = {
+	generateClassesFromSchema
+};
