@@ -26,7 +26,7 @@
 
 'use strict';
 
-const { generateClassesFromSchema } = require('./generateApexTransport/generateClassesFromSchema'),
+const { parseRecord } = require('./generateApexTransport/parse/schema'),
 
 	testSchema = {
 		namespace: 'com.financialforce.account',
@@ -36,6 +36,10 @@ const { generateClassesFromSchema } = require('./generateApexTransport/generateC
 			name: 'accountId',
 			type: 'string'
 		}]
-	};
+	},
 
-console.log(generateClassesFromSchema(testSchema));
+	results = [];
+
+parseRecord(results, testSchema);
+
+console.log(results.join('\n'));

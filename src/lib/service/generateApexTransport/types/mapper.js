@@ -55,42 +55,42 @@ function getFullyQualifiedName(object) {
 }
 
 function mapSimpleType(object) {
-	if (object.type === avroTypes.SIMPLE.BOOLEAN || object === avroTypes.SIMPLE.BOOLEAN) {
+	if (object === avroTypes.SIMPLE.BOOLEAN || object.type === avroTypes.SIMPLE.BOOLEAN) {
 		return {
 			type: avroTypes.SIMPLE.BOOLEAN,
 			apexType: apexTypes.BOOLEAN,
 			foundSubSchema: false
 		};
 	}
-	if (object.type === avroTypes.SIMPLE.INTEGER || object === avroTypes.SIMPLE.INTEGER) {
+	if (object === avroTypes.SIMPLE.INTEGER || object.type === avroTypes.SIMPLE.INTEGER) {
 		return {
 			type: avroTypes.SIMPLE.INTEGER,
 			apexType: apexTypes.INTEGER,
 			foundSubSchema: false
 		};
 	}
-	if (object.type === avroTypes.SIMPLE.LONG || object === avroTypes.SIMPLE.LONG) {
+	if (object === avroTypes.SIMPLE.LONG || object.type === avroTypes.SIMPLE.LONG) {
 		return {
 			type: avroTypes.SIMPLE.LONG,
 			apexType: apexTypes.LONG,
 			foundSubSchema: false
 		};
 	}
-	if (object.type === avroTypes.SIMPLE.FLOAT || object === avroTypes.SIMPLE.FLOAT) {
+	if (object === avroTypes.SIMPLE.FLOAT || object.type === avroTypes.SIMPLE.FLOAT) {
 		return {
 			type: avroTypes.SIMPLE.FLOAT,
 			apexType: apexTypes.DOUBLE,
 			foundSubSchema: false
 		};
 	}
-	if (object.type === avroTypes.SIMPLE.DOUBLE || object === avroTypes.SIMPLE.DOUBLE) {
+	if (object === avroTypes.SIMPLE.DOUBLE || object.type === avroTypes.SIMPLE.DOUBLE) {
 		return {
 			type: avroTypes.SIMPLE.DOUBLE,
 			apexType: apexTypes.DOUBLE,
 			foundSubSchema: false
 		};
 	}
-	if (object.type === avroTypes.SIMPLE.STRING || object === avroTypes.SIMPLE.STRING) {
+	if (object === avroTypes.SIMPLE.STRING || object.type === avroTypes.SIMPLE.STRING) {
 		return {
 			type: avroTypes.SIMPLE.STRING,
 			apexType: apexTypes.STRING,

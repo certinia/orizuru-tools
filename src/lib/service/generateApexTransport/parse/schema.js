@@ -28,22 +28,49 @@
 
 const
 	_ = require('lodash'),
+	avroTypes = require('../types/avro'),
+	mapper = require('../types/mapper'),
 
-	{ mapType, generateTypeToken } = require('./typeMapper'),
-	{ generateTransportExtension, generateInnerClass } = require('./generateClass');
+	{ generateTransportClass, generateInnerClass } = require('../generate/class'),
 
-function generateClassesFromSchema(schema) {
-	const rootType = mapType(schema);
+	generateEnum = id => id;
 
-	if (rootType.type !== 'record') {
-		throw new Error('Avro schema root type must be record.');
+function parseRecord(classes, subSchema, root = true) {
+	const result = mapper.map(subSchema),
+		recordName = result.apexType,
+		fields = subSchema.fields,
+		fieldNameToTypeMap = {},
+		innerSubSchemas = [];
+
+	if (result.type !== avroTypes.COMPLEX.RECORD) {
+		throw new Error('Not a record: ' + JSON.stringify(subSchema));
 	}
 
-	let className = generateTypeToken(rootType);
+	_.each(fields, field => {
+		const result = mapper.map(field);
+		fieldNameToTypeMap[field.name] = result.apexType;
+		if (result.foundSubSchema) {
+			innerSubSchemas.push(result.foundSubSchema);
+		}
+	});
 
-	return className;
+	if (root) {
+		classes.push(generateTransportClass(fieldNameToTypeMap, recordName));
+	} else {
+		classes.push(generateInnerClass(fieldNameToTypeMap, recordName));
+	}
+
+	_.each(innerSubSchemas, innerSubSchema => {
+		if (subSchema.type === avroTypes.COMPLEX.RECORD) {
+			parseRecord(classes, innerSubSchema, false);
+		}
+		if (subSchema.type === avroTypes.COMPLEX.ENUM) {
+			generateEnum( /*TODO*/ );
+		}
+	});
+
 }
 
 module.exports = {
-	generateClassesFromSchema
+	parseRecord
 };
