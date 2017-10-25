@@ -100,7 +100,20 @@ function mapSimpleType(object) {
 	return null;
 }
 
-function mapComplexType(object) {
+function mapComplexType(object, existingSchemas) {
+	let existing = false;
+	_.each(existingSchemas, existingSchema => {
+		if (object === existingSchema || object.type === existingSchema) {
+			existing = {
+				type: avroTypes.COMPLEX.RECORD,
+				apexType: existingSchema,
+				foundSubSchema: false
+			};
+		}
+	});
+	if (existing) {
+		return existing;
+	}
 	if (object.type === avroTypes.COMPLEX.RECORD) {
 		return {
 			type: avroTypes.COMPLEX.RECORD,
@@ -136,13 +149,13 @@ function mapComplexType(object) {
 	return null;
 }
 
-function map(object) {
+function map(object, existingSchemas) {
 	let result = null;
 	result = mapSimpleType(object);
 	if (result) {
 		return result;
 	}
-	result = mapComplexType(object);
+	result = mapComplexType(object, existingSchemas);
 	if (result) {
 		return result;
 	}

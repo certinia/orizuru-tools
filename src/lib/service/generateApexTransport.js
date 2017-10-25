@@ -26,7 +26,9 @@
 
 'use strict';
 
-const { parseRecord } = require('./generateApexTransport/parse/schema'),
+const
+	_ = require('lodash'),
+	{ parseRecord } = require('./generateApexTransport/parse/schema'),
 
 	testSchema = {
 		namespace: 'com.financialforce',
@@ -49,8 +51,11 @@ const { parseRecord } = require('./generateApexTransport/parse/schema'),
 		}]
 	},
 
-	results = [];
+	results = {};
 
-parseRecord(results, testSchema);
+parseRecord(results, require('./testSchema.json'));
 
-console.log(results.join('\n'));
+console.log(_.reduce(results, (returnString, value) => {
+	returnString += value + '\n';
+	return returnString;
+}, ''));

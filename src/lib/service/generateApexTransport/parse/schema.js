@@ -36,7 +36,7 @@ const
 	generateEnum = id => id;
 
 function parseRecord(classes, subSchema, root = true) {
-	const result = mapper.map(subSchema),
+	const result = mapper.map(subSchema, Object.keys(classes)),
 		recordName = result.apexType,
 		fields = subSchema.fields,
 		fieldNameToTypeMap = {},
@@ -47,7 +47,7 @@ function parseRecord(classes, subSchema, root = true) {
 	}
 
 	_.each(fields, field => {
-		const result = mapper.map(field.type);
+		const result = mapper.map(field.type, Object.keys(classes));
 		fieldNameToTypeMap[field.name] = result.apexType;
 		if (result.foundSubSchema) {
 			innerSubSchemas.push(result.foundSubSchema);
@@ -55,9 +55,9 @@ function parseRecord(classes, subSchema, root = true) {
 	});
 
 	if (root) {
-		classes.push(generateTransportClass(fieldNameToTypeMap, recordName));
+		classes[recordName] = generateTransportClass(fieldNameToTypeMap, recordName);
 	} else {
-		classes.push(generateInnerClass(fieldNameToTypeMap, recordName));
+		classes[recordName] = generateInnerClass(fieldNameToTypeMap, recordName);
 	}
 
 	_.each(innerSubSchemas, innerSubSchema => {
