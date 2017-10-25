@@ -25,3 +25,15 @@
  **/
 
 'use strict';
+
+const generateClass = require('./generateApexTransport/generateClass');
+
+console.log(generateClass.generateTransportExtension({
+	a: 'String',
+	b: 'String'
+}, 'Test1'));
+
+console.log(generateClass.generateInnerClass({
+	c: 'String',
+	d: 'String'
+}, 'Test2'));
