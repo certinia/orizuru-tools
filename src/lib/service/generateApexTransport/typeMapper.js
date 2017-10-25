@@ -29,7 +29,7 @@
 const
 	_ = require('lodash'),
 
-	{ generateTransportExtension, generateInnerClass } = require('./generateClass'),
+	{ apexFriendlyFullyQualifiedName } = require('./apexFriendlyFullyQualifiedName'),
 
 	PRIMITIVE_TYPE_MAP = {
 		'null': {
@@ -127,6 +127,51 @@ function mapType(object) {
 	return type;
 }
 
+function isComplexType(type) {
+	return !!type.complex;
+}
+
+function generateSimpleTypeToken(type) {
+	if (!isComplexType(type)) {
+		return type.type;
+	}
+	throw new Error('Simple type tokens can only be generated for simple types.');
+}
+
+function generateComplexTypeToken(type) {
+	if (isComplexType(type)) {
+		if (type.type === 'record') {
+			return apexFriendlyFullyQualifiedName(type.fullyQualifiedName);
+		}
+		if (type.type === 'enum') {
+			return apexFriendlyFullyQualifiedName(type.fullyQualifiedName);
+		}
+		if (type.type === 'array') {
+			const innerType = mapType(type.items);
+			let innerTypeResolved = null;
+			if (isComplexType(innerType)) {
+				innerTypeResolved = generateComplexTypeToken(innerType);
+			} else {
+				innerTypeResolved = generateSimpleTypeToken(innerType);
+			}
+			return 'Array<' + innerTypeResolved + '>';
+		}
+		if (type.type === 'map') {
+			const innerType = mapType(type.values);
+			let innerTypeResolved = null;
+			if (isComplexType(innerType)) {
+				innerTypeResolved = generateComplexTypeToken(innerType);
+			} else {
+				innerTypeResolved = generateSimpleTypeToken(innerType);
+			}
+			return 'Map<String, ' + innerTypeResolved + '>';
+		}
+	}
+	throw new Error('Complex type tokens can only be generated for complex types.');
+}
+
 module.exports = {
-	mapType
+	mapType,
+	isComplexType,
+	generateComplexTypeToken
 };

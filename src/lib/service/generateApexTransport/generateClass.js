@@ -95,7 +95,7 @@ function generateClass(fieldNamesToFieldTypesMap, qualifiedName, template) {
 	return findAndReplace({ getSetParams, constructorParams, getSetParamAssignments, qualifiedName }, template);
 }
 
-function generateTransportExtension(fieldNamesToFieldTypesMap, qualifiedName) {
+function generateTransportClass(fieldNamesToFieldTypesMap, qualifiedName) {
 	return generateClass(fieldNamesToFieldTypesMap, qualifiedName, TEMPLATES.TRANSPORT_EXTENSION);
 }
 
@@ -104,6 +104,6 @@ function generateInnerClass(fieldNamesToFieldTypesMap, qualifiedName) {
 }
 
 module.exports = {
-	generateTransportExtension,
+	generateTransportClass,
 	generateInnerClass
 };
