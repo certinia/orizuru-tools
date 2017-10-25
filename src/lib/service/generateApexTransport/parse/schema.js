@@ -47,7 +47,7 @@ function parseRecord(classes, subSchema, root = true) {
 	}
 
 	_.each(fields, field => {
-		const result = mapper.map(field);
+		const result = mapper.map(field.type);
 		fieldNameToTypeMap[field.name] = result.apexType;
 		if (result.foundSubSchema) {
 			innerSubSchemas.push(result.foundSubSchema);

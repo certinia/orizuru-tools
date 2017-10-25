@@ -29,12 +29,23 @@
 const { parseRecord } = require('./generateApexTransport/parse/schema'),
 
 	testSchema = {
-		namespace: 'com.financialforce.account',
+		namespace: 'com.financialforce',
 		name: 'Account',
 		type: 'record',
 		fields: [{
 			name: 'accountId',
 			type: 'string'
+		}, {
+			name: 'inner',
+			type: {
+				type: 'record',
+				namespace: 'com.financialforce',
+				name: 'Account2',
+				fields: [{
+					name: 'test',
+					type: 'int'
+				}]
+			}
 		}]
 	},
 
