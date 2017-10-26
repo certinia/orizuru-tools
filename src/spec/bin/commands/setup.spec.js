@@ -75,7 +75,7 @@ describe('bin/commands/setup.js', () => {
 		cli.builder(mocks.yargs);
 
 		//then
-		callCount(mocks.yargs.command, 1);
+		callCount(mocks.yargs.command, 2);
 		calledOnce(mocks.yargs.demandCommand);
 		calledOnce(mocks.yargs.epilogue);
 		calledOnce(mocks.yargs.updateStrings);
