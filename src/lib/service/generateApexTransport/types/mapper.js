@@ -59,42 +59,42 @@ function mapSimpleType(object) {
 		return {
 			type: avroTypes.SIMPLE.BOOLEAN,
 			apexType: apexTypes.BOOLEAN,
-			foundSubSchema: false
+			foundSubSchemas: []
 		};
 	}
 	if (object === avroTypes.SIMPLE.INTEGER || object.type === avroTypes.SIMPLE.INTEGER) {
 		return {
 			type: avroTypes.SIMPLE.INTEGER,
 			apexType: apexTypes.INTEGER,
-			foundSubSchema: false
+			foundSubSchemas: []
 		};
 	}
 	if (object === avroTypes.SIMPLE.LONG || object.type === avroTypes.SIMPLE.LONG) {
 		return {
 			type: avroTypes.SIMPLE.LONG,
 			apexType: apexTypes.LONG,
-			foundSubSchema: false
+			foundSubSchemas: []
 		};
 	}
 	if (object === avroTypes.SIMPLE.FLOAT || object.type === avroTypes.SIMPLE.FLOAT) {
 		return {
 			type: avroTypes.SIMPLE.FLOAT,
 			apexType: apexTypes.DOUBLE,
-			foundSubSchema: false
+			foundSubSchemas: []
 		};
 	}
 	if (object === avroTypes.SIMPLE.DOUBLE || object.type === avroTypes.SIMPLE.DOUBLE) {
 		return {
 			type: avroTypes.SIMPLE.DOUBLE,
 			apexType: apexTypes.DOUBLE,
-			foundSubSchema: false
+			foundSubSchemas: []
 		};
 	}
 	if (object === avroTypes.SIMPLE.STRING || object.type === avroTypes.SIMPLE.STRING) {
 		return {
 			type: avroTypes.SIMPLE.STRING,
 			apexType: apexTypes.STRING,
-			foundSubSchema: false
+			foundSubSchemas: []
 		};
 	}
 	return null;
@@ -107,7 +107,7 @@ function mapComplexType(object, existingSchemas) {
 			existing = {
 				type: avroTypes.COMPLEX.RECORD,
 				apexType: existingSchema,
-				foundSubSchema: false
+				foundSubSchemas: []
 			};
 		}
 	});
@@ -118,14 +118,14 @@ function mapComplexType(object, existingSchemas) {
 		return {
 			type: avroTypes.COMPLEX.RECORD,
 			apexType: apexFriendlyFullyQualifiedName(getFullyQualifiedName(object)),
-			foundSubSchema: object
+			foundSubSchemas: [object]
 		};
 	}
 	if (object.type === avroTypes.COMPLEX.ENUM) {
 		return {
 			type: avroTypes.COMPLEX.ENUM,
 			apexType: apexFriendlyFullyQualifiedName(getFullyQualifiedName(object)),
-			foundSubSchema: object
+			foundSubSchemas: [object]
 		};
 	}
 	if (object.type === avroTypes.COMPLEX.ARRAY) {
@@ -134,7 +134,7 @@ function mapComplexType(object, existingSchemas) {
 		return {
 			type: avroTypes.COMPLEX.ARRAY,
 			apexType: apexTypes.array(innerResult.apexType),
-			foundSubSchema: innerResult.foundSubSchema
+			foundSubSchemas: innerResult.foundSubSchemas
 		};
 	}
 	if (object.type === avroTypes.COMPLEX.MAP) {
@@ -143,7 +143,7 @@ function mapComplexType(object, existingSchemas) {
 		return {
 			type: avroTypes.COMPLEX.MAP,
 			apexType: apexTypes.map(innerResult.apexType),
-			foundSubSchema: innerResult.foundSubSchema
+			foundSubSchemas: innerResult.foundSubSchemas
 		};
 	}
 	return null;

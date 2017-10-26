@@ -57,8 +57,10 @@ function classesForSchema(classes, subSchema, root = true) {
 	_.each(fields, field => {
 		const result = mapper.map(field.type, Object.keys(classes));
 		fieldNameToTypeMap[field.name] = result.apexType;
-		if (result.foundSubSchema) {
-			innerSubSchemas.push(result.foundSubSchema);
+		if (_.size(result.foundSubSchemas)) {
+			_.each(result.foundSubSchemas, foundSubSchema => {
+				innerSubSchemas.push(foundSubSchema);
+			});
 		}
 	});
 

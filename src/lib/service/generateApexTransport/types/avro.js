@@ -39,6 +39,7 @@ module.exports = Object.freeze({
 		RECORD: 'record',
 		ENUM: 'enum',
 		ARRAY: 'array',
-		MAP: 'map'
+		MAP: 'map',
+		UNION: 'union'
 	}
 });
