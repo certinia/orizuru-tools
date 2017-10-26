@@ -33,8 +33,6 @@ const
 
 	TEMPLATE_PATH = path.resolve(__dirname, '../../../../res/lib/apexTemplates'),
 
-	EMPTY = '',
-
 	TOKEN_START = '{{',
 	TOKEN_END = '}}',
 
@@ -112,7 +110,7 @@ function innerClass(fieldNamesToFieldTypesMap, qualifiedName) {
 function innerEnum(values, qualifiedName) {
 	return findAndReplace({
 		qualifiedName,
-		values: _.isArray(values) ? values.join(ENUM_VALUE_DELIMITER) : EMPTY
+		values: values.join(ENUM_VALUE_DELIMITER)
 	}, TEMPLATES.INNER_ENUM);
 }
 
