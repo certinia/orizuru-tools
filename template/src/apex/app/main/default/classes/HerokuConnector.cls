@@ -24,11 +24,30 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-public class OrizuruTransport
+public class HerokuConnector
 {
-	protected OrizuruTrasport() {
-		// abstract class
-	}
+    @TestVisible private static final String ACCOUNT_ENDPOINT = '/api/account';
+    @TestVisible private static final String POST_METHOD = 'POST';
+    @TestVisible private static final String AUTHORIZATION_HEADER = 'Authorization';
+    @TestVisible private static final String AUTHORIZATION_PREFIX = 'bearer ';
+    @TestVisible private static final String CONTENT_TYPE_HEADER = 'Content-Type';
+    @TestVisible private static final String CONTENT_TYPE_VALUE = 'application/json';
+    
+    public static void post(String endpoint, Id accountId, ISerializable transport) 
+    {
+        HttpRequest req = new HttpRequest();
+		req.setEndpoint(endpoint);
+    	req.setMethod(POST_METHOD);
+		req.setHeader(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE);
+        req.setHeader(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + UserInfo.getSessionId());
+        req.setBody(transport.serialize());
+		postRequest(req);
+    }
+    
+    private static HttpResponse postRequest(HttpRequest req)
+    {
+        Http h = new Http();
+        return h.send(req);
+    }
 
-	{{inner-implementations}}
 }

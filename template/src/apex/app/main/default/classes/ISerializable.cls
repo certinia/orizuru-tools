@@ -24,45 +24,7 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-'use strict';
-
-const
-	_ = require('lodash'),
-
-	{ classesForSchema } = require('./generate/classesForSchema'),
-	{ wrappingOrizuruClass, wrappingOrizuruClassXml } = require('./generate/template'),
-
-	CLASS_MERGE_DELIMITER = '\n';
-
-function generate(jsonAvroSchemas) {
-	const
-		finalResult = [],
-		mergedClassIdentifiers = {};
-
-	_.each(jsonAvroSchemas, jsonAvroSchema => {
-		const classes = {};
-
-		classesForSchema(classes, jsonAvroSchema);
-
-		_.each(classes, (classString, classIdentifer) => {
-			if (_.hasIn(mergedClassIdentifiers, classIdentifer)) {
-				if (mergedClassIdentifiers[classIdentifer] !== classString) {
-					throw new Error('Records and enums with the same \'name\' / \'namespace\' cannot be used across schemas unless they are identical. Identifier: \'' + classIdentifer + '\'.');
-				}
-			} else {
-				finalResult.push(classString);
-				mergedClassIdentifiers[classIdentifer] = classString;
-			}
-		});
-
-	});
-
-	return {
-		cls: wrappingOrizuruClass(_.trimStart(finalResult.join(CLASS_MERGE_DELIMITER))),
-		xml: wrappingOrizuruClassXml()
-	};
+public interface ISerializable
+{
+	String serialize();
 }
-
-module.exports = {
-	generate
-};
