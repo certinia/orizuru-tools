@@ -55,7 +55,7 @@ function generateClasses(options) {
 		try {
 			parsedSchemas.push(JSON.parse(file.file));
 		} catch (err) {
-			throw new Error('Contents of .avsc files should be valid json.')
+			throw new Error('Contents of .avsc files should be valid json.');
 		}
 	});
 	// eslint-disable-next-line one-var
