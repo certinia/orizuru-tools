@@ -1,0 +1,65 @@
+{
+	"namespace": "com.financialforce",
+	"name": "Test",
+	"type": "record",
+	"fields": [{
+		"name": "deliveryType",
+		"type": {
+			"name": "DeliveryTypeEnum",
+			"type": "enum",
+			"symbols": ["A", "B", "C"]
+		}
+	}, {
+		"name": "deliveryTypeCls",
+		"type": {
+			"name": "DeliveryTypeCls",
+			"type": "record",
+			"fields": [{
+				"name": "testFieldString",
+				"type": "string"
+			}]
+		}
+	}, {
+		"name": "arrayEnum",
+		"type": {
+			"type": "array",
+			"items": "DeliveryTypeEnum"
+		}
+	}, {
+		"name": "arrayCls",
+		"type": {
+			"type": "array",
+			"items": "DeliveryTypeCls"
+		}
+	}, {
+		"name": "mapEnum",
+		"type": {
+			"type": "map",
+			"values": "DeliveryTypeEnum"
+		}
+	}, {
+		"name": "mapCls",
+		"type": {
+			"type": "map",
+			"values": "DeliveryTypeCls"
+		}
+	}, {
+		"name": "testFieldNull",
+		"type": "null"
+	}, {
+		"name": "testFieldBoolean",
+		"type": "boolean"
+	}, {
+		"name": "testFieldInt",
+		"type": "int"
+	}, {
+		"name": "testFieldLong",
+		"type": "long"
+	}, {
+		"name": "testFieldFloat",
+		"type": "float"
+	}, {
+		"name": "testFieldDouble",
+		"type": "double"
+	}]
+}

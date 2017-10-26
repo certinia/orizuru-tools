@@ -176,7 +176,7 @@ function mapComplexType(object, existingSchemas) {
 	}
 	if (object.type === avroTypes.COMPLEX.ARRAY) {
 		// eslint-disable-next-line no-use-before-define
-		const innerResult = map(object.items);
+		const innerResult = map(object.items, existingSchemas);
 		return {
 			type: avroTypes.COMPLEX.ARRAY,
 			apexType: apexTypes.array(innerResult.apexType),
@@ -185,7 +185,7 @@ function mapComplexType(object, existingSchemas) {
 	}
 	if (object.type === avroTypes.COMPLEX.MAP) {
 		// eslint-disable-next-line no-use-before-define
-		const innerResult = map(object.values);
+		const innerResult = map(object.values, existingSchemas);
 		return {
 			type: avroTypes.COMPLEX.MAP,
 			apexType: apexTypes.map(innerResult.apexType),

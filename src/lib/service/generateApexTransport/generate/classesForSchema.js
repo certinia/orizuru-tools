@@ -52,6 +52,8 @@ function classesForSchema(classes, subSchema, root = true) {
 		fields = subSchema.fields,
 		fieldNameToTypeMap = {};
 
+	classes[recordName] = null;
+
 	if (result.type !== avroTypes.COMPLEX.RECORD) {
 		throw new Error('The root of the schema must be of type \'record\': ' + JSON.stringify(subSchema) + '.');
 	}
