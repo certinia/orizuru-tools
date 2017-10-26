@@ -144,6 +144,23 @@ describe('service/generateApexTransport/generate.js', () => {
 
 		});
 
+		it('should generate types for a schema with nested union sub schemas', () => {
+
+			// given
+			const input = [
+					schemaToJson(inputPath('nestedUnionSubSchema.avsctest'))
+				],
+				outputCls = read(outputPath('NestedUnionSubSchema.cls')),
+				outputXml = read(outputPath('Default.cls-meta.xml'));
+
+			// when - then
+			expect(generate(input)).to.eql({
+				cls: outputCls,
+				xml: outputXml
+			});
+
+		});
+
 	});
 
 });

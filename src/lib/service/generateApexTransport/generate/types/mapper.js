@@ -59,49 +59,49 @@ function getAFFQN(object) {
 }
 
 function mapSimpleType(object) {
-	if (object === avroTypes.SIMPLE.NULL || object.type === avroTypes.SIMPLE.NULL) {
+	if (object === avroTypes.SIMPLE.NULL || (_.isObject(object) && object.type === avroTypes.SIMPLE.NULL)) {
 		return {
 			type: avroTypes.SIMPLE.NULL,
 			apexType: apexTypes.OBJECT,
 			foundSubSchemas: []
 		};
 	}
-	if (object === avroTypes.SIMPLE.BOOLEAN || object.type === avroTypes.SIMPLE.BOOLEAN) {
+	if (object === avroTypes.SIMPLE.BOOLEAN || (_.isObject(object) && object.type === avroTypes.SIMPLE.BOOLEAN)) {
 		return {
 			type: avroTypes.SIMPLE.BOOLEAN,
 			apexType: apexTypes.BOOLEAN,
 			foundSubSchemas: []
 		};
 	}
-	if (object === avroTypes.SIMPLE.INTEGER || object.type === avroTypes.SIMPLE.INTEGER) {
+	if (object === avroTypes.SIMPLE.INTEGER || (_.isObject(object) && object.type === avroTypes.SIMPLE.INTEGER)) {
 		return {
 			type: avroTypes.SIMPLE.INTEGER,
 			apexType: apexTypes.INTEGER,
 			foundSubSchemas: []
 		};
 	}
-	if (object === avroTypes.SIMPLE.LONG || object.type === avroTypes.SIMPLE.LONG) {
+	if (object === avroTypes.SIMPLE.LONG || (_.isObject(object) && object.type === avroTypes.SIMPLE.LONG)) {
 		return {
 			type: avroTypes.SIMPLE.LONG,
 			apexType: apexTypes.LONG,
 			foundSubSchemas: []
 		};
 	}
-	if (object === avroTypes.SIMPLE.FLOAT || object.type === avroTypes.SIMPLE.FLOAT) {
+	if (object === avroTypes.SIMPLE.FLOAT || (_.isObject(object) && object.type === avroTypes.SIMPLE.FLOAT)) {
 		return {
 			type: avroTypes.SIMPLE.FLOAT,
 			apexType: apexTypes.DOUBLE,
 			foundSubSchemas: []
 		};
 	}
-	if (object === avroTypes.SIMPLE.DOUBLE || object.type === avroTypes.SIMPLE.DOUBLE) {
+	if (object === avroTypes.SIMPLE.DOUBLE || (_.isObject(object) && object.type === avroTypes.SIMPLE.DOUBLE)) {
 		return {
 			type: avroTypes.SIMPLE.DOUBLE,
 			apexType: apexTypes.DOUBLE,
 			foundSubSchemas: []
 		};
 	}
-	if (object === avroTypes.SIMPLE.STRING || object.type === avroTypes.SIMPLE.STRING) {
+	if (object === avroTypes.SIMPLE.STRING || (_.isObject(object) && object.type === avroTypes.SIMPLE.STRING)) {
 		return {
 			type: avroTypes.SIMPLE.STRING,
 			apexType: apexTypes.STRING,
@@ -138,43 +138,35 @@ function mapComplexType(object, existingSchemas) {
 	}
 	// check if the type is an existing defined type
 	_.each(existingSchemas, existingSchema => {
-		let exists = false;
 		if (_.isString(object)) {
 			if (object === existingSchema || apexFriendlyFullyQualifiedName(object) === existingSchema) {
-				exists = true;
+				existing = {
+					type: avroTypes.COMPLEX.RECORD,
+					apexType: existingSchema,
+					foundSubSchemas: []
+				};
 			}
-		} else if (_.isString(object.type)) {
-			if (object.type === existingSchema || apexFriendlyFullyQualifiedName(object.type) === existingSchema) {
-				exists = true;
-			}
-		}
-		if (exists) {
-			existing = {
-				type: avroTypes.COMPLEX.RECORD,
-				apexType: existingSchema,
-				foundSubSchemas: []
-			};
 		}
 	});
 	if (existing) {
 		return existing;
 	}
 	// check for avro default complex types
-	if (object.type === avroTypes.COMPLEX.RECORD) {
+	if (_.isObject(object) && object.type === avroTypes.COMPLEX.RECORD) {
 		return {
 			type: avroTypes.COMPLEX.RECORD,
 			apexType: getAFFQN(object),
 			foundSubSchemas: [object]
 		};
 	}
-	if (object.type === avroTypes.COMPLEX.ENUM) {
+	if (_.isObject(object) && object.type === avroTypes.COMPLEX.ENUM) {
 		return {
 			type: avroTypes.COMPLEX.ENUM,
 			apexType: getAFFQN(object),
 			foundSubSchemas: [object]
 		};
 	}
-	if (object.type === avroTypes.COMPLEX.ARRAY) {
+	if (_.isObject(object) && object.type === avroTypes.COMPLEX.ARRAY) {
 		// eslint-disable-next-line no-use-before-define
 		const innerResult = map(object.items, existingSchemas);
 		return {
@@ -183,7 +175,7 @@ function mapComplexType(object, existingSchemas) {
 			foundSubSchemas: innerResult.foundSubSchemas
 		};
 	}
-	if (object.type === avroTypes.COMPLEX.MAP) {
+	if (_.isObject(object) && object.type === avroTypes.COMPLEX.MAP) {
 		// eslint-disable-next-line no-use-before-define
 		const innerResult = map(object.values, existingSchemas);
 		return {
