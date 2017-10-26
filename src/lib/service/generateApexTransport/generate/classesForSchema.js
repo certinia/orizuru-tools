@@ -38,7 +38,11 @@ function enumForSchema(classes, subSchema) {
 		result = mapper.map(subSchema),
 		recordName = result.apexType,
 		symbols = subSchema.symbols;
-	classes[recordName] = innerEnum(symbols, recordName);
+	if (classes[recordName]) {
+		throw new Error('Enum: ' + recordName + ' already defined in schema.');
+	} else {
+		classes[recordName] = innerEnum(symbols, recordName);
+	}
 }
 
 function classesForSchema(classes, subSchema, root = true) {
@@ -49,7 +53,7 @@ function classesForSchema(classes, subSchema, root = true) {
 		fieldNameToTypeMap = {};
 
 	if (result.type !== avroTypes.COMPLEX.RECORD) {
-		throw new Error('Not a record: ' + JSON.stringify(subSchema));
+		throw new Error('The root of the schema must be of type \'record\': ' + JSON.stringify(subSchema) + '.');
 	}
 
 	_.each(fields, field => {
@@ -67,10 +71,14 @@ function classesForSchema(classes, subSchema, root = true) {
 		}
 	});
 
-	if (root) {
-		classes[recordName] = transportClass(fieldNameToTypeMap, recordName);
+	if (classes[recordName]) {
+		throw new Error('Record: ' + recordName + ' already defined in schema.');
 	} else {
-		classes[recordName] = innerClass(fieldNameToTypeMap, recordName);
+		if (root) {
+			classes[recordName] = transportClass(fieldNameToTypeMap, recordName);
+		} else {
+			classes[recordName] = innerClass(fieldNameToTypeMap, recordName);
+		}
 	}
 
 }
