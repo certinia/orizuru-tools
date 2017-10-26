@@ -6,6 +6,14 @@
 		"name": "id",
 		"type": "string"
 	}, {
+		"name": "test",
+		"type": {
+			"name": "AnEnum",
+			"namespace": "com.financialforce",
+			"type": "enum",
+			"symbols": ["a", "b", "fwefewfew"]
+		}
+	}, {
 		"name": "vehicleTypes",
 		"type": {
 			"type": "array",
@@ -76,21 +84,24 @@
 		"type": {
 			"type": "array",
 			"items": {
-				"type": "record",
-				"name": "Delivery",
-				"fields": [{
-					"name": "id",
-					"type": "string"
-				}, {
-					"name": "type",
-					"type": "string"
-				}, {
-					"name": "capacity",
-					"type": "int"
-				}, {
-					"name": "location",
-					"type": "Location"
-				}]
+				"type": "array",
+				"items": {
+					"type": "record",
+					"name": "Delivery",
+					"fields": [{
+						"name": "id",
+						"type": "string"
+					}, {
+						"name": "type",
+						"type": "string"
+					}, {
+						"name": "capacity",
+						"type": "int"
+					}, {
+						"name": "location",
+						"type": "Location"
+					}]
+				}
 			}
 		}
 	}]

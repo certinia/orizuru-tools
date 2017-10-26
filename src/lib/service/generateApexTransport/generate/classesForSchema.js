@@ -31,12 +31,20 @@ const
 	avroTypes = require('../types/avro'),
 	mapper = require('../types/mapper'),
 
-	{ generateTransportClass, generateInnerClass } = require('../generate/class'),
+	{ transportClass, innerClass, innerEnum } = require('./template');
 
-	generateEnum = id => id;
+function enumForSchema(classes, subSchema) {
+	const
+		result = mapper.map(subSchema),
+		recordName = result.apexType,
+		symbols = subSchema.symbols;
 
-function parseRecord(classes, subSchema, root = true) {
-	const result = mapper.map(subSchema, Object.keys(classes)),
+	classes[recordName] = innerEnum(symbols, recordName);
+}
+
+function classesForSchema(classes, subSchema, root = true) {
+	const
+		result = mapper.map(subSchema, Object.keys(classes)),
 		recordName = result.apexType,
 		fields = subSchema.fields,
 		fieldNameToTypeMap = {},
@@ -55,22 +63,22 @@ function parseRecord(classes, subSchema, root = true) {
 	});
 
 	if (root) {
-		classes[recordName] = generateTransportClass(fieldNameToTypeMap, recordName);
+		classes[recordName] = transportClass(fieldNameToTypeMap, recordName);
 	} else {
-		classes[recordName] = generateInnerClass(fieldNameToTypeMap, recordName);
+		classes[recordName] = innerClass(fieldNameToTypeMap, recordName);
 	}
 
 	_.each(innerSubSchemas, innerSubSchema => {
-		if (subSchema.type === avroTypes.COMPLEX.RECORD) {
-			parseRecord(classes, innerSubSchema, false);
+		if (innerSubSchema.type === avroTypes.COMPLEX.RECORD) {
+			classesForSchema(classes, innerSubSchema, false);
 		}
-		if (subSchema.type === avroTypes.COMPLEX.ENUM) {
-			generateEnum( /*TODO*/ );
+		if (innerSubSchema.type === avroTypes.COMPLEX.ENUM) {
+			enumForSchema(classes, innerSubSchema);
 		}
 	});
 
 }
 
 module.exports = {
-	parseRecord
+	classesForSchema
 };

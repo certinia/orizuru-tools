@@ -33,11 +33,14 @@ const
 
 	TEMPLATE_PATH = path.resolve(__dirname, '../../../../res/template'),
 
+	EMPTY = '',
+
 	TOKEN_START = '{{',
 	TOKEN_END = '}}',
 
 	REGEX_GLOBAL = 'g',
 
+	ENUM_VALUE_DELIMITER = ',\n\t\t',
 	CONSTRUCTOR_PARAM_DELIMITER = ', ',
 
 	ENCODING = 'utf8',
@@ -47,7 +50,8 @@ const
 		GET_SET_PARAM_ASSIGNMENT: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'getSetParamAssignment.cls')).toString(ENCODING),
 		INNER_CLASS: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'innerClass.cls')).toString(ENCODING),
 		CONSTRUCTOR_PARAM: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'constructorParam.cls')).toString(ENCODING),
-		TRANSPORT_EXTENSION: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'transportExtension.cls')).toString(ENCODING)
+		TRANSPORT_EXTENSION: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'transportExtension.cls')).toString(ENCODING),
+		INNER_ENUM: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'innerEnum.cls')).toString(ENCODING)
 	};
 
 function replaceAll(str, token, value) {
@@ -95,15 +99,23 @@ function generateClass(fieldNamesToFieldTypesMap, qualifiedName, template) {
 	return findAndReplace({ getSetParams, constructorParams, getSetParamAssignments, qualifiedName }, template);
 }
 
-function generateTransportClass(fieldNamesToFieldTypesMap, qualifiedName) {
+function transportClass(fieldNamesToFieldTypesMap, qualifiedName) {
 	return generateClass(fieldNamesToFieldTypesMap, qualifiedName, TEMPLATES.TRANSPORT_EXTENSION);
 }
 
-function generateInnerClass(fieldNamesToFieldTypesMap, qualifiedName) {
+function innerClass(fieldNamesToFieldTypesMap, qualifiedName) {
 	return generateClass(fieldNamesToFieldTypesMap, qualifiedName, TEMPLATES.INNER_CLASS);
 }
 
+function innerEnum(values, qualifiedName) {
+	return findAndReplace({
+		qualifiedName,
+		values: _.isArray(values) ? values.join(ENUM_VALUE_DELIMITER) : EMPTY
+	}, TEMPLATES.INNER_ENUM);
+}
+
 module.exports = {
-	generateTransportClass,
-	generateInnerClass
+	transportClass,
+	innerClass,
+	innerEnum
 };

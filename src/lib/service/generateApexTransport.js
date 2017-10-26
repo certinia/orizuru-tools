@@ -28,7 +28,7 @@
 
 const
 	_ = require('lodash'),
-	{ parseRecord } = require('./generateApexTransport/parse/schema'),
+	{ classesForSchema } = require('./generateApexTransport/generate/classesForSchema'),
 
 	testSchema = {
 		namespace: 'com.financialforce',
@@ -53,7 +53,7 @@ const
 
 	results = {};
 
-parseRecord(results, require('./testSchema.json'));
+classesForSchema(results, require('./testSchema.json'));
 
 console.log(_.reduce(results, (returnString, value) => {
 	returnString += value + '\n';
