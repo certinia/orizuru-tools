@@ -38,7 +38,7 @@ function enumForSchema(classes, subSchema) {
 		result = mapper.map(subSchema),
 		recordName = result.apexType,
 		symbols = subSchema.symbols;
-	if (_.isArray(symbols)) {
+	if (!_.isArray(symbols)) {
 		throw new Error('Enum: ' + recordName + ' must contain \'symbols.\'');
 	}
 	if (classes[recordName]) {
