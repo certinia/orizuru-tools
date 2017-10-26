@@ -34,7 +34,7 @@ const
 	{ generate } = require('./generateApexTransport/generate'),
 	{ overwriteFile } = require('./generateApexTransport/overwriteFile'),
 
-	{ log, logStart, logFinish, logError } = require('../util/logger');
+	{ log, logStart, logError } = require('../util/logger');
 
 function validateArgs(options) {
 	if (!_.isString(options.inputUrl)) {
@@ -64,6 +64,7 @@ function generateClasses(options) {
 		outputPath = resolve(process.cwd(), options.outputUrl);
 	overwriteFile(resolve(outputPath, 'OrizuruTransport.cls'), result.cls);
 	overwriteFile(resolve(outputPath, 'OrizuruTransport.cls-meta.xml'), result.xml);
+	return options;
 }
 
 class GenerateApexTransport {
@@ -74,7 +75,7 @@ class GenerateApexTransport {
 			.then(validateArgs)
 			.then(logStart('Generating apex transport classes'))
 			.then(generateClasses)
-			.then(logFinish('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + resolve(process.cwd(), argv.outputUrl)))
+			.then(options => log('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + resolve(process.cwd(), options.outputUrl)))
 			.catch(logError);
 	}
 
