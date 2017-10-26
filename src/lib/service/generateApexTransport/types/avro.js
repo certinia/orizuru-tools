@@ -28,6 +28,7 @@
 
 module.exports = Object.freeze({
 	SIMPLE: {
+		NULL: 'null',
 		BOOLEAN: 'boolean',
 		INTEGER: 'int',
 		LONG: 'long',

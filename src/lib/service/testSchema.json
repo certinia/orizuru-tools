@@ -6,13 +6,36 @@
 		"name": "id",
 		"type": "string"
 	}, {
-		"name": "test",
+		"name": "enumTest",
 		"type": {
 			"name": "AnEnum",
 			"namespace": "com.financialforce",
 			"type": "enum",
 			"symbols": ["a", "b", "fwefewfew"]
 		}
+	}, {
+		"name": "unionTest",
+		"type": ["null", "com.financialforce.AnEnum", {
+			"name": "AClass",
+			"type": "record",
+			"fields": [{
+				"name": "a",
+				"type": "string"
+			}, {
+				"name": "b",
+				"type": "string"
+			}]
+		}, {
+			"name": "AClass2",
+			"type": "record",
+			"fields": [{
+				"name": "a2",
+				"type": "string"
+			}, {
+				"name": "b2",
+				"type": "int"
+			}]
+		}]
 	}, {
 		"name": "vehicleTypes",
 		"type": {

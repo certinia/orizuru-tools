@@ -38,7 +38,6 @@ function enumForSchema(classes, subSchema) {
 		result = mapper.map(subSchema),
 		recordName = result.apexType,
 		symbols = subSchema.symbols;
-
 	classes[recordName] = innerEnum(symbols, recordName);
 }
 
@@ -47,8 +46,7 @@ function classesForSchema(classes, subSchema, root = true) {
 		result = mapper.map(subSchema, Object.keys(classes)),
 		recordName = result.apexType,
 		fields = subSchema.fields,
-		fieldNameToTypeMap = {},
-		innerSubSchemas = [];
+		fieldNameToTypeMap = {};
 
 	if (result.type !== avroTypes.COMPLEX.RECORD) {
 		throw new Error('Not a record: ' + JSON.stringify(subSchema));
@@ -58,8 +56,13 @@ function classesForSchema(classes, subSchema, root = true) {
 		const result = mapper.map(field.type, Object.keys(classes));
 		fieldNameToTypeMap[field.name] = result.apexType;
 		if (_.size(result.foundSubSchemas)) {
-			_.each(result.foundSubSchemas, foundSubSchema => {
-				innerSubSchemas.push(foundSubSchema);
+			_.each(result.foundSubSchemas, innerSubSchema => {
+				if (innerSubSchema.type === avroTypes.COMPLEX.RECORD) {
+					classesForSchema(classes, innerSubSchema, false);
+				}
+				if (innerSubSchema.type === avroTypes.COMPLEX.ENUM) {
+					enumForSchema(classes, innerSubSchema);
+				}
 			});
 		}
 	});
@@ -69,15 +72,6 @@ function classesForSchema(classes, subSchema, root = true) {
 	} else {
 		classes[recordName] = innerClass(fieldNameToTypeMap, recordName);
 	}
-
-	_.each(innerSubSchemas, innerSubSchema => {
-		if (innerSubSchema.type === avroTypes.COMPLEX.RECORD) {
-			classesForSchema(classes, innerSubSchema, false);
-		}
-		if (innerSubSchema.type === avroTypes.COMPLEX.ENUM) {
-			enumForSchema(classes, innerSubSchema);
-		}
-	});
 
 }
 

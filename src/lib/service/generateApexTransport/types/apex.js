@@ -27,6 +27,7 @@
 'use strict';
 
 module.exports = Object.freeze({
+	OBJECT: 'Object',
 	BOOLEAN: 'Boolean',
 	INTEGER: 'Integer',
 	LONG: 'Long',

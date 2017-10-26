@@ -54,7 +54,18 @@ function getFullyQualifiedName(object) {
 	throw new Error('\'record\' and \'enum\' type objects must have a name.');
 }
 
+function getAFFQN(object) {
+	return apexFriendlyFullyQualifiedName(getFullyQualifiedName(object));
+}
+
 function mapSimpleType(object) {
+	if (object === avroTypes.SIMPLE.NULL || object.type === avroTypes.SIMPLE.NULL) {
+		return {
+			type: avroTypes.SIMPLE.NULL,
+			apexType: apexTypes.OBJECT,
+			foundSubSchemas: []
+		};
+	}
 	if (object === avroTypes.SIMPLE.BOOLEAN || object.type === avroTypes.SIMPLE.BOOLEAN) {
 		return {
 			type: avroTypes.SIMPLE.BOOLEAN,
@@ -101,9 +112,43 @@ function mapSimpleType(object) {
 }
 
 function mapComplexType(object, existingSchemas) {
-	let existing = false;
+	let union = false,
+		existing = false;
+	// check if the type is a union
+	if (_.isArray(object)) {
+		union = {
+			type: avroTypes.COMPLEX.UNION,
+			apexType: apexTypes.OBJECT,
+			foundSubSchemas: []
+		};
+		_.each(object, member => {
+			const
+				// eslint-disable-next-line no-use-before-define
+				memberResult = map(member, existingSchemas),
+				subSchemas = memberResult.foundSubSchemas;
+			if (_.size(subSchemas)) {
+				_.each(subSchemas, subSchema => {
+					union.foundSubSchemas.push(subSchema);
+				});
+			}
+		});
+	}
+	if (union) {
+		return union;
+	}
+	// check if the type is an existing defined type
 	_.each(existingSchemas, existingSchema => {
-		if (object === existingSchema || object.type === existingSchema) {
+		let exists = false;
+		if (_.isString(object)) {
+			if (object === existingSchema || apexFriendlyFullyQualifiedName(object) === existingSchema) {
+				exists = true;
+			}
+		} else if (_.isString(object.type)) {
+			if (object.type === existingSchema || apexFriendlyFullyQualifiedName(object.type) === existingSchema) {
+				exists = true;
+			}
+		}
+		if (exists) {
 			existing = {
 				type: avroTypes.COMPLEX.RECORD,
 				apexType: existingSchema,
@@ -114,17 +159,18 @@ function mapComplexType(object, existingSchemas) {
 	if (existing) {
 		return existing;
 	}
+	// check for avro default complex types
 	if (object.type === avroTypes.COMPLEX.RECORD) {
 		return {
 			type: avroTypes.COMPLEX.RECORD,
-			apexType: apexFriendlyFullyQualifiedName(getFullyQualifiedName(object)),
+			apexType: getAFFQN(object),
 			foundSubSchemas: [object]
 		};
 	}
 	if (object.type === avroTypes.COMPLEX.ENUM) {
 		return {
 			type: avroTypes.COMPLEX.ENUM,
-			apexType: apexFriendlyFullyQualifiedName(getFullyQualifiedName(object)),
+			apexType: getAFFQN(object),
 			foundSubSchemas: [object]
 		};
 	}
@@ -159,7 +205,7 @@ function map(object, existingSchemas) {
 	if (result) {
 		return result;
 	}
-	throw new Error('Could not map type. We do not support "union", "bytes" or "fixed" types.');
+	throw new Error('Could not map type for: ' + JSON.stringify(object) + '. We do not support "bytes" or "fixed" types.');
 }
 
 module.exports = {
