@@ -48,9 +48,10 @@ function generate(jsonAvroSchemas) {
 				if (mergedClassIdentifiers[classIdentifer] !== classString) {
 					throw new Error('Records and enums with the same \'name\' / \'namespace\' cannot be used across schemas unless they are identical. Identifier: \'' + classIdentifer + '\'.');
 				}
+			} else {
+				finalResult.push(classString);
+				mergedClassIdentifiers[classIdentifer] = classString;
 			}
-			finalResult.push(classString);
-			mergedClassIdentifiers[classIdentifer] = classString;
 		});
 
 	});
