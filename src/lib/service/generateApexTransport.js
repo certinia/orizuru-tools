@@ -26,6 +26,58 @@
 
 'use strict';
 
-const { generate } = require('./generateApexTransport/generate');
+const
+	_ = require('lodash'),
+	{ resolve } = require('path'),
 
-console.log(generate([require('./testSchema.json')]));
+	{ getAvscFilesOnPathRecursively } = require('./generateApexTransport/getAvscFilesOnPathRecursively'),
+	{ generate } = require('./generateApexTransport/generate'),
+	{ overwriteFile } = require('./generateApexTransport/overwriteFile'),
+
+	{ log, logStart, logFinish, logError } = require('../util/logger');
+
+function validateArgs(options) {
+	if (!_.isString(options.inputUrl)) {
+		throw new Error('Please set inputUrl as the first argument.');
+	}
+	if (!_.isString(options.outputUrl)) {
+		throw new Error('Please set outputUrl as the second argument.');
+	}
+	return options;
+}
+
+function generateClasses(options) {
+	const
+		files = getAvscFilesOnPathRecursively(resolve(process.cwd(), options.inputUrl)),
+		parsedSchemas = [];
+	log(_.map(files, file => file.path));
+	_.each(files, file => {
+		try {
+			parsedSchemas.push(JSON.parse(file.file));
+		} catch (err) {
+			throw new Error('Contents of .avsc files should be valid json.')
+		}
+	});
+	// eslint-disable-next-line one-var
+	const
+		result = generate(parsedSchemas),
+		outputPath = resolve(process.cwd(), options.outputUrl);
+	overwriteFile(resolve(outputPath, 'OrizuruTransport.cls'), result.cls);
+	overwriteFile(resolve(outputPath, 'OrizuruTransport.xml'), result.xml);
+}
+
+class GenerateApexTransport {
+
+	static generateApexTransport(argv) {
+		return Promise
+			.resolve(argv)
+			.then(validateArgs)
+			.then(logStart('Generating apex transport classes'))
+			.then(generateClasses)
+			.then(logFinish('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + resolve(process.cwd(), argv.outputUrl)))
+			.catch(logError);
+	}
+
+}
+
+module.exports = GenerateApexTransport;

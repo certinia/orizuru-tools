@@ -27,22 +27,15 @@
 'use strict';
 
 const
-	init = require('./setup/init'),
-	generateApexTransport = require('./setup/generateApexTransport'),
+	generateApexTransport = require('../../../service/generateApexTransport'),
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
 
 module.exports = {
-	command: 'setup',
-	desc: 'Executes Setup commands',
-	aliases: ['s'],
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru setup COMMAND')
-		.demandCommand(3, 'Run \'orizuru setup --help\' for more information on a command.\n')
-		.command(init)
-		.command(generateApexTransport)
-		.updateStrings({
-			'Commands:': 'Setup:'
-		})
-		.epilogue(COPYRIGHT_NOTICE)
+	command: ['generateapextransport [inputUrl] [outputUrl]', 'gat'],
+	description: 'Generates apex transport classes for .avsc files in a folder',
+	builder: yargs => yargs
+		.usage('\nUsage: orizuru setup generateapextransport [.avsc folder path] [apex class output path] ')
+		.epilogue(COPYRIGHT_NOTICE),
+	handler: (argv) => generateApexTransport.generateApexTransport(argv)
 };

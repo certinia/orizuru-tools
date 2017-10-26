@@ -27,22 +27,31 @@
 'use strict';
 
 const
-	init = require('./setup/init'),
-	generateApexTransport = require('./setup/generateApexTransport'),
+	_ = require('lodash'),
+	klawSync = require('klaw-sync'),
+	{ dirname, basename } = require('path'),
+	{ readFileSync } = require('fs'),
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+	EXT = '.avsc',
+	ENCODING = 'utf8';
+
+function getAvscFilesOnPathRecursively(path) {
+	const
+		DIR = path,
+		FILTER = ({ path }) => path.endsWith(EXT);
+
+	return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
+		const { path } = value;
+		// add sharedPath and fileName to the result
+		return {
+			path,
+			sharedPath: dirname(path).substring(DIR.length),
+			fileName: basename(path, EXT),
+			file: readFileSync(path).toString(ENCODING)
+		};
+	});
+}
 
 module.exports = {
-	command: 'setup',
-	desc: 'Executes Setup commands',
-	aliases: ['s'],
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru setup COMMAND')
-		.demandCommand(3, 'Run \'orizuru setup --help\' for more information on a command.\n')
-		.command(init)
-		.command(generateApexTransport)
-		.updateStrings({
-			'Commands:': 'Setup:'
-		})
-		.epilogue(COPYRIGHT_NOTICE)
+	getAvscFilesOnPathRecursively
 };

@@ -28,8 +28,8 @@
 
 const
 	_ = require('lodash'),
-	avroTypes = require('../types/avro'),
-	mapper = require('../types/mapper'),
+	avroTypes = require('./types/avro'),
+	mapper = require('./types/mapper'),
 
 	{ transportClass, innerClass, innerEnum } = require('./template');
 

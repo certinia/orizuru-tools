@@ -35,7 +35,7 @@ module.exports = {
 	command: ['init', 'i'],
 	description: 'Initialises a new project in your current folder',
 	builder: yargs => yargs
-		.usage('\nUsage: orizuru init')
+		.usage('\nUsage: orizuru setup init')
 		.epilogue(COPYRIGHT_NOTICE),
 	handler: (argv) => InitService.init(argv)
 };
