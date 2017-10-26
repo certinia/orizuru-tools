@@ -47,7 +47,7 @@ const
 
 chai.use(chaiAsPromised);
 
-describe('service/init.js', () => {
+describe('service/generateApexTransport.js', () => {
 
 	let mocks, GenerateApexTransportService;
 
