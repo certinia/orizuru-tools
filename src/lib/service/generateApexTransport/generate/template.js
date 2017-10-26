@@ -51,7 +51,7 @@ const
 		INNER_CLASS: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'innerClass.cls')).toString(ENCODING),
 		CONSTRUCTOR_PARAM: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'constructorParam.cls')).toString(ENCODING),
 		TRANSPORT: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'transport.cls')).toString(ENCODING),
-		TRANSPORT_XML: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'transport.xml')).toString(ENCODING),
+		TRANSPORT_XML: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'transport.cls-meta.xml')).toString(ENCODING),
 		TRANSPORT_EXTENSION: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'transportExtension.cls')).toString(ENCODING),
 		INNER_ENUM: fs.readFileSync(path.resolve(TEMPLATE_PATH, 'innerEnum.cls')).toString(ENCODING)
 	};

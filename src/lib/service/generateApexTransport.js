@@ -63,7 +63,7 @@ function generateClasses(options) {
 		result = generate(parsedSchemas),
 		outputPath = resolve(process.cwd(), options.outputUrl);
 	overwriteFile(resolve(outputPath, 'OrizuruTransport.cls'), result.cls);
-	overwriteFile(resolve(outputPath, 'OrizuruTransport.xml'), result.xml);
+	overwriteFile(resolve(outputPath, 'OrizuruTransport.cls-meta.xml'), result.xml);
 }
 
 class GenerateApexTransport {

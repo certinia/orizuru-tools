@@ -27,7 +27,7 @@
 public abstract class OrizuruTransport implements ISerializable
 {
 
-	protected OrizuruTrasport() {
+	protected OrizuruTransport() {
 		// abstract class
 	}
 
