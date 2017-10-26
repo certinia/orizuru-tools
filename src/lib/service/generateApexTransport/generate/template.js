@@ -31,7 +31,7 @@ const
 	fs = require('fs'),
 	path = require('path'),
 
-	TEMPLATE_PATH = path.resolve(__dirname, '../../../../res/template'),
+	TEMPLATE_PATH = path.resolve(__dirname, '../../../../res/lib/template'),
 
 	EMPTY = '',
 

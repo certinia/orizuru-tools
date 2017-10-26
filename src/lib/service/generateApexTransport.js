@@ -30,27 +30,6 @@ const
 	_ = require('lodash'),
 	{ classesForSchema } = require('./generateApexTransport/generate/classesForSchema'),
 
-	testSchema = {
-		namespace: 'com.financialforce',
-		name: 'Account',
-		type: 'record',
-		fields: [{
-			name: 'accountId',
-			type: 'string'
-		}, {
-			name: 'inner',
-			type: {
-				type: 'record',
-				namespace: 'com.financialforce',
-				name: 'Account2',
-				fields: [{
-					name: 'test',
-					type: 'int'
-				}]
-			}
-		}]
-	},
-
 	results = {};
 
 classesForSchema(results, require('./testSchema.json'));
