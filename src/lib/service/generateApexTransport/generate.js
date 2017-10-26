@@ -26,6 +26,39 @@
 
 'use strict';
 
-const { generate } = require('./generateApexTransport/generate');
+const
+	_ = require('lodash'),
 
-console.log(generate([require('./testSchema.json')]));
+	{ classesForSchema } = require('./generate/classesForSchema'),
+
+	CLASS_MERGE_DELIMITER = '\n';
+
+function generate(jsonAvroSchemas) {
+	const
+		finalResult = [],
+		mergedClassIdentifiers = {};
+
+	_.each(jsonAvroSchemas, jsonAvroSchema => {
+		const classes = {};
+
+		classesForSchema(classes, jsonAvroSchema);
+
+		_.each(classes, (classString, classIdentifer) => {
+			if (_.hasIn(mergedClassIdentifiers, classIdentifer)) {
+				if (mergedClassIdentifiers[classIdentifer] !== classString) {
+					throw new Error('Records and enums with the same \'name\' / \'namespace\' cannot be used across schemas unless they are identical. Identifier: \'' + classIdentifer + '\'.');
+				}
+			}
+			finalResult.push(classString);
+			mergedClassIdentifiers[classIdentifer] = classString;
+		});
+
+	});
+
+	return finalResult.join(CLASS_MERGE_DELIMITER);
+
+}
+
+module.exports = {
+	generate
+};
