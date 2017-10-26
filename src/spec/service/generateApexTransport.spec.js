@@ -59,8 +59,6 @@ describe('service/generateApexTransport.js', () => {
 			overwriteFile: sandbox.stub(overwriteFile, 'overwriteFile')
 		};
 
-		mocks.logger.logStart = sandbox.stub().callsFake(() => config => config);
-		mocks.logger.logFinish = sandbox.stub().callsFake(() => config => config);
 		mocks.logger.logError = sandbox.stub();
 		mocks.logger.log = sandbox.stub();
 
