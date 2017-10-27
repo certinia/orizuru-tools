@@ -1,25 +1,22 @@
-# Add Handlers here
+# Add Avro Schemas here
 
-Files are .js modules.
+Files must have the .avsc extension.
 
 ## Example
 
-*fullname.js*
+*fullname.avsc*
 
 ````javascript
 
-'use strict';
-
-const
-	debug = require('debug-plus')('fullname-handler');
-
-module.exports = ({ message, context }) => {
-	debug.log('Handled event for schema \'api/fullname\'...');
-	debug.log('Context:');
-	debug.log(JSON.stringify(context));
-	debug.log('Message:');
-	debug.log(JSON.stringify(message));
-};
+{
+     "type": "record",
+     "namespace": "com.example",
+     "name": "FullName",
+     "fields": [
+       { "name": "first", "type": "string" },
+       { "name": "last", "type": "string" }
+     ]
+} 
 
 ````
 
