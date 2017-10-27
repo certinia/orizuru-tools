@@ -1,0 +1,17 @@
+{
+	"namespace": "com.financialforce",
+	"name": "Test",
+	"type": "record",
+	"fields": [{
+		"name": "field1",
+		"type": {
+			"namespace": "com.financialforce",
+			"name": "Test",
+			"type": "record",
+			"fields": [{
+				"name": "field1",
+				"type": "string"
+			}]
+		}
+	}]
+}

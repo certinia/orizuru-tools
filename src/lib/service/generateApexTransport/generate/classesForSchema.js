@@ -38,13 +38,13 @@ function enumForSchema(classes, subSchema) {
 		result = mapper.map(subSchema),
 		recordName = result.apexType,
 		symbols = subSchema.symbols;
-	if (!_.isArray(symbols)) {
+	if (!_.isArray(symbols) || !_.size(symbols)) {
 		throw new Error('Enum: ' + recordName + ' must contain \'symbols.\'');
 	}
 	if (classes[recordName]) {
 		throw new Error('Enum: ' + recordName + ' already defined in schema.');
 	} else {
-		classes[recordName] = innerEnum(symbols, recordName);
+		classes[recordName] = innerEnum(_.uniq(symbols), recordName);
 	}
 }
 
@@ -61,7 +61,7 @@ function classesForSchema(classes, subSchema, root = true) {
 		throw new Error('The root of the schema must be of type \'record\': ' + JSON.stringify(subSchema) + '.');
 	}
 
-	if (!_.isArray(fields)) {
+	if (!_.isArray(fields) || !_.size(fields)) {
 		throw new Error('Record: ' + recordName + ' must contain \'fields.\'');
 	}
 

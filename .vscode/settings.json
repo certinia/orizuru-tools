@@ -14,8 +14,7 @@
 		"package.json"
 	],
 	"files.associations": {
-		"*.avsc": "json",
-		"*.avsctest": "json"
+		"*.avsc": "json"
 	},
 	"editor.detectIndentation": false,
 	"editor.formatOnSave": true,

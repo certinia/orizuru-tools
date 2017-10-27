@@ -88,25 +88,39 @@ describe('service/generateApexTransport/generate.js', () => {
 
 	describe('generate', () => {
 
-		it('should throw for unknown types', () => testError('unknownType.avsctest', 'Could not map type for: "unknown". We do not support "bytes" or "fixed" types.'));
+		describe('should throw', () => {
 
-		it('should throw for unnamed records', () => testError('unnamedRecord.avsctest', '\'record\' and \'enum\' type objects must have a name.'));
+			it('for unknown types', () => testError('unknownType.avsc', 'Could not map type for: "unknown". We do not support "bytes" or "fixed" types.'));
 
-		it('should throw if enum has no symbols', () => testError('noEnumSymbols.avsctest', 'TestEnum must contain \'symbols.\''));
+			it('for unnamed records', () => testError('unnamedRecord.avsc', '\'record\' and \'enum\' type objects must have a name.'));
 
-		it('should throw if enum is already defined', () => testError('duplicateEnum.avsctest', 'Enum: TestEnum already defined in schema.'));
+			it('if enum has no symbols', () => testError('noEnumSymbols.avsc', 'TestEnum must contain \'symbols.\''));
 
-		it('should generate types for a simple schema', () => testSuccess('simple.avsctest', 'Simple.cls'));
+			it('if enum is already defined', () => testError('duplicateEnum.avsc', 'Enum: TestEnum already defined in schema.'));
 
-		it('should generate types for a schema with a child record', () => testSuccess('childRecord.avsctest', 'ChildRecord.cls'));
+			it('if the root isn\'t a record', () => testError('nonRecordRoot.avsc', 'The root of the schema must be of type \'record\': {"namespace":"com.financialforce","name":"Test","type":"enum","symbols":["A","B","C"]}'));
 
-		it('should generate types for a recursive schema', () => testSuccess('recursive.avsctest', 'Recursive.cls'));
+			it('if record has no fields', () => testError('noRecordFields.avsc', 'Record: com_financialforce_Test must contain \'fields.\''));
 
-		it('should generate types for a schema with enums', () => testSuccess('enum.avsctest', 'Enum.cls'));
+			it('if record is already defined', () => testError('duplicateRecord.avsc', 'Record: com_financialforce_Test already defined in schema.'));
 
-		it('should generate types for a schema with all types', () => testSuccess('encompassingTypes.avsctest', 'EncompassingTypes.cls'));
+		});
 
-		it('should generate types for a schema with nested union sub schemas', () => testSuccess('nestedUnionSubSchema.avsctest', 'NestedUnionSubSchema.cls'));
+		describe('should generate types for', () => {
+
+			it('a simple schema', () => testSuccess('simple.avsc', 'Simple.cls'));
+
+			it('a schema with a child record', () => testSuccess('childRecord.avsc', 'ChildRecord.cls'));
+
+			it('a recursive schema', () => testSuccess('recursive.avsc', 'Recursive.cls'));
+
+			it('a schema with enums', () => testSuccess('enum.avsc', 'Enum.cls'));
+
+			it('a schema with all types', () => testSuccess('encompassingTypes.avsc', 'EncompassingTypes.cls'));
+
+			it('a schema with nested union sub schemas', () => testSuccess('nestedUnionSubSchema.avsc', 'NestedUnionSubSchema.cls'));
+
+		});
 
 	});
 

@@ -1,0 +1,6 @@
+{
+	"namespace": "com.financialforce",
+	"name": "Test",
+	"type": "enum",
+	"symbols": ["A", "B", "C"]
+}
