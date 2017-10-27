@@ -26,70 +26,12 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
+class Symbol {
 
-	types = require('./types'),
-
-	CLASSIFICATIONS = [
-		'simple',
-		'complex',
-		'ref',
-		'nested',
-		'union'
-	];
-
-CLASSIFICATIONS.SIMPLE = CLASSIFICATIONS[0];
-CLASSIFICATIONS.COMPLEX = CLASSIFICATIONS[1];
-CLASSIFICATIONS.REF = CLASSIFICATIONS[2];
-CLASSIFICATIONS.NESTED = CLASSIFICATIONS[3];
-CLASSIFICATIONS.UNION = CLASSIFICATIONS[4];
-
-CLASSIFICATIONS.classify = schema => {
-	let type;
-	if (_.isObject(schema)) {
-		type = schema.type;
-	} else if (_.isString(schema)) {
-		type = schema;
-	} else {
-		throw new Error('Could not classify null schema');
+	constructor(name) {
+		this.name = name;
 	}
 
-	if (_.isString(type) && !_.isEmpty(type)) {
-		const
-			simpleType = types.SIMPLE.is(type),
-			complexType = types.COMPLEX.is(type);
+}
 
-		if (simpleType) {
-			return {
-				classification: CLASSIFICATIONS.SIMPLE,
-				type
-			};
-		}
-		if (complexType) {
-			return {
-				classification: CLASSIFICATIONS.COMPLEX,
-				type: schema
-			};
-		}
-		return {
-			classification: CLASSIFICATIONS.REF,
-			type
-		};
-	}
-	if (_.isPlainObject(type)) {
-		return {
-			classification: CLASSIFICATIONS.NESTED,
-			type
-		};
-	}
-	if (_.isArray(type)) {
-		return {
-			classification: CLASSIFICATIONS.UNION,
-			type
-		};
-	}
-	throw new Error('Could not classify type for schema: ' + JSON.stringify(schema));
-};
-
-module.exports = Object.freeze(CLASSIFICATIONS);
+module.exports = Symbol;

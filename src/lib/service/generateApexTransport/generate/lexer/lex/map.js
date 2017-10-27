@@ -26,8 +26,13 @@
 
 'use strict';
 
-function lexMap(schema, lexFunction) {
+const Map = require('../tokens/map');
 
+function lexMap(schema, lexFunction) {
+	if (!schema.values) {
+		throw new Error('Could not find values for map: ' + JSON.stringify(schema));
+	}
+	return new Map(lexFunction(schema.values));
 }
 
 module.exports = lexMap;

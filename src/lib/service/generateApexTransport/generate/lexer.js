@@ -71,6 +71,6 @@ function lex(schema) {
 
 }
 
-console.log(lex(JSON.parse(require('fs').readFileSync(__dirname + '/../../../../res/spec/generate/input/simple.avsc').toString('utf8'))));
+console.log(JSON.stringify(lex(JSON.parse(require('fs').readFileSync(__dirname + '/../../../../res/spec/generate/input/encompassingTypes.avsc').toString('utf8')))));
 
 module.exports = { lex };

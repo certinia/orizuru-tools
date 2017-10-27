@@ -26,8 +26,26 @@
 
 'use strict';
 
-function lexEnum(schema, lexFunction) {
+const
+	_ = require('lodash'),
+	Enum = require('../tokens/enum'),
+	Symbol = require('../tokens/symbol');
 
+function lexEnum(schema, lexFunction) {
+	if (!_.isString(schema.name) || _.isEmpty(schema.name)) {
+		throw new Error('Could not find name for enum: ' + JSON.stringify(schema));
+	}
+	if (!_.isArray(schema.symbols) || _.isEmpty(schema.symbols)) {
+		throw new Error('Could not find symbols for enum: ' + JSON.stringify(schema));
+	}
+	const symbols = [];
+	_.each(schema.symbols, symbol => {
+		if (!_.isString(symbol) || _.isEmpty(symbol)) {
+			throw new Error('Enum symbols must be non-empty strings: ' + JSON.stringify(schema));
+		}
+		symbols.push(new Symbol(symbol));
+	});
+	return new Enum(schema.name, schema.namespace, symbols);
 }
 
 module.exports = lexEnum;

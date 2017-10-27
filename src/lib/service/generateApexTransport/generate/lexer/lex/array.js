@@ -26,8 +26,13 @@
 
 'use strict';
 
-function lexArray(schema, lexFunction) {
+const Array = require('../tokens/array');
 
+function lexArray(schema, lexFunction) {
+	if (!schema.items) {
+		throw new Error('Could not find items for array: ' + JSON.stringify(schema));
+	}
+	return new Array(lexFunction(schema.items));
 }
 
 module.exports = lexArray;
