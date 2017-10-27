@@ -28,9 +28,20 @@
 
 const
 
+	CONCURRENCY = process.env.WEB_CONCURRENCY || 1,
+	PORT = process.env.PORT || 8080,
+	ADVERTISE_HOST = process.env.ADVERTISE_HOST || 'localhost:8080',
+	ADVERTISE_SCHEME = process.env.ADVERTISE_SCHEME || 'http',
+
+	OPEN_API_EXT = '.json',
+
 	// get utils
 	_ = require('lodash'),
-	debug = require('debug-plus')('financialforcedev:orizuru~tools:example:boilerplate:web'),
+	throng = require('throng'),
+	uuid = require('uuid'),
+	debug = require('debug-plus')('boilerplate:web'),
+	openapiGenerator = require('@financialforcedev/orizuru-openapi').generator,
+
 	{ readSchema } = require('./shared/read'),
 
 	// define transport
@@ -38,41 +49,87 @@ const
 
 	// get server
 	{ Server } = require('@financialforcedev/orizuru'),
-	serverInstance = new Server(transport),
 
 	// get all files in our 'schemas' directory
-	schemas = require('./shared/schemas').get();
+	schemas = require('./shared/schemas').get(),
 
-// function to add a route input object to an object if needed
-function addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, path) {
-	if (!sharedPathToAddRouteInput[path]) {
-		sharedPathToAddRouteInput[path] = {
-			schemaNameToDefinition: {},
-			apiEndpoint: path,
-			middlewares: []
-		};
-	}
-}
+	idMiddleware = (req, res, next) => {
+		const
+			orizuru = req.orizuru || {};
 
-// add routes for each shared path to the server
-_.each(_.reduce(schemas, (sharedPathToAddRouteInput, schema) => {
-	addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, schema.sharedPath);
-	debug.log('Found schema \'%s\' at \'%s\'', schema.fileName, schema.sharedPath);
-	sharedPathToAddRouteInput[schema.sharedPath].schemaNameToDefinition[schema.fileName] = readSchema(schema.path);
-	return sharedPathToAddRouteInput;
-}, {}), routeInfo => {
-	debug.log('Adding route(s) for \'%s\'', routeInfo.apiEndpoint);
-	_.each(routeInfo.schemaNameToDefinition, (value, key) => {
-		debug.log('Adding route \'%s\'', key);
-	});
-	serverInstance.addRoute(routeInfo);
-});
+		req.orizuru = orizuru;
+		orizuru.id = uuid();
+		next();
+	},
+
+	responseWriter = (err, response, orizuru) => {
+		if (err) {
+			response.status(400).send(err.message);
+		} else {
+			response.json({
+				id: orizuru.id
+			});
+		}
+	},
+
+	// function to add a route input object to an object if needed
+	addRouteInputObjectToResultIfRequired = (sharedPathToAddRouteInput, path) => {
+		if (!sharedPathToAddRouteInput[path]) {
+			sharedPathToAddRouteInput[path] = {
+				schemaNameToDefinition: {},
+				apiEndpoint: path,
+				middlewares: [idMiddleware],
+				responseWriter: responseWriter
+			};
+		}
+	},
+
+	serve = () => {
+		const
+			serverInstance = new Server(transport);
+
+		require('pkginfo')(module, 'version', 'name', 'description');
+
+		// add routes for each shared path to the server
+		_.each(_.reduce(schemas, (sharedPathToAddRouteInput, schema) => {
+			addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, schema.sharedPath);
+			debug.log('Found schema \'%s\' at \'%s\'', schema.fileName, schema.sharedPath);
+			sharedPathToAddRouteInput[schema.sharedPath].schemaNameToDefinition[schema.fileName] = readSchema(schema.path);
+			return sharedPathToAddRouteInput;
+		}, {}), routeInfo => {
+			debug.log('Adding route(s) for \'%s\'', routeInfo.apiEndpoint);
+			_.each(routeInfo.schemaNameToDefinition, (value, key) => {
+				debug.log('Adding route \'%s\'', key);
+			});
+			serverInstance.addRoute(routeInfo);
+			serverInstance.addGet({
+				path: routeInfo.apiEndpoint + OPEN_API_EXT,
+				requestHandler: openapiGenerator.generateV2({
+					info: {
+						version: module.exports.version,
+						title: module.exports.name,
+						description: module.exports.description
+					},
+					host: ADVERTISE_HOST,
+					basePath: routeInfo.apiEndpoint,
+					schemes: [ADVERTISE_SCHEME]
+				}, routeInfo.schemaNameToDefinition)
+			});
+
+		});
+
+		// get the express server and listen to a port
+		serverInstance
+			.getServer()
+			.listen(PORT);
+	};
 
 // debug out errors and info
 Server.emitter.on(Server.emitter.ERROR, debug.error);
 Server.emitter.on(Server.emitter.INFO, debug.log);
 
-// get the express server and listen to a port
-serverInstance
-	.getServer()
-	.listen(process.env.PORT || 8080);
+if (CONCURRENCY > 1) {
+	throng(CONCURRENCY, serve);
+} else {
+	serve();
+}
