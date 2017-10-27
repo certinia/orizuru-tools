@@ -26,13 +26,65 @@
 
 'use strict';
 
-module.exports = Object.freeze({
-	OBJECT: 'Object',
-	BOOLEAN: 'Boolean',
-	INTEGER: 'Integer',
-	LONG: 'Long',
-	DOUBLE: 'Double',
-	STRING: 'String',
-	array: inner => 'List<' + inner + '>',
-	map: inner => 'Map<String, ' + inner + '>'
-});
+const
+	_ = require('lodash'),
+
+	types = require('./types'),
+
+	CLASSIFICATIONS = [
+		'simple',
+		'complex',
+		'ref',
+		'nested',
+		'union'
+	];
+
+CLASSIFICATIONS.SIMPLE = CLASSIFICATIONS[0];
+CLASSIFICATIONS.COMPLEX = CLASSIFICATIONS[1];
+CLASSIFICATIONS.REF = CLASSIFICATIONS[2];
+CLASSIFICATIONS.NESTED = CLASSIFICATIONS[3];
+CLASSIFICATIONS.UNION = CLASSIFICATIONS[4];
+
+CLASSIFICATIONS.classify = schema => {
+	if (!_.isObject(schema)) {
+		throw new Error('Could not classify null schema');
+	}
+	const type = schema.type;
+	if (_.isString(type) && !_.isEmpty(type)) {
+		const
+			simpleType = types.SIMPLE.is(type),
+			complexType = types.COMPLEX.is(type);
+
+		if (simpleType) {
+			return {
+				classification: CLASSIFICATIONS.SIMPLE,
+				type
+			};
+		}
+		if (complexType) {
+			return {
+				classification: CLASSIFICATIONS.COMPLEX,
+				type: schema
+			};
+		}
+		return {
+			classification: CLASSIFICATIONS.REF,
+			type
+		};
+	}
+	if (_.isPlainObject(type)) {
+		return {
+			classification: CLASSIFICATIONS.NESTED,
+			type
+		};
+	}
+	if (_.isArray(type)) {
+		return {
+			classification: CLASSIFICATIONS.UNION,
+			type
+		};
+	}
+	throw new Error('Could not classify type for schema: ' + JSON.stringify(schema));
+};
+
+module.exports = Object.freeze(CLASSIFICATIONS);

@@ -26,21 +26,8 @@
 
 'use strict';
 
-module.exports = Object.freeze({
-	SIMPLE: {
-		NULL: 'null',
-		BOOLEAN: 'boolean',
-		INTEGER: 'int',
-		LONG: 'long',
-		FLOAT: 'float',
-		DOUBLE: 'double',
-		STRING: 'string'
-	},
-	COMPLEX: {
-		RECORD: 'record',
-		ENUM: 'enum',
-		ARRAY: 'array',
-		MAP: 'map',
-		UNION: 'union'
-	}
-});
+function lexArray(schema, lexFunction) {
+
+}
+
+module.exports = lexArray;
