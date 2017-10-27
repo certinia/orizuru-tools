@@ -30,6 +30,7 @@ class Type {
 
 	constructor(type) {
 		this.type = type;
+		this.tokenType = this.constructor.name;
 	}
 
 }

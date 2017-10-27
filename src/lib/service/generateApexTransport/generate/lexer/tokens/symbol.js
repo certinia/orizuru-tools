@@ -30,6 +30,7 @@ class Symbol {
 
 	constructor(name) {
 		this.name = name;
+		this.tokenType = this.constructor.name;
 	}
 
 }

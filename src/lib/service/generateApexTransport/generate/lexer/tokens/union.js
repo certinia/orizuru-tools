@@ -30,6 +30,7 @@ class Union {
 
 	constructor(types) {
 		this.types = types;
+		this.tokenType = this.constructor.name;
 	}
 
 }
