@@ -33,6 +33,20 @@ const
 	ADVERTISE_HOST = process.env.ADVERTISE_HOST || 'localhost:8080',
 	ADVERTISE_SCHEME = process.env.ADVERTISE_SCHEME || 'http',
 
+	JWT_SIGNING_KEY = process.env.JWT_SIGNING_KEY,
+	OPENID_CLIENT_ID = process.env.OPENID_CLIENT_ID,
+	OPENID_HTTP_TIMEOUT = process.env.OPENID_HTTP_TIMEOUT || 4000,
+	OPENID_ISSUER_URI = process.env.OPENID_ISSUER_URI || 'https://test.salesforce.com/',
+
+	authEnv = {
+		jwtSigningKey: JWT_SIGNING_KEY,
+		openidClientId: OPENID_CLIENT_ID,
+		openidHTTPTimeout: OPENID_HTTP_TIMEOUT,
+		openidIssuerURI: OPENID_ISSUER_URI
+	},
+
+	authMiddleware = require('@financialforcedev/orizuru-auth').middleware,
+
 	OPEN_API_EXT = '.json',
 
 	// get utils
@@ -72,13 +86,19 @@ const
 		}
 	},
 
+	middlewares = [
+		idMiddleware,
+		authMiddleware.tokenValidator(authEnv),
+		authMiddleware.grantChecker(authEnv)
+	],
+
 	// function to add a route input object to an object if needed
 	addRouteInputObjectToResultIfRequired = (sharedPathToAddRouteInput, path) => {
 		if (!sharedPathToAddRouteInput[path]) {
 			sharedPathToAddRouteInput[path] = {
 				schemaNameToDefinition: {},
 				apiEndpoint: path,
-				middlewares: [idMiddleware],
+				middlewares,
 				responseWriter: responseWriter
 			};
 		}
