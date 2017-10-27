@@ -27,72 +27,79 @@
 'use strict';
 
 const
-	chai = require('chai'),
 	root = require('app-root-path'),
-	proxyquire = require('proxyquire'),
+	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
+	proxyquire = require('proxyquire'),
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
+	expect = chai.expect,
 
-	assert = sinon.assert,
-	callCount = assert.callCount,
-	calledOnce = assert.calledOnce,
-	calledWith = assert.calledWith,
-	deepEqual = chai.assert.deepEqual,
-	strictEqual = chai.assert.strictEqual,
+	{ calledOnce, calledTwice, calledWith } = sinon.assert,
 
 	sandbox = sinon.sandbox.create();
 
-describe('bin/commands/setup.js', () => {
+chai.use(chaiAsPromised);
 
-	let cli, mocks;
+describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () => {
+
+	let startPath, mocks, getAvscFilesOnPathRecursively;
 
 	beforeEach(() => {
-
+		startPath = 'startPath/';
 		mocks = {
-			yargs: {
-				command: sandbox.stub().returnsThis(),
-				demandCommand: sandbox.stub().returnsThis(),
-				epilogue: sandbox.stub().returnsThis(),
-				updateStrings: sandbox.stub().returnsThis(),
-				usage: sandbox.stub().returnsThis()
-			}
+			klawSync: sandbox.stub().returns([{
+				path: startPath + 'a/b/c.avsc'
+			}, {
+				path: startPath + 'd/e/f.avsc'
+			}]),
+			readFileSync: sandbox.stub().returns(new Buffer('potato'))
 		};
-
-		cli = proxyquire(root + '/src/lib/bin/commands/setup', {
-			yargs: mocks.yargs
+		getAvscFilesOnPathRecursively = proxyquire(root + '/src/lib/service/generateApexTransport/getAvscFilesOnPathRecursively', {
+			'klaw-sync': mocks.klawSync,
+			fs: {
+				readFileSync: mocks.readFileSync
+			}
 		});
-
 	});
 
-	afterEach(() => {
-		sandbox.restore();
-	});
+	afterEach(() => sandbox.restore());
 
-	it('should create the cli', () => {
+	describe('getAvscFilesOnPathRecursively', () => {
 
-		// when
-		cli.builder(mocks.yargs);
+		it('should call klawSync and process results', () => {
 
-		//then
-		callCount(mocks.yargs.command, 2);
-		calledOnce(mocks.yargs.demandCommand);
-		calledOnce(mocks.yargs.epilogue);
-		calledOnce(mocks.yargs.updateStrings);
+			// given
+			const
+				expected = [{
+					file: 'potato',
+					fileName: 'c',
+					path: 'startPath/a/b/c.avsc',
+					sharedPath: 'a/b'
+				}, {
+					file: 'potato',
+					fileName: 'f',
+					path: 'startPath/d/e/f.avsc',
+					sharedPath: 'd/e'
+				}];
 
-		calledWith(mocks.yargs.demandCommand, 3, 'Run \'orizuru setup --help\' for more information on a command.\n');
-		calledWith(mocks.yargs.epilogue, COPYRIGHT_NOTICE);
-		calledWith(mocks.yargs.updateStrings, { 'Commands:': 'Setup:' });
-		calledWith(mocks.yargs.usage, '\nUsage: orizuru setup COMMAND');
+			// when - then
+			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively(startPath)).to.eql(expected);
 
-	});
+			calledOnce(mocks.klawSync);
+			calledWith(mocks.klawSync, startPath, {
+				nodir: true,
+				filter: sinon.match.func
+			});
 
-	it('should have the correct command, description and alias', () => {
+			expect(mocks.klawSync.args[0][1].filter({ path: 'a.avsc' })).to.eql(true);
+			expect(mocks.klawSync.args[0][1].filter({ path: 'a.js' })).to.eql(false);
 
-		// then
-		strictEqual(cli.command, 'setup');
-		deepEqual(cli.aliases, ['s']);
-		strictEqual(cli.desc, 'Executes Setup commands');
+			calledTwice(mocks.readFileSync);
+			calledWith(mocks.readFileSync, startPath + 'a/b/c.avsc');
+			calledWith(mocks.readFileSync, startPath + 'd/e/f.avsc');
+
+		});
 
 	});
 

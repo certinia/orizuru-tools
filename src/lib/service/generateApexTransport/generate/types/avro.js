@@ -26,23 +26,21 @@
 
 'use strict';
 
-const
-	init = require('./setup/init'),
-	generateApexTransport = require('./setup/generateApexTransport'),
-
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
-
-module.exports = {
-	command: 'setup',
-	desc: 'Executes Setup commands',
-	aliases: ['s'],
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru setup COMMAND')
-		.demandCommand(3, 'Run \'orizuru setup --help\' for more information on a command.\n')
-		.command(init)
-		.command(generateApexTransport)
-		.updateStrings({
-			'Commands:': 'Setup:'
-		})
-		.epilogue(COPYRIGHT_NOTICE)
-};
+module.exports = Object.freeze({
+	SIMPLE: {
+		NULL: 'null',
+		BOOLEAN: 'boolean',
+		INTEGER: 'int',
+		LONG: 'long',
+		FLOAT: 'float',
+		DOUBLE: 'double',
+		STRING: 'string'
+	},
+	COMPLEX: {
+		RECORD: 'record',
+		ENUM: 'enum',
+		ARRAY: 'array',
+		MAP: 'map',
+		UNION: 'union'
+	}
+});

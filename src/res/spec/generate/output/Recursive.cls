@@ -24,25 +24,45 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-'use strict';
+public abstract class OrizuruTransport implements ISerializable
+{
 
-const
-	root = require('app-root-path'),
+	protected OrizuruTransport() {
+		// abstract class
+	}
 
-	accountHandler = require(root + '/src/lib/handlers/api/account');
+	public String serialize() {
+		return Json.serialize(this);
+	}
 
-describe('handlers/api/account.js', () => {
+	public class com_financialforce_Test extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
+	{
 
-	it('should return a function that does nothing', () => {
+		public String deliveryPlanId { get; set; }
+		public com_financialforce_child deliveries { get; set; }
 
-		// given - when - then
-		accountHandler({
-			message: {
-				accountId: 'test'
-			},
-			context: {}
-		});
+		public com_financialforce_Test(String deliveryPlanId, com_financialforce_child deliveries) {
+			
+			this.deliveryPlanId = deliveryPlanId;
+			this.deliveries = deliveries;
 
-	});
+		}
 
-});
+	}
+
+	public class com_financialforce_child // Internal class defining a type within an Orizuru Avro transport schema, used within transport extensions
+	{
+
+		public String deliveryId { get; set; }
+		public Object childDelivery { get; set; }
+
+		public com_financialforce_child(String deliveryId, Object childDelivery) {
+			
+			this.deliveryId = deliveryId;
+			this.childDelivery = childDelivery;
+
+		}
+
+	}
+
+}

@@ -24,25 +24,28 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-'use strict';
+public abstract class OrizuruTransport implements ISerializable
+{
 
-const
-	init = require('./setup/init'),
-	generateApexTransport = require('./setup/generateApexTransport'),
+	protected OrizuruTransport() {
+		// abstract class
+	}
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+	public String serialize() {
+		return Json.serialize(this);
+	}
 
-module.exports = {
-	command: 'setup',
-	desc: 'Executes Setup commands',
-	aliases: ['s'],
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru setup COMMAND')
-		.demandCommand(3, 'Run \'orizuru setup --help\' for more information on a command.\n')
-		.command(init)
-		.command(generateApexTransport)
-		.updateStrings({
-			'Commands:': 'Setup:'
-		})
-		.epilogue(COPYRIGHT_NOTICE)
-};
+	public class com_financialforce_Test extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
+	{
+
+		public String deliveryPlanId { get; set; }
+
+		public com_financialforce_Test(String deliveryPlanId) {
+			
+			this.deliveryPlanId = deliveryPlanId;
+
+		}
+
+	}
+
+}

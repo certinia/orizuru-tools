@@ -27,22 +27,42 @@
 'use strict';
 
 const
-	init = require('./setup/init'),
-	generateApexTransport = require('./setup/generateApexTransport'),
+	_ = require('lodash'),
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+	{ classesForSchema } = require('./generate/classesForSchema'),
+	{ wrappingOrizuruClass, wrappingOrizuruClassXml } = require('./generate/template'),
+
+	CLASS_MERGE_DELIMITER = '\n';
+
+function generate(jsonAvroSchemas) {
+	const
+		finalResult = [],
+		mergedClassIdentifiers = {};
+
+	_.each(jsonAvroSchemas, jsonAvroSchema => {
+		const classes = {};
+
+		classesForSchema(classes, jsonAvroSchema);
+
+		_.each(classes, (classString, classIdentifer) => {
+			if (_.hasIn(mergedClassIdentifiers, classIdentifer)) {
+				if (mergedClassIdentifiers[classIdentifer] !== classString) {
+					throw new Error('Records and enums with the same \'name\' / \'namespace\' cannot be used across schemas unless they are identical. Identifier: \'' + classIdentifer + '\'.');
+				}
+			} else {
+				finalResult.push(classString);
+				mergedClassIdentifiers[classIdentifer] = classString;
+			}
+		});
+
+	});
+
+	return {
+		cls: wrappingOrizuruClass(_.trimStart(finalResult.join(CLASS_MERGE_DELIMITER))),
+		xml: wrappingOrizuruClassXml()
+	};
+}
 
 module.exports = {
-	command: 'setup',
-	desc: 'Executes Setup commands',
-	aliases: ['s'],
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru setup COMMAND')
-		.demandCommand(3, 'Run \'orizuru setup --help\' for more information on a command.\n')
-		.command(init)
-		.command(generateApexTransport)
-		.updateStrings({
-			'Commands:': 'Setup:'
-		})
-		.epilogue(COPYRIGHT_NOTICE)
+	generate
 };

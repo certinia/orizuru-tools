@@ -26,23 +26,14 @@
 
 'use strict';
 
-const
-	init = require('./setup/init'),
-	generateApexTransport = require('./setup/generateApexTransport'),
+const { writeFileSync } = require('fs');
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+function overwriteFile(path, content) {
+	return writeFileSync(path, content, {
+		flag: 'w'
+	});
+}
 
 module.exports = {
-	command: 'setup',
-	desc: 'Executes Setup commands',
-	aliases: ['s'],
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru setup COMMAND')
-		.demandCommand(3, 'Run \'orizuru setup --help\' for more information on a command.\n')
-		.command(init)
-		.command(generateApexTransport)
-		.updateStrings({
-			'Commands:': 'Setup:'
-		})
-		.epilogue(COPYRIGHT_NOTICE)
+	overwriteFile
 };

@@ -13,6 +13,9 @@
 	"beautify.ignore": [
 		"package.json"
 	],
+	"files.associations": {
+		"*.avsc": "json"
+	},
 	"editor.detectIndentation": false,
 	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,

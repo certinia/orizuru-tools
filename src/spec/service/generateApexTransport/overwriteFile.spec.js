@@ -27,22 +27,60 @@
 'use strict';
 
 const
-	init = require('./setup/init'),
-	generateApexTransport = require('./setup/generateApexTransport'),
+	root = require('app-root-path'),
+	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
+	sinon = require('sinon'),
+	proxyquire = require('proxyquire'),
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+	expect = chai.expect,
 
-module.exports = {
-	command: 'setup',
-	desc: 'Executes Setup commands',
-	aliases: ['s'],
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru setup COMMAND')
-		.demandCommand(3, 'Run \'orizuru setup --help\' for more information on a command.\n')
-		.command(init)
-		.command(generateApexTransport)
-		.updateStrings({
-			'Commands:': 'Setup:'
-		})
-		.epilogue(COPYRIGHT_NOTICE)
-};
+	calledOnce = sinon.assert.calledOnce,
+	calledWith = sinon.assert.calledWith,
+
+	sandbox = sinon.sandbox.create();
+
+chai.use(chaiAsPromised);
+
+describe('service/generateApexTransport/overwriteFile.js', () => {
+
+	let mocks, overwriteFile;
+
+	beforeEach(() => {
+		mocks = {
+			writeFileSync: sandbox.stub()
+		};
+		overwriteFile = proxyquire(root + '/src/lib/service/generateApexTransport/overwriteFile', {
+			fs: {
+				writeFileSync: mocks.writeFileSync
+			}
+		});
+	});
+
+	afterEach(() => sandbox.restore());
+
+	describe('overwriteFile', () => {
+
+		it('should call fs.writeFileSync with the correct params', () => {
+
+			// given
+			const
+				path = 'a',
+				content = 'b',
+				expected = 'c';
+
+			mocks.writeFileSync.returns(expected);
+
+			// when - then
+			expect(overwriteFile.overwriteFile(path, content)).to.eql(expected);
+
+			calledOnce(mocks.writeFileSync);
+			calledWith(mocks.writeFileSync, path, content, {
+				flag: 'w'
+			});
+
+		});
+
+	});
+
+});

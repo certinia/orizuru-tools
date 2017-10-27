@@ -5,7 +5,7 @@
 		"request": "launch",
 		"name": "Debug web dyno",
 		"runtimeArgs": [
-			"src/lib/boilerplate/web.js"
+			"src/node/lib/boilerplate/web.js"
 		],
 		"env": {
 			"DEBUG": "*"
@@ -15,7 +15,7 @@
 		"request": "launch",
 		"name": "Debug worker dyno",
 		"runtimeArgs": [
-			"src/lib/boilerplate/worker.js"
+			"src/node/lib/boilerplate/worker.js"
 		],
 		"env": {
 			"DEBUG": "*"
@@ -32,11 +32,8 @@
 			"999999",
 			"--colors",
 			"--recursive",
-			"${workspaceRoot}/src/spec"
+			"${workspaceRoot}/src/node/spec"
 		],
-		"env": {
-			"DEBUG": "*"
-		},
 		"internalConsoleOptions": "openOnSessionStart"
 	}]
 }

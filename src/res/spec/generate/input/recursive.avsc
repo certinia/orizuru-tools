@@ -1,0 +1,23 @@
+{
+	"namespace": "com.financialforce",
+	"name": "Test",
+	"type": "record",
+	"fields": [{
+		"name": "deliveryPlanId",
+		"type": "string"
+	}, {
+		"name": "deliveries",
+		"type": {
+			"type": "record",
+			"name": "child",
+			"namespace": "com.financialforce",
+			"fields": [{
+				"name": "deliveryId",
+				"type": "string"
+			}, {
+				"name": "childDelivery",
+				"type": ["null", "com.financialforce.child"]
+			}]
+		}
+	}]
+}

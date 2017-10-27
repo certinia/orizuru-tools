@@ -24,25 +24,56 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-'use strict';
+public abstract class OrizuruTransport implements ISerializable
+{
 
-const
-	init = require('./setup/init'),
-	generateApexTransport = require('./setup/generateApexTransport'),
+	protected OrizuruTransport() {
+		// abstract class
+	}
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+	public String serialize() {
+		return Json.serialize(this);
+	}
 
-module.exports = {
-	command: 'setup',
-	desc: 'Executes Setup commands',
-	aliases: ['s'],
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru setup COMMAND')
-		.demandCommand(3, 'Run \'orizuru setup --help\' for more information on a command.\n')
-		.command(init)
-		.command(generateApexTransport)
-		.updateStrings({
-			'Commands:': 'Setup:'
-		})
-		.epilogue(COPYRIGHT_NOTICE)
-};
+	public class com_financialforce_TestOne extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
+	{
+
+		public com_financialforce_inner_Subtype test { get; set; }
+
+		public com_financialforce_TestOne(com_financialforce_inner_Subtype test) {
+			
+			this.test = test;
+
+		}
+
+	}
+
+	public class com_financialforce_inner_Subtype // Internal class defining a type within an Orizuru Avro transport schema, used within transport extensions
+	{
+
+		public String testString { get; set; }
+
+		public com_financialforce_inner_Subtype(String testString) {
+			
+			this.testString = testString;
+
+		}
+
+	}
+
+	public class com_financialforce_TestTwo extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
+	{
+
+		public com_financialforce_inner_Subtype test { get; set; }
+		public String somethingElse { get; set; }
+
+		public com_financialforce_TestTwo(com_financialforce_inner_Subtype test, String somethingElse) {
+			
+			this.test = test;
+			this.somethingElse = somethingElse;
+
+		}
+
+	}
+
+}

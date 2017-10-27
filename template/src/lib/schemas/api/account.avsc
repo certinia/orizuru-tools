@@ -1,9 +1,0 @@
-{
-	"namespace": "com.financialforce.account",
-	"name": "Account",
-	"type": "record",
-	"fields": [{
-		"name": "accountId",
-		"type": "string"
-	}]
-}

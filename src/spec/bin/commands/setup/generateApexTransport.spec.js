@@ -27,72 +27,78 @@
 'use strict';
 
 const
-	chai = require('chai'),
 	root = require('app-root-path'),
+	chai = require('chai'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 
+	expect = chai.expect,
+
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	assert = sinon.assert,
-	callCount = assert.callCount,
-	calledOnce = assert.calledOnce,
-	calledWith = assert.calledWith,
-	deepEqual = chai.assert.deepEqual,
-	strictEqual = chai.assert.strictEqual,
+	GenerateApexTransportService = require(root + '/src/lib/service/generateApexTransport'),
+	generateApexTransportCommandPath = root + '/src/lib/bin/commands/setup/generateApexTransport',
+	generateApexTransportCommand = require(generateApexTransportCommandPath),
+
+	calledOnce = sinon.assert.calledOnce,
+	calledWith = sinon.assert.calledWith,
 
 	sandbox = sinon.sandbox.create();
 
-describe('bin/commands/setup.js', () => {
+describe('bin/commands/setup/generateApexTransport.js', () => {
 
-	let cli, mocks;
+	let mocks;
 
 	beforeEach(() => {
-
-		mocks = {
-			yargs: {
-				command: sandbox.stub().returnsThis(),
-				demandCommand: sandbox.stub().returnsThis(),
-				epilogue: sandbox.stub().returnsThis(),
-				updateStrings: sandbox.stub().returnsThis(),
-				usage: sandbox.stub().returnsThis()
-			}
-		};
-
-		cli = proxyquire(root + '/src/lib/bin/commands/setup', {
-			yargs: mocks.yargs
-		});
-
+		mocks = {};
+		mocks.generateApexTransport = sandbox.stub(GenerateApexTransportService, 'generateApexTransport');
 	});
 
-	afterEach(() => {
-		sandbox.restore();
-	});
+	afterEach(() => sandbox.restore());
 
 	it('should create the cli', () => {
+
+		// given
+		mocks.yargs = {};
+		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+
+		const cli = proxyquire(generateApexTransportCommandPath, {
+			yargs: mocks.yargs
+		});
 
 		// when
 		cli.builder(mocks.yargs);
 
 		//then
-		callCount(mocks.yargs.command, 2);
-		calledOnce(mocks.yargs.demandCommand);
 		calledOnce(mocks.yargs.epilogue);
-		calledOnce(mocks.yargs.updateStrings);
 
-		calledWith(mocks.yargs.demandCommand, 3, 'Run \'orizuru setup --help\' for more information on a command.\n');
 		calledWith(mocks.yargs.epilogue, COPYRIGHT_NOTICE);
-		calledWith(mocks.yargs.updateStrings, { 'Commands:': 'Setup:' });
-		calledWith(mocks.yargs.usage, '\nUsage: orizuru setup COMMAND');
+		calledWith(mocks.yargs.usage, '\nUsage: orizuru setup generateapextransport [.avsc folder path] [apex class output path]');
 
 	});
 
-	it('should have the correct command, description and alias', () => {
+	it('should return the correct config', () => {
+
+		// given/when/then
+		expect(generateApexTransportCommand).to.deep.contain({
+			command: ['generateapextransport [inputUrl] [outputUrl]', 'gat [inputUrl] [outputUrl]'],
+			description: 'Generates apex transport classes for .avsc files in a folder'
+		});
+
+	});
+
+	it('should have a handler that calls the generateApexTransport service', () => {
+
+		// given
+		const { handler } = generateApexTransportCommand;
+
+		// when
+		handler('test');
 
 		// then
-		strictEqual(cli.command, 'setup');
-		deepEqual(cli.aliases, ['s']);
-		strictEqual(cli.desc, 'Executes Setup commands');
+		calledOnce(mocks.generateApexTransport);
+		calledWith(mocks.generateApexTransport, 'test');
 
 	});
 

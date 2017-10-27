@@ -73,7 +73,7 @@ describe('bin/commands/setup/init.js', () => {
 		calledOnce(mocks.yargs.epilogue);
 
 		calledWith(mocks.yargs.epilogue, COPYRIGHT_NOTICE);
-		calledWith(mocks.yargs.usage, '\nUsage: orizuru init');
+		calledWith(mocks.yargs.usage, '\nUsage: orizuru setup init');
 
 	});
 
