@@ -66,11 +66,11 @@ function lex(schema) {
 	}
 
 	if (classification === classifications.UNION) {
-		return lexInner.union(type);
+		return lexInner.union(type, lex);
 	}
 
 }
 
-console.log(JSON.stringify(lex(JSON.parse(require('fs').readFileSync(__dirname + '/../../../../res/spec/generate/input/encompassingTypes.avsc').toString('utf8')))));
+console.log(JSON.stringify(lex(JSON.parse(require('fs').readFileSync(__dirname + '/../../../../res/spec/generate/input/nestedUnionSubSchema.avsc').toString('utf8')))));
 
 module.exports = { lex };

@@ -26,16 +26,12 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
-	Union = require('../tokens/union');
+class Union {
 
-function lexUnion(schema, lexFunction) {
-	const types = [];
-	_.each(schema, item => {
-		types.push(lexFunction(item));
-	});
-	return new Union(types);
+	constructor(types) {
+		this.types = types;
+	}
+
 }
 
-module.exports = lexUnion;
+module.exports = Union;
