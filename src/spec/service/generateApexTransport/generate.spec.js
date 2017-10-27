@@ -27,6 +27,7 @@
 'use strict';
 
 const
+	_ = require('lodash'),
 	root = require('app-root-path'),
 	chai = require('chai'),
 
@@ -55,26 +56,26 @@ function schemaToJson(path) {
 	return JSON.parse(read(path));
 }
 
-function testError(inputFile, errorMsg) {
+function testError(inputFiles, errorMsg) {
 
 	// given
-	const input = [
-		schemaToJson(inputPath(inputFile))
-	];
+	const input = [];
+
+	_.each(inputFiles, inputFile => input.push(schemaToJson(inputPath(inputFile))));
 
 	// when - then
 	expect(() => generate(input)).to.throw(errorMsg);
 
 }
 
-function testSuccess(inputFile, outputFile) {
+function testSuccess(inputFiles, outputFile) {
 
 	// given
-	const input = [
-			schemaToJson(inputPath(inputFile))
-		],
+	const input = [],
 		outputCls = read(outputPath(outputFile)),
 		outputXml = read(outputPath('Default.cls-meta.xml'));
+
+	_.each(inputFiles, inputFile => input.push(schemaToJson(inputPath(inputFile))));
 
 	// when - then
 	expect(generate(input)).to.eql({
@@ -90,35 +91,39 @@ describe('service/generateApexTransport/generate.js', () => {
 
 		describe('should throw', () => {
 
-			it('for unknown types', () => testError('unknownType.avsc', 'Could not map type for: "unknown". We do not support "bytes" or "fixed" types.'));
+			it('for unknown types', () => testError(['unknownType.avsc'], 'Could not map type for: "unknown". We do not support "bytes" or "fixed" types.'));
 
-			it('for unnamed records', () => testError('unnamedRecord.avsc', '\'record\' and \'enum\' type objects must have a name.'));
+			it('for unnamed records', () => testError(['unnamedRecord.avsc'], '\'record\' and \'enum\' type objects must have a name.'));
 
-			it('if enum has no symbols', () => testError('noEnumSymbols.avsc', 'TestEnum must contain \'symbols.\''));
+			it('if enum has no symbols', () => testError(['noEnumSymbols.avsc'], 'TestEnum must contain \'symbols.\''));
 
-			it('if enum is already defined', () => testError('duplicateEnum.avsc', 'Enum: TestEnum already defined in schema.'));
+			it('if enum is already defined', () => testError(['duplicateEnum.avsc'], 'Enum: TestEnum already defined in schema.'));
 
-			it('if the root isn\'t a record', () => testError('nonRecordRoot.avsc', 'The root of the schema must be of type \'record\': {"namespace":"com.financialforce","name":"Test","type":"enum","symbols":["A","B","C"]}'));
+			it('if the root isn\'t a record', () => testError(['nonRecordRoot.avsc'], 'The root of the schema must be of type \'record\': {"namespace":"com.financialforce","name":"Test","type":"enum","symbols":["A","B","C"]}'));
 
-			it('if record has no fields', () => testError('noRecordFields.avsc', 'Record: com_financialforce_Test must contain \'fields.\''));
+			it('if record has no fields', () => testError(['noRecordFields.avsc'], 'Record: com_financialforce_Test must contain \'fields.\''));
 
-			it('if record is already defined', () => testError('duplicateRecord.avsc', 'Record: com_financialforce_Test already defined in schema.'));
+			it('if record is already defined', () => testError(['duplicateRecord.avsc'], 'Record: com_financialforce_Test already defined in schema.'));
+
+			it('if two schemas with the same namespace have different nested types', () => testError(['combinationError1.avsc', 'combinationError2.avsc'], 'Records and enums with the same \'name\' / \'namespace\' cannot be used across schemas unless they are identical. Identifier: \'com_financialforce_Test\''));
 
 		});
 
 		describe('should generate types for', () => {
 
-			it('a simple schema', () => testSuccess('simple.avsc', 'Simple.cls'));
+			it('a simple schema', () => testSuccess(['simple.avsc'], 'Simple.cls'));
 
-			it('a schema with a child record', () => testSuccess('childRecord.avsc', 'ChildRecord.cls'));
+			it('a schema with a child record', () => testSuccess(['childRecord.avsc'], 'ChildRecord.cls'));
 
-			it('a recursive schema', () => testSuccess('recursive.avsc', 'Recursive.cls'));
+			it('a recursive schema', () => testSuccess(['recursive.avsc'], 'Recursive.cls'));
 
-			it('a schema with enums', () => testSuccess('enum.avsc', 'Enum.cls'));
+			it('a schema with enums', () => testSuccess(['enum.avsc'], 'Enum.cls'));
 
-			it('a schema with all types', () => testSuccess('encompassingTypes.avsc', 'EncompassingTypes.cls'));
+			it('a schema with all types', () => testSuccess(['encompassingTypes.avsc'], 'EncompassingTypes.cls'));
 
-			it('a schema with nested union sub schemas', () => testSuccess('nestedUnionSubSchema.avsc', 'NestedUnionSubSchema.cls'));
+			it('a schema with nested union sub schemas', () => testSuccess(['nestedUnionSubSchema.avsc'], 'NestedUnionSubSchema.cls'));
+
+			it('two schemas that share a common inner type', () => testSuccess(['combinationSuccess1.avsc', 'combinationSuccess2.avsc'], 'CombinationSuccess.cls'));
 
 		});
 
