@@ -55,111 +55,58 @@ function schemaToJson(path) {
 	return JSON.parse(read(path));
 }
 
+function testError(inputFile, errorMsg) {
+
+	// given
+	const input = [
+		schemaToJson(inputPath(inputFile))
+	];
+
+	// when - then
+	expect(() => generate(input)).to.throw(errorMsg);
+
+}
+
+function testSuccess(inputFile, outputFile) {
+
+	// given
+	const input = [
+			schemaToJson(inputPath(inputFile))
+		],
+		outputCls = read(outputPath(outputFile)),
+		outputXml = read(outputPath('Default.cls-meta.xml'));
+
+	// when - then
+	expect(generate(input)).to.eql({
+		cls: outputCls,
+		xml: outputXml
+	});
+
+}
+
 describe('service/generateApexTransport/generate.js', () => {
 
 	describe('generate', () => {
 
-		it('should generate types for a simple schema', () => {
+		it('should throw for unknown types', () => testError('unknownType.avsctest', 'Could not map type for: "unknown". We do not support "bytes" or "fixed" types.'));
 
-			// given
-			const input = [
-					schemaToJson(inputPath('simple.avsctest'))
-				],
-				outputCls = read(outputPath('Simple.cls')),
-				outputXml = read(outputPath('Default.cls-meta.xml'));
+		it('should throw for unnamed records', () => testError('unnamedRecord.avsctest', '\'record\' and \'enum\' type objects must have a name.'));
 
-			// when - then
-			expect(generate(input)).to.eql({
-				cls: outputCls,
-				xml: outputXml
-			});
+		it('should throw if enum has no symbols', () => testError('noEnumSymbols.avsctest', 'TestEnum must contain \'symbols.\''));
 
-		});
+		it('should throw if enum is already defined', () => testError('duplicateEnum.avsctest', 'Enum: TestEnum already defined in schema.'));
 
-		it('should generate types for a schema with a child record', () => {
+		it('should generate types for a simple schema', () => testSuccess('simple.avsctest', 'Simple.cls'));
 
-			// given
-			const input = [
-					schemaToJson(inputPath('childRecord.avsctest'))
-				],
-				outputCls = read(outputPath('ChildRecord.cls')),
-				outputXml = read(outputPath('Default.cls-meta.xml'));
+		it('should generate types for a schema with a child record', () => testSuccess('childRecord.avsctest', 'ChildRecord.cls'));
 
-			// when - then
-			expect(generate(input)).to.eql({
-				cls: outputCls,
-				xml: outputXml
-			});
+		it('should generate types for a recursive schema', () => testSuccess('recursive.avsctest', 'Recursive.cls'));
 
-		});
+		it('should generate types for a schema with enums', () => testSuccess('enum.avsctest', 'Enum.cls'));
 
-		it('should generate types for a recursive schema', () => {
+		it('should generate types for a schema with all types', () => testSuccess('encompassingTypes.avsctest', 'EncompassingTypes.cls'));
 
-			// given
-			const input = [
-					schemaToJson(inputPath('recursive.avsctest'))
-				],
-				outputCls = read(outputPath('Recursive.cls')),
-				outputXml = read(outputPath('Default.cls-meta.xml'));
-
-			// when - then
-			expect(generate(input)).to.eql({
-				cls: outputCls,
-				xml: outputXml
-			});
-
-		});
-
-		it('should generate types for a schema with enums', () => {
-
-			// given
-			const input = [
-					schemaToJson(inputPath('enum.avsctest'))
-				],
-				outputCls = read(outputPath('Enum.cls')),
-				outputXml = read(outputPath('Default.cls-meta.xml'));
-
-			// when - then
-			expect(generate(input)).to.eql({
-				cls: outputCls,
-				xml: outputXml
-			});
-
-		});
-
-		it('should generate types for a schema with all types', () => {
-
-			// given
-			const input = [
-					schemaToJson(inputPath('encompassingTypes.avsctest'))
-				],
-				outputCls = read(outputPath('EncompassingTypes.cls')),
-				outputXml = read(outputPath('Default.cls-meta.xml'));
-
-			// when - then
-			expect(generate(input)).to.eql({
-				cls: outputCls,
-				xml: outputXml
-			});
-
-		});
-
-		it('should generate types for a schema with nested union sub schemas', () => {
-
-			// given
-			const input = [
-					schemaToJson(inputPath('nestedUnionSubSchema.avsctest'))
-				],
-				outputCls = read(outputPath('NestedUnionSubSchema.cls')),
-				outputXml = read(outputPath('Default.cls-meta.xml'));
-
-			// when - then
-			expect(generate(input)).to.eql({
-				cls: outputCls,
-				xml: outputXml
-			});
-
-		});
+		it('should generate types for a schema with nested union sub schemas', () => testSuccess('nestedUnionSubSchema.avsctest', 'NestedUnionSubSchema.cls'));
 
 	});
 
