@@ -133,7 +133,6 @@ exports.dependencies = {
 	"@financialforcedev/orizuru-transport-rabbitmq": "^3.0.3",
 	"debug-plus": "1.2.2",
 	"klaw-sync": "3.0.0"
-
 }
 
 // overrode devDependencies
@@ -152,7 +151,8 @@ exports.scripts = {
 	"lint-fix": "eslint src/node --fix",
 	"pretest": "eslint src/node",
 	"single-test": "nyc --all=false mocha",
-	"test": "nyc mocha --recursive src/node/spec"
+	"test": "nyc mocha --recursive src/node/spec",
+	"generate-apex-transport": "orizuru setup generateapextransport src/node/lib/schemas src/apex/app/main/default/classes"
 }
 
 // added nyc
