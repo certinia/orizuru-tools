@@ -1,6 +1,9 @@
 # Add Handlers here
 
-Files are .js modules.
+Files are .js modules. Relative paths and names should match the schema file except
+.avsc will be replaced with .js.
+
+Exports a single handler function.
 
 ## Example
 
