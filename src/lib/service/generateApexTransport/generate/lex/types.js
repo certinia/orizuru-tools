@@ -28,9 +28,11 @@
 
 const
 	SIMPLE = require('./types/simple'),
-	COMPLEX = require('./types/complex');
+	COMPLEX = require('./types/complex'),
+	UNSUPPORTED = require('./types/unsupported');
 
 module.exports = Object.freeze({
 	SIMPLE,
-	COMPLEX
+	COMPLEX,
+	UNSUPPORTED
 });

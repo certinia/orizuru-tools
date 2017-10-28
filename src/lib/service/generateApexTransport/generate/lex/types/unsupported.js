@@ -29,69 +29,22 @@
 const
 	_ = require('lodash'),
 
-	types = require('./types'),
-
-	CLASSIFICATIONS = [
-		'simple',
-		'complex',
-		'ref',
-		'nested',
-		'union'
+	UNSUPPORTED = [
+		'bytes',
+		'fixed'
 	];
 
-CLASSIFICATIONS.SIMPLE = CLASSIFICATIONS[0];
-CLASSIFICATIONS.COMPLEX = CLASSIFICATIONS[1];
-CLASSIFICATIONS.REF = CLASSIFICATIONS[2];
-CLASSIFICATIONS.NESTED = CLASSIFICATIONS[3];
-CLASSIFICATIONS.UNION = CLASSIFICATIONS[4];
+UNSUPPORTED.BYTES = UNSUPPORTED[0];
+UNSUPPORTED.FIXED = UNSUPPORTED[1];
 
-CLASSIFICATIONS.classify = schema => {
-	let type;
-	if (_.isObject(schema)) {
-		type = schema.type;
-	} else if (_.isString(schema)) {
-		type = schema;
-	}
-
-	if (_.isString(type) && !_.isEmpty(type)) {
-		const
-			simpleType = types.SIMPLE.is(type),
-			complexType = types.COMPLEX.is(type),
-			unsupportedType = types.UNSUPPORTED.is(type);
-
-		if (!unsupportedType) {
-			if (simpleType) {
-				return {
-					classification: CLASSIFICATIONS.SIMPLE,
-					type
-				};
-			}
-			if (complexType) {
-				return {
-					classification: CLASSIFICATIONS.COMPLEX,
-					type: schema
-				};
-			}
-			return {
-				classification: CLASSIFICATIONS.REF,
-				type
-			};
+UNSUPPORTED.is = str => {
+	let is = false;
+	_.each(UNSUPPORTED, element => {
+		if (str === element) {
+			is = true;
 		}
-
-	}
-	if (_.isPlainObject(type)) {
-		return {
-			classification: CLASSIFICATIONS.NESTED,
-			type
-		};
-	}
-	if (_.isArray(type)) {
-		return {
-			classification: CLASSIFICATIONS.UNION,
-			type
-		};
-	}
-	throw new Error('Could not classify type for schema: ' + type + '. We do not support the fixed and bytes types.');
+	});
+	return is;
 };
 
-module.exports = Object.freeze(CLASSIFICATIONS);
+module.exports = Object.freeze(UNSUPPORTED);

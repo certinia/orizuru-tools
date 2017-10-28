@@ -81,6 +81,8 @@ describe('service/generateApexTransport/generate/lex.js', () => {
 
 			it('for unknown types', () => testError('unknownType', 'undefined type name: com.financialforce.unknown'));
 
+			it('for bytes type', () => testError('bytesType', 'Could not classify type for schema: bytes. We do not support the fixed and bytes types.'));
+
 			it('for unnamed records', () => testError('unnamedRecord', 'Records and Enums must have a name'));
 
 			it('if enum has no symbols', () => testError('noEnumSymbols', 'invalid enum symbols: undefined'));
