@@ -1,0 +1,25 @@
+{
+	"type": "com.financialforce.Test",
+	"tokenType": "Record",
+	"name": "Test",
+	"namespace": "com.financialforce",
+	"fields": [{
+		"type": "string",
+		"tokenType": "Field",
+		"name": "deliveryPlanId"
+	}, {
+		"type": {
+			"type": "com.financialforce.child",
+			"tokenType": "Record",
+			"name": "child",
+			"namespace": "com.financialforce",
+			"fields": [{
+				"type": "string",
+				"tokenType": "Field",
+				"name": "deliveryId"
+			}]
+		},
+		"tokenType": "Field",
+		"name": "deliveries"
+	}]
+}

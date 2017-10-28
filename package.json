@@ -51,6 +51,7 @@
     "sinon": "4.0.1"
   },
   "dependencies": {
+    "avsc": "5.0.6",
     "cliui": "3.2.0",
     "fs-extra": "4.0.2",
     "init-package-json": "1.10.1",

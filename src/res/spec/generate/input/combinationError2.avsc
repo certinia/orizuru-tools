@@ -1,9 +1,0 @@
-{
-	"namespace": "com.financialforce",
-	"name": "Test",
-	"type": "record",
-	"fields": [{
-		"name": "testError2",
-		"type": "string"
-	}]
-}

@@ -1,0 +1,90 @@
+{
+	"type": "com.financialforce.Test",
+	"tokenType": "Record",
+	"name": "Test",
+	"namespace": "com.financialforce",
+	"fields": [{
+		"type": {
+			"type": "DeliveryTypeEnum",
+			"tokenType": "Enum",
+			"name": "DeliveryTypeEnum",
+			"symbols": [{
+				"name": "A",
+				"tokenType": "Symbol"
+			}, {
+				"name": "B",
+				"tokenType": "Symbol"
+			}, {
+				"name": "C",
+				"tokenType": "Symbol"
+			}]
+		},
+		"tokenType": "Field",
+		"name": "deliveryType"
+	}, {
+		"type": {
+			"type": "DeliveryTypeCls",
+			"tokenType": "Record",
+			"name": "DeliveryTypeCls",
+			"fields": [{
+				"type": "string",
+				"tokenType": "Field",
+				"name": "testFieldString"
+			}]
+		},
+		"tokenType": "Field",
+		"name": "deliveryTypeCls"
+	}, {
+		"type": {
+			"type": "DeliveryTypeEnum",
+			"tokenType": "Array"
+		},
+		"tokenType": "Field",
+		"name": "arrayEnum"
+	}, {
+		"type": {
+			"type": "DeliveryTypeCls",
+			"tokenType": "Array"
+		},
+		"tokenType": "Field",
+		"name": "arrayCls"
+	}, {
+		"type": {
+			"type": "DeliveryTypeEnum",
+			"tokenType": "Map"
+		},
+		"tokenType": "Field",
+		"name": "mapEnum"
+	}, {
+		"type": {
+			"type": "DeliveryTypeCls",
+			"tokenType": "Map"
+		},
+		"tokenType": "Field",
+		"name": "mapCls"
+	}, {
+		"type": "null",
+		"tokenType": "Field",
+		"name": "testFieldNull"
+	}, {
+		"type": "boolean",
+		"tokenType": "Field",
+		"name": "testFieldBoolean"
+	}, {
+		"type": "int",
+		"tokenType": "Field",
+		"name": "testFieldInt"
+	}, {
+		"type": "long",
+		"tokenType": "Field",
+		"name": "testFieldLong"
+	}, {
+		"type": "float",
+		"tokenType": "Field",
+		"name": "testFieldFloat"
+	}, {
+		"type": "double",
+		"tokenType": "Field",
+		"name": "testFieldDouble"
+	}]
+}
