@@ -26,13 +26,15 @@
 
 'use strict';
 
-class Symbol {
+const _ = require('lodash');
 
-	constructor(name) {
-		this.name = name;
-		this.tokenType = this.constructor.name;
-	}
-
+function build(normalizedTokens) {
+	return _.reduce(normalizedTokens, (result, token) => {
+		result.push(token.generateApex());
+		return result;
+	}, []);
 }
 
-module.exports = Symbol;
+module.exports = {
+	build
+};

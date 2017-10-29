@@ -26,15 +26,27 @@
 
 'use strict';
 
-const Type = require('./base/type');
+const
+	base = require('./base/base'),
+	names = require('./util/names'),
+	templates = require('../../apex/templates');
 
-class Field extends Type {
-
-	constructor(name, type) {
-		super(type);
-		this.name = name;
-	}
-
+function apexTypeFunction() {
+	return names.getApexName(this.reference);
 }
 
-module.exports = Field;
+module.exports = class extends base(type => type === 'enum', apexTypeFunction) {
+
+	constructor(schema) {
+		super();
+		this.name = schema.name;
+		this.namespace = schema.namespace;
+		this.reference = names.getAvroName(this.name, this.namespace);
+		this.symbols = schema.symbols;
+	}
+
+	generateApex() {
+		return templates.innerEnum(this.symbols, this.getApexType());
+	}
+
+};

@@ -27,46 +27,23 @@
 'use strict';
 
 const
-	_ = require('lodash'),
+	base = require('./base/base'),
+	normalize = require('./util/normalize');
 
-	tokenizer = require('./generate/tokenizer'),
-	apex = require('./generate/apex');
-
-function generateForSchema(schemaJson) {
-	const
-		normalizedTokens = tokenizer.validateAndTokenize(schemaJson),
-		apexClasses = apex.build(normalizedTokens);
-
-	_.each(apexClasses, classs => console.log(classs));
+function apexTypeFunction() {
+	return this.type.getApexType();
 }
 
-/*function generate(jsonAvroSchemas) {
-	const
-		finalResult = [],
-		mergedClassIdentifiers = {};
+module.exports = class extends base(type => false, apexTypeFunction) {
 
-	_.each(jsonAvroSchemas, jsonAvroSchema => {
-		const classes = {};
+	constructor(schema) {
+		super();
+		this.name = schema.name;
+		this.type = this.getTokenizer().tokenize(schema.type);
+	}
 
-		classesForSchema(classes, jsonAvroSchema);
+	normalize(classpath = []) {
+		this.type = normalize.child(this.type, classpath) || this.type;
+	}
 
-		_.each(classes, (classString, classIdentifer) => {
-			if (_.hasIn(mergedClassIdentifiers, classIdentifer)) {
-				if (mergedClassIdentifiers[classIdentifer] !== classString) {
-					throw new Error('Records and enums with the same \'name\' / \'namespace\' cannot be used across schemas unless they are identical. Identifier: \'' + classIdentifer + '\'.');
-				}
-			} else {
-				finalResult.push(classString);
-				mergedClassIdentifiers[classIdentifer] = classString;
-			}
-		});
-
-	});
-
-	return {
-		cls: wrappingOrizuruClass(_.trimStart(finalResult.join(CLASS_MERGE_DELIMITER))),
-		xml: wrappingOrizuruClassXml()
-	};
-}*/
-
-generateForSchema(require('../../../res/spec/generateApexTransport/generate/tokenizer/input/encompassingTypes'));
+};

@@ -90,21 +90,13 @@ function generateGetSetParamAssignments(names) {
 	return _.trimStart(result);
 }
 
-function generateClass(fieldNamesToFieldTypesMap, qualifiedName, template) {
+function transportClass(fieldNamesToFieldTypesMap, qualifiedName) {
 	const
 		getSetParams = generateGetSetParams(fieldNamesToFieldTypesMap),
 		constructorParams = generateConstructorParams(fieldNamesToFieldTypesMap),
 		getSetParamAssignments = generateGetSetParamAssignments(Object.keys(fieldNamesToFieldTypesMap));
 
-	return findAndReplace({ getSetParams, constructorParams, getSetParamAssignments, qualifiedName }, template);
-}
-
-function transportClass(fieldNamesToFieldTypesMap, qualifiedName) {
-	return generateClass(fieldNamesToFieldTypesMap, qualifiedName, TEMPLATES.TRANSPORT_EXTENSION);
-}
-
-function innerClass(fieldNamesToFieldTypesMap, qualifiedName) {
-	return generateClass(fieldNamesToFieldTypesMap, qualifiedName, TEMPLATES.INNER_CLASS);
+	return findAndReplace({ getSetParams, constructorParams, getSetParamAssignments, qualifiedName }, TEMPLATES.TRANSPORT_EXTENSION);
 }
 
 function innerEnum(values, qualifiedName) {
@@ -126,7 +118,6 @@ function wrappingOrizuruClassXml() {
 
 module.exports = {
 	transportClass,
-	innerClass,
 	innerEnum,
 	wrappingOrizuruClass,
 	wrappingOrizuruClassXml

@@ -26,10 +26,53 @@
 
 'use strict';
 
-const Type = require('./base/type');
+const
+	_ = require('lodash'),
 
-class Map extends Type {
+	tokens = [
+		require('./tokens/array'),
+		require('./tokens/boolean'),
+		require('./tokens/double'),
+		require('./tokens/enum'),
+		require('./tokens/float'),
+		require('./tokens/int'),
+		require('./tokens/long'),
+		require('./tokens/map'),
+		require('./tokens/null'),
+		require('./tokens/record'),
+		require('./tokens/recordField'),
+		require('./tokens/reference'),
+		require('./tokens/string'),
+		require('./tokens/union')
+	];
 
-}
+tokens.Array = tokens[0];
+tokens.Boolean = tokens[1];
+tokens.Double = tokens[2];
+tokens.Enum = tokens[3];
+tokens.Float = tokens[4];
+tokens.Int = tokens[5];
+tokens.Long = tokens[6];
+tokens.Map = tokens[7];
+tokens.Null = tokens[8];
+tokens.Record = tokens[9];
+tokens.RecordField = tokens[10];
+tokens.Reference = tokens[11];
+tokens.String = tokens[12];
+tokens.Union = tokens[13];
 
-module.exports = Map;
+tokens.classify = schema => _.reduce(tokens, (result, token) => {
+	if (token.is(schema)) {
+		return token;
+	}
+	return result;
+}, null);
+
+tokens.isAny = schema => _.reduce(tokens, (result, token, index) => {
+	if (index === 11) {
+		return result; // specifically ignore reference
+	}
+	return result || token.is(schema);
+}, false);
+
+module.exports = Object.freeze(tokens);

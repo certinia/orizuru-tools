@@ -26,15 +26,36 @@
 
 'use strict';
 
-const NamedType = require('./base/namedType');
+const
+	_ = require('lodash'),
+	base = require('./base/base'),
+	names = require('./util/names'),
+	RecordField = require('./recordField'),
+	templates = require('../../apex/templates');
 
-class Enum extends NamedType {
-
-	constructor(name, namespace, symbols) {
-		super(name, namespace);
-		this.symbols = symbols;
-	}
-
+function apexTypeFunction() {
+	return names.getApexName(this.reference);
 }
 
-module.exports = Enum;
+module.exports = class extends base(type => type === 'record', apexTypeFunction) {
+
+	constructor(schema) {
+		super();
+		this.name = schema.name;
+		this.namespace = schema.namespace;
+		this.reference = names.getAvroName(this.name, this.namespace);
+		this.fields = _.map(schema.fields, field => new RecordField(field));
+	}
+
+	normalize(classpath = []) {
+		_.each(this.fields, field => field.normalize(classpath));
+	}
+
+	generateApex() {
+		return templates.transportClass(_.reduce(this.fields, (result, field) => {
+			result[field.name] = field.getApexType();
+			return result;
+		}, {}), this.getApexType());
+	}
+
+};

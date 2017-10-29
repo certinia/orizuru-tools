@@ -26,13 +26,23 @@
 
 'use strict';
 
-class Type {
+const
+	base = require('./base/base'),
+	normalize = require('./util/normalize');
 
-	constructor(type) {
-		this.type = type;
-		this.tokenType = this.constructor.name;
-	}
-
+function apexTypeFunction() {
+	return 'List<' + this.items.getApexType() + '>';
 }
 
-module.exports = Type;
+module.exports = class extends base(type => type === 'array', apexTypeFunction) {
+
+	constructor(schema) {
+		super();
+		this.items = this.getTokenizer().tokenize(schema.items);
+	}
+
+	normalize(classpath = []) {
+		this.items = normalize.child(this.items, classpath) || this.items;
+	}
+
+};

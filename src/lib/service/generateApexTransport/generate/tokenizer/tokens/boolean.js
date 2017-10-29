@@ -26,13 +26,6 @@
 
 'use strict';
 
-class Union {
+const base = require('./base/base');
 
-	constructor(types) {
-		this.types = types;
-		this.tokenType = this.constructor.name;
-	}
-
-}
-
-module.exports = Union;
+module.exports = class extends base(type => type === 'boolean', () => 'Boolean') {};

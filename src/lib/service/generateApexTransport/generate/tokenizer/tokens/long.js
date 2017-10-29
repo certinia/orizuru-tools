@@ -26,25 +26,6 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
+const base = require('./base/base');
 
-	UNSUPPORTED = [
-		'bytes',
-		'fixed'
-	];
-
-UNSUPPORTED.BYTES = UNSUPPORTED[0];
-UNSUPPORTED.FIXED = UNSUPPORTED[1];
-
-UNSUPPORTED.is = str => {
-	let is = false;
-	_.each(UNSUPPORTED, element => {
-		if (str === element) {
-			is = true;
-		}
-	});
-	return is;
-};
-
-module.exports = Object.freeze(UNSUPPORTED);
+module.exports = class extends base(type => type === 'long', () => 'Long') {};

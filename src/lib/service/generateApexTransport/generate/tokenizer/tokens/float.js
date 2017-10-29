@@ -26,21 +26,6 @@
 
 'use strict';
 
-const
-	Array = require('./tokens/array'),
-	Enum = require('./tokens/enum'),
-	Field = require('./tokens/field'),
-	Map = require('./tokens/map'),
-	Record = require('./tokens/record'),
-	Symbol = require('./tokens/symbol'),
-	Union = require('./tokens/union');
+const base = require('./base/base');
 
-module.exports = Object.freeze({
-	Array,
-	Enum,
-	Field,
-	Map,
-	Record,
-	Symbol,
-	Union
-});
+module.exports = class extends base(type => type === 'float', () => 'Double') {};

@@ -27,28 +27,22 @@
 'use strict';
 
 const
-	_ = require('lodash'),
+	base = require('./base/base'),
+	names = require('./util/names');
 
-	COMPLEX = [
-		'record',
-		'enum',
-		'array',
-		'map'
-	];
+function avroTypeFunction(type) {
+	return !require('../tokens').isAny(type);
+}
 
-COMPLEX.RECORD = COMPLEX[0];
-COMPLEX.ENUM = COMPLEX[1];
-COMPLEX.ARRAY = COMPLEX[2];
-COMPLEX.MAP = COMPLEX[3];
+function apexTypeFunction() {
+	return names.getApexName(this.reference);
+}
 
-COMPLEX.is = str => {
-	let is = false;
-	_.each(COMPLEX, element => {
-		if (str === element) {
-			is = true;
-		}
-	});
-	return is;
+module.exports = class extends base(avroTypeFunction, apexTypeFunction) {
+
+	constructor(schema) {
+		super();
+		this.reference = schema;
+	}
+
 };
-
-module.exports = Object.freeze(COMPLEX);

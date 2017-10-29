@@ -26,13 +26,6 @@
 
 'use strict';
 
-const
-	SIMPLE = require('./types/simple'),
-	COMPLEX = require('./types/complex'),
-	UNSUPPORTED = require('./types/unsupported');
+const base = require('./base/base');
 
-module.exports = Object.freeze({
-	SIMPLE,
-	COMPLEX,
-	UNSUPPORTED
-});
+module.exports = class extends base(type => type === 'int', () => 'Integer') {};

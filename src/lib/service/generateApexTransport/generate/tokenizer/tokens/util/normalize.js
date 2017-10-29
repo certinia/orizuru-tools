@@ -26,25 +26,21 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
-	Type = require('./type');
+function child(entity, classpath) {
+	const
+		Record = require('../record'),
+		Enum = require('../enum'),
+		Reference = require('../reference');
 
-class NamedType extends Type {
-
-	constructor(name, namespace) {
-		if (!_.isString(name) || _.isEmpty(name)) {
-			throw new Error('Records and Enums must have a name');
-		}
-		if (_.isString(namespace) && !_.isEmpty(namespace)) {
-			super(namespace + '.' + name);
-			this.namespace = namespace;
-		} else {
-			super(name);
-		}
-		this.name = name;
+	if (entity instanceof Record ||
+		entity instanceof Enum) {
+		classpath.push(entity);
+		return new Reference(entity.reference);
 	}
-
+	entity.normalize(classpath);
+	return null;
 }
 
-module.exports = NamedType;
+module.exports = {
+	child
+};

@@ -29,69 +29,27 @@
 const
 	_ = require('lodash'),
 
-	types = require('./types'),
+	AVRO_DELIMITER = '.',
+	APEX_DELIMITER = '_';
 
-	CLASSIFICATIONS = [
-		'simple',
-		'complex',
-		'ref',
-		'nested',
-		'union'
-	];
-
-CLASSIFICATIONS.SIMPLE = CLASSIFICATIONS[0];
-CLASSIFICATIONS.COMPLEX = CLASSIFICATIONS[1];
-CLASSIFICATIONS.REF = CLASSIFICATIONS[2];
-CLASSIFICATIONS.NESTED = CLASSIFICATIONS[3];
-CLASSIFICATIONS.UNION = CLASSIFICATIONS[4];
-
-CLASSIFICATIONS.classify = schema => {
-	let type;
-	if (_.isObject(schema)) {
-		type = schema.type;
-	} else if (_.isString(schema)) {
-		type = schema;
+function getAvroName(name, namespace) {
+	if (name.includes(AVRO_DELIMITER)) {
+		return name;
 	}
-
-	if (_.isString(type) && !_.isEmpty(type)) {
-		const
-			simpleType = types.SIMPLE.is(type),
-			complexType = types.COMPLEX.is(type),
-			unsupportedType = types.UNSUPPORTED.is(type);
-
-		if (!unsupportedType) {
-			if (simpleType) {
-				return {
-					classification: CLASSIFICATIONS.SIMPLE,
-					type
-				};
-			}
-			if (complexType) {
-				return {
-					classification: CLASSIFICATIONS.COMPLEX,
-					type: schema
-				};
-			}
-			return {
-				classification: CLASSIFICATIONS.REF,
-				type
-			};
-		}
-
+	if (!_.isString(namespace) || _.isEmpty(namespace)) {
+		return name;
 	}
-	if (_.isPlainObject(type)) {
-		return {
-			classification: CLASSIFICATIONS.NESTED,
-			type
-		};
-	}
-	if (_.isArray(type)) {
-		return {
-			classification: CLASSIFICATIONS.UNION,
-			type
-		};
-	}
-	throw new Error('Could not classify type for schema: ' + type + '. We do not support the fixed and bytes types.');
+	return namespace + AVRO_DELIMITER + name;
+}
+
+function getApexName(avroName) {
+	const
+		splits = avroName.split(AVRO_DELIMITER),
+		stripped = _.map(splits, value => _.trimEnd(_.trimStart(value, APEX_DELIMITER), APEX_DELIMITER));
+	return stripped.join(APEX_DELIMITER);
+}
+
+module.exports = {
+	getAvroName,
+	getApexName
 };
-
-module.exports = Object.freeze(CLASSIFICATIONS);

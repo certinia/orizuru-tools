@@ -26,15 +26,6 @@
 
 'use strict';
 
-const NamedType = require('./base/namedType');
+const base = require('./base/base');
 
-class Record extends NamedType {
-
-	constructor(name, namespace, fields) {
-		super(name, namespace);
-		this.fields = fields;
-	}
-
-}
-
-module.exports = Record;
+module.exports = class extends base(type => type === 'string', () => 'String') {};

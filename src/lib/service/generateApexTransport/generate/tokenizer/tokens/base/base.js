@@ -26,10 +26,32 @@
 
 'use strict';
 
-const Type = require('./base/type');
+const Base = (avroTypeFunction, apexTypeFunction) => class {
 
-class Array extends Type {
+	static is(schema) {
+		return (
+			schema &&
+			avroTypeFunction &&
+			(
+				avroTypeFunction(schema) ||
+				(
+					schema.type &&
+					avroTypeFunction(schema.type)
+				)
+			)
+		);
+	}
 
-}
+	getTokenizer() {
+		return require('../../../tokenizer');
+	}
 
-module.exports = Array;
+	getApexType() {
+		return apexTypeFunction.call(this);
+	}
+
+	normalize(classpath = []) {}
+
+};
+
+module.exports = Base;

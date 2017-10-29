@@ -27,34 +27,36 @@
 'use strict';
 
 const
-	_ = require('lodash'),
+	avro = require('avsc'),
 
-	SIMPLE = [
-		'null',
-		'boolean',
-		'int',
-		'long',
-		'float',
-		'double',
-		'string'
-	];
+	tokens = require('./tokenizer/tokens');
 
-SIMPLE.NULL = SIMPLE[0];
-SIMPLE.BOOL = SIMPLE[1];
-SIMPLE.INT = SIMPLE[2];
-SIMPLE.LONG = SIMPLE[3];
-SIMPLE.FLOAT = SIMPLE[4];
-SIMPLE.DOUBLE = SIMPLE[5];
-SIMPLE.STRING = SIMPLE[6];
+function validate(schema) {
+	avro.Type.forSchema(schema); // throws for invalid schemas
+}
 
-SIMPLE.is = str => {
-	let is = false;
-	_.each(SIMPLE, element => {
-		if (str === element) {
-			is = true;
-		}
-	});
-	return is;
+function tokenize(schema) {
+	const Token = tokens.classify(schema);
+	return new Token(schema);
+}
+
+function validateAndTokenize(schema) {
+	validate(schema);
+	const
+		rootToken = tokenize(schema),
+		classpath = [];
+
+	if (!(rootToken instanceof tokens.Record)) {
+		throw new Error('For conversion to apex, the first entity in the avro schema must be an avro record');
+	}
+
+	classpath.push(rootToken);
+	rootToken.normalize(classpath);
+
+	return classpath;
+}
+
+module.exports = {
+	validateAndTokenize,
+	tokenize
 };
-
-module.exports = Object.freeze(SIMPLE);

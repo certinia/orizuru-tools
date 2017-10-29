@@ -26,47 +26,6 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
+const base = require('./base/base');
 
-	tokenizer = require('./generate/tokenizer'),
-	apex = require('./generate/apex');
-
-function generateForSchema(schemaJson) {
-	const
-		normalizedTokens = tokenizer.validateAndTokenize(schemaJson),
-		apexClasses = apex.build(normalizedTokens);
-
-	_.each(apexClasses, classs => console.log(classs));
-}
-
-/*function generate(jsonAvroSchemas) {
-	const
-		finalResult = [],
-		mergedClassIdentifiers = {};
-
-	_.each(jsonAvroSchemas, jsonAvroSchema => {
-		const classes = {};
-
-		classesForSchema(classes, jsonAvroSchema);
-
-		_.each(classes, (classString, classIdentifer) => {
-			if (_.hasIn(mergedClassIdentifiers, classIdentifer)) {
-				if (mergedClassIdentifiers[classIdentifer] !== classString) {
-					throw new Error('Records and enums with the same \'name\' / \'namespace\' cannot be used across schemas unless they are identical. Identifier: \'' + classIdentifer + '\'.');
-				}
-			} else {
-				finalResult.push(classString);
-				mergedClassIdentifiers[classIdentifer] = classString;
-			}
-		});
-
-	});
-
-	return {
-		cls: wrappingOrizuruClass(_.trimStart(finalResult.join(CLASS_MERGE_DELIMITER))),
-		xml: wrappingOrizuruClassXml()
-	};
-}*/
-
-generateForSchema(require('../../../res/spec/generateApexTransport/generate/tokenizer/input/encompassingTypes'));
+module.exports = class extends base(type => type === 'null', () => 'Object') {};
