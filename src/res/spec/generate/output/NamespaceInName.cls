@@ -24,26 +24,43 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-'use strict';
+public abstract class OrizuruTransport implements ISerializable
+{
 
-const
-	_ = require('lodash'),
-	base = require('./base/base'),
-	normalize = require('./util/normalize');
-
-module.exports = class extends base(type => _.isArray(type), () => 'Object') {
-
-	constructor(schema) {
-		super();
-		this.types = _.map(schema, member => this.getTokenizer().tokenize(member));
+	protected OrizuruTransport() {
+		// abstract class
 	}
 
-	normalize(classpath) {
-		const replacements = [];
-		_.each(this.types, (type, index) => {
-			replacements.push(normalize.child(type, classpath) || type);
-		});
-		this.types = replacements;
+	public String serialize() {
+		return Json.serialize(this);
 	}
 
-};
+	public class com_financialforce_Test extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
+	{
+
+		public String deliveryPlanId { get; set; }
+		public com_financialforce_child deliveries { get; set; }
+
+		public com_financialforce_Test(String deliveryPlanId, com_financialforce_child deliveries) {
+			
+			this.deliveryPlanId = deliveryPlanId;
+			this.deliveries = deliveries;
+
+		}
+
+	}
+
+	public class com_financialforce_child extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
+	{
+
+		public String deliveryId { get; set; }
+
+		public com_financialforce_child(String deliveryId) {
+			
+			this.deliveryId = deliveryId;
+
+		}
+
+	}
+
+}

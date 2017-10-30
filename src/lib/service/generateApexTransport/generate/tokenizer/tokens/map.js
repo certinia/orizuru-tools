@@ -41,7 +41,7 @@ module.exports = class extends base(type => type === 'map', apexTypeFunction) {
 		this.values = this.getTokenizer().tokenize(schema.values);
 	}
 
-	normalize(classpath = []) {
+	normalize(classpath) {
 		this.values = normalize.child(this.values, classpath) || this.values;
 	}
 

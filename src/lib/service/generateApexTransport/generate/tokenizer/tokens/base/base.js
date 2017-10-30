@@ -50,7 +50,7 @@ const Base = (avroTypeFunction, apexTypeFunction) => class {
 		return apexTypeFunction.call(this);
 	}
 
-	normalize(classpath = []) {}
+	normalize(classpath) {}
 
 };
 

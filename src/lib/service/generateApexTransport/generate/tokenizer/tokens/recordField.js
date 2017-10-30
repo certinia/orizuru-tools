@@ -42,7 +42,7 @@ module.exports = class extends base(type => false, apexTypeFunction) {
 		this.type = this.getTokenizer().tokenize(schema.type);
 	}
 
-	normalize(classpath = []) {
+	normalize(classpath) {
 		this.type = normalize.child(this.type, classpath) || this.type;
 	}
 

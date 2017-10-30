@@ -41,7 +41,7 @@ module.exports = class extends base(type => type === 'array', apexTypeFunction) 
 		this.items = this.getTokenizer().tokenize(schema.items);
 	}
 
-	normalize(classpath = []) {
+	normalize(classpath) {
 		this.items = normalize.child(this.items, classpath) || this.items;
 	}
 

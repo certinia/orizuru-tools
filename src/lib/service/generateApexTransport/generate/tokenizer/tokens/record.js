@@ -47,7 +47,7 @@ module.exports = class extends base(type => type === 'record', apexTypeFunction)
 		this.fields = _.map(schema.fields, field => new RecordField(field));
 	}
 
-	normalize(classpath = []) {
+	normalize(classpath) {
 		_.each(this.fields, field => field.normalize(classpath));
 	}
 

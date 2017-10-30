@@ -113,6 +113,8 @@ describe('service/generateApexTransport/generate.js', () => {
 
 			it('a simple schema', () => testSuccess(['simple.avsc'], 'Simple.cls'));
 
+			it('a schema where a named type contains its namespace in its name field', () => testSuccess(['namespaceInName.avsc'], 'NamespaceInName.cls'));
+
 			it('a schema with a child record', () => testSuccess(['childRecord.avsc'], 'ChildRecord.cls'));
 
 			it('a recursive schema', () => testSuccess(['recursive.avsc'], 'Recursive.cls'));
