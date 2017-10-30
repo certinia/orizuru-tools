@@ -23,22 +23,78 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
-
 'use strict';
 
 const
-	path = require('path'),
-	fs = require('fs-extra'),
-	{ log } = require('../../util/logger'),
+	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
+	root = require('app-root-path'),
+	sinon = require('sinon'),
+	proxyquire = require('proxyquire'),
 
-	CWD = process.cwd(),
+	expect = chai.expect,
 
-	copyResources = config => {
-		log('Copying resources to ' + CWD);
-		return fs.copy(path.resolve(config.templatesFolder, config.folder, 'res'), CWD)
-			.then(() => config);
-	};
+	{ calledOnce, calledTwice, calledWith } = sinon.assert,
 
-module.exports = {
-	copyResources: config => copyResources(config)
-};
+	sandbox = sinon.sandbox.create();
+
+chai.use(chaiAsPromised);
+
+describe('service/init/readAppTemplates.js', () => {
+
+	let mocks, readAppTemplates;
+
+	beforeEach(() => {
+
+		const lstatResultMock = {
+			isDirectory: sandbox.stub()
+		};
+
+		mocks = {
+			fs: {
+				lstatSync: sandbox.stub().returns(lstatResultMock),
+				readdirSync: sandbox.stub().returns([
+					'a',
+					'b.js'
+				])
+			}
+		};
+
+		lstatResultMock.isDirectory.onFirstCall().returns(true);
+		lstatResultMock.isDirectory.onSecondCall().returns(false);
+
+		readAppTemplates = proxyquire(root + '/src/lib/service/init/readAppTemplates', {
+			fs: mocks.fs
+		});
+
+	});
+
+	afterEach(() => sandbox.restore());
+
+	describe('readAppTemplates', () => {
+
+		it('should read folder for names, stripping out files', () => {
+
+			// given
+			const
+				templatesFolder = root + '/templates',
+				folder = 'simple-example';
+
+			// when - then
+			expect(readAppTemplates.readAppTemplates({ templatesFolder, folder })).to.eql({
+				templatesFolder,
+				folder,
+				appFolders: [templatesFolder + '/a']
+			});
+
+			calledOnce(mocks.fs.readdirSync);
+			calledWith(mocks.fs.readdirSync, templatesFolder);
+			calledTwice(mocks.fs.lstatSync);
+			calledWith(mocks.fs.lstatSync, templatesFolder + '/a');
+			calledWith(mocks.fs.lstatSync, templatesFolder + '/b.js');
+
+		});
+
+	});
+
+});

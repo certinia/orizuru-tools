@@ -25,20 +25,25 @@
  **/
 
 'use strict';
-
 const
-	path = require('path'),
-	fs = require('fs-extra'),
-	{ log } = require('../../util/logger'),
+	root = require('app-root-path'),
+	chai = require('chai'),
 
-	CWD = process.cwd(),
+	validators = require(root + '/src/lib/util/validators'),
 
-	copyResources = config => {
-		log('Copying resources to ' + CWD);
-		return fs.copy(path.resolve(config.templatesFolder, config.folder, 'res'), CWD)
-			.then(() => config);
-	};
+	expect = chai.expect;
 
-module.exports = {
-	copyResources: config => copyResources(config)
-};
+describe('util/validators.js', () => {
+
+	describe('valid', () => {
+
+		it('should return true', () => {
+
+			// given - when - then
+			expect(validators.valid()).to.eql(true);
+
+		});
+
+	});
+
+});

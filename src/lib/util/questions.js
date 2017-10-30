@@ -27,18 +27,15 @@
 'use strict';
 
 const
-	path = require('path'),
-	fs = require('fs-extra'),
-	{ log } = require('../../util/logger'),
 
-	CWD = process.cwd(),
-
-	copyResources = config => {
-		log('Copying resources to ' + CWD);
-		return fs.copy(path.resolve(config.templatesFolder, config.folder, 'res'), CWD)
-			.then(() => config);
-	};
+	listField = (message, prop, validate, choices) => ({
+		type: 'list',
+		message,
+		name: prop,
+		choices,
+		validate
+	});
 
 module.exports = {
-	copyResources: config => copyResources(config)
+	listField
 };

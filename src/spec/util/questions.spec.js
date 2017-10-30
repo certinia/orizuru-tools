@@ -25,20 +25,31 @@
  **/
 
 'use strict';
-
 const
-	path = require('path'),
-	fs = require('fs-extra'),
-	{ log } = require('../../util/logger'),
+	root = require('app-root-path'),
+	chai = require('chai'),
 
-	CWD = process.cwd(),
+	questions = require(root + '/src/lib/util/questions'),
 
-	copyResources = config => {
-		log('Copying resources to ' + CWD);
-		return fs.copy(path.resolve(config.templatesFolder, config.folder, 'res'), CWD)
-			.then(() => config);
-	};
+	expect = chai.expect;
 
-module.exports = {
-	copyResources: config => copyResources(config)
-};
+describe('util/questions.js', () => {
+
+	describe('listField', () => {
+
+		it('should return the config for an input field', () => {
+
+			// when/then
+			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
+				type: 'list',
+				message: 'a',
+				name: 'b',
+				validate: 'c',
+				choices: 'd'
+			});
+
+		});
+
+	});
+
+});
