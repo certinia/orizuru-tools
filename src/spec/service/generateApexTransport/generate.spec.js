@@ -97,7 +97,9 @@ describe('service/generateApexTransport/generate.js', () => {
 
 			it('for bytes types', () => testError(['bytesRecord.avsc'], 'unsupported type: bytes'));
 
-			it('for unnamed records', () => testError(['unnamedRecord.avsc'], '\'record\' and \'enum\' type objects must have a name.'));
+			it('for unnamed records', () => testError(['unnamedRecord.avsc'], 'record and enum type objects must have a name'));
+
+			it('for unnamed enums', () => testError(['unnamedEnum.avsc'], 'record and enum type objects must have a name'));
 
 			it('if enum has no symbols', () => testError(['noEnumSymbols.avsc'], 'invalid enum symbols: undefined'));
 

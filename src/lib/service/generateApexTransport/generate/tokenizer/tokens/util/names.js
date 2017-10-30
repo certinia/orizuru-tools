@@ -33,6 +33,9 @@ const
 	APEX_DELIMITER = '_';
 
 function getAvroName(name, namespace) {
+	if (!name) {
+		throw new Error('record and enum type objects must have a name');
+	}
 	if (name.includes(AVRO_DELIMITER)) {
 		return name;
 	}
