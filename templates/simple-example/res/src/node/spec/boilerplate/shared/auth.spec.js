@@ -57,7 +57,7 @@ describe('boilerplate/shared/auth.js', () => {
 
 		process.env.JWT_SIGNING_KEY = '123';
 		process.env.OPENID_CLIENT_ID = '456';
-		process.env.OPENID_HTTP_TIMEOUT = 5333;
+		process.env.OPENID_HTTP_TIMEOUT = '5333';
 		process.env.OPENID_ISSUER_URI = 'http://test';
 
 		auth = proxyquire(root + '/src/node/lib/boilerplate/shared/auth', {
@@ -97,7 +97,7 @@ describe('boilerplate/shared/auth.js', () => {
 			calledWith(tokenValidatorStub, {
 				jwtSigningKey: '123',
 				openidClientId: '456',
-				openidHTTPTimeout: '5333',
+				openidHTTPTimeout: 5333,
 				openidIssuerURI: 'http://test'
 			});
 		});
