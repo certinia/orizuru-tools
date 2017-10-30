@@ -93,6 +93,10 @@ describe('service/generateApexTransport/generate.js', () => {
 
 			it('for unknown types', () => testError(['unknownType.avsc'], 'undefined type name: com.financialforce.unknown'));
 
+			it('for fixed types', () => testError(['fixedRecord.avsc'], 'unsupported type: fixed'));
+
+			it('for bytes types', () => testError(['bytesRecord.avsc'], 'unsupported type: bytes'));
+
 			it('for unnamed records', () => testError(['unnamedRecord.avsc'], '\'record\' and \'enum\' type objects must have a name.'));
 
 			it('if enum has no symbols', () => testError(['noEnumSymbols.avsc'], 'invalid enum symbols: undefined'));

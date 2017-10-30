@@ -26,57 +26,8 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
+const base = require('./base/base');
 
-	tokens = [
-		require('./tokens/array'),
-		require('./tokens/boolean'),
-		require('./tokens/bytes'),
-		require('./tokens/double'),
-		require('./tokens/enum'),
-		require('./tokens/fixed'),
-		require('./tokens/float'),
-		require('./tokens/int'),
-		require('./tokens/long'),
-		require('./tokens/map'),
-		require('./tokens/null'),
-		require('./tokens/record'),
-		require('./tokens/recordField'),
-		require('./tokens/reference'),
-		require('./tokens/string'),
-		require('./tokens/union')
-	];
-
-tokens.Array = tokens[0];
-tokens.Boolean = tokens[1];
-tokens.Bytes = tokens[2];
-tokens.Double = tokens[3];
-tokens.Enum = tokens[4];
-tokens.Fixed = tokens[5];
-tokens.Float = tokens[6];
-tokens.Int = tokens[7];
-tokens.Long = tokens[8];
-tokens.Map = tokens[9];
-tokens.Null = tokens[10];
-tokens.Record = tokens[11];
-tokens.RecordField = tokens[12];
-tokens.Reference = tokens[13];
-tokens.String = tokens[14];
-tokens.Union = tokens[15];
-
-tokens.classify = schema => _.reduce(tokens, (result, token) => {
-	if (token.is(schema)) {
-		return token;
-	}
-	return result;
-}, null);
-
-tokens.isAny = schema => _.reduce(tokens, (result, token) => {
-	if (token === tokens.Reference) {
-		return result; // specifically ignore reference
-	}
-	return result || token.is(schema);
-}, false);
-
-module.exports = Object.freeze(tokens);
+module.exports = class extends base(type => type === 'bytes', () => {
+	throw new Error('unsupported type: bytes');
+}) {};

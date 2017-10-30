@@ -42,14 +42,6 @@ function generateForSchema(schemaJson) {
 	return apexClasses;
 }
 
-//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO
-//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO
-//																	  //
-//				ADD BROKEN TYPES FOR FIXED AND BYTES				  //
-//																	  //
-//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO
-//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO
-
 function generate(jsonAvroSchemas) {
 	const
 		finalResult = [],
