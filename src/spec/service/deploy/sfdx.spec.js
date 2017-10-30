@@ -77,8 +77,15 @@ describe('service/deploy/sfdx.js', () => {
 			// given
 			const
 				expectedUsername = 'test-ki9yknei6emv@orizuru.net',
-				expectedInput = {},
-				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', 'src/apex/config/project-scratch-def.json', '-s', '--json'] },
+				expectedOrgDef = 'src/apex/config/project-scratch-def.json',
+				expectedInput = {
+					sfdx: {
+						yaml: {
+							['scratch-org-def']: expectedOrgDef
+						}
+					}
+				},
+				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', expectedOrgDef, '-s', '--json'] },
 				expectedOutput = {
 					sfdx: {
 						org: {
@@ -110,9 +117,10 @@ describe('service/deploy/sfdx.js', () => {
 			// given
 			const
 				expectedUsername = 'test',
+				expectedPermset = 'OrizuruAdmin',
 				expectedCommands = [
 					{ cmd: 'sfdx', args: ['force:source:push', '-u', expectedUsername] },
-					{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', 'OrizuruAdmin', '-u', expectedUsername] },
+					{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', expectedPermset, '-u', expectedUsername] },
 					{ cmd: 'sfdx', args: ['force:apex:test:run', '-r', 'human', '-u', expectedUsername, '--json'] },
 					{ cmd: 'sfdx', args: ['force:org:display', '-u', expectedUsername, '--json'] }
 				],
@@ -123,10 +131,16 @@ describe('service/deploy/sfdx.js', () => {
 								username: expectedUsername
 							}
 						}
+					},
+					sfdx: {
+						yaml: {
+							['permset-name']: expectedPermset
+						}
 					}
 				},
 				expectedOutput = {
 					parameters: expectedInput.parameters,
+					sfdx: expectedInput.sfdx,
 					connectionInfo: undefined,
 					sfdxResults: {
 						command0: {
@@ -374,6 +388,7 @@ describe('service/deploy/sfdx.js', () => {
 			// given
 			const
 				expectedScratchOrgUsername = 'testUsername',
+				expectedOrgDef = 'src/apex/config/project-scratch-def.json',
 				expectedInput = {
 					options: {
 						includeNew: {
@@ -383,7 +398,10 @@ describe('service/deploy/sfdx.js', () => {
 					sfdx: {
 						scratchOrgs: [{
 							username: expectedScratchOrgUsername
-						}]
+						}],
+						yaml: {
+							['scratch-org-def']: expectedOrgDef
+						}
 					}
 				},
 				expectedChoices = [{

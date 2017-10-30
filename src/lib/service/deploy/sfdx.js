@@ -39,7 +39,7 @@ const
 
 	deployCommands = (config) => [
 		{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`] },
-		{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', 'OrizuruAdmin', '-u', `${config.parameters.sfdx.org.username}`] },
+		{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', `${config.sfdx.yaml['permset-name']}`, '-u', `${config.parameters.sfdx.org.username}`] },
 		{ cmd: 'sfdx', args: ['force:apex:test:run', '-r', 'human', '-u', `${config.parameters.sfdx.org.username}`, '--json'] },
 		{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
 	],
@@ -49,7 +49,7 @@ const
 	],
 
 	createNewScratchOrg = (config) => {
-		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', 'src/apex/config/project-scratch-def.json', '-s', '--json'] }, { exitOnError: true })
+		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', `${config.sfdx.yaml['scratch-org-def']}`, '-s', '--json'] }, { exitOnError: true })
 			.then(result => ({ sfdx: { org: JSON.parse(result.stdout).result } }));
 	},
 
