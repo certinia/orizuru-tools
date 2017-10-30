@@ -65,6 +65,11 @@ const
 
 	},
 
+	checkHerokuCliInstalled = (config) => {
+		return shell.executeCommand({ cmd: 'heroku', args: ['version'] }, { exitOnError: true })
+			.then(() => config);
+	},
+
 	createNewApp = (config) => {
 
 		return shell.executeCommand({ cmd: 'heroku', args: ['create', '--json'] }, { exitOnError: true })
@@ -132,6 +137,7 @@ const
 module.exports = {
 	addAddOns,
 	addBuildpacks,
+	checkHerokuCliInstalled,
 	createNewApp,
 	deployCurrentBranch,
 	getAllApps,

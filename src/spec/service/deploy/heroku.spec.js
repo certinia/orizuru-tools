@@ -158,6 +158,27 @@ describe('service/deploy/heroku.js', () => {
 
 	});
 
+	describe('checkHerokuCliInstalled', () => {
+
+		it('should check that the Heroku CLI is installed', () => {
+
+			// given
+			const expectedCommand = { cmd: 'heroku', args: ['version'] };
+
+			mocks.shell.executeCommand = sandbox.stub().resolves('heroku-toolbelt/3.43.9999 (x86_64-darwin10.8.0) ruby/1.9.3\nheroku-cli/6.14.36-15f8a25 (darwin-x64) node-v8.7.0');
+
+			// when - then
+			return expect(heroku.checkHerokuCliInstalled({}))
+				.to.eventually.eql({})
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
 	describe('createNewApp', () => {
 
 		it('should create a new Heroku app', () => {
