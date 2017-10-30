@@ -65,6 +65,15 @@ const
 
 	},
 
+	createNewApp = (config) => {
+
+		return shell.executeCommand({ cmd: 'heroku', args: ['create', '--json'] }, { exitOnError: true })
+			.then(result => {
+				return ({ heroku: { app: JSON.parse(result.stdout) } });
+			});
+
+	},
+
 	deployCurrentBranch = (config) => {
 
 		return shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${config.parameters.heroku.app.git_url}`], opts: { exitOnError: true } })
@@ -101,7 +110,7 @@ const
 			newApp = '<<Create new Heroku App>>',
 			apps = _.map(config.heroku.apps, app => ({ name: app.name, value: app }));
 
-		if (config.options.includeNew.heroku === true) {
+		if (config.options && config.options.includeNew && config.options.includeNew.heroku === true) {
 			apps.push(newApp);
 		}
 
@@ -109,10 +118,7 @@ const
 			questions.listField('Heroku App', 'heroku.app', undefined, apps)
 		]).then(answers => {
 			if (answers.heroku.app === newApp) {
-				return shell.executeCommand({ cmd: 'heroku', args: ['create', '--json'] }, { exitOnError: true })
-					.then(result => {
-						return ({ heroku: { app: JSON.parse(result.stdout) } });
-					});
+				return createNewApp(config);
 			}
 			return answers;
 		}).then(answers => {
@@ -126,6 +132,7 @@ const
 module.exports = {
 	addAddOns,
 	addBuildpacks,
+	createNewApp,
 	deployCurrentBranch,
 	getAllApps,
 	readAppJson,

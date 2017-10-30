@@ -50,9 +50,12 @@ describe('service/deploy/heroku.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
+		mocks.inquirer = {};
+		mocks.inquirer.prompt = sandbox.stub();
 		mocks.shell = {};
 
 		heroku = proxyquire(root + '/src/lib/service/deploy/heroku.js', {
+			inquirer: mocks.inquirer,
 			'./shared/shell': mocks.shell
 		});
 
@@ -149,6 +152,37 @@ describe('service/deploy/heroku.js', () => {
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: false });
+				});
+
+		});
+
+	});
+
+	describe('createNewApp', () => {
+
+		it('should get all the current Heroku apps', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					heroku: {
+						app: {
+							name: expectedAppName
+						}
+					}
+				},
+				expectedCommand = { cmd: 'heroku', args: ['create', '--json'] },
+				expectedOutput = expectedInput;
+
+			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });
+
+			// when - then
+			return expect(heroku.createNewApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
 				});
 
 		});
@@ -268,6 +302,148 @@ describe('service/deploy/heroku.js', () => {
 
 			// when - then
 			expect(heroku.readAppJson(expectedInput)).to.eql(expectedOutput);
+
+		});
+
+	});
+
+	describe('selectApp', () => {
+
+		it('should prompt the user to select the Heroku application without a new app option', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					heroku: {
+						apps: [{
+							name: expectedAppName
+						}]
+					}
+				},
+				expectedChoices = [{
+					choices: [{
+						name: expectedAppName,
+						value: {
+							name: expectedAppName
+						}
+					}],
+					message: 'Heroku App',
+					name: 'heroku.app',
+					type: 'list',
+					validate: undefined
+				}],
+				expectedAnswer = {
+					heroku: {
+						apps: expectedAppName
+					}
+				},
+				expectedOutput = expectedInput;
+
+			mocks.inquirer.prompt.resolves(expectedAnswer);
+
+			// when - then
+			return expect(heroku.selectApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
+				});
+
+		});
+
+		it('should prompt the user to select the Heroku application with a new app option', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedAnswer = {
+					heroku: {
+						app: expectedAppName
+					}
+				},
+				expectedInput = {
+					options: {
+						includeNew: {
+							heroku: true
+						}
+					},
+					heroku: {
+						apps: [{
+							name: expectedAppName
+						}]
+					}
+				},
+				expectedChoices = [{
+					choices: [{
+						name: expectedAppName,
+						value: {
+							name: expectedAppName
+						}
+					}, '<<Create new Heroku App>>'],
+					message: 'Heroku App',
+					name: 'heroku.app',
+					type: 'list',
+					validate: undefined
+				}],
+				expectedOutput = expectedInput;
+
+			mocks.inquirer.prompt.resolves(expectedAnswer);
+
+			// when - then
+			return expect(heroku.selectApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
+				});
+
+		});
+
+		it('should prompt the user to select the Heroku application with a new app option and create a new app if that option is chosen', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedAnswer = {
+					heroku: {
+						app: '<<Create new Heroku App>>'
+					}
+				},
+				expectedInput = {
+					options: {
+						includeNew: {
+							heroku: true
+						}
+					},
+					heroku: {
+						apps: [{
+							name: expectedAppName
+						}]
+					}
+				},
+				expectedChoices = [{
+					choices: [{
+						name: expectedAppName,
+						value: {
+							name: expectedAppName
+						}
+					}, '<<Create new Heroku App>>'],
+					message: 'Heroku App',
+					name: 'heroku.app',
+					type: 'list',
+					validate: undefined
+				}],
+				expectedOutput = expectedInput;
+
+			mocks.inquirer.prompt.resolves(expectedAnswer);
+			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+
+			// when - then
+			return expect(heroku.selectApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+				});
 
 		});
 
