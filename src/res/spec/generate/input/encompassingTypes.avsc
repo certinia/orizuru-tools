@@ -32,6 +32,12 @@
 			"items": "DeliveryTypeCls"
 		}
 	}, {
+		"name": "arrayString",
+		"type": {
+			"type": "array",
+			"items": "string"
+		}
+	}, {
 		"name": "mapEnum",
 		"type": {
 			"type": "map",

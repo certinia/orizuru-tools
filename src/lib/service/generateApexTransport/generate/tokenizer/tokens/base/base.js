@@ -26,30 +26,32 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename } = require('path'),
-	{ readFileSync } = require('fs'),
+const Base = (avroTypeFunction, apexTypeFunction) => class {
 
-	EXT = '.avsc',
-	ENCODING = 'utf8';
+	static is(schema) {
+		return (
+			schema &&
+			avroTypeFunction &&
+			(
+				avroTypeFunction(schema) ||
+				(
+					schema.type &&
+					avroTypeFunction(schema.type)
+				)
+			)
+		);
+	}
 
-function getAvscFilesOnPathRecursively(path) {
-	const
-		DIR = path,
-		FILTER = ({ path }) => path.endsWith(EXT);
+	getTokenizer() {
+		return require('../../../tokenizer');
+	}
 
-	return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
-		const { path } = value;
-		// add sharedPath and fileName to the result
-		return {
-			path,
-			sharedPath: dirname(path).substring(DIR.length),
-			fileName: basename(path, EXT),
-			file: readFileSync(path).toString(ENCODING)
-		};
-	});
-}
+	getApexType() {
+		return apexTypeFunction.call(this);
+	}
 
-module.exports = { getAvscFilesOnPathRecursively };
+	normalize(classpath) {}
+
+};
+
+module.exports = Base;

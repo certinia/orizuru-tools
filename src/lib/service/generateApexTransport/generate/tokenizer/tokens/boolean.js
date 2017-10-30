@@ -26,6 +26,6 @@
 
 'use strict';
 
-const _ = require('lodash');
+const base = require('./base/base');
 
-describe('service/generateApexTransport/generate/classesForSchema.js', () => it('Should be tested by service/generateApexTransport/generate.spec.js', () => _.noop));
+module.exports = class extends base(type => type === 'boolean', () => 'Boolean') {};

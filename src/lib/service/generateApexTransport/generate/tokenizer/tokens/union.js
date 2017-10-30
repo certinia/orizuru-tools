@@ -26,6 +26,24 @@
 
 'use strict';
 
-const _ = require('lodash');
+const
+	_ = require('lodash'),
+	base = require('./base/base'),
+	normalize = require('./util/normalize');
 
-describe('service/generateApexTransport/generate/types/mapper.js', () => it('Should be tested by service/generateApexTransport/generate.spec.js', () => _.noop));
+module.exports = class extends base(type => _.isArray(type), () => 'Object') {
+
+	constructor(schema) {
+		super();
+		this.types = _.map(schema, member => this.getTokenizer().tokenize(member));
+	}
+
+	normalize(classpath) {
+		const replacements = [];
+		_.each(this.types, (type, index) => {
+			replacements.push(normalize.child(type, classpath) || type);
+		});
+		this.types = replacements;
+	}
+
+};

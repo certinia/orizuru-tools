@@ -27,29 +27,26 @@
 'use strict';
 
 const
-	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename } = require('path'),
-	{ readFileSync } = require('fs'),
+	base = require('./base/base'),
+	names = require('./util/names'),
+	templates = require('../../apex/templates');
 
-	EXT = '.avsc',
-	ENCODING = 'utf8';
-
-function getAvscFilesOnPathRecursively(path) {
-	const
-		DIR = path,
-		FILTER = ({ path }) => path.endsWith(EXT);
-
-	return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
-		const { path } = value;
-		// add sharedPath and fileName to the result
-		return {
-			path,
-			sharedPath: dirname(path).substring(DIR.length),
-			fileName: basename(path, EXT),
-			file: readFileSync(path).toString(ENCODING)
-		};
-	});
+function apexTypeFunction() {
+	return names.getApexName(this.reference);
 }
 
-module.exports = { getAvscFilesOnPathRecursively };
+module.exports = class extends base(type => type === 'enum', apexTypeFunction) {
+
+	constructor(schema) {
+		super();
+		this.name = schema.name;
+		this.namespace = schema.namespace;
+		this.reference = names.getAvroName(this.name, this.namespace);
+		this.symbols = schema.symbols;
+	}
+
+	generateApex() {
+		return templates.innerEnum(this.symbols, this.getApexType());
+	}
+
+};
