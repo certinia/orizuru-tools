@@ -79,7 +79,7 @@ public abstract class OrizuruTransport implements ISerializable
 
 	}
 
-	public class DeliveryTypeCls // Internal class defining a type within an Orizuru Avro transport schema, used within transport extensions
+	public class DeliveryTypeCls extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
 	{
 
 		public String testFieldString { get; set; }
