@@ -23,23 +23,70 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
-
 'use strict';
 
 const
+	root = require('app-root-path'),
+	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
+	sinon = require('sinon'),
+
 	inquirer = require('inquirer'),
-	questions = require('../../util/questions'),
-	validators = require('../../util/validators'),
+	questions = require(root + '/src/lib/util/questions'),
+	validators = require(root + '/src/lib/util/validators'),
 
-	askQuestions = config => {
-		return inquirer.prompt([
-			questions.listField('Select app to create:', 'folder', validators.valid, config.appFolders)
-		]).then(results => {
-			config.folder = results.folder;
-			return config;
+	askQuestions = require(root + '/src/lib/service/init/askQuestions'),
+
+	expect = chai.expect,
+
+	calledOnce = sinon.assert.calledOnce,
+	calledWith = sinon.assert.calledWith,
+
+	sandbox = sinon.sandbox.create();
+
+chai.use(chaiAsPromised);
+
+describe('service/init/askQuestions.js', () => {
+
+	beforeEach(() => {
+
+		sandbox.stub(inquirer, 'prompt').resolves({
+			folder: 'test'
 		});
-	};
+		sandbox.stub(questions, 'listField').returns('test');
 
-module.exports = {
-	askQuestions
-};
+	});
+
+	afterEach(() => sandbox.restore());
+
+	describe('askQuestions', () => {
+
+		it('should call inquirer prompt with correct questions', () => {
+
+			// given - when - then
+			return expect(askQuestions.askQuestions({
+				appFolders: [
+					'af1',
+					'af2'
+				]
+			})).to.eventually.eql({
+				appFolders: [
+					'af1',
+					'af2'
+				],
+				folder: 'test'
+			}).then(() => {
+				calledOnce(inquirer.prompt);
+				calledWith(inquirer.prompt, ['test']);
+				calledOnce(questions.listField);
+				calledWith(questions.listField, 'Select app to create:', 'folder', validators.valid, [
+					'af1',
+					'af2'
+				]);
+			});
+
+		});
+
+	});
+
+});

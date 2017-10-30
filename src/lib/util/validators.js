@@ -27,19 +27,9 @@
 'use strict';
 
 const
-	inquirer = require('inquirer'),
-	questions = require('../../util/questions'),
-	validators = require('../../util/validators'),
 
-	askQuestions = config => {
-		return inquirer.prompt([
-			questions.listField('Select app to create:', 'folder', validators.valid, config.appFolders)
-		]).then(results => {
-			config.folder = results.folder;
-			return config;
-		});
-	};
+	valid = () => true;
 
 module.exports = {
-	askQuestions
+	valid
 };
