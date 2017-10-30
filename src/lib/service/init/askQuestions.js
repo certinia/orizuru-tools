@@ -27,18 +27,18 @@
 'use strict';
 
 const
-	path = require('path'),
-	fs = require('fs-extra'),
-	{ log } = require('../../util/logger'),
+	inquirer = require('inquirer'),
+	questions = require('../../util/questions'),
 
-	CWD = process.cwd(),
-
-	copyResources = config => {
-		log('Copying resources to ' + CWD);
-		return fs.copy(path.resolve(config.templatesFolder, config.folder, 'res'), CWD)
-			.then(() => config);
+	askQuestions = config => {
+		return inquirer.prompt([
+			questions.listField('Select app to create:', 'folder', () => true, config.appFolders)
+		]).then(results => {
+			config.folder = results.folder;
+			return config;
+		});
 	};
 
 module.exports = {
-	copyResources: config => copyResources(config)
+	askQuestions
 };

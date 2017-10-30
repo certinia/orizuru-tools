@@ -27,15 +27,20 @@
 'use strict';
 
 const
+	path = require('path'),
 	createPackageJson = require('./init/createPackageJson'),
 	copyResources = require('./init/copyResources'),
+	readAppTemplates = require('./init/readAppTemplates'),
+	askQuestions = require('./init/askQuestions'),
 	{ logStart, logFinish, logError } = require('../util/logger');
 
 class Init {
 
 	static init(options) {
-		return Promise.resolve()
+		return Promise.resolve({ templatesFolder: path.resolve(__dirname, '..', '..', '..', 'templates') })
 			.then(logStart('Building new project'))
+			.then(readAppTemplates.readAppTemplates)
+			.then(askQuestions.askQuestions)
 			.then(createPackageJson.createPackageJson)
 			.then(copyResources.copyResources)
 			.then(logFinish('Built project'))

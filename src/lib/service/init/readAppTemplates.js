@@ -27,18 +27,17 @@
 'use strict';
 
 const
+	fs = require('fs'),
 	path = require('path'),
-	fs = require('fs-extra'),
-	{ log } = require('../../util/logger'),
 
-	CWD = process.cwd(),
+	isDirectory = source => fs.lstatSync(source).isDirectory(),
+	getDirectories = source => fs.readdirSync(source).map(name => path.join(source, name)).filter(isDirectory),
 
-	copyResources = config => {
-		log('Copying resources to ' + CWD);
-		return fs.copy(path.resolve(config.templatesFolder, config.folder, 'res'), CWD)
-			.then(() => config);
+	readAppTemplates = config => {
+		config.appFolders = getDirectories(config.templatesFolder);
+		return config;
 	};
 
 module.exports = {
-	copyResources: config => copyResources(config)
+	readAppTemplates
 };

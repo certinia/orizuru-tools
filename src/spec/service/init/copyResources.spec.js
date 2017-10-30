@@ -68,13 +68,20 @@ describe('service/init/copyResources.js', () => {
 
 		it('should call fs-extra copy with the correct arguments, and return input', () => {
 
-			return expect(copyResources.copyResources({ answers: 'test' })).to.eventually.eql({
-				answers: 'test'
+			// given
+			const
+				templatesFolder = root + '/templates',
+				folder = 'simple-example';
+
+			// when - then
+			return expect(copyResources.copyResources({ templatesFolder, folder })).to.eventually.eql({
+				templatesFolder,
+				folder
 			}).then(() => {
 				calledOnce(mocks.logger.log);
 				calledWith(mocks.logger.log, 'Copying resources to ' + process.cwd());
 				calledOnce(mocks.fsCopy);
-				calledWith(mocks.fsCopy, root + '/template', process.cwd());
+				calledWith(mocks.fsCopy, root + '/templates/simple-example/res', process.cwd());
 			});
 
 		});
