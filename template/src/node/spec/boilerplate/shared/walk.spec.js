@@ -26,8 +26,62 @@
 
 'use strict';
 
+const
+	root = require('app-root-path'),
+
+	proxyquire = require('proxyquire').noCallThru(),
+
+	sinon = require('sinon'),
+	{ calledOnce, calledWith } = sinon.assert,
+
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox),
+
+	{ expect } = require('chai');
+
 describe('boilerplate/shared/walk.js', () => {
 
-	describe('walk', () => it('should be tested via ./shared/schemas and ./shared/handlers'));
+	let walk, klawSyncStub;
+
+	beforeEach(() => {
+		klawSyncStub = sandbox.stub();
+		walk = proxyquire(root + '/src/node/lib/boilerplate/shared/walk', {
+			'klaw-sync': klawSyncStub
+		});
+	});
+
+	afterEach(() => {
+		restore();
+	});
+
+	describe('walk', () => {
+
+		it('should walk the file tree', () => {
+
+			// given 
+
+			klawSyncStub.returns([{
+				path: 'a/b'
+			}]);
+
+			// when - then
+
+			expect(walk.walk('/test', '.blah')).to.eql([{
+				fileName: 'b',
+				path: 'a/b',
+				sharedPath: ''
+			}]);
+
+			calledOnce(klawSyncStub);
+			calledWith(klawSyncStub, '/test', { filter: sinon.match.any, nodir: true });
+
+			const filter = klawSyncStub.getCall(0).args[1].filter;
+
+			expect(filter({ path: 'bob.blah' })).to.eql(true);
+			expect(filter({ path: 'bob.avsc' })).to.eql(false);
+
+		});
+
+	});
 
 });

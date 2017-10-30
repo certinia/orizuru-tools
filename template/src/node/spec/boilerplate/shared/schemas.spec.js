@@ -31,7 +31,7 @@ const
 
 	{ expect } = require('chai'),
 
-	schemas = require(root + '/src/lib/boilerplate/shared/schemas');
+	schemas = require(root + '/src/node/lib/boilerplate/shared/schemas');
 
 describe('boilerplate/shared/schemas.js', () => {
 
@@ -40,11 +40,7 @@ describe('boilerplate/shared/schemas.js', () => {
 		it('should return all schemas in the schemas folder', () => {
 
 			// given - when - then
-			expect(schemas.get()).to.eql([{
-				path: root + '/src/lib/schemas/api/account.avsc',
-				sharedPath: '/api',
-				fileName: 'account'
-			}]);
+			expect(schemas.get()).to.eql([]);
 
 		});
 

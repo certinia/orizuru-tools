@@ -33,26 +33,11 @@ const
 	ADVERTISE_HOST = process.env.ADVERTISE_HOST || 'localhost:8080',
 	ADVERTISE_SCHEME = process.env.ADVERTISE_SCHEME || 'http',
 
-	JWT_SIGNING_KEY = process.env.JWT_SIGNING_KEY,
-	OPENID_CLIENT_ID = process.env.OPENID_CLIENT_ID,
-	OPENID_HTTP_TIMEOUT = process.env.OPENID_HTTP_TIMEOUT || 4000,
-	OPENID_ISSUER_URI = process.env.OPENID_ISSUER_URI || 'https://test.salesforce.com/',
-
-	authEnv = {
-		jwtSigningKey: JWT_SIGNING_KEY,
-		openidClientId: OPENID_CLIENT_ID,
-		openidHTTPTimeout: OPENID_HTTP_TIMEOUT,
-		openidIssuerURI: OPENID_ISSUER_URI
-	},
-
-	authMiddleware = require('@financialforcedev/orizuru-auth').middleware,
-
 	OPEN_API_EXT = '.json',
 
 	// get utils
 	_ = require('lodash'),
 	throng = require('throng'),
-	uuid = require('uuid'),
 	debug = require('debug-plus')('boilerplate:web'),
 	openapiGenerator = require('@financialforcedev/orizuru-openapi').generator,
 
@@ -67,30 +52,11 @@ const
 	// get all files in our 'schemas' directory
 	schemas = require('./shared/schemas').get(),
 
-	idMiddleware = (req, res, next) => {
-		const
-			orizuru = req.orizuru || {};
+	auth = require('./shared/auth'),
 
-		req.orizuru = orizuru;
-		orizuru.id = uuid();
-		next();
-	},
+	id = require('./shared/id'),
 
-	responseWriter = (err, response, orizuru) => {
-		if (err) {
-			response.status(400).send(err.message);
-		} else {
-			response.json({
-				id: orizuru.id
-			});
-		}
-	},
-
-	middlewares = [
-		idMiddleware,
-		authMiddleware.tokenValidator(authEnv),
-		authMiddleware.grantChecker(authEnv)
-	],
+	middlewares = auth.middleware.concat(id.middleware),
 
 	// function to add a route input object to an object if needed
 	addRouteInputObjectToResultIfRequired = (sharedPathToAddRouteInput, path) => {
@@ -99,7 +65,7 @@ const
 				schemaNameToDefinition: {},
 				apiEndpoint: path,
 				middlewares,
-				responseWriter: responseWriter
+				responseWriter: id.responseWriter
 			};
 		}
 	},

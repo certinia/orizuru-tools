@@ -29,28 +29,38 @@
 const
 	root = require('app-root-path'),
 
+	proxyquire = require('proxyquire').noCallThru(),
+
 	sinon = require('sinon'),
 	{ calledOnce, calledWith, calledWithNew } = sinon.assert,
 
 	sandbox = sinon.sandbox.create(),
 	restore = sandbox.restore.bind(sandbox),
 
-	schemas = require(root + '/src/lib/boilerplate/shared/schemas'),
-	read = require(root + '/src/lib/boilerplate/shared/read'),
-	defaultTransport = require(root + '/src/lib/boilerplate/shared/transport'),
+	schemas = require(root + '/src/node/lib/boilerplate/shared/schemas'),
+	read = require(root + '/src/node/lib/boilerplate/shared/read'),
+	defaultTransport = require(root + '/src/node/lib/boilerplate/shared/transport'),
 	orizuru = require('@financialforcedev/orizuru');
 
 describe('boilerplate/web.js', () => {
 
-	let addRouteSpy, getServerStub, serverListenSpy;
+	let
+		addGetSpy, addRouteSpy, getServerStub, serverListenSpy,
+		authMiddleware, idMiddleware, middleware,
+		responseWriterStub, throngStub;
 
 	beforeEach(() => {
+		responseWriterStub = sandbox.stub();
+		authMiddleware = [];
+		middleware = authMiddleware.concat(idMiddleware);
 		serverListenSpy = sandbox.spy();
 		getServerStub = sandbox.stub().returns({
 			listen: serverListenSpy
 		});
 		addRouteSpy = sandbox.spy();
+		addGetSpy = sandbox.spy();
 		sandbox.stub(orizuru, 'Server').callsFake(function () {
+			this.addGet = addGetSpy;
 			this.addRoute = addRouteSpy;
 			this.getServer = getServerStub;
 		});
@@ -69,12 +79,23 @@ describe('boilerplate/web.js', () => {
 		};
 	});
 
-	afterEach(restore);
+	afterEach(() => {
+		restore();
+		delete process.env.WEB_CONCURRENCY;
+	});
 
 	it('should create an orizuru server', () => {
 
 		// given
-		require(root + '/src/lib/boilerplate/web');
+		proxyquire(root + '/src/node/lib/boilerplate/web', {
+			['./shared/auth']: {
+				middleware: authMiddleware
+			},
+			['./shared/id']: {
+				middleware: idMiddleware,
+				responseWriter: responseWriterStub
+			}
+		});
 
 		// when - then
 		calledOnce(orizuru.Server);
@@ -88,7 +109,8 @@ describe('boilerplate/web.js', () => {
 				test2: { mock: true }
 			},
 			apiEndpoint: '/api',
-			middlewares: []
+			middlewares: middleware,
+			responseWriter: responseWriterStub
 		});
 
 		calledOnce(getServerStub);
@@ -96,6 +118,51 @@ describe('boilerplate/web.js', () => {
 
 		calledOnce(serverListenSpy);
 		calledWith(serverListenSpy, 8080);
+
+	});
+
+	it('should create an orizuru server cluster', () => {
+
+		// given
+		throngStub = sandbox.stub();
+		throngStub.yields();
+		process.env.WEB_CONCURRENCY = 2;
+
+		proxyquire(root + '/src/node/lib/boilerplate/web', {
+			['./shared/auth']: {
+				middleware: authMiddleware
+			},
+			['./shared/id']: {
+				middleware: idMiddleware,
+				responseWriter: responseWriterStub
+			},
+			throng: throngStub
+		});
+
+		// when - then
+		calledOnce(orizuru.Server);
+		calledWithNew(orizuru.Server);
+		calledWith(orizuru.Server, defaultTransport);
+
+		calledOnce(addRouteSpy);
+		calledWith(addRouteSpy, {
+			schemaNameToDefinition: {
+				test1: { mock: true },
+				test2: { mock: true }
+			},
+			apiEndpoint: '/api',
+			middlewares: middleware,
+			responseWriter: responseWriterStub
+		});
+
+		calledOnce(getServerStub);
+		calledWith(getServerStub);
+
+		calledOnce(serverListenSpy);
+		calledWith(serverListenSpy, 8080);
+
+		calledOnce(throngStub);
+		calledWith(throngStub, '2', sinon.match.any);
 
 	});
 

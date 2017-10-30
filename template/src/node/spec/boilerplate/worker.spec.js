@@ -29,24 +29,27 @@
 const
 	root = require('app-root-path'),
 
+	proxyquire = require('proxyquire').noCallThru(),
+
 	sinon = require('sinon'),
 	{ calledOnce, calledTwice, calledWith, calledWithNew } = sinon.assert,
 
 	sandbox = sinon.sandbox.create(),
 	restore = sandbox.restore.bind(sandbox),
 
-	schemas = require(root + '/src/lib/boilerplate/shared/schemas'),
-	handlers = require(root + '/src/lib/boilerplate/shared/handlers'),
-	read = require(root + '/src/lib/boilerplate/shared/read'),
-	defaultTransport = require(root + '/src/lib/boilerplate/shared/transport'),
+	schemas = require(root + '/src/node/lib/boilerplate/shared/schemas'),
+	handlers = require(root + '/src/node/lib/boilerplate/shared/handlers'),
+	read = require(root + '/src/node/lib/boilerplate/shared/read'),
+	defaultTransport = require(root + '/src/node/lib/boilerplate/shared/transport'),
 	orizuru = require('@financialforcedev/orizuru');
 
 describe('boilerplate/worker.js', () => {
 
-	let handleSpy;
+	let handleSpy, throngStub;
 
 	beforeEach(() => {
 		handleSpy = sandbox.spy();
+		throngStub = sandbox.stub();
 		sandbox.stub(orizuru, 'Handler').callsFake(function () {
 			this.handle = handleSpy;
 		});
@@ -60,7 +63,9 @@ describe('boilerplate/worker.js', () => {
 	});
 
 	afterEach(() => {
-		delete require.cache[require.resolve(root + '/src/lib/boilerplate/worker')];
+		delete require.cache[require.resolve(root + '/src/node/lib/boilerplate/worker')];
+		delete process.env.WEB_CONCURRENCY;
+
 		restore();
 	});
 
@@ -87,7 +92,7 @@ describe('boilerplate/worker.js', () => {
 		}]);
 
 		// when
-		require(root + '/src/lib/boilerplate/worker');
+		require(root + '/src/node/lib/boilerplate/worker');
 
 		// then
 		calledOnce(orizuru.Handler);
@@ -103,6 +108,58 @@ describe('boilerplate/worker.js', () => {
 			schema: { mock: true },
 			callback: { mockHandler: true }
 		});
+
+	});
+
+	it('should create an orizuru handler cluster', () => {
+
+		// given
+
+		throngStub = sandbox.stub();
+		throngStub.yields();
+		process.env.WEB_CONCURRENCY = 2;
+
+		schemas.get.returns([{
+			path: 'api/test1.avsc',
+			sharedPath: '/api',
+			fileName: 'test1'
+		}, {
+			path: 'api/test2.avsc',
+			sharedPath: '/api',
+			fileName: 'test2'
+		}]);
+		handlers.get.returns([{
+			path: 'api/test1.js',
+			sharedPath: '/api',
+			fileName: 'test1'
+		}, {
+			path: 'api/test2.js',
+			sharedPath: '/api',
+			fileName: 'test2'
+		}]);
+
+		// when
+		proxyquire(root + '/src/node/lib/boilerplate/worker', {
+			throng: throngStub
+		});
+
+		// then
+		calledOnce(orizuru.Handler);
+		calledWithNew(orizuru.Handler);
+		calledWith(orizuru.Handler, defaultTransport);
+
+		calledTwice(handleSpy);
+		calledWith(handleSpy, {
+			schema: { mock: true },
+			callback: { mockHandler: true }
+		});
+		calledWith(handleSpy, {
+			schema: { mock: true },
+			callback: { mockHandler: true }
+		});
+
+		calledOnce(throngStub);
+		calledWith(throngStub, '2', sinon.match.any);
 
 	});
 
@@ -125,7 +182,7 @@ describe('boilerplate/worker.js', () => {
 		}]);
 
 		// when
-		require(root + '/src/lib/boilerplate/worker');
+		require(root + '/src/node/lib/boilerplate/worker');
 
 		// then
 		calledOnce(orizuru.Handler);
@@ -159,7 +216,7 @@ describe('boilerplate/worker.js', () => {
 		}]);
 
 		// when
-		require(root + '/src/lib/boilerplate/worker');
+		require(root + '/src/node/lib/boilerplate/worker');
 
 		// then
 		calledOnce(orizuru.Handler);
