@@ -34,6 +34,4 @@ function overwriteFile(path, content) {
 	});
 }
 
-module.exports = {
-	overwriteFile
-};
+module.exports = { overwriteFile };

@@ -26,6 +26,18 @@
 
 'use strict';
 
-const _ = require('lodash');
+const
+	fs = require('fs'),
+	path = require('path'),
 
-describe('service/generateApexTransport/generate/template.js', () => it('Should be tested by service/generateApexTransport/generate.spec.js', () => _.noop));
+	isDirectory = source => fs.lstatSync(source).isDirectory(),
+	getDirectories = source => fs.readdirSync(source).map(name => path.join(source, name)).filter(isDirectory),
+
+	readAppTemplates = config => {
+		config.appFolders = getDirectories(config.templatesFolder);
+		return config;
+	};
+
+module.exports = {
+	readAppTemplates
+};

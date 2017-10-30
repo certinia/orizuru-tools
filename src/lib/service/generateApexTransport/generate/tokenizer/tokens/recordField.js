@@ -26,6 +26,24 @@
 
 'use strict';
 
-const _ = require('lodash');
+const
+	base = require('./base/base'),
+	normalize = require('./util/normalize');
 
-describe('service/generateApexTransport/generate/types/avro.js', () => it('Should be tested by service/generateApexTransport/generate.spec.js', () => _.noop));
+function apexTypeFunction() {
+	return this.type.getApexType();
+}
+
+module.exports = class extends base(type => false, apexTypeFunction) {
+
+	constructor(schema) {
+		super();
+		this.name = schema.name;
+		this.type = this.getTokenizer().tokenize(schema.type);
+	}
+
+	normalize(classpath) {
+		this.type = normalize.child(this.type, classpath) || this.type;
+	}
+
+};

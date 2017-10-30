@@ -23,33 +23,78 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
-
 'use strict';
 
 const
-	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename } = require('path'),
-	{ readFileSync } = require('fs'),
+	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
+	root = require('app-root-path'),
+	sinon = require('sinon'),
+	proxyquire = require('proxyquire'),
 
-	EXT = '.avsc',
-	ENCODING = 'utf8';
+	expect = chai.expect,
 
-function getAvscFilesOnPathRecursively(path) {
-	const
-		DIR = path,
-		FILTER = ({ path }) => path.endsWith(EXT);
+	{ calledOnce, calledTwice, calledWith } = sinon.assert,
 
-	return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
-		const { path } = value;
-		// add sharedPath and fileName to the result
-		return {
-			path,
-			sharedPath: dirname(path).substring(DIR.length),
-			fileName: basename(path, EXT),
-			file: readFileSync(path).toString(ENCODING)
+	sandbox = sinon.sandbox.create();
+
+chai.use(chaiAsPromised);
+
+describe('service/init/readAppTemplates.js', () => {
+
+	let mocks, readAppTemplates;
+
+	beforeEach(() => {
+
+		const lstatResultMock = {
+			isDirectory: sandbox.stub()
 		};
-	});
-}
 
-module.exports = { getAvscFilesOnPathRecursively };
+		mocks = {
+			fs: {
+				lstatSync: sandbox.stub().returns(lstatResultMock),
+				readdirSync: sandbox.stub().returns([
+					'a',
+					'b.js'
+				])
+			}
+		};
+
+		lstatResultMock.isDirectory.onFirstCall().returns(true);
+		lstatResultMock.isDirectory.onSecondCall().returns(false);
+
+		readAppTemplates = proxyquire(root + '/src/lib/service/init/readAppTemplates', {
+			fs: mocks.fs
+		});
+
+	});
+
+	afterEach(() => sandbox.restore());
+
+	describe('readAppTemplates', () => {
+
+		it('should read folder for names, stripping out files', () => {
+
+			// given
+			const
+				templatesFolder = root + '/templates',
+				folder = 'simple-example';
+
+			// when - then
+			expect(readAppTemplates.readAppTemplates({ templatesFolder, folder })).to.eql({
+				templatesFolder,
+				folder,
+				appFolders: [templatesFolder + '/a']
+			});
+
+			calledOnce(mocks.fs.readdirSync);
+			calledWith(mocks.fs.readdirSync, templatesFolder);
+			calledTwice(mocks.fs.lstatSync);
+			calledWith(mocks.fs.lstatSync, templatesFolder + '/a');
+			calledWith(mocks.fs.lstatSync, templatesFolder + '/b.js');
+
+		});
+
+	});
+
+});

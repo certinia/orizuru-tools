@@ -27,29 +27,36 @@
 'use strict';
 
 const
-	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename } = require('path'),
-	{ readFileSync } = require('fs'),
+	avro = require('avsc'),
 
-	EXT = '.avsc',
-	ENCODING = 'utf8';
+	tokens = require('./tokenizer/tokens');
 
-function getAvscFilesOnPathRecursively(path) {
-	const
-		DIR = path,
-		FILTER = ({ path }) => path.endsWith(EXT);
-
-	return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
-		const { path } = value;
-		// add sharedPath and fileName to the result
-		return {
-			path,
-			sharedPath: dirname(path).substring(DIR.length),
-			fileName: basename(path, EXT),
-			file: readFileSync(path).toString(ENCODING)
-		};
-	});
+function validate(schema) {
+	avro.Type.forSchema(schema); // throws for invalid schemas
 }
 
-module.exports = { getAvscFilesOnPathRecursively };
+function tokenize(schema) {
+	const Token = tokens.classify(schema);
+	return new Token(schema);
+}
+
+function validateAndTokenize(schema) {
+	validate(schema);
+	const
+		rootToken = tokenize(schema),
+		classpath = [];
+
+	if (!(rootToken instanceof tokens.Record)) {
+		throw new Error('For conversion to apex, the first entity in the avro schema must be an avro record');
+	}
+
+	classpath.push(rootToken);
+	rootToken.normalize(classpath);
+
+	return classpath;
+}
+
+module.exports = {
+	validateAndTokenize,
+	tokenize
+};

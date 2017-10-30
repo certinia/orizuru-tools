@@ -7,8 +7,8 @@
   },
   "main": "lib/src/index.js",
   "scripts": {
-	"pretest": "eslint src",
-	"single-test": "nyc --all=false mocha",
+    "pretest": "eslint src",
+    "single-test": "nyc --all=false mocha",
     "test": "nyc mocha --recursive src/spec"
   },
   "repository": {
@@ -53,6 +53,7 @@
     "sinon-chai": "2.14.0"
   },
   "dependencies": {
+    "avsc": "5.0.6",
     "bluebird": "3.5.1",
     "cliui": "^3.2.0",
     "debug-plus": "1.2.2",

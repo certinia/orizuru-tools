@@ -1,0 +1,13 @@
+{
+	"namespace": "com.financialforce",
+	"name": "Test",
+	"type": "record",
+	"fields": [{
+		"name": "deliveryPlanId",
+		"type": {
+			"type": "fixed",
+			"name": "fixedType",
+			"size": 16
+		}
+	}]
+}

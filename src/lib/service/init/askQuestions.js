@@ -27,29 +27,19 @@
 'use strict';
 
 const
-	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename } = require('path'),
-	{ readFileSync } = require('fs'),
+	inquirer = require('inquirer'),
+	questions = require('../../util/questions'),
+	validators = require('../../util/validators'),
 
-	EXT = '.avsc',
-	ENCODING = 'utf8';
+	askQuestions = config => {
+		return inquirer.prompt([
+			questions.listField('Select app to create:', 'folder', validators.valid, config.appFolders)
+		]).then(results => {
+			config.folder = results.folder;
+			return config;
+		});
+	};
 
-function getAvscFilesOnPathRecursively(path) {
-	const
-		DIR = path,
-		FILTER = ({ path }) => path.endsWith(EXT);
-
-	return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
-		const { path } = value;
-		// add sharedPath and fileName to the result
-		return {
-			path,
-			sharedPath: dirname(path).substring(DIR.length),
-			fileName: basename(path, EXT),
-			file: readFileSync(path).toString(ENCODING)
-		};
-	});
-}
-
-module.exports = { getAvscFilesOnPathRecursively };
+module.exports = {
+	askQuestions
+};

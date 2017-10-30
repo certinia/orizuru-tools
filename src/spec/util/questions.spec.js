@@ -29,7 +29,7 @@ const
 	root = require('app-root-path'),
 	chai = require('chai'),
 
-	questions = require(root + '/src/lib/util/questions.js'),
+	questions = require(root + '/src/lib/util/questions'),
 
 	expect = chai.expect;
 

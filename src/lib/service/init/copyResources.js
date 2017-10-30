@@ -31,12 +31,11 @@ const
 	fs = require('fs-extra'),
 	{ log } = require('../../util/logger'),
 
-	RESOURCE_FOLDER = path.resolve(__dirname, '../../../../template'),
 	CWD = process.cwd(),
 
 	copyResources = config => {
 		log('Copying resources to ' + CWD);
-		return fs.copy(RESOURCE_FOLDER, CWD)
+		return fs.copy(path.resolve(config.templatesFolder, config.folder, 'res'), CWD)
 			.then(() => config);
 	};
 

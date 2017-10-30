@@ -23,33 +23,70 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
-
 'use strict';
 
 const
-	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename } = require('path'),
-	{ readFileSync } = require('fs'),
+	root = require('app-root-path'),
+	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
+	sinon = require('sinon'),
 
-	EXT = '.avsc',
-	ENCODING = 'utf8';
+	inquirer = require('inquirer'),
+	questions = require(root + '/src/lib/util/questions'),
+	validators = require(root + '/src/lib/util/validators'),
 
-function getAvscFilesOnPathRecursively(path) {
-	const
-		DIR = path,
-		FILTER = ({ path }) => path.endsWith(EXT);
+	askQuestions = require(root + '/src/lib/service/init/askQuestions'),
 
-	return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
-		const { path } = value;
-		// add sharedPath and fileName to the result
-		return {
-			path,
-			sharedPath: dirname(path).substring(DIR.length),
-			fileName: basename(path, EXT),
-			file: readFileSync(path).toString(ENCODING)
-		};
+	expect = chai.expect,
+
+	calledOnce = sinon.assert.calledOnce,
+	calledWith = sinon.assert.calledWith,
+
+	sandbox = sinon.sandbox.create();
+
+chai.use(chaiAsPromised);
+
+describe('service/init/askQuestions.js', () => {
+
+	beforeEach(() => {
+
+		sandbox.stub(inquirer, 'prompt').resolves({
+			folder: 'test'
+		});
+		sandbox.stub(questions, 'listField').returns('test');
+
 	});
-}
 
-module.exports = { getAvscFilesOnPathRecursively };
+	afterEach(() => sandbox.restore());
+
+	describe('askQuestions', () => {
+
+		it('should call inquirer prompt with correct questions', () => {
+
+			// given - when - then
+			return expect(askQuestions.askQuestions({
+				appFolders: [
+					'af1',
+					'af2'
+				]
+			})).to.eventually.eql({
+				appFolders: [
+					'af1',
+					'af2'
+				],
+				folder: 'test'
+			}).then(() => {
+				calledOnce(inquirer.prompt);
+				calledWith(inquirer.prompt, ['test']);
+				calledOnce(questions.listField);
+				calledWith(questions.listField, 'Select app to create:', 'folder', validators.valid, [
+					'af1',
+					'af2'
+				]);
+			});
+
+		});
+
+	});
+
+});

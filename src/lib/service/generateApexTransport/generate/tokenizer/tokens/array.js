@@ -26,13 +26,23 @@
 
 'use strict';
 
-module.exports = Object.freeze({
-	OBJECT: 'Object',
-	BOOLEAN: 'Boolean',
-	INTEGER: 'Integer',
-	LONG: 'Long',
-	DOUBLE: 'Double',
-	STRING: 'String',
-	array: inner => 'List<' + inner + '>',
-	map: inner => 'Map<String, ' + inner + '>'
-});
+const
+	base = require('./base/base'),
+	normalize = require('./util/normalize');
+
+function apexTypeFunction() {
+	return 'List<' + this.items.getApexType() + '>';
+}
+
+module.exports = class extends base(type => type === 'array', apexTypeFunction) {
+
+	constructor(schema) {
+		super();
+		this.items = this.getTokenizer().tokenize(schema.items);
+	}
+
+	normalize(classpath) {
+		this.items = normalize.child(this.items, classpath) || this.items;
+	}
+
+};

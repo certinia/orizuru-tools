@@ -28,28 +28,31 @@
 
 const
 	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename } = require('path'),
-	{ readFileSync } = require('fs'),
 
-	EXT = '.avsc',
-	ENCODING = 'utf8';
+	AVRO_DELIMITER = '.',
+	APEX_DELIMITER = '_';
 
-function getAvscFilesOnPathRecursively(path) {
-	const
-		DIR = path,
-		FILTER = ({ path }) => path.endsWith(EXT);
-
-	return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
-		const { path } = value;
-		// add sharedPath and fileName to the result
-		return {
-			path,
-			sharedPath: dirname(path).substring(DIR.length),
-			fileName: basename(path, EXT),
-			file: readFileSync(path).toString(ENCODING)
-		};
-	});
+function getAvroName(name, namespace) {
+	if (!name || !_.isString(name) || _.isEmpty(name)) {
+		throw new Error('record and enum type objects must have a name');
+	}
+	if (name.includes(AVRO_DELIMITER)) {
+		return name;
+	}
+	if (!_.isString(namespace) || _.isEmpty(namespace)) {
+		return name;
+	}
+	return namespace + AVRO_DELIMITER + name;
 }
 
-module.exports = { getAvscFilesOnPathRecursively };
+function getApexName(avroName) {
+	const
+		splits = avroName.split(AVRO_DELIMITER),
+		stripped = _.map(splits, value => _.trimEnd(_.trimStart(value, APEX_DELIMITER), APEX_DELIMITER));
+	return stripped.join(APEX_DELIMITER);
+}
+
+module.exports = {
+	getAvroName,
+	getApexName
+};
