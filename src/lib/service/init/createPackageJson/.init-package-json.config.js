@@ -135,9 +135,9 @@ exports.dependencies = {
 	"@financialforcedev/orizuru-openapi": "^2.0.1",
 	"debug-plus": "1.2.2",
 	"klaw-sync": "3.0.0",
-	"pkginfo": "^0.4.1",
-	"throng": "^4.0.0",
-	"uuid": "^3.1.0"
+	"pkginfo": "0.4.1",
+	"throng": "4.0.0",
+	"uuid": "3.1.0"
 }
 
 // overrode devDependencies
@@ -148,7 +148,8 @@ exports.devDependencies = {
 	"lodash": "4.17.4",
 	"mocha": "3.5.0",
 	"nyc": "11.1.0",
-	"sinon": "3.2.1"
+	"sinon": "3.2.1",
+	"proxyquire": "1.8.0",
 }
 
 // overrode scripts
