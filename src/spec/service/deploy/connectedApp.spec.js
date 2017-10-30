@@ -52,6 +52,9 @@ describe('deploy/connectedApp.js', () => {
 		mocks = {};
 		mocks.shell = {};
 
+		mocks.inquirer = sandbox.stub();
+		mocks.inquirer.prompt = sandbox.stub();
+
 		mocks.jsforce = {};
 		mocks.jsforce.Connection = sandbox.stub();
 
@@ -59,6 +62,7 @@ describe('deploy/connectedApp.js', () => {
 		logger.logFinish = sandbox.stub();
 
 		connectedApp = proxyquire(root + '/src/lib/service/deploy/connectedApp.js', {
+			inquirer: mocks.inquirer,
 			jsforce: mocks.jsforce,
 			'./shared/shell': mocks.shell
 		});
@@ -67,6 +71,31 @@ describe('deploy/connectedApp.js', () => {
 
 	afterEach(() => {
 		sandbox.restore();
+	});
+
+	describe('askQuestions', () => {
+
+		it('should ask the correct questions', () => {
+
+			// given
+			const
+				expectedAnswers = {
+					name: 'test',
+					email: 'test@test.com'
+				},
+				expectedResults = {
+					parameters: {
+						connectedApp: expectedAnswers
+					}
+				};
+
+			mocks.inquirer.prompt.resolves(expectedAnswers);
+
+			// when - then
+			return expect(connectedApp.askQuestions({})).to.eventually.eql(expectedResults);
+
+		});
+
 	});
 
 	describe('create', () => {
@@ -112,59 +141,49 @@ describe('deploy/connectedApp.js', () => {
 
 	});
 
-	describe('updateClientIdOnHeroku', () => {
+	describe('updateHerokuConfigVariables', () => {
 
 		it('should execute the correct commands', () => {
 
 			// given
 			const
+				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
+					certificate: {
+						privateKey: 'privateKey'
+					},
 					connectedApp: {
 						oauthConfig: {
 							consumerKey: 'testKey'
 						}
+					},
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
+							}
+						}
 					}
 				},
 				expectedCommands = [{
-					cmd: 'heroku',
-					args: ['config:set', 'OPENID_CLIENT_ID=testKey']
+					args: ['config:set', 'OPENID_CLIENT_ID=testKey', '-a', expectedAppName],
+					cmd: 'heroku'
+				}, {
+					args: ['config:set', 'OPENID_HTTP_TIMEOUT=4000', '-a', expectedAppName],
+					cmd: 'heroku'
+				}, {
+					args: ['config:set', 'OPENID_ISSUER_URI=https://test.salesforce.com/', '-a', expectedAppName],
+					cmd: 'heroku'
+				}, {
+					args: ['config:set', 'JWT_SIGNING_KEY=privateKey', '-a', expectedAppName],
+					cmd: 'heroku'
 				}],
 				expectedOutput = expectedInput;
 
 			mocks.shell.executeCommands = sandbox.stub().resolves({});
 
 			// when - then
-			return expect(connectedApp.updateClientIdOnHeroku(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands);
-				});
-
-		});
-
-	});
-
-	describe('updateJwtSigningKeyOnHeroku', () => {
-
-		it('should execute the correct commands', () => {
-
-			// given
-			const
-				expectedInput = {
-					certificate: {
-						privateKey: 'testKey'
-					}
-				},
-				expectedCommands = [{
-					cmd: 'heroku',
-					args: ['config:set', 'JWT_SIGNING_KEY=testKey']
-				}],
-				expectedOutput = expectedInput;
-
-			mocks.shell.executeCommands = sandbox.stub().resolves({});
-
-			// when - then
-			return expect(connectedApp.updateJwtSigningKeyOnHeroku(expectedInput))
+			return expect(connectedApp.updateHerokuConfigVariables(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands);

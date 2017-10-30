@@ -49,9 +49,12 @@ describe('deploy/certificate.js', () => {
 
 		mocks = {};
 		mocks.shell = {};
+		mocks.inquirer = sandbox.stub();
+		mocks.inquirer.prompt = sandbox.stub();
 
 		certificate = proxyquire(root + '/src/lib/service/deploy/certificate.js', {
-			'./shared/shell': mocks.shell
+			'./shared/shell': mocks.shell,
+			inquirer: mocks.inquirer
 		});
 
 	});
@@ -68,8 +71,16 @@ describe('deploy/certificate.js', () => {
 			const
 				expectedSslCommands = [{
 					cmd: 'openssl',
-					args: ['req', '-newkey', 'rsa:2048', '-nodes', '-keyout', 'key.pem', '-x509', '-days', '365', '-out', 'certificate.pem', '-subj', '/C=UK/ST=North Yorkshire/L=Harrogate/O=FinancialForce/OU=Research Team/CN=test.com']
+					args: ['req', '-newkey', 'rsa:2048', '-nodes', '-keyout', 'key.pem', '-x509', '-days', '365', '-out', 'certificate.pem', '-subj', '/C=GB/ST=North Yorkshire/L=Harrogate/O=FinancialForce/OU=Research Team/CN=test@test.com']
 				}],
+				expectedCertificateDetails = {
+					country: 'GB',
+					state: 'North Yorkshire',
+					locality: 'Harrogate',
+					organization: 'FinancialForce',
+					organizationUnitName: 'Research Team',
+					commonName: 'test@test.com'
+				},
 				expectedReadCommands = [
 					{ cmd: 'cat', args: ['certificate.pem'] },
 					{ cmd: 'cat', args: ['key.pem'] }
@@ -78,8 +89,13 @@ describe('deploy/certificate.js', () => {
 					certificate: {
 						privateKey: 'privateKey',
 						publicKey: 'publicKey'
+					},
+					parameters: {
+						certificate: expectedCertificateDetails
 					}
 				};
+
+			mocks.inquirer.prompt.resolves(expectedCertificateDetails);
 
 			mocks.shell.executeCommands = sandbox.stub().resolves({
 				command0: { stdout: 'publicKey' },
