@@ -75,12 +75,13 @@ describe('service/fullDeploy.js', () => {
 			sandbox.stub(connectedApp, 'create');
 			sandbox.stub(connectedApp, 'updateHerokuConfigVariables');
 
+			sandbox.stub(heroku, 'addBuildpacks');
+			sandbox.stub(heroku, 'addAddOns');
+			sandbox.stub(heroku, 'checkHerokuCliInstalled');
+			sandbox.stub(heroku, 'deployCurrentBranch');
 			sandbox.stub(heroku, 'getAllApps');
 			sandbox.stub(heroku, 'selectApp');
 			sandbox.stub(heroku, 'readAppJson');
-			sandbox.stub(heroku, 'addBuildpacks');
-			sandbox.stub(heroku, 'addAddOns');
-			sandbox.stub(heroku, 'deployCurrentBranch');
 
 			sandbox.stub(namedCredential, 'askQuestions');
 			sandbox.stub(namedCredential, 'create');
@@ -111,6 +112,7 @@ describe('service/fullDeploy.js', () => {
 					expect(connectedApp.create).to.have.been.calledOnce;
 					expect(connectedApp.updateHerokuConfigVariables).to.have.been.calledOnce;
 
+					expect(heroku.checkHerokuCliInstalled).to.have.been.calledOnce;
 					expect(heroku.getAllApps).to.have.been.calledOnce;
 					expect(heroku.selectApp).to.have.been.calledOnce;
 					expect(heroku.readAppJson).to.have.been.calledOnce;
