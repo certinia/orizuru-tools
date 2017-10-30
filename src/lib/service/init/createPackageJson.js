@@ -31,11 +31,9 @@ const
 	path = require('path'),
 	CWD = process.cwd(),
 
-	CONFIG_FILE_PATH = path.join(__dirname, 'createPackageJson', '.init-package-json.config.js'),
-
 	createPackageJson = config => {
 		return new Promise((resolve, reject) => {
-			initPackageJson(CWD, CONFIG_FILE_PATH, (err) => {
+			initPackageJson(CWD, path.resolve(config.templatesFolder, config.folder, '.config.js'), (err) => {
 				if (err) {
 					reject(err);
 				} else {
