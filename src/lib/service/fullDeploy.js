@@ -48,6 +48,7 @@ const
 			.then(logger.logEvent('Checking for required installations'))
 			.then(sfdx.checkSfdxInstalled)
 			.then(heroku.checkHerokuCliInstalled)
+			.then(certificate.checkOpenSSLInstalled)
 			.then(logger.logEvent('You are about to be asked to log into your SFDX Dev hub'))
 			.then(sfdx.login)
 			.then(logger.logEvent('Obtaining Heroku Apps'))

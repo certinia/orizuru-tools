@@ -66,6 +66,7 @@ describe('service/fullDeploy.js', () => {
 			sandbox.stub(logger, 'logFinish');
 
 			sandbox.stub(certificate, 'askQuestions');
+			sandbox.stub(certificate, 'checkOpenSSLInstalled');
 			sandbox.stub(certificate, 'create');
 			sandbox.stub(certificate, 'read');
 
