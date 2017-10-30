@@ -45,6 +45,16 @@ const
 		{ cmd: 'sfdx', args: ['force:org:open'] }
 	],
 
+	checkSfdxInstalled = (config) => {
+		return shell.executeCommand({ cmd: 'sfdx', args: ['version'] }, { exitOnError: true })
+			.then(() => config);
+	},
+
+	login = (config) => {
+		return shell.executeCommand({ cmd: 'sfdx', args: ['force:auth:web:login', '-s'] }, { exitOnError: true })
+			.then(() => config);
+	},
+
 	createNewScratchOrg = (config) => {
 		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', 'src/apex/config/project-scratch-def.json', '-s', '--json'] }, { exitOnError: true })
 			.then(result => ({ sfdx: { org: JSON.parse(result.stdout).result } }));
@@ -117,10 +127,12 @@ const
 	};
 
 module.exports = {
+	checkSfdxInstalled,
 	createNewScratchOrg,
 	deploy,
 	getConnectionDetails,
 	getAllScratchOrgs,
+	login,
 	openOrg,
 	selectApp
 };

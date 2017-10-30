@@ -45,6 +45,11 @@ const
 
 		return Promise.resolve(config)
 			.then(logger.logStart('Starting full deploy'))
+			.then(logger.logEvent('Checking for required installations'))
+			.then(sfdx.checkSfdxInstalled)
+			.then(logger.logEvent('You are about to be asked to log into your SFDX Dev hub'))
+			.then(sfdx.login)
+			.then(logger.logEvent('Obtaining Heroku Apps'))
 			.then(heroku.getAllApps)
 			.then(heroku.selectApp)
 			.then(logger.logEvent('Reading app.json'))

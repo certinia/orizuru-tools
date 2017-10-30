@@ -68,6 +68,27 @@ describe('service/deploy/sfdx.js', () => {
 		sandbox.restore();
 	});
 
+	describe('checkSfdxInstalled', () => {
+
+		it('should check that SFDX is installed', () => {
+
+			// given
+			const expectedCommand = { cmd: 'sfdx', args: ['version'] };
+
+			mocks.shell.executeCommand = sandbox.stub().resolves('sfdx-cli/6.0.13-a52f73c (darwin-x64) node-v8.6.0');
+
+			// when - then
+			return expect(sfdx.checkSfdxInstalled({}))
+				.to.eventually.eql({})
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
 	describe('createNewScratchOrg', () => {
 
 		it('should create a new scratch org', () => {
@@ -225,6 +246,27 @@ describe('service/deploy/sfdx.js', () => {
 			return expect(sfdx.getConnectionDetails(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
+	describe('login', () => {
+
+		it('should login to the SFDX dev hub', () => {
+
+			// given
+			const expectedCommand = { cmd: 'sfdx', args: ['force:auth:web:login', '-s'] };
+
+			mocks.shell.executeCommand = sandbox.stub().resolves();
+
+			// when - then
+			return expect(sfdx.login({}))
+				.to.eventually.eql({})
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
 					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
 				});
 
