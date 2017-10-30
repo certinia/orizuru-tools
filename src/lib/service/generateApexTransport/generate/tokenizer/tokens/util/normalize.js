@@ -26,21 +26,21 @@
 
 'use strict';
 
-module.exports = Object.freeze({
-	SIMPLE: {
-		NULL: 'null',
-		BOOLEAN: 'boolean',
-		INTEGER: 'int',
-		LONG: 'long',
-		FLOAT: 'float',
-		DOUBLE: 'double',
-		STRING: 'string'
-	},
-	COMPLEX: {
-		RECORD: 'record',
-		ENUM: 'enum',
-		ARRAY: 'array',
-		MAP: 'map',
-		UNION: 'union'
+function child(entity, classpath) {
+	const
+		Record = require('../record'),
+		Enum = require('../enum'),
+		Reference = require('../reference');
+
+	if (entity instanceof Record ||
+		entity instanceof Enum) {
+		classpath.push(entity);
+		return new Reference(entity.reference);
 	}
-});
+	entity.normalize(classpath);
+	return null;
+}
+
+module.exports = {
+	child
+};

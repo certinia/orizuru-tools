@@ -91,19 +91,25 @@ describe('service/generateApexTransport/generate.js', () => {
 
 		describe('should throw', () => {
 
-			it('for unknown types', () => testError(['unknownType.avsc'], 'Could not map type for: "unknown". We do not support "bytes" or "fixed" types.'));
+			it('for unknown types', () => testError(['unknownType.avsc'], 'undefined type name: com.financialforce.unknown'));
 
-			it('for unnamed records', () => testError(['unnamedRecord.avsc'], '\'record\' and \'enum\' type objects must have a name.'));
+			it('for fixed types', () => testError(['fixedRecord.avsc'], 'unsupported type: fixed'));
 
-			it('if enum has no symbols', () => testError(['noEnumSymbols.avsc'], 'TestEnum must contain \'symbols.\''));
+			it('for bytes types', () => testError(['bytesRecord.avsc'], 'unsupported type: bytes'));
 
-			it('if enum is already defined', () => testError(['duplicateEnum.avsc'], 'Enum: TestEnum already defined in schema.'));
+			it('for unnamed records', () => testError(['unnamedRecord.avsc'], 'record and enum type objects must have a name'));
 
-			it('if the root isn\'t a record', () => testError(['nonRecordRoot.avsc'], 'The root of the schema must be of type \'record\': {"namespace":"com.financialforce","name":"Test","type":"enum","symbols":["A","B","C"]}'));
+			it('for unnamed enums', () => testError(['unnamedEnum.avsc'], 'record and enum type objects must have a name'));
 
-			it('if record has no fields', () => testError(['noRecordFields.avsc'], 'Record: com_financialforce_Test must contain \'fields.\''));
+			it('if enum has no symbols', () => testError(['noEnumSymbols.avsc'], 'invalid enum symbols: undefined'));
 
-			it('if record is already defined', () => testError(['duplicateRecord.avsc'], 'Record: com_financialforce_Test already defined in schema.'));
+			it('if enum is already defined', () => testError(['duplicateEnum.avsc'], 'duplicate type name: com.financialforce.TestEnum'));
+
+			it('if the root isn\'t a record', () => testError(['nonRecordRoot.avsc'], 'For conversion to apex, the first entity in the avro schema must be an avro record'));
+
+			it('if record has no fields', () => testError(['noRecordFields.avsc'], 'non-array record fields: undefined'));
+
+			it('if record is already defined', () => testError(['duplicateRecord.avsc'], 'duplicate type name: com.financialforce.Test'));
 
 			it('if two schemas with the same namespace have different nested types', () => testError(['combinationError1.avsc', 'combinationError2.avsc'], 'Records and enums with the same \'name\' / \'namespace\' cannot be used across schemas unless they are identical. Identifier: \'com_financialforce_Test\''));
 
@@ -112,6 +118,8 @@ describe('service/generateApexTransport/generate.js', () => {
 		describe('should generate types for', () => {
 
 			it('a simple schema', () => testSuccess(['simple.avsc'], 'Simple.cls'));
+
+			it('a schema where a named type contains its namespace in its name field', () => testSuccess(['namespaceInName.avsc'], 'NamespaceInName.cls'));
 
 			it('a schema with a child record', () => testSuccess(['childRecord.avsc'], 'ChildRecord.cls'));
 

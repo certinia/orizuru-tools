@@ -50,7 +50,7 @@ public abstract class OrizuruTransport implements ISerializable
 
 	}
 
-	public class com_financialforce_child // Internal class defining a type within an Orizuru Avro transport schema, used within transport extensions
+	public class com_financialforce_child extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
 	{
 
 		public String deliveryId { get; set; }

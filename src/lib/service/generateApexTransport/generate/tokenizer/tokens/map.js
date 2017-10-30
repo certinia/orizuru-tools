@@ -26,6 +26,23 @@
 
 'use strict';
 
-const _ = require('lodash');
+const
+	base = require('./base/base'),
+	normalize = require('./util/normalize');
 
-describe('service/generateApexTransport/generate/types/apex.js', () => it('Should be tested by service/generateApexTransport/generate.spec.js', () => _.noop));
+function apexTypeFunction() {
+	return 'Map<String, ' + this.values.getApexType() + '>';
+}
+
+module.exports = class extends base(type => type === 'map', apexTypeFunction) {
+
+	constructor(schema) {
+		super();
+		this.values = this.getTokenizer().tokenize(schema.values);
+	}
+
+	normalize(classpath) {
+		this.values = normalize.child(this.values, classpath) || this.values;
+	}
+
+};

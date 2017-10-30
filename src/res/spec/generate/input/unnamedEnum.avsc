@@ -1,0 +1,12 @@
+{
+	"namespace": "com.financialforce",
+	"name": "Test",
+	"type": "record",
+	"fields": [{
+		"name": "deliveryType",
+		"type": {
+			"type": "enum",
+			"symbols": ["A", "B", "C"]
+		}
+	}]
+}

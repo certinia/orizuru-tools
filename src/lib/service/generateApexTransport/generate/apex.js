@@ -26,30 +26,15 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename } = require('path'),
-	{ readFileSync } = require('fs'),
+const _ = require('lodash');
 
-	EXT = '.avsc',
-	ENCODING = 'utf8';
-
-function getAvscFilesOnPathRecursively(path) {
-	const
-		DIR = path,
-		FILTER = ({ path }) => path.endsWith(EXT);
-
-	return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
-		const { path } = value;
-		// add sharedPath and fileName to the result
-		return {
-			path,
-			sharedPath: dirname(path).substring(DIR.length),
-			fileName: basename(path, EXT),
-			file: readFileSync(path).toString(ENCODING)
-		};
-	});
+function build(normalizedTokens) {
+	return _.reduce(normalizedTokens, (result, token) => {
+		result[token.getApexType()] = token.generateApex();
+		return result;
+	}, {});
 }
 
-module.exports = { getAvscFilesOnPathRecursively };
+module.exports = {
+	build
+};
