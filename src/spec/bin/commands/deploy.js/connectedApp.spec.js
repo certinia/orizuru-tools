@@ -27,64 +27,69 @@
 'use strict';
 
 const
-	chai = require('chai'),
 	root = require('app-root-path'),
+	chai = require('chai'),
+	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
 
 	expect = chai.expect,
+
+	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
+
+	service = require(root + '/src/lib/service/connectedApp'),
+	connectedAppCommands = require(root + '/src/lib/bin/commands/deploy/connectedApp'),
 
 	sandbox = sinon.sandbox.create();
 
 chai.use(sinonChai);
 
-describe('deploy/shell.js', () => {
+describe('bin/commands/deploy/connectedApp.js', () => {
 
-	let mocks, connection;
-
-	beforeEach(() => {
-
-		mocks = {};
-		mocks.jsforce = {};
-		mocks.jsforce.Connection = sandbox.stub();
-
-		connection = proxyquire(root + '/src/lib/service/deploy/shared/connection.js', {
-			jsforce: mocks.jsforce
-		});
-
-	});
+	let mocks;
 
 	afterEach(() => {
 		sandbox.restore();
 	});
 
-	describe('create', () => {
+	it('should create the cli', () => {
 
-		it('should create a jsforce connection', () => {
+		// given
+		mocks = {};
+		mocks.yargs = {};
+		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
 
-			// given
-			const expectedInput = {
-				parameters: {
-					sfdx: {
-						org: {
-							credentials: {
-								accessToken: 'testAccessToken',
-								instanceUrl: 'testInstanceUrl'
-							}
-						}
-					}
-				}
-			};
+		sandbox.stub(service, 'create');
 
-			// when
-			connection.create(expectedInput);
-
-			// then
-			expect(mocks.jsforce.Connection).to.have.been.calledWithNew;
-			expect(mocks.jsforce.Connection).to.have.been.calledWith(expectedInput.parameters.sfdx.org.credentials);
-
+		const cli = proxyquire(root + '/src/lib/bin/commands/deploy/connectedApp', {
+			yargs: mocks.yargs
 		});
+
+		// when
+		cli.builder(mocks.yargs);
+
+		//then
+		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+
+		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy connected-app');
+
+	});
+
+	it('should have a handler that calls the connectedApp service', () => {
+
+		// given
+		const { handler } = connectedAppCommands;
+
+		sandbox.stub(service, 'create');
+
+		// when
+		handler('test');
+
+		// then
+		expect(service.create).to.have.been.calledOnce;
+		expect(service.create).to.have.been.calledWith({ argv: 'test' });
 
 	});
 

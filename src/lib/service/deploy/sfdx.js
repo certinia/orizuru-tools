@@ -47,10 +47,8 @@ const
 
 	deploy = (config) => {
 
-		debug.log('Deploy to Salesforce');
 		return shell.executeCommands(deployCommands(config), { exitOnError: true })
 			.then(results => {
-				debug.log('Deployed to Salesforce');
 				config.sfdxResults = results;
 				config.connectionInfo = JSON.parse(_.values(config.sfdxResults)[3].stdout).result;
 				return config;

@@ -153,4 +153,47 @@ describe('deploy/shell.js', () => {
 
 	});
 
+	describe('deployCurrentBranch', () => {
+
+		it('should create the add-ons specified in the app.json', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
+							}
+						}
+					},
+					heroku: {
+						app: {
+							json: {
+								buildpacks: [{
+									url: 'heroku/nodejs'
+								}, {
+									url: 'heroku/java'
+								}]
+							}
+						}
+					}
+				},
+				expectedOutput = expectedInput;
+
+			mocks.shell.executeCommand = sandbox.stub().resolves();
+			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } }).resolves({ stdout: 'master' });
+
+			// when - then
+			return expect(heroku.deployCurrentBranch(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.callCount(4);
+				});
+
+		});
+
+	});
+
 });

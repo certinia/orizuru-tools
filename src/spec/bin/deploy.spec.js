@@ -29,9 +29,11 @@
 const
 	chai = require('chai'),
 	root = require('app-root-path'),
+	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
+
+	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
 	expect = chai.expect,
 
@@ -39,18 +41,24 @@ const
 
 chai.use(sinonChai);
 
-describe('deploy/shell.js', () => {
+describe('bin/commands/deploy.js', () => {
 
-	let mocks, connection;
+	let cli, mocks;
 
 	beforeEach(() => {
 
-		mocks = {};
-		mocks.jsforce = {};
-		mocks.jsforce.Connection = sandbox.stub();
+		mocks = {
+			yargs: {
+				command: sandbox.stub().returnsThis(),
+				demandCommand: sandbox.stub().returnsThis(),
+				epilogue: sandbox.stub().returnsThis(),
+				updateStrings: sandbox.stub().returnsThis(),
+				usage: sandbox.stub().returnsThis()
+			}
+		};
 
-		connection = proxyquire(root + '/src/lib/service/deploy/shared/connection.js', {
-			jsforce: mocks.jsforce
+		cli = proxyquire(root + '/src/lib/bin/commands/deploy', {
+			yargs: mocks.yargs
 		});
 
 	});
@@ -59,32 +67,30 @@ describe('deploy/shell.js', () => {
 		sandbox.restore();
 	});
 
-	describe('create', () => {
+	it('should create the cli', () => {
 
-		it('should create a jsforce connection', () => {
+		// when
+		cli.builder(mocks.yargs);
 
-			// given
-			const expectedInput = {
-				parameters: {
-					sfdx: {
-						org: {
-							credentials: {
-								accessToken: 'testAccessToken',
-								instanceUrl: 'testInstanceUrl'
-							}
-						}
-					}
-				}
-			};
+		//then
+		expect(mocks.yargs.command).to.have.been.calledThrice;
+		expect(mocks.yargs.demandCommand).to.have.been.calledOnce;
+		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+		expect(mocks.yargs.updateStrings).to.have.been.calledOnce;
 
-			// when
-			connection.create(expectedInput);
+		expect(mocks.yargs.demandCommand).to.have.been.calledWith(3, 'Run \'orizuru deploy --help\' for more information on a command.\n');
+		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(mocks.yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'Deployment:' });
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy COMMAND');
 
-			// then
-			expect(mocks.jsforce.Connection).to.have.been.calledWithNew;
-			expect(mocks.jsforce.Connection).to.have.been.calledWith(expectedInput.parameters.sfdx.org.credentials);
+	});
 
-		});
+	it('should have the correct command, description and alias', () => {
+
+		// then
+		expect(cli.command).to.eql('deploy');
+		expect(cli.aliases).to.eql(['d']);
+		expect(cli.desc).to.eql('Executes Deployment commands');
 
 	});
 

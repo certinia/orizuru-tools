@@ -69,15 +69,24 @@ describe('deploy/shell.js', () => {
 
 			// given
 			const
+				expectedUsername = 'test',
 				expectedCommands = [
-					{ cmd: 'sfdx', args: ['force:org:create', '-f', 'src/apex/config/project-scratch-def.json', '-s'] },
-					{ cmd: 'sfdx', args: ['force:source:push'] },
-					{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', 'OrizuruAdmin'] },
-					{ cmd: 'sfdx', args: ['force:apex:test:run', '-r', 'human', '--json'] },
-					{ cmd: 'sfdx', args: ['force:org:display', '--json'] },
-					{ cmd: 'sfdx', args: ['force:user:password:generate', '--json'] }
+					{ cmd: 'sfdx', args: ['force:source:push', '-u', expectedUsername] },
+					{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', 'OrizuruAdmin', '-u', expectedUsername] },
+					{ cmd: 'sfdx', args: ['force:apex:test:run', '-r', 'human', '-u', expectedUsername, '--json'] },
+					{ cmd: 'sfdx', args: ['force:org:display', '-u', expectedUsername, '--json'] }
 				],
+				expectedInput = {
+					parameters: {
+						sfdx: {
+							org: {
+								username: expectedUsername
+							}
+						}
+					}
+				},
 				expectedOutput = {
+					parameters: expectedInput.parameters,
 					connectionInfo: undefined,
 					sfdxResults: {
 						command0: {
@@ -91,9 +100,6 @@ describe('deploy/shell.js', () => {
 						},
 						command3: {
 							stdout: '{"command3Out":"testing"}'
-						},
-						command4: {
-							stdout: '{"command4Out":"testing"}'
 						}
 					}
 				};
@@ -102,15 +108,14 @@ describe('deploy/shell.js', () => {
 				command0: { stdout: '{"command0Out":"testing"}' },
 				command1: { stdout: '{"command1Out":"testing"}' },
 				command2: { stdout: '{"command2Out":"testing"}' },
-				command3: { stdout: '{"command3Out":"testing"}' },
-				command4: { stdout: '{"command4Out":"testing"}' }
+				command3: { stdout: '{"command3Out":"testing"}' }
 			});
 
 			// when - then
-			return expect(sfdx.deploy({}))
+			return expect(sfdx.deploy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands);
+					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands, { exitOnError: true });
 				});
 
 		});

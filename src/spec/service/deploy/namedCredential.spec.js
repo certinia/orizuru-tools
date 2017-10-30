@@ -29,23 +29,65 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
+	proxyquire = require('proxyquire'),
 	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
 
-	namedCredential = require(root + '/src/lib/service/deploy/namedCredential.js'),
-
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('deploy/shell.js', () => {
+describe('deploy/namedCredential.js', () => {
+
+	let mocks, namedCredential;
+
+	beforeEach(() => {
+
+		mocks = {};
+
+		mocks.jsforce = {};
+		mocks.jsforce.Connection = sandbox.stub();
+
+		mocks.inquirer = sandbox.stub();
+		mocks.inquirer.prompt = sandbox.stub();
+
+		namedCredential = proxyquire(root + '/src/lib/service/deploy/namedCredential.js', {
+			inquirer: mocks.inquirer,
+			jsforce: mocks.jsforce
+		});
+
+	});
 
 	afterEach(() => {
 		sandbox.restore();
+	});
+
+	describe('askQuestions', () => {
+
+		it('should ask the correct questions', () => {
+
+			// given
+			const
+				expectedAnswers = {
+					name: 'test'
+				},
+				expectedResults = {
+					parameters: {
+						namedCredential: expectedAnswers
+					}
+				};
+
+			mocks.inquirer.prompt.resolves(expectedAnswers);
+
+			// when - then
+			return expect(namedCredential.askQuestions({})).to.eventually.eql(expectedResults);
+
+		});
+
 	});
 
 	describe('create', () => {
@@ -59,12 +101,14 @@ describe('deploy/shell.js', () => {
 					connectedApp: {
 						name: 'testConnectedAppName'
 					},
-					herokuApp: {
-						['web_url']: 'testAppUrl'
-					},
 					parameters: {
 						namedCredential: {
 							name: 'testName'
+						},
+						heroku: {
+							app: {
+								['web_url']: 'testAppUrl'
+							}
 						}
 					}
 				},

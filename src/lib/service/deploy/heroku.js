@@ -33,6 +33,37 @@ const
 	questions = require('../../util/questions'),
 	shell = require('./shared/shell'),
 
+	addAddOns = (config) => {
+
+		const addOnCommands = _.map(config.heroku.app.json.addons, addon => ({
+			cmd: 'heroku',
+			args: ['addons:create', `${addon.plan}`, '-a', config.parameters.heroku.app.name]
+		}));
+
+		return shell.executeCommands(addOnCommands, { exitOnError: true })
+			.then(() => config);
+
+	},
+
+	addBuildpacks = (config) => {
+
+		let buildpackIndex = 0;
+
+		const buildpackCommands = _.map(config.heroku.app.json.buildpacks, buildpack => {
+
+			buildpackIndex++;
+			return {
+				cmd: 'heroku',
+				args: ['buildpacks:add', '--index', buildpackIndex, `${buildpack.url}`, '-a', config.parameters.heroku.app.name]
+			};
+
+		});
+
+		return shell.executeCommands(buildpackCommands, { exitOnError: false })
+			.then(() => config);
+
+	},
+
 	deployCurrentBranch = (config) => {
 
 		return shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${config.parameters.heroku.app.git_url}`], opts: { exitOnError: true } })
@@ -89,37 +120,6 @@ const
 		config.heroku.app = config.heroku.app || {};
 		config.heroku.app.json = appJson;
 		return config;
-	},
-
-	addAddOns = (config) => {
-
-		const addOnCommands = _.map(config.heroku.app.json.addons, addon => ({
-			cmd: 'heroku',
-			args: ['addons:create', `${addon.plan}`, '-a', config.parameters.heroku.app.name]
-		}));
-
-		return shell.executeCommands(addOnCommands, { exitOnError: true })
-			.then(() => config);
-
-	},
-
-	addBuildpacks = (config) => {
-
-		let buildpackIndex = 0;
-
-		const buildpackCommands = _.map(config.heroku.app.json.buildpacks, buildpack => {
-
-			buildpackIndex++;
-			return {
-				cmd: 'heroku',
-				args: ['buildpacks:add', '--index', buildpackIndex, `${buildpack.url}`, '-a', config.parameters.heroku.app.name]
-			};
-
-		});
-
-		return shell.executeCommands(buildpackCommands, { exitOnError: false })
-			.then(() => config);
-
 	};
 
 module.exports = {

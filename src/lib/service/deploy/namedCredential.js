@@ -36,8 +36,11 @@ const
 		return inquirer.prompt([
 			questions.inputField('Named Credential Name', 'name', validators.validateNotEmpty, 'Orizuru')
 		]).then(answers => {
+
+			config.parameters = config.parameters || {};
 			config.parameters.namedCredential = {};
 			config.parameters.namedCredential.name = answers.name;
+
 			return config;
 
 		});
