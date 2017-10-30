@@ -30,8 +30,6 @@ const
 	root = require('app-root-path'),
 	sinon = require('sinon'),
 
-	logger = require(root + '/src/lib/util/logger.js'),
-
 	assert = sinon.assert,
 	calledOnce = assert.calledOnce,
 	calledWith = assert.calledWith,
@@ -40,7 +38,11 @@ const
 
 describe('util/logger.js', () => {
 
+	let logger;
+
 	beforeEach(() => {
+		delete require.cache[root + '/src/lib/util/logger.js'];
+		logger = require(root + '/src/lib/util/logger.js');
 		sandbox.stub(process.stdout, 'write');
 	});
 
