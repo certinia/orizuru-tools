@@ -27,11 +27,14 @@
 'use strict';
 
 const
+	root = require('app-root-path'),
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 
+	askQuestions = require('../../lib/service/init/askQuestions'),
+	readAppTemplates = require('../../lib/service/init/readAppTemplates'),
 	createPackageJson = require('../../lib/service/init/createPackageJson'),
 	copyResources = require('../../lib/service/init/copyResources'),
 
@@ -51,8 +54,10 @@ describe('service/init.js', () => {
 	beforeEach(() => {
 		mocks = {
 			logger: sandbox.stub(),
-			createPackageJson: sandbox.stub(createPackageJson, 'createPackageJson').resolves('test1'),
-			copyResources: sandbox.stub(copyResources, 'copyResources').resolves('test2')
+			readAppTemplates: sandbox.stub(readAppTemplates, 'readAppTemplates').resolves('test1'),
+			askQuestions: sandbox.stub(askQuestions, 'askQuestions').resolves('test2'),
+			createPackageJson: sandbox.stub(createPackageJson, 'createPackageJson').resolves('test3'),
+			copyResources: sandbox.stub(copyResources, 'copyResources').resolves('test4')
 		};
 
 		mocks.logger.logStart = sandbox.stub();
@@ -77,10 +82,16 @@ describe('service/init.js', () => {
 				.then(() => {
 					calledOnce(mocks.logger.logStart);
 					calledWith(mocks.logger.logStart, 'Building new project');
+					calledOnce(mocks.readAppTemplates);
+					calledWith(mocks.readAppTemplates, {
+						templatesFolder: root + '/templates'
+					});
+					calledOnce(mocks.askQuestions);
+					calledWith(mocks.askQuestions, 'test1');
 					calledOnce(mocks.createPackageJson);
-					calledWith(mocks.createPackageJson, undefined);
+					calledWith(mocks.createPackageJson, 'test2');
 					calledOnce(mocks.copyResources);
-					calledWith(mocks.copyResources, 'test1');
+					calledWith(mocks.copyResources, 'test3');
 				});
 
 		});
@@ -91,7 +102,7 @@ describe('service/init.js', () => {
 			const
 				expectedError = new Error('errorTest');
 
-			mocks.createPackageJson.rejects(expectedError);
+			mocks.readAppTemplates.rejects(expectedError);
 
 			// when/then
 			return expect(InitService.init())
