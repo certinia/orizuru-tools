@@ -29,24 +29,18 @@ const
 	root = require('app-root-path'),
 	chai = require('chai'),
 
-	questions = require(root + '/src/lib/util/questions'),
+	validators = require(root + '/src/lib/util/validators'),
 
 	expect = chai.expect;
 
-describe('util/questions.js', () => {
+describe('util/validators.js', () => {
 
-	describe('listField', () => {
+	describe('valid', () => {
 
-		it('should return the config for an input field', () => {
+		it('should return true', () => {
 
-			// when/then
-			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
-				type: 'list',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
+			// given - when - then
+			expect(validators.valid()).to.eql(true);
 
 		});
 
