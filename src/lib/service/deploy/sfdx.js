@@ -30,7 +30,10 @@ const
 	debug = require('debug-plus')('financialforcedev:orizuru~tools:deploy:sfdx'),
 
 	_ = require('lodash'),
+	fs = require('fs'),
 	inquirer = require('inquirer'),
+	path = require('path'),
+	yaml = require('js-yaml'),
 	questions = require('../../util/questions'),
 	shell = require('./shared/shell'),
 
@@ -91,6 +94,13 @@ const
 
 	},
 
+	readSfdxYaml = (config) => {
+		const dxYaml = yaml.safeLoad(fs.readFileSync(path.resolve(process.cwd(), '.salesforcedx.yaml')));
+		config.sfdx = config.sfdx || {};
+		config.sfdx.yaml = dxYaml;
+		return config;
+	},
+
 	selectApp = (config) => {
 
 		const
@@ -122,5 +132,6 @@ module.exports = {
 	getConnectionDetails,
 	getAllScratchOrgs,
 	openOrg,
+	readSfdxYaml,
 	selectApp
 };

@@ -34,6 +34,8 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
+	fs = require('fs'),
+
 	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
@@ -251,6 +253,33 @@ describe('service/deploy/sfdx.js', () => {
 				.then(() => {
 					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands);
 				});
+
+		});
+
+	});
+
+	describe('readSfdxYaml', () => {
+
+		it('should execute the correct commands', () => {
+
+			// given
+			const expectedOutput = {
+				sfdx: {
+					yaml: {
+						'scratch-org-def': 'src/apex/config/project-scratch-def.json',
+						'assign-permset': true,
+						'permset-name': 'OrizuruAdmin',
+						'run-apex-tests': true,
+						'delete-scratch-org': false,
+						'show-scratch-org-url': true
+					}
+				}
+			};
+
+			sandbox.stub(fs, 'readFileSync').returns('scratch-org-def: src/apex/config/project-scratch-def.json\nassign-permset: true\npermset-name: OrizuruAdmin\nrun-apex-tests: true\ndelete-scratch-org: false\nshow-scratch-org-url: true\n');
+
+			// when - then
+			return expect(sfdx.readSfdxYaml({})).to.eql(expectedOutput);
 
 		});
 
