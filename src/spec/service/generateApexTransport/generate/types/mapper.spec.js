@@ -26,12 +26,6 @@
 
 'use strict';
 
-const { writeFileSync } = require('fs');
+const _ = require('lodash');
 
-function overwriteFile(path, content) {
-	return writeFileSync(path, content, {
-		flag: 'w'
-	});
-}
-
-module.exports = overwriteFile;
+describe('service/generateApexTransport/generate/types/mapper.js', () => it('Should be tested by service/generateApexTransport/generate.spec.js', () => _.noop));

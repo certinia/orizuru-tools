@@ -26,7 +26,7 @@
 
 'use strict';
 
-/*const
+const
 	root = require('app-root-path'),
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
@@ -242,4 +242,4 @@ describe('service/generateApexTransport.js', () => {
 
 	});
 
-});*/
+});

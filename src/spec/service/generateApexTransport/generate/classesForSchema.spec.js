@@ -28,13 +28,4 @@
 
 const _ = require('lodash');
 
-function build(normalizedTokens) {
-	return _.reduce(normalizedTokens, (result, token) => {
-		result[token.getApexType()] = token.generateApex();
-		return result;
-	}, {});
-}
-
-module.exports = {
-	build
-};
+describe('service/generateApexTransport/generate/classesForSchema.js', () => it('Should be tested by service/generateApexTransport/generate.spec.js', () => _.noop));

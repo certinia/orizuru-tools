@@ -26,7 +26,7 @@
 
 'use strict';
 
-/*const
+const
 	_ = require('lodash'),
 	{ resolve } = require('path'),
 
@@ -82,7 +82,6 @@ class GenerateApexTransport {
 }
 
 module.exports = GenerateApexTransport;
-*/
 
 module.exports = {
 	generateApexTransport: () => {}

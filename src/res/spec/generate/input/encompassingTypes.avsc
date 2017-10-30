@@ -44,17 +44,8 @@
 			"values": "DeliveryTypeCls"
 		}
 	}, {
-		"name": "mapMapCls",
-		"type": {
-			"type": "map",
-			"values": {
-				"type": "map",
-				"values": "DeliveryTypeCls"
-			}
-		}
-	}, {
 		"name": "testFieldNull",
-		"type": { "type": "null" }
+		"type": "null"
 	}, {
 		"name": "testFieldBoolean",
 		"type": "boolean"
@@ -70,8 +61,5 @@
 	}, {
 		"name": "testFieldDouble",
 		"type": "double"
-	}, {
-		"name": "testFieldRef",
-		"type": "DeliveryTypeCls"
 	}]
 }

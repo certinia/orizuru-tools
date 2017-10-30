@@ -26,55 +26,12 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
+const { writeFileSync } = require('fs');
 
-	templates = require('./generate/apex/templates'),
-	tokenizer = require('./generate/tokenizer'),
-	apex = require('./generate/apex'),
-
-	CLASS_MERGE_DELIMITER = '\n';
-
-function generateForSchema(schemaJson) {
-	const
-		normalizedTokens = tokenizer.validateAndTokenize(schemaJson),
-		apexClasses = apex.build(normalizedTokens);
-	return apexClasses;
-}
-
-//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO
-//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO
-//																	  //
-//				ADD BROKEN TYPES FOR FIXED AND BYTES				  //
-//																	  //
-//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO
-//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO//TODO
-
-function generate(jsonAvroSchemas) {
-	const
-		finalResult = [],
-		mergedClassIdentifiers = {};
-
-	_.each(jsonAvroSchemas, jsonAvroSchema => {
-		const classes = generateForSchema(jsonAvroSchema);
-
-		_.each(classes, (classString, classIdentifer) => {
-			if (_.hasIn(mergedClassIdentifiers, classIdentifer)) {
-				if (mergedClassIdentifiers[classIdentifer] !== classString) {
-					throw new Error('Records and enums with the same \'name\' / \'namespace\' cannot be used across schemas unless they are identical. Identifier: \'' + classIdentifer + '\'.');
-				}
-			} else {
-				finalResult.push(classString);
-				mergedClassIdentifiers[classIdentifer] = classString;
-			}
-		});
-
+function overwriteFile(path, content) {
+	return writeFileSync(path, content, {
+		flag: 'w'
 	});
-
-	return {
-		cls: templates.wrappingOrizuruClass(_.trimStart(finalResult.join(CLASS_MERGE_DELIMITER))),
-		xml: templates.wrappingOrizuruClassXml()
-	};
 }
 
-module.exports = { generate };
+module.exports = { overwriteFile };

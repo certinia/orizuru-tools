@@ -35,49 +35,69 @@ const
 
 	expect = chai.expect,
 
-	calledOnce = sinon.assert.calledOnce,
-	calledWith = sinon.assert.calledWith,
+	{ calledOnce, calledTwice, calledWith } = sinon.assert,
 
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
 
-describe('service/generateApexTransport/file/overwriteFile.js', () => {
+describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () => {
 
-	let mocks, overwriteFile;
+	let startPath, mocks, getAvscFilesOnPathRecursively;
 
 	beforeEach(() => {
+		startPath = 'startPath/';
 		mocks = {
-			writeFileSync: sandbox.stub()
+			klawSync: sandbox.stub().returns([{
+				path: startPath + 'a/b/c.avsc'
+			}, {
+				path: startPath + 'd/e/f.avsc'
+			}]),
+			readFileSync: sandbox.stub().returns(new Buffer('potato'))
 		};
-		overwriteFile = proxyquire(root + '/src/lib/service/generateApexTransport/file/overwriteFile', {
+		getAvscFilesOnPathRecursively = proxyquire(root + '/src/lib/service/generateApexTransport/getAvscFilesOnPathRecursively', {
+			'klaw-sync': mocks.klawSync,
 			fs: {
-				writeFileSync: mocks.writeFileSync
+				readFileSync: mocks.readFileSync
 			}
 		});
 	});
 
 	afterEach(() => sandbox.restore());
 
-	describe('overwriteFile', () => {
+	describe('getAvscFilesOnPathRecursively', () => {
 
-		it('should call fs.writeFileSync with the correct params', () => {
+		it('should call klawSync and process results', () => {
 
 			// given
 			const
-				path = 'a',
-				content = 'b',
-				expected = 'c';
-
-			mocks.writeFileSync.returns(expected);
+				expected = [{
+					file: 'potato',
+					fileName: 'c',
+					path: 'startPath/a/b/c.avsc',
+					sharedPath: 'a/b'
+				}, {
+					file: 'potato',
+					fileName: 'f',
+					path: 'startPath/d/e/f.avsc',
+					sharedPath: 'd/e'
+				}];
 
 			// when - then
-			expect(overwriteFile(path, content)).to.eql(expected);
+			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively(startPath)).to.eql(expected);
 
-			calledOnce(mocks.writeFileSync);
-			calledWith(mocks.writeFileSync, path, content, {
-				flag: 'w'
+			calledOnce(mocks.klawSync);
+			calledWith(mocks.klawSync, startPath, {
+				nodir: true,
+				filter: sinon.match.func
 			});
+
+			expect(mocks.klawSync.args[0][1].filter({ path: 'a.avsc' })).to.eql(true);
+			expect(mocks.klawSync.args[0][1].filter({ path: 'a.js' })).to.eql(false);
+
+			calledTwice(mocks.readFileSync);
+			calledWith(mocks.readFileSync, startPath + 'a/b/c.avsc');
+			calledWith(mocks.readFileSync, startPath + 'd/e/f.avsc');
 
 		});
 

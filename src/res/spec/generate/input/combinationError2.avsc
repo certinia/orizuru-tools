@@ -3,7 +3,7 @@
 	"name": "Test",
 	"type": "record",
 	"fields": [{
-		"name": "deliveryPlanId",
-		"type": "bytes"
+		"name": "testError2",
+		"type": "string"
 	}]
 }
