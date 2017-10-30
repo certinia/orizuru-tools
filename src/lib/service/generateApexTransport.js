@@ -82,7 +82,3 @@ class GenerateApexTransport {
 }
 
 module.exports = GenerateApexTransport;
-
-module.exports = {
-	generateApexTransport: () => {}
-};
