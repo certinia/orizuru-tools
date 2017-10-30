@@ -25,82 +25,42 @@
  **/
 
 'use strict';
+
 const
-	root = require('app-root-path'),
-	chai = require('chai'),
+	conn = require('./deploy/shared/connection'),
+	certificate = require('./deploy/certificate'),
+	connectedApp = require('./deploy/connectedApp'),
+	heroku = require('./deploy/heroku'),
+	sfdx = require('./deploy/sfdx'),
 
-	questions = require(root + '/src/lib/util/questions'),
+	logger = require('../util/logger'),
 
-	expect = chai.expect;
+	create = (config) => {
 
-describe('util/questions.js', () => {
+		return Promise.resolve(config)
+			.then(logger.logStart('Deploy Connected App\nThis command generates a new certificate, creates a Connected App in the Salesforce organization, and then connects this app with Heroku. '))
+			.then(certificate.generate)
+			.then(logger.logEvent('Obtaining Heroku apps'))
+			.then(heroku.getAllApps)
+			.then(logger.logEvent('Obtaining SFDX scratch orgs'))
+			.then(sfdx.getAllScratchOrgs)
+			.then(logger.logEvent('Create Connected App\nYou are about to be asked to enter information about the Connected App'))
+			.then(connectedApp.askQuestions)
+			.then(heroku.selectApp)
+			.then(sfdx.selectApp)
+			.then(logger.logEvent('\nGet SFDX scratch org credentials'))
+			.then(sfdx.getConnectionDetails)
+			.then(logger.logEvent('Creating connection'))
+			.then(conn.create)
+			.then(logger.logEvent('Create Connected App'))
+			.then(connectedApp.create)
+			.then(logger.logEvent('Update Heroku config variables'))
+			.then(connectedApp.updateHerokuConfigVariables)
+			.then(logger.logFinish('Deployed Connected App'))
+			.catch(logger.logError);
 
-	describe('checkboxField', () => {
+	};
 
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.checkboxField('a', 'b', 'c', 'd')).to.eql({
-				type: 'checkbox',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
-
-		});
-
-	});
-
-	describe('inputField', () => {
-
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.inputField('a', 'b', 'c', 'd')).to.eql({
-				type: 'input',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
-
-		});
-
-	});
-
-	describe('listField', () => {
-
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
-				type: 'list',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
-
-		});
-
-	});
-
-	describe('passwordField', () => {
-
-		it('should return the config for an password field', () => {
-
-			// when/then
-			expect(questions.passwordField('a', 'b', 'c', 'd')).to.eql({
-				type: 'password',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
-
-		});
-
-	});
-
-});
+module.exports = {
+	create
+};

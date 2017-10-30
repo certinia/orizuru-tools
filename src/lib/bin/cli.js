@@ -31,10 +31,12 @@
 const
 	yargs = require('yargs'),
 	constants = require('./constants/constants'),
+	deploy = require('./commands/deploy'),
 	setup = require('./commands/setup');
 
 return yargs
 	.usage('\nUsage: orizuru COMMAND')
+	.command(deploy)
 	.command(setup)
 	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
 	.showHelpOnFail(true)

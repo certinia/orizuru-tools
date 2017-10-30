@@ -30,8 +30,6 @@ const
 	root = require('app-root-path'),
 	sinon = require('sinon'),
 
-	logger = require(root + '/src/lib/util/logger.js'),
-
 	assert = sinon.assert,
 	calledOnce = assert.calledOnce,
 	calledWith = assert.calledWith,
@@ -40,7 +38,11 @@ const
 
 describe('util/logger.js', () => {
 
+	let logger;
+
 	beforeEach(() => {
+		delete require.cache[root + '/src/lib/util/logger.js'];
+		logger = require(root + '/src/lib/util/logger.js');
 		sandbox.stub(process.stdout, 'write');
 	});
 
@@ -100,6 +102,26 @@ describe('util/logger.js', () => {
 
 			// when
 			logger.logError(error);
+
+			// then
+			calledOnce(process.stdout.write);
+			calledWith(process.stdout.write, expectedMessage);
+
+		});
+
+	});
+
+	describe('logEvent', () => {
+
+		it('should log out the message provided', () => {
+
+			// given
+			const
+				message = 'test',
+				expectedMessage = message + '\n\n';
+
+			// when
+			logger.logEvent(message)();
 
 			// then
 			calledOnce(process.stdout.write);

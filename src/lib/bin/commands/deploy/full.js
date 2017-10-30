@@ -25,82 +25,19 @@
  **/
 
 'use strict';
+
 const
-	root = require('app-root-path'),
-	chai = require('chai'),
+	service = require('../../../service/fullDeploy'),
 
-	questions = require(root + '/src/lib/util/questions'),
+	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
 
-	expect = chai.expect;
-
-describe('util/questions.js', () => {
-
-	describe('checkboxField', () => {
-
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.checkboxField('a', 'b', 'c', 'd')).to.eql({
-				type: 'checkbox',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
-
-		});
-
-	});
-
-	describe('inputField', () => {
-
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.inputField('a', 'b', 'c', 'd')).to.eql({
-				type: 'input',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
-
-		});
-
-	});
-
-	describe('listField', () => {
-
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
-				type: 'list',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
-
-		});
-
-	});
-
-	describe('passwordField', () => {
-
-		it('should return the config for an password field', () => {
-
-			// when/then
-			expect(questions.passwordField('a', 'b', 'c', 'd')).to.eql({
-				type: 'password',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
-
-		});
-
-	});
-
-});
+module.exports = {
+	command: ['full', 'f'],
+	description: 'Run a full deploy',
+	builder: yargs => {
+		return yargs
+			.usage('\nUsage: orizuru deploy full')
+			.epilogue(COPYRIGHT_NOTICE);
+	},
+	handler: (argv) => service.run({ argv })
+};

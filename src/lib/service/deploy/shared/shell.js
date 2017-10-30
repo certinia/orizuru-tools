@@ -25,82 +25,75 @@
  **/
 
 'use strict';
+
 const
-	root = require('app-root-path'),
-	chai = require('chai'),
+	_ = require('lodash'),
+	debug = require('debug-plus')('financialforcedev:orizuru~tools:shell'),
+	debugOutput = require('debug-plus')('financialforcedev:orizuru~tools:shell:output'),
 
-	questions = require(root + '/src/lib/util/questions'),
+	childProcess = require('child_process'),
+	spawn = childProcess.spawn,
 
-	expect = chai.expect;
+	Promise = require('bluebird'),
 
-describe('util/questions.js', () => {
+	EVENT_CLOSE = 'close',
+	EVENT_DATA = 'data',
 
-	describe('checkboxField', () => {
+	shellDebug = (cmd, args) => {
+		const formattedCommand = cmd + (args ? ' ' + args.join(' ') : '');
+		debug('Executing: ' + formattedCommand);
+		return formattedCommand;
+	},
 
-		it('should return the config for an input field', () => {
+	executeCommand = ({ cmd, args, opts }) => {
 
-			// when/then
-			expect(questions.checkboxField('a', 'b', 'c', 'd')).to.eql({
-				type: 'checkbox',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
+		return new Promise((resolve, reject) => {
+
+			const
+				formattedCommand = shellDebug(cmd, args),
+				child = spawn(cmd, args);
+
+			let stdout = '',
+				stderr = '';
+
+			child.stdout.on(EVENT_DATA, (data) => {
+				stdout += data;
+			});
+
+			child.stderr.on(EVENT_DATA, (data) => {
+				stderr += data;
+			});
+
+			child.on(EVENT_CLOSE, (exitCode) => {
+				if (exitCode !== 0 && opts && opts.exitOnError) {
+					return reject(new Error(`Command failed: ${formattedCommand}`));
+				}
+				const retval = { formattedCommand, exitCode, stdout: _.trim(stdout), stderr: _.trim(stderr) };
+				debugOutput(retval);
+				return resolve(retval);
 			});
 
 		});
 
-	});
+	},
 
-	describe('inputField', () => {
+	executeCommands = (commands, opts) => {
 
-		it('should return the config for an input field', () => {
+		return Promise.reduce(commands, (results, command) => {
 
-			// when/then
-			expect(questions.inputField('a', 'b', 'c', 'd')).to.eql({
-				type: 'input',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
+			command.opts = command.opts || opts;
 
-		});
+			return executeCommand(command)
+				.then((result) => {
+					results[result.formattedCommand] = result;
+					return results;
+				});
 
-	});
+		}, {});
 
-	describe('listField', () => {
+	};
 
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
-				type: 'list',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
-
-		});
-
-	});
-
-	describe('passwordField', () => {
-
-		it('should return the config for an password field', () => {
-
-			// when/then
-			expect(questions.passwordField('a', 'b', 'c', 'd')).to.eql({
-				type: 'password',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
-
-		});
-
-	});
-
-});
+module.exports = {
+	executeCommand,
+	executeCommands
+};

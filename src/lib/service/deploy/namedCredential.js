@@ -25,82 +25,53 @@
  **/
 
 'use strict';
+
 const
-	root = require('app-root-path'),
-	chai = require('chai'),
+	inquirer = require('inquirer'),
+	questions = require('../../util/questions'),
+	validators = require('../../util/validators'),
 
-	questions = require(root + '/src/lib/util/questions'),
+	askQuestions = (config) => {
 
-	expect = chai.expect;
+		return inquirer.prompt([
+			questions.inputField('Named Credential Name', 'name', validators.validateNotEmpty, 'Orizuru')
+		]).then(answers => {
 
-describe('util/questions.js', () => {
+			config.parameters = config.parameters || {};
+			config.parameters.namedCredential = {};
+			config.parameters.namedCredential.name = answers.name;
 
-	describe('checkboxField', () => {
-
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.checkboxField('a', 'b', 'c', 'd')).to.eql({
-				type: 'checkbox',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
+			return config;
 
 		});
 
-	});
+	},
 
-	describe('inputField', () => {
+	create = (config) => {
 
-		it('should return the config for an input field', () => {
+		const
+			conn = config.conn,
+			endpoint = config.parameters.heroku.app.web_url,
+			name = config.parameters.namedCredential.name,
 
-			// when/then
-			expect(questions.inputField('a', 'b', 'c', 'd')).to.eql({
-				type: 'input',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
+			namedCredential = {
+				endpoint,
+				label: name,
+				fullName: name,
+				principalType: 'Anonymous',
+				protocol: 'NoAuthentication'
+			};
+
+		return conn.metadata.create('NamedCredential', namedCredential)
+			.then(() => conn.metadata.read('NamedCredential', name))
+			.then(namedCredential => {
+				config.namedCredential = namedCredential;
+				return config;
 			});
 
-		});
+	};
 
-	});
-
-	describe('listField', () => {
-
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
-				type: 'list',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
-
-		});
-
-	});
-
-	describe('passwordField', () => {
-
-		it('should return the config for an password field', () => {
-
-			// when/then
-			expect(questions.passwordField('a', 'b', 'c', 'd')).to.eql({
-				type: 'password',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
-
-		});
-
-	});
-
-});
+module.exports = {
+	askQuestions,
+	create
+};

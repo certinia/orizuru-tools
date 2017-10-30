@@ -25,81 +25,72 @@
  **/
 
 'use strict';
+
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
+	root = require('app-root-path'),
+	proxyquire = require('proxyquire'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
-	questions = require(root + '/src/lib/util/questions'),
+	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	expect = chai.expect;
+	expect = chai.expect,
 
-describe('util/questions.js', () => {
+	sandbox = sinon.sandbox.create();
 
-	describe('checkboxField', () => {
+chai.use(sinonChai);
 
-		it('should return the config for an input field', () => {
+describe('bin/commands/deploy.js', () => {
 
-			// when/then
-			expect(questions.checkboxField('a', 'b', 'c', 'd')).to.eql({
-				type: 'checkbox',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
+	let cli, mocks;
 
+	beforeEach(() => {
+
+		mocks = {
+			yargs: {
+				command: sandbox.stub().returnsThis(),
+				demandCommand: sandbox.stub().returnsThis(),
+				epilogue: sandbox.stub().returnsThis(),
+				updateStrings: sandbox.stub().returnsThis(),
+				usage: sandbox.stub().returnsThis()
+			}
+		};
+
+		cli = proxyquire(root + '/src/lib/bin/commands/deploy', {
+			yargs: mocks.yargs
 		});
 
 	});
 
-	describe('inputField', () => {
+	afterEach(() => {
+		sandbox.restore();
+	});
 
-		it('should return the config for an input field', () => {
+	it('should create the cli', () => {
 
-			// when/then
-			expect(questions.inputField('a', 'b', 'c', 'd')).to.eql({
-				type: 'input',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
+		// when
+		cli.builder(mocks.yargs);
 
-		});
+		//then
+		expect(mocks.yargs.command).to.have.been.calledThrice;
+		expect(mocks.yargs.demandCommand).to.have.been.calledOnce;
+		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+		expect(mocks.yargs.updateStrings).to.have.been.calledOnce;
+
+		expect(mocks.yargs.demandCommand).to.have.been.calledWith(3, 'Run \'orizuru deploy --help\' for more information on a command.\n');
+		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(mocks.yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'Deployment:' });
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy COMMAND');
 
 	});
 
-	describe('listField', () => {
+	it('should have the correct command, description and alias', () => {
 
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
-				type: 'list',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
-
-		});
-
-	});
-
-	describe('passwordField', () => {
-
-		it('should return the config for an password field', () => {
-
-			// when/then
-			expect(questions.passwordField('a', 'b', 'c', 'd')).to.eql({
-				type: 'password',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
-
-		});
+		// then
+		expect(cli.command).to.eql('deploy');
+		expect(cli.aliases).to.eql(['d']);
+		expect(cli.desc).to.eql('Executes Deployment commands');
 
 	});
 

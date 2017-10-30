@@ -27,9 +27,27 @@
 'use strict';
 
 const
+	_ = require('lodash'),
+
+	validateNotEmpty = result => {
+		if (_.isEmpty(result)) {
+			return 'You must provide a value.';
+		}
+		return true;
+	},
+
+	validateHexColor = result => {
+		const regex = /^[A-F0-9]{6}$/;
+		if (result && result.match(regex)) {
+			return true;
+		}
+		return 'You must provide a valid HEX color, e.g. FF0000.';
+	},
 
 	valid = () => true;
 
 module.exports = {
+	validateNotEmpty,
+	validateHexColor,
 	valid
 };

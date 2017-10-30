@@ -25,82 +25,22 @@
  **/
 
 'use strict';
+
 const
-	root = require('app-root-path'),
-	chai = require('chai'),
+	jsforce = require('jsforce'),
 
-	questions = require(root + '/src/lib/util/questions'),
+	create = (config) => {
 
-	expect = chai.expect;
-
-describe('util/questions.js', () => {
-
-	describe('checkboxField', () => {
-
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.checkboxField('a', 'b', 'c', 'd')).to.eql({
-				type: 'checkbox',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
-
+		const conn = new jsforce.Connection({
+			instanceUrl: config.parameters.sfdx.org.credentials.instanceUrl,
+			accessToken: config.parameters.sfdx.org.credentials.accessToken
 		});
 
-	});
+		config.conn = conn;
+		return config;
 
-	describe('inputField', () => {
+	};
 
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.inputField('a', 'b', 'c', 'd')).to.eql({
-				type: 'input',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
-
-		});
-
-	});
-
-	describe('listField', () => {
-
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
-				type: 'list',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
-
-		});
-
-	});
-
-	describe('passwordField', () => {
-
-		it('should return the config for an password field', () => {
-
-			// when/then
-			expect(questions.passwordField('a', 'b', 'c', 'd')).to.eql({
-				type: 'password',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
-
-		});
-
-	});
-
-});
+module.exports = {
+	create
+};

@@ -46,4 +46,77 @@ describe('util/validators.js', () => {
 
 	});
 
+	describe('validateNotEmpty', () => {
+
+		it('should return an error if the result is empty', () => {
+
+			// given
+			const result = undefined;
+
+			// when/then
+			expect(validators.validateNotEmpty(result)).to.eql('You must provide a value.');
+
+		});
+
+		it('should return true if the result is not empty', () => {
+
+			// given
+			const result = 'test';
+
+			// when/then
+			expect(validators.validateNotEmpty(result)).to.eql(true);
+
+		});
+
+	});
+
+	describe('validateHexColor', () => {
+
+		it('should return an error if the result is empty', () => {
+
+			// given
+			const result = undefined;
+
+			// when/then
+			expect(validators.validateHexColor(result)).to.eql('You must provide a valid HEX color, e.g. FF0000.');
+
+		});
+
+		describe('should return an error if the result is not a 6 digit hex string', () => {
+
+			it('Test 1', () => {
+
+				// given/when/then
+				expect(validators.validateHexColor('AAA00G')).to.eql('You must provide a valid HEX color, e.g. FF0000.');
+
+			});
+
+			it('Test 2', () => {
+
+				// given/when/then
+				expect(validators.validateHexColor('AAA00')).to.eql('You must provide a valid HEX color, e.g. FF0000.');
+
+			});
+
+			it('Test 3', () => {
+
+				// given/when/then
+				expect(validators.validateHexColor('12345X')).to.eql('You must provide a valid HEX color, e.g. FF0000.');
+
+			});
+
+		});
+
+		it('should return true if the result is a hex color', () => {
+
+			// given
+			const result = 'FF0000';
+
+			// when/then
+			expect(validators.validateHexColor(result)).to.eql(true);
+
+		});
+
+	});
+
 });

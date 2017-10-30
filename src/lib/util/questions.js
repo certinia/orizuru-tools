@@ -27,6 +27,21 @@
 'use strict';
 
 const
+	checkboxField = (message, prop, validate, choices) => ({
+		type: 'checkbox',
+		message,
+		name: prop,
+		choices,
+		validate
+	}),
+
+	inputField = (message, prop, validate, defaultValue) => ({
+		type: 'input',
+		message,
+		name: prop,
+		validate,
+		['default']: defaultValue
+	}),
 
 	listField = (message, prop, validate, choices) => ({
 		type: 'list',
@@ -34,8 +49,19 @@ const
 		name: prop,
 		choices,
 		validate
+	}),
+
+	passwordField = (message, prop, validate, defaultValue) => ({
+		type: 'password',
+		message,
+		name: prop,
+		validate,
+		['default']: defaultValue
 	});
 
 module.exports = {
-	listField
+	checkboxField,
+	inputField,
+	listField,
+	passwordField
 };

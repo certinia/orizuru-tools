@@ -25,81 +25,71 @@
  **/
 
 'use strict';
+
 const
 	root = require('app-root-path'),
 	chai = require('chai'),
+	proxyquire = require('proxyquire'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
-	questions = require(root + '/src/lib/util/questions'),
+	expect = chai.expect,
 
-	expect = chai.expect;
+	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-describe('util/questions.js', () => {
+	service = require(root + '/src/lib/service/connectedApp'),
+	connectedAppCommands = require(root + '/src/lib/bin/commands/deploy/connectedApp'),
 
-	describe('checkboxField', () => {
+	sandbox = sinon.sandbox.create();
 
-		it('should return the config for an input field', () => {
+chai.use(sinonChai);
 
-			// when/then
-			expect(questions.checkboxField('a', 'b', 'c', 'd')).to.eql({
-				type: 'checkbox',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
+describe('bin/commands/deploy/connectedApp.js', () => {
 
+	let mocks;
+
+	afterEach(() => {
+		sandbox.restore();
+	});
+
+	it('should create the cli', () => {
+
+		// given
+		mocks = {};
+		mocks.yargs = {};
+		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+
+		sandbox.stub(service, 'create');
+
+		const cli = proxyquire(root + '/src/lib/bin/commands/deploy/connectedApp', {
+			yargs: mocks.yargs
 		});
+
+		// when
+		cli.builder(mocks.yargs);
+
+		//then
+		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+
+		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy connected-app');
 
 	});
 
-	describe('inputField', () => {
+	it('should have a handler that calls the connectedApp service', () => {
 
-		it('should return the config for an input field', () => {
+		// given
+		const { handler } = connectedAppCommands;
 
-			// when/then
-			expect(questions.inputField('a', 'b', 'c', 'd')).to.eql({
-				type: 'input',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
+		sandbox.stub(service, 'create');
 
-		});
+		// when
+		handler('test');
 
-	});
-
-	describe('listField', () => {
-
-		it('should return the config for an input field', () => {
-
-			// when/then
-			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
-				type: 'list',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				choices: 'd'
-			});
-
-		});
-
-	});
-
-	describe('passwordField', () => {
-
-		it('should return the config for an password field', () => {
-
-			// when/then
-			expect(questions.passwordField('a', 'b', 'c', 'd')).to.eql({
-				type: 'password',
-				message: 'a',
-				name: 'b',
-				validate: 'c',
-				['default']: 'd'
-			});
-
-		});
+		// then
+		expect(service.create).to.have.been.calledOnce;
+		expect(service.create).to.have.been.calledWith({ argv: 'test' });
 
 	});
 
