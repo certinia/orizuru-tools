@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (c) 2017, FinancialForce.com, inc
  * All rights reserved.
@@ -29,22 +27,40 @@
 'use strict';
 
 const
-	yargs = require('yargs'),
-	constants = require('./constants/constants'),
-	deploy = require('./commands/deploy'),
-	setup = require('./commands/setup');
+	conn = require('./deploy/shared/connection'),
+	certificate = require('./deploy/certificate'),
+	connectedApp = require('./deploy/connectedApp'),
+	heroku = require('./deploy/heroku'),
+	sfdx = require('./deploy/sfdx'),
 
-return yargs
-	.usage('\nUsage: orizuru COMMAND')
-	.command(deploy)
-	.command(setup)
-	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
-	.showHelpOnFail(true)
-	.help('h')
-	.alias('h', 'help')
-	.version(constants.VERSION)
-	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
-	.strict(true)
-	.wrap(yargs.terminalWidth())
-	.argv;
+	{ logEvent, logError, logFinish, logStart } = require('../util/logger'),
+
+	create = (config) => {
+
+		return Promise.resolve(config)
+			.then(logStart('Deploy Connected App\nThis command generates a new certificate, creates a Connected App in the Salesforce organization, and then connects this app with Heroku. '))
+			.then(certificate.generate)
+			.then(logEvent('Obtaining Heroku apps'))
+			.then(heroku.getAllApps)
+			.then(logEvent('Obtaining SFDX scratch orgs'))
+			.then(sfdx.getAllScratchOrgs)
+			.then(logEvent('Create Connected App\nYou are about to be asked to enter information about the Connected App'))
+			.then(connectedApp.askQuestions)
+			.then(heroku.selectApp)
+			.then(sfdx.selectApp)
+			.then(logEvent('\nGet SFDX scratch org credentials'))
+			.then(sfdx.getConnectionDetails)
+			.then(logEvent('Creating connection'))
+			.then(conn.create)
+			.then(logEvent('Create Connected App'))
+			.then(connectedApp.create)
+			.then(logEvent('Update Heroku config variables'))
+			.then(connectedApp.updateHerokuConfigVariables)
+			.then(logFinish('Deployed Connected App'))
+			.catch(logError);
+
+	};
+
+module.exports = {
+	create
+};

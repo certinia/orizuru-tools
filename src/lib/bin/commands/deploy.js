@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (c) 2017, FinancialForce.com, inc
  * All rights reserved.
@@ -29,22 +27,24 @@
 'use strict';
 
 const
-	yargs = require('yargs'),
-	constants = require('./constants/constants'),
-	deploy = require('./commands/deploy'),
-	setup = require('./commands/setup');
+	certificate = require('./deploy/certificate'),
+	connectedApp = require('./deploy/connectedApp'),
+	fullDeploy = require('./deploy/full'),
 
-return yargs
-	.usage('\nUsage: orizuru COMMAND')
-	.command(deploy)
-	.command(setup)
-	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
-	.showHelpOnFail(true)
-	.help('h')
-	.alias('h', 'help')
-	.version(constants.VERSION)
-	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
-	.strict(true)
-	.wrap(yargs.terminalWidth())
-	.argv;
+	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+
+module.exports = {
+	command: 'deploy',
+	desc: 'Executes Deployment commands',
+	aliases: ['d'],
+	builder: (yargs) => yargs
+		.usage('\nUsage: orizuru deploy COMMAND')
+		.demandCommand(3, 'Run \'orizuru deploy --help\' for more information on a command.\n')
+		.command(certificate)
+		.command(connectedApp)
+		.command(fullDeploy)
+		.updateStrings({
+			'Commands:': 'Deployment:'
+		})
+		.epilogue(COPYRIGHT_NOTICE)
+};

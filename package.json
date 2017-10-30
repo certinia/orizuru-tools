@@ -48,13 +48,17 @@
     "mocha": "4.0.1",
     "nyc": "11.2.1",
     "proxyquire": "1.8.0",
-    "sinon": "4.0.1"
+    "sinon": "4.0.1",
+    "sinon-chai": "2.14.0"
   },
   "dependencies": {
-    "cliui": "3.2.0",
+    "bluebird": "3.5.1",
+    "cliui": "^3.2.0",
+    "debug-plus": "1.2.2",
     "fs-extra": "4.0.2",
     "init-package-json": "1.10.1",
     "inquirer": "3.3.0",
+    "jsforce": "1.8.0",
     "klaw-sync": "3.0.2",
     "lodash": "4.17.4",
     "yargs": "9.0.1"

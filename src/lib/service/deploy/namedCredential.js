@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (c) 2017, FinancialForce.com, inc
  * All rights reserved.
@@ -29,22 +27,48 @@
 'use strict';
 
 const
-	yargs = require('yargs'),
-	constants = require('./constants/constants'),
-	deploy = require('./commands/deploy'),
-	setup = require('./commands/setup');
+	inquirer = require('inquirer'),
+	questions = require('../../util/questions'),
+	validators = require('../../util/validators'),
 
-return yargs
-	.usage('\nUsage: orizuru COMMAND')
-	.command(deploy)
-	.command(setup)
-	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
-	.showHelpOnFail(true)
-	.help('h')
-	.alias('h', 'help')
-	.version(constants.VERSION)
-	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
-	.strict(true)
-	.wrap(yargs.terminalWidth())
-	.argv;
+	askQuestions = (config) => {
+
+		return inquirer.prompt([
+			questions.inputField('Named Credential Name', 'name', validators.validateNotEmpty, 'Orizuru')
+		]).then(answers => {
+			config.parameters.namedCredential = {};
+			config.parameters.namedCredential.name = answers.name;
+			return config;
+
+		});
+
+	},
+
+	create = (config) => {
+
+		const
+			conn = config.conn,
+			endpoint = config.parameters.heroku.app.web_url,
+			name = config.parameters.namedCredential.name,
+
+			namedCredential = {
+				endpoint,
+				label: name,
+				fullName: name,
+				principalType: 'Anonymous',
+				protocol: 'NoAuthentication'
+			};
+
+		return conn.metadata.create('NamedCredential', namedCredential)
+			.then(() => conn.metadata.read('NamedCredential', name))
+			.then(namedCredential => {
+				config.namedCredential = namedCredential;
+				return config;
+			});
+
+	};
+
+module.exports = {
+	askQuestions,
+	create
+};

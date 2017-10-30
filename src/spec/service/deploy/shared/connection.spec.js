@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (c) 2017, FinancialForce.com, inc
  * All rights reserved.
@@ -29,22 +27,59 @@
 'use strict';
 
 const
-	yargs = require('yargs'),
-	constants = require('./constants/constants'),
-	deploy = require('./commands/deploy'),
-	setup = require('./commands/setup');
+	chai = require('chai'),
+	root = require('app-root-path'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
+	proxyquire = require('proxyquire'),
 
-return yargs
-	.usage('\nUsage: orizuru COMMAND')
-	.command(deploy)
-	.command(setup)
-	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
-	.showHelpOnFail(true)
-	.help('h')
-	.alias('h', 'help')
-	.version(constants.VERSION)
-	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
-	.strict(true)
-	.wrap(yargs.terminalWidth())
-	.argv;
+	expect = chai.expect,
+
+	sandbox = sinon.sandbox.create();
+
+chai.use(sinonChai);
+
+describe('deploy/shell.js', () => {
+
+	let mocks, connection;
+
+	beforeEach(() => {
+
+		mocks = {};
+		mocks.jsforce = {};
+		mocks.jsforce.Connection = sandbox.stub();
+
+		connection = proxyquire(root + '/src/lib/service/deploy/shared/connection.js', {
+			jsforce: mocks.jsforce
+		});
+
+	});
+
+	afterEach(() => {
+		sandbox.restore();
+	});
+
+	describe('create', () => {
+
+		it('should create a jsforce connection', () => {
+
+			// given
+			const expectedInput = {
+				connectionInfo: {
+					accessToken: 'testAccessToken',
+					instanceUrl: 'testInstanceUrl'
+				}
+			};
+
+			// when
+			connection.create(expectedInput);
+
+			// then
+			expect(mocks.jsforce.Connection).to.have.been.calledWithNew;
+			expect(mocks.jsforce.Connection).to.have.been.calledWith(expectedInput.connectionInfo);
+
+		});
+
+	});
+
+});

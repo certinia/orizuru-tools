@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (c) 2017, FinancialForce.com, inc
  * All rights reserved.
@@ -29,22 +27,63 @@
 'use strict';
 
 const
-	yargs = require('yargs'),
-	constants = require('./constants/constants'),
-	deploy = require('./commands/deploy'),
-	setup = require('./commands/setup');
+	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
+	root = require('app-root-path'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
-return yargs
-	.usage('\nUsage: orizuru COMMAND')
-	.command(deploy)
-	.command(setup)
-	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
-	.showHelpOnFail(true)
-	.help('h')
-	.alias('h', 'help')
-	.version(constants.VERSION)
-	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
-	.strict(true)
-	.wrap(yargs.terminalWidth())
-	.argv;
+	expect = chai.expect,
+
+	namedCredential = require(root + '/src/lib/service/deploy/namedCredential.js'),
+
+	sandbox = sinon.sandbox.create();
+
+chai.use(chaiAsPromised);
+chai.use(sinonChai);
+
+describe('deploy/shell.js', () => {
+
+	afterEach(() => {
+		sandbox.restore();
+	});
+
+	describe('create', () => {
+
+		it('should execute the correct commands', () => {
+
+			// given
+			const
+				expectedInput = {
+					conn: sandbox.stub(),
+					connectedApp: {
+						name: 'testConnectedAppName'
+					},
+					herokuApp: {
+						['web_url']: 'testAppUrl'
+					},
+					parameters: {
+						namedCredential: {
+							name: 'testName'
+						}
+					}
+				},
+				expectedOutput = expectedInput;
+
+			expectedInput.conn.metadata = {};
+			expectedInput.conn.metadata.create = sandbox.stub().resolves();
+			expectedInput.conn.metadata.read = sandbox.stub().resolves();
+
+			// when - then
+			return expect(namedCredential.create(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(expectedInput.conn.metadata.create).to.have.been.calledOnce;
+					expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
+				});
+
+		});
+
+	});
+
+});

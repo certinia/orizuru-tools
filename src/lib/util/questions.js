@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (c) 2017, FinancialForce.com, inc
  * All rights reserved.
@@ -29,22 +27,41 @@
 'use strict';
 
 const
-	yargs = require('yargs'),
-	constants = require('./constants/constants'),
-	deploy = require('./commands/deploy'),
-	setup = require('./commands/setup');
+	checkboxField = (message, prop, validate, choices) => ({
+		type: 'checkbox',
+		message,
+		name: prop,
+		choices,
+		validate
+	}),
 
-return yargs
-	.usage('\nUsage: orizuru COMMAND')
-	.command(deploy)
-	.command(setup)
-	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
-	.showHelpOnFail(true)
-	.help('h')
-	.alias('h', 'help')
-	.version(constants.VERSION)
-	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
-	.strict(true)
-	.wrap(yargs.terminalWidth())
-	.argv;
+	inputField = (message, prop, validate, defaultValue) => ({
+		type: 'input',
+		message,
+		name: prop,
+		validate,
+		['default']: defaultValue
+	}),
+
+	listField = (message, prop, validate, choices) => ({
+		type: 'list',
+		message,
+		name: prop,
+		choices,
+		validate
+	}),
+
+	passwordField = (message, prop, validate, defaultValue) => ({
+		type: 'password',
+		message,
+		name: prop,
+		validate,
+		['default']: defaultValue
+	});
+
+module.exports = {
+	checkboxField,
+	inputField,
+	listField,
+	passwordField
+};

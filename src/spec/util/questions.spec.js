@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (c) 2017, FinancialForce.com, inc
  * All rights reserved.
@@ -27,24 +25,65 @@
  **/
 
 'use strict';
-
 const
-	yargs = require('yargs'),
-	constants = require('./constants/constants'),
-	deploy = require('./commands/deploy'),
-	setup = require('./commands/setup');
+	root = require('app-root-path'),
+	chai = require('chai'),
 
-return yargs
-	.usage('\nUsage: orizuru COMMAND')
-	.command(deploy)
-	.command(setup)
-	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
-	.showHelpOnFail(true)
-	.help('h')
-	.alias('h', 'help')
-	.version(constants.VERSION)
-	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
-	.strict(true)
-	.wrap(yargs.terminalWidth())
-	.argv;
+	questions = require(root + '/src/lib/util/questions.js'),
+
+	expect = chai.expect;
+
+describe('util/questions.js', () => {
+
+	describe('checkboxField', () => {
+
+		it('should return the config for an input field', () => {
+
+			// when/then
+			expect(questions.checkboxField('a', 'b', 'c', 'd')).to.eql({
+				type: 'checkbox',
+				message: 'a',
+				name: 'b',
+				validate: 'c',
+				choices: 'd'
+			});
+
+		});
+
+	});
+
+	describe('inputField', () => {
+
+		it('should return the config for an input field', () => {
+
+			// when/then
+			expect(questions.inputField('a', 'b', 'c', 'd')).to.eql({
+				type: 'input',
+				message: 'a',
+				name: 'b',
+				validate: 'c',
+				['default']: 'd'
+			});
+
+		});
+
+	});
+
+	describe('passwordField', () => {
+
+		it('should return the config for an password field', () => {
+
+			// when/then
+			expect(questions.passwordField('a', 'b', 'c', 'd')).to.eql({
+				type: 'password',
+				message: 'a',
+				name: 'b',
+				validate: 'c',
+				['default']: 'd'
+			});
+
+		});
+
+	});
+
+});

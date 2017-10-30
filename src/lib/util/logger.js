@@ -63,6 +63,11 @@ const
 		return config;
 	},
 
+	logEvent = message => config => {
+		logLn(message);
+		return config;
+	},
+
 	logError = (error) => {
 		logLn(error.message);
 	},
@@ -77,6 +82,7 @@ module.exports = {
 	logLn,
 	logLns,
 	logError,
+	logEvent,
 	logStart,
 	logFinish
 };

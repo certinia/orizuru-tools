@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (c) 2017, FinancialForce.com, inc
  * All rights reserved.
@@ -29,22 +27,24 @@
 'use strict';
 
 const
-	yargs = require('yargs'),
-	constants = require('./constants/constants'),
-	deploy = require('./commands/deploy'),
-	setup = require('./commands/setup');
+	_ = require('lodash'),
 
-return yargs
-	.usage('\nUsage: orizuru COMMAND')
-	.command(deploy)
-	.command(setup)
-	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
-	.showHelpOnFail(true)
-	.help('h')
-	.alias('h', 'help')
-	.version(constants.VERSION)
-	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
-	.strict(true)
-	.wrap(yargs.terminalWidth())
-	.argv;
+	validateNotEmpty = result => {
+		if (_.isEmpty(result)) {
+			return 'You must provide a value.';
+		}
+		return true;
+	},
+
+	validateHexColor = result => {
+		const regex = /^[A-F0-9]{6}$/;
+		if (result && result.match(regex)) {
+			return true;
+		}
+		return 'You must provide a valid HEX color, e.g. FF0000.';
+	};
+
+module.exports = {
+	validateNotEmpty,
+	validateHexColor
+};
