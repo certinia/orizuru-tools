@@ -68,7 +68,9 @@ describe('service/generateApexTransport.js', () => {
 
 	});
 
-	afterEach(() => sandbox.restore());
+	afterEach(() => {
+		sandbox.restore();
+	});
 
 	describe('generateApexTransport', () => {
 

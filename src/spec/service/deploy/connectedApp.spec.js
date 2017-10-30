@@ -58,8 +58,8 @@ describe('deploy/connectedApp.js', () => {
 		mocks.jsforce = {};
 		mocks.jsforce.Connection = sandbox.stub();
 
-		logger.logStart = sandbox.stub();
-		logger.logFinish = sandbox.stub();
+		sandbox.stub(logger, 'logStart');
+		sandbox.stub(logger, 'logFinish');
 
 		connectedApp = proxyquire(root + '/src/lib/service/deploy/connectedApp.js', {
 			inquirer: mocks.inquirer,

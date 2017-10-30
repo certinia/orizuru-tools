@@ -34,7 +34,7 @@ const
 	namedCredential = require('./deploy/namedCredential'),
 	sfdx = require('./deploy/sfdx'),
 
-	{ logEvent, logError, logFinish, logStart } = require('../util/logger'),
+	logger = require('../util/logger'),
 
 	run = (config) => {
 
@@ -44,40 +44,40 @@ const
 		config.options.includeNew.sfdx = true;
 
 		return Promise.resolve(config)
-			.then(logStart('Starting full deploy'))
+			.then(logger.logStart('Starting full deploy'))
 			.then(heroku.getAllApps)
 			.then(heroku.selectApp)
-			.then(logEvent('Reading app.json'))
+			.then(logger.logEvent('Reading app.json'))
 			.then(heroku.readAppJson)
-			.then(logEvent('Adding buildpacks'))
+			.then(logger.logEvent('Adding buildpacks'))
 			.then(heroku.addBuildpacks)
-			.then(logEvent('Adding add-ons'))
+			.then(logger.logEvent('Adding add-ons'))
 			.then(heroku.addAddOns)
-			.then(logEvent('Deploy code'))
+			.then(logger.logEvent('Deploy code'))
 			.then(heroku.deployCurrentBranch)
-			.then(logEvent('Generating certificates\nYou are about to be asked to enter information that will be incorporated into your certificate.'))
+			.then(logger.logEvent('Generating certificates\nYou are about to be asked to enter information that will be incorporated into your certificate.'))
 			.then(certificate.askQuestions)
 			.then(certificate.create)
 			.then(certificate.read)
-			.then(logEvent('\nObtaining SFDX scratch orgs'))
+			.then(logger.logEvent('\nObtaining SFDX scratch orgs'))
 			.then(sfdx.getAllScratchOrgs)
 			.then(sfdx.selectApp)
-			.then(logEvent('\nDeploy SFDX code'))
+			.then(logger.logEvent('\nDeploy SFDX code'))
 			.then(sfdx.deploy)
-			.then(logEvent('Get SFDX scratch org credentials'))
+			.then(logger.logEvent('Get SFDX scratch org credentials'))
 			.then(sfdx.getConnectionDetails)
-			.then(logEvent('Creating connection'))
+			.then(logger.logEvent('Creating connection'))
 			.then(conn.create)
-			.then(logEvent('Create Connected App\nYou are about to be asked to enter information that will be incorporated into your connected app.'))
+			.then(logger.logEvent('Create Connected App\nYou are about to be asked to enter information that will be incorporated into your connected app.'))
 			.then(connectedApp.askQuestions)
 			.then(connectedApp.create)
-			.then(logEvent('\nUpdate Heroku config variables'))
+			.then(logger.logEvent('\nUpdate Heroku config variables'))
 			.then(connectedApp.updateHerokuConfigVariables)
-			.then(logEvent('Create Named Credential'))
+			.then(logger.logEvent('Create Named Credential'))
 			.then(namedCredential.askQuestions)
 			.then(namedCredential.create)
-			.then(logFinish('Finished full deploy'))
-			.catch(logError);
+			.then(logger.logFinish('Finished full deploy'))
+			.catch(logger.logError);
 
 	};
 

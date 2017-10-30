@@ -43,7 +43,7 @@ const
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('deploy/shell.js', () => {
+describe('service/deploy/heroku.js', () => {
 
 	let mocks, heroku;
 

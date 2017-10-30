@@ -33,31 +33,31 @@ const
 	heroku = require('./deploy/heroku'),
 	sfdx = require('./deploy/sfdx'),
 
-	{ logEvent, logError, logFinish, logStart } = require('../util/logger'),
+	logger = require('../util/logger'),
 
 	create = (config) => {
 
 		return Promise.resolve(config)
-			.then(logStart('Deploy Connected App\nThis command generates a new certificate, creates a Connected App in the Salesforce organization, and then connects this app with Heroku. '))
+			.then(logger.logStart('Deploy Connected App\nThis command generates a new certificate, creates a Connected App in the Salesforce organization, and then connects this app with Heroku. '))
 			.then(certificate.generate)
-			.then(logEvent('Obtaining Heroku apps'))
+			.then(logger.logEvent('Obtaining Heroku apps'))
 			.then(heroku.getAllApps)
-			.then(logEvent('Obtaining SFDX scratch orgs'))
+			.then(logger.logEvent('Obtaining SFDX scratch orgs'))
 			.then(sfdx.getAllScratchOrgs)
-			.then(logEvent('Create Connected App\nYou are about to be asked to enter information about the Connected App'))
+			.then(logger.logEvent('Create Connected App\nYou are about to be asked to enter information about the Connected App'))
 			.then(connectedApp.askQuestions)
 			.then(heroku.selectApp)
 			.then(sfdx.selectApp)
-			.then(logEvent('\nGet SFDX scratch org credentials'))
+			.then(logger.logEvent('\nGet SFDX scratch org credentials'))
 			.then(sfdx.getConnectionDetails)
-			.then(logEvent('Creating connection'))
+			.then(logger.logEvent('Creating connection'))
 			.then(conn.create)
-			.then(logEvent('Create Connected App'))
+			.then(logger.logEvent('Create Connected App'))
 			.then(connectedApp.create)
-			.then(logEvent('Update Heroku config variables'))
+			.then(logger.logEvent('Update Heroku config variables'))
 			.then(connectedApp.updateHerokuConfigVariables)
-			.then(logFinish('Deployed Connected App'))
-			.catch(logError);
+			.then(logger.logFinish('Deployed Connected App'))
+			.catch(logger.logError);
 
 	};
 
