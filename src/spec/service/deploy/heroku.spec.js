@@ -60,56 +60,93 @@ describe('deploy/shell.js', () => {
 		sandbox.restore();
 	});
 
-	describe('deployToHeroku', () => {
+	describe('addAddOns', () => {
 
-		it('should execute the correct commands', () => {
+		it('should create the add-ons specified in the app.json', () => {
 
 			// given
 			const
-				expectedCreateHerokuAppCommand = { cmd: 'heroku', args: ['create', '-t', 'research', '--json'] },
-				expectedCurrentBranchCommand = { cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } },
-				expectedSetupHerokuAppCommands = [
-					{ cmd: 'heroku', args: ['buildpacks:add', '--index', '1', 'heroku/nodejs'] },
-					{ cmd: 'heroku', args: ['buildpacks:add', '--index', '2', 'heroku/java'] },
-					{ cmd: 'heroku', args: ['addons:create', 'cloudamqp:lemur'] },
-					{ cmd: 'heroku', args: ['config:set', 'MAVEN_CUSTOM_OPTS=-DskipTests=false;maven.javadoc.skip=true'] },
-					{ cmd: 'heroku', args: ['config:set', 'NODE_MODULES_CACHE=false'] },
-					{ cmd: 'heroku', args: ['config:set', 'OPENID_HTTP_TIMEOUT=4000'] },
-					{ cmd: 'heroku', args: ['config:set', 'OPENID_ISSUER_URI=https://test.salesforce.com/'] }
-				],
-				expectedDeployToHerokuCommands = [
-					{ cmd: 'git', args: ['push', 'heroku', 'master:master'] }
-				],
-				expectedScaleHerokuCommands = [
-					{ cmd: 'heroku', args: ['ps:scale', 'dataCreator=1'] },
-					{ cmd: 'heroku', args: ['ps:scale', 'questionBuilder=1'] },
-					{ cmd: 'heroku', args: ['ps:scale', 'resultWriter=1'] },
-					{ cmd: 'heroku', args: ['ps:scale', 'routeSolver=1'] }
-				],
-				expectedOutput = {
-					herokuApp: {}
-				};
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
+							}
+						}
+					},
+					heroku: {
+						app: {
+							json: {
+								addons: [{
+									plan: 'cloudamqp:lemur'
+								}]
+							}
+						}
+					}
+				},
+				expectedOutput = expectedInput,
+				expectedCommand = [{
+					args: ['addons:create', 'cloudamqp:lemur', '-a', 'rocky-shore-45862'],
+					cmd: 'heroku'
+				}];
 
-			mocks.shell.executeCommand = sandbox.stub();
-			mocks.shell.executeCommand.withArgs(expectedCreateHerokuAppCommand).resolves({ stdout: '{}' });
-			mocks.shell.executeCommand.withArgs(expectedCurrentBranchCommand).resolves({ stdout: 'master' });
-
-			mocks.shell.executeCommands = sandbox.stub();
-			mocks.shell.executeCommands.withArgs(expectedDeployToHerokuCommands).resolves();
-			mocks.shell.executeCommands.withArgs(expectedSetupHerokuAppCommands).resolves();
-			mocks.shell.executeCommands.withArgs(expectedScaleHerokuCommands).resolves();
-
-			mocks.shell.executeCommands.rejects({});
+			mocks.shell.executeCommands = sandbox.stub().resolves();
 
 			// when - then
-			return expect(heroku.deploy({}))
+			return expect(heroku.addAddOns(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCreateHerokuAppCommand);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCurrentBranchCommand);
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedDeployToHerokuCommands);
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedSetupHerokuAppCommands);
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedScaleHerokuCommands);
+					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: true });
+				});
+
+		});
+
+	});
+
+	describe('addBuildpacks', () => {
+
+		it('should create the add-ons specified in the app.json', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
+							}
+						}
+					},
+					heroku: {
+						app: {
+							json: {
+								buildpacks: [{
+									url: 'heroku/nodejs'
+								}, {
+									url: 'heroku/java'
+								}]
+							}
+						}
+					}
+				},
+				expectedOutput = expectedInput,
+				expectedCommand = [{
+					args: ['buildpacks:add', '--index', 1, 'heroku/nodejs', '-a', 'rocky-shore-45862'],
+					cmd: 'heroku'
+				}, {
+					args: ['buildpacks:add', '--index', 2, 'heroku/java', '-a', 'rocky-shore-45862'],
+					cmd: 'heroku'
+				}];
+
+			mocks.shell.executeCommands = sandbox.stub().resolves();
+
+			// when - then
+			return expect(heroku.addBuildpacks(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: false });
 				});
 
 		});

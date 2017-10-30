@@ -109,6 +109,26 @@ describe('util/logger.js', () => {
 
 	});
 
+	describe('logEvent', () => {
+
+		it('should log out the message provided', () => {
+
+			// given
+			const
+				message = 'test',
+				expectedMessage = message + '\n\n';
+
+			// when
+			logger.logEvent(message)();
+
+			// then
+			calledOnce(process.stdout.write);
+			calledWith(process.stdout.write, expectedMessage);
+
+		});
+
+	});
+
 	describe('logFinish', () => {
 
 		it('should log out the message provided', () => {

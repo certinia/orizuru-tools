@@ -69,6 +69,23 @@ describe('util/questions.js', () => {
 
 	});
 
+	describe('listField', () => {
+
+		it('should return the config for an input field', () => {
+
+			// when/then
+			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
+				type: 'list',
+				message: 'a',
+				name: 'b',
+				validate: 'c',
+				choices: 'd'
+			});
+
+		});
+
+	});
+
 	describe('passwordField', () => {
 
 		it('should return the config for an password field', () => {
