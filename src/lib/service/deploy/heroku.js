@@ -28,6 +28,7 @@
 
 const
 	_ = require('lodash'),
+	fs = require('fs'),
 	inquirer = require('inquirer'),
 	path = require('path'),
 	questions = require('../../util/questions'),
@@ -86,6 +87,14 @@ const
 
 	},
 
+	readAppJson = (config) => {
+		const appJson = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'app.json')));
+		config.heroku = config.heroku || {};
+		config.heroku.app = config.heroku.app || {};
+		config.heroku.app.json = appJson;
+		return config;
+	},
+
 	selectApp = (config) => {
 
 		const
@@ -112,14 +121,6 @@ const
 			return config;
 		});
 
-	},
-
-	readAppJson = (config) => {
-		const appJson = require(path.resolve(process.cwd(), 'app.json'));
-		config.heroku = config.heroku || {};
-		config.heroku.app = config.heroku.app || {};
-		config.heroku.app.json = appJson;
-		return config;
 	};
 
 module.exports = {

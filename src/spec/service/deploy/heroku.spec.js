@@ -34,6 +34,8 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
+	fs = require('fs'),
+
 	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
@@ -106,7 +108,7 @@ describe('deploy/shell.js', () => {
 
 	describe('addBuildpacks', () => {
 
-		it('should create the add-ons specified in the app.json', () => {
+		it('should add the build packs specified in the app.json', () => {
 
 			// given
 			const
@@ -155,7 +157,7 @@ describe('deploy/shell.js', () => {
 
 	describe('deployCurrentBranch', () => {
 
-		it('should create the add-ons specified in the app.json', () => {
+		it('should deploy the current branch to Heroku', () => {
 
 			// given
 			const
@@ -191,6 +193,81 @@ describe('deploy/shell.js', () => {
 				.then(() => {
 					expect(mocks.shell.executeCommand).to.have.callCount(4);
 				});
+
+		});
+
+	});
+
+	describe('getAllApps', () => {
+
+		it('should get all the current Heroku apps', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
+							}
+						}
+					}
+				},
+				expectedCommand = { cmd: 'heroku', args: ['apps', '--all', '--json'] },
+				expectedOutput = expectedInput;
+
+			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+
+			// when - then
+			return expect(heroku.getAllApps(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
+	describe('readAppJson', () => {
+
+		it('should read the app.json file', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
+							}
+						}
+					}
+				},
+				expectedOutput = {
+					heroku: {
+						app: {
+							json: {
+								name: 'rocky-shore-45862'
+							}
+						}
+					},
+					parameters: {
+						heroku: {
+							app: {
+								name: 'rocky-shore-45862'
+							}
+						}
+					}
+				};
+
+			sandbox.stub(fs, 'readFileSync').returns('{"name":"rocky-shore-45862"}');
+
+			// when - then
+			expect(heroku.readAppJson(expectedInput)).to.eql(expectedOutput);
 
 		});
 
