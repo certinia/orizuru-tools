@@ -65,7 +65,7 @@ function createMocks() {
 
 }
 
-describe('deploy/shell.js', () => {
+describe('service/deploy/shared/shell.js', () => {
 
 	let mocks, shell;
 

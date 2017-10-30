@@ -39,7 +39,7 @@ const
 
 chai.use(sinonChai);
 
-describe('deploy/shell.js', () => {
+describe('service/deploy/shared/shell.js', () => {
 
 	let mocks, connection;
 

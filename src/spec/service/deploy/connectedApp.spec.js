@@ -43,7 +43,7 @@ const
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('deploy/connectedApp.js', () => {
+describe('service/deploy/connectedApp.js', () => {
 
 	let mocks, connectedApp;
 

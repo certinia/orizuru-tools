@@ -41,7 +41,7 @@ const
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('deploy/certificate.js', () => {
+describe('service/deploy/certificate.js', () => {
 
 	let mocks, certificate;
 

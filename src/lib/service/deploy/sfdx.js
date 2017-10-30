@@ -45,6 +45,11 @@ const
 		{ cmd: 'sfdx', args: ['force:org:open'] }
 	],
 
+	createNewScratchOrg = (config) => {
+		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', 'src/apex/config/project-scratch-def.json', '-s', '--json'] }, { exitOnError: true })
+			.then(result => ({ sfdx: { org: JSON.parse(result.stdout).result } }));
+	},
+
 	deploy = (config) => {
 
 		return shell.executeCommands(deployCommands(config), { exitOnError: true })
@@ -73,8 +78,6 @@ const
 		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] })
 			.then(results => {
 				const credentials = JSON.parse(results.stdout);
-				config.parameters.sfdx = config.parameters.sfdx || {};
-				config.parameters.sfdx.org = config.parameters.sfdx.org || {};
 				config.parameters.sfdx.org.credentials = credentials.result;
 				return config;
 			});
@@ -94,7 +97,7 @@ const
 			newOrg = '<<Create new SFDX scratch org>>',
 			scratchOrgs = _.map(config.sfdx.scratchOrgs, org => ({ name: org.username, value: org }));
 
-		if (config.options.includeNew.sfdx === true) {
+		if (config.options && config.options.includeNew && config.options.includeNew.sfdx === true) {
 			scratchOrgs.push(newOrg);
 		}
 
@@ -102,10 +105,7 @@ const
 			questions.listField('SFDX Scratch Org', 'sfdx.org', undefined, scratchOrgs)
 		]).then(answers => {
 			if (answers.sfdx.org === newOrg) {
-				return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', 'src/apex/config/project-scratch-def.json', '-s', '--json'] }, { exitOnError: true })
-					.then(result => {
-						return ({ sfdx: { org: JSON.parse(result.stdout).result } });
-					});
+				return createNewScratchOrg(config);
 			}
 			return answers;
 		}).then(answers => {
@@ -117,6 +117,7 @@ const
 	};
 
 module.exports = {
+	createNewScratchOrg,
 	deploy,
 	getConnectionDetails,
 	getAllScratchOrgs,

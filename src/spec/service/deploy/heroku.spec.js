@@ -160,7 +160,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('createNewApp', () => {
 
-		it('should get all the current Heroku apps', () => {
+		it('should create a new Heroku app', () => {
 
 			// given
 			const
