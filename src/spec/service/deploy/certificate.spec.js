@@ -63,6 +63,27 @@ describe('service/deploy/certificate.js', () => {
 		sandbox.restore();
 	});
 
+	describe('checkOpenSSLInstalled', () => {
+
+		it('should check that the OpenSSL is installed', () => {
+
+			// given
+			const expectedCommand = { cmd: 'openssl', args: ['version'] };
+
+			mocks.shell.executeCommand = sandbox.stub().resolves('OpenSSL 0.9.8zh 14 Jan 2016');
+
+			// when - then
+			return expect(certificate.checkOpenSSLInstalled({}))
+				.to.eventually.eql({})
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
 	describe('generate', () => {
 
 		it('should execute the correct commands', () => {

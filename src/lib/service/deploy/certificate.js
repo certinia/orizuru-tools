@@ -64,6 +64,11 @@ const
 		});
 	},
 
+	checkOpenSSLInstalled = (config) => {
+		return shell.executeCommand({ cmd: 'openssl', args: ['version'] }, { exitOnError: true })
+			.then(() => config);
+	},
+
 	create = (config) => {
 		return shell.executeCommands(opensslCommands(config), { exitOnError: true })
 			.then(() => config);
@@ -101,8 +106,9 @@ const
 	};
 
 module.exports = {
-	generate,
 	askQuestions,
+	checkOpenSSLInstalled,
 	create,
+	generate,
 	read
 };
