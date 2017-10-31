@@ -27,27 +27,13 @@
 'use strict';
 
 const
-	debug = require('debug-plus')('financialforcedev:orizuru~tools:deploy:certificate'),
-	{ logStart, logFinish, logError } = require('../../util/logger'),
-
 	_ = require('lodash'),
 	inquirer = require('inquirer'),
 	questions = require('../../util/questions'),
 	validators = require('../../util/validators'),
 	shell = require('./shared/shell'),
 
-	opensslCommands = (config) => [{
-		cmd: 'openssl',
-		args: [
-			'req', '-newkey', 'rsa:2048', '-nodes', '-keyout', 'key.pem', '-x509', '-days', '365', '-out', 'certificate.pem',
-			'-subj', `/C=${config.parameters.certificate.country}/ST=${config.parameters.certificate.state}/L=${config.parameters.certificate.locality}/O=${config.parameters.certificate.organization}/OU=${config.parameters.certificate.organizationUnitName}/CN=${config.parameters.certificate.commonName}`
-		]
-	}],
-
-	readCertificateCommands = [
-		{ cmd: 'cat', args: ['certificate.pem'] },
-		{ cmd: 'cat', args: ['key.pem'] }
-	],
+	{ logStart, logFinish, logError } = require('../../util/logger'),
 
 	askQuestions = (config) => {
 		return inquirer.prompt([
@@ -70,13 +56,25 @@ const
 	},
 
 	create = (config) => {
+
+		const
+			subject = `/C=${config.parameters.certificate.country}/ST=${config.parameters.certificate.state}/L=${config.parameters.certificate.locality}/O=${config.parameters.certificate.organization}/OU=${config.parameters.certificate.organizationUnitName}/CN=${config.parameters.certificate.commonName}`,
+			opensslCommands = (config) => [{
+				cmd: 'openssl',
+				args: ['req', '-newkey', 'rsa:2048', '-nodes', '-keyout', 'key.pem', '-x509', '-days', '365', '-out', 'certificate.pem', '-subj', subject]
+			}];
+
 		return shell.executeCommands(opensslCommands(config), { exitOnError: true })
 			.then(() => config);
+
 	},
 
 	read = (config) => {
 
-		debug.log('Read certificates');
+		const readCertificateCommands = [
+			{ cmd: 'cat', args: ['certificate.pem'] },
+			{ cmd: 'cat', args: ['key.pem'] }
+		];
 
 		return shell.executeCommands(readCertificateCommands, { exitOnError: true })
 			.then(openSslResults => {

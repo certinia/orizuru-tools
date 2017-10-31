@@ -27,8 +27,6 @@
 'use strict';
 
 const
-	debug = require('debug-plus')('financialforcedev:orizuru~tools:deploy:sfdx'),
-
 	_ = require('lodash'),
 	fs = require('fs'),
 	inquirer = require('inquirer'),
@@ -37,16 +35,6 @@ const
 	logger = require('../../util/logger'),
 	questions = require('../../util/questions'),
 	shell = require('./shared/shell'),
-
-	deployCommands = (config) => [
-		{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`] },
-		{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', `${config.sfdx.yaml['permset-name']}`, '-u', `${config.parameters.sfdx.org.username}`] },
-		{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
-	],
-
-	orgOpenCommands = [
-		{ cmd: 'sfdx', args: ['force:org:open'] }
-	],
 
 	checkSfdxInstalled = (config) => {
 		return shell.executeCommand({ cmd: 'sfdx', args: ['version'] }, { exitOnError: true })
@@ -82,7 +70,13 @@ const
 
 	deploy = (config) => {
 
-		return shell.executeCommands(deployCommands(config), { exitOnError: true })
+		const deployCommands = [
+			{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`] },
+			{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', `${config.sfdx.yaml['permset-name']}`, '-u', `${config.parameters.sfdx.org.username}`] },
+			{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
+		];
+
+		return shell.executeCommands(deployCommands, { exitOnError: true })
 			.then(results => {
 				config.sfdxResults = results;
 				config.connectionInfo = JSON.parse(_.values(config.sfdxResults)[2].stdout).result;
@@ -116,7 +110,10 @@ const
 
 	openOrg = (result) => {
 
-		debug.log('Open org');
+		const orgOpenCommands = [
+			{ cmd: 'sfdx', args: ['force:org:open'] }
+		];
+
 		return shell.executeCommands(orgOpenCommands, { exitOnError: true });
 
 	},
