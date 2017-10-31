@@ -50,8 +50,9 @@ describe('bin/commands/deploy.js', () => {
 		mocks = {
 			yargs: {
 				command: sandbox.stub().returnsThis(),
-				demandCommand: sandbox.stub().returnsThis(),
 				epilogue: sandbox.stub().returnsThis(),
+				help: sandbox.stub().returnsThis(),
+				options: sandbox.stub().returnsThis(),
 				updateStrings: sandbox.stub().returnsThis(),
 				usage: sandbox.stub().returnsThis()
 			}
@@ -73,12 +74,11 @@ describe('bin/commands/deploy.js', () => {
 		cli.builder(mocks.yargs);
 
 		//then
-		expect(mocks.yargs.command).to.have.been.calledThrice;
-		expect(mocks.yargs.demandCommand).to.have.been.calledOnce;
+		expect(mocks.yargs.command).to.have.been.calledTwice;
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
 		expect(mocks.yargs.updateStrings).to.have.been.calledOnce;
+		expect(mocks.yargs.options).to.have.been.calledOnce;
 
-		expect(mocks.yargs.demandCommand).to.have.been.calledWith(3, 'Run \'orizuru deploy --help\' for more information on a command.\n');
 		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
 		expect(mocks.yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'Deployment:' });
 		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy COMMAND');

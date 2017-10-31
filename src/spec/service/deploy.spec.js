@@ -41,7 +41,7 @@ const
 	sfdx = require(root + '/src/lib/service/deploy/sfdx'),
 	logger = require(root + '/src/lib/util/logger'),
 
-	service = require(root + '/src/lib/service/fullDeploy'),
+	service = require(root + '/src/lib/service/deploy'),
 
 	expect = chai.expect,
 
@@ -50,13 +50,13 @@ const
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('service/fullDeploy.js', () => {
+describe('service/deploy.js', () => {
 
 	afterEach(() => {
 		sandbox.restore();
 	});
 
-	describe('create', () => {
+	describe('full', () => {
 
 		it('should call the correct functions', () => {
 
@@ -95,12 +95,12 @@ describe('service/fullDeploy.js', () => {
 			sandbox.stub(sfdx, 'selectApp');
 
 			// when - then
-			return expect(service.run({}))
+			return expect(service.run({ argv: { full: true } }))
 				.to.eventually.be.fulfilled
 				.then(() => {
 
 					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logEvent).to.have.been.callCount(15);
+					expect(logger.logEvent).to.have.been.callCount(14);
 					expect(logger.logFinish).to.have.been.calledOnce;
 
 					expect(certificate.askQuestions).to.have.been.calledOnce;

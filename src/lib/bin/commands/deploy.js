@@ -29,7 +29,8 @@
 const
 	certificate = require('./deploy/certificate'),
 	connectedApp = require('./deploy/connectedApp'),
-	fullDeploy = require('./deploy/full'),
+
+	service = require('../../service/deploy'),
 
 	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
 
@@ -37,14 +38,21 @@ module.exports = {
 	command: 'deploy',
 	desc: 'Executes Deployment commands',
 	aliases: ['d'],
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru deploy COMMAND')
-		.demandCommand(3, 'Run \'orizuru deploy --help\' for more information on a command.\n')
-		.command(certificate)
-		.command(connectedApp)
-		.command(fullDeploy)
-		.updateStrings({
-			'Commands:': 'Deployment:'
-		})
-		.epilogue(COPYRIGHT_NOTICE)
+	builder: (yargs) => {
+		return yargs
+			.usage('\nUsage: orizuru deploy COMMAND')
+			.command(certificate)
+			.command(connectedApp)
+			.options('full', {
+				describe: 'Full deploy',
+				demandOption: false,
+				type: 'boolean'
+			})
+			.updateStrings({
+				'Commands:': 'Deployment:'
+			})
+			.help('help')
+			.epilogue(COPYRIGHT_NOTICE);
+	},
+	handler: (argv) => service.run({ argv })
 };

@@ -34,8 +34,6 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	fs = require('fs'),
-
 	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
@@ -50,11 +48,14 @@ describe('service/deploy/heroku.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
+		mocks.fs = sandbox.stub();
+		mocks.fs.readJSON = sandbox.stub();
 		mocks.inquirer = {};
 		mocks.inquirer.prompt = sandbox.stub();
 		mocks.shell = {};
 
 		heroku = proxyquire(root + '/src/lib/service/deploy/heroku.js', {
+			'fs-extra': mocks.fs,
 			inquirer: mocks.inquirer,
 			'./shared/shell': mocks.shell
 		});
@@ -319,10 +320,10 @@ describe('service/deploy/heroku.js', () => {
 					}
 				};
 
-			sandbox.stub(fs, 'readFileSync').returns('{"name":"rocky-shore-45862"}');
+			mocks.fs.readJSON.resolves({ name: 'rocky-shore-45862' });
 
 			// when - then
-			expect(heroku.readAppJson(expectedInput)).to.eql(expectedOutput);
+			return expect(heroku.readAppJson(expectedInput)).to.eventually.eql(expectedOutput);
 
 		});
 
@@ -352,7 +353,8 @@ describe('service/deploy/heroku.js', () => {
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
-					validate: undefined
+					validate: undefined,
+					['default']: 0
 				}],
 				expectedAnswer = {
 					heroku: {
@@ -404,7 +406,8 @@ describe('service/deploy/heroku.js', () => {
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
-					validate: undefined
+					validate: undefined,
+					['default']: '<<Create new Heroku App>>'
 				}],
 				expectedOutput = expectedInput;
 
@@ -451,7 +454,8 @@ describe('service/deploy/heroku.js', () => {
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
-					validate: undefined
+					validate: undefined,
+					['default']: '<<Create new Heroku App>>'
 				}],
 				expectedOutput = expectedInput;
 
@@ -464,6 +468,64 @@ describe('service/deploy/heroku.js', () => {
 				.then(() => {
 					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+				});
+
+		});
+
+		it('should default to the Heroku org provided in the Orizuru config', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedAppName2 = 'rocky-shore-45861',
+				expectedInput = {
+					orizuru: {
+						heroku: {
+							app: {
+								name: expectedAppName2
+							}
+						}
+					},
+					heroku: {
+						apps: [{
+							name: expectedAppName
+						}, {
+							name: expectedAppName2
+						}]
+					}
+				},
+				expectedChoices = [{
+					choices: [{
+						name: expectedAppName,
+						value: {
+							name: expectedAppName
+						}
+					}, {
+						name: expectedAppName2,
+						value: {
+							name: expectedAppName2
+						}
+					}],
+					message: 'Heroku App',
+					name: 'heroku.app',
+					type: 'list',
+					validate: undefined,
+					['default']: 1
+				}],
+				expectedAnswer = {
+					heroku: {
+						apps: expectedAppName
+					}
+				},
+				expectedOutput = expectedInput;
+
+			mocks.inquirer.prompt.resolves(expectedAnswer);
+
+			// when - then
+			return expect(heroku.selectApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 				});
 
 		});

@@ -31,6 +31,7 @@ const
 
 	_ = require('lodash'),
 	inquirer = require('inquirer'),
+	logger = require('../../util/logger'),
 	questions = require('../../util/questions'),
 	shell = require('./shared/shell'),
 
@@ -51,8 +52,25 @@ const
 	},
 
 	login = (config) => {
-		return shell.executeCommand({ cmd: 'sfdx', args: ['force:auth:web:login', '-s'] }, { exitOnError: true })
-			.then(() => config);
+
+		// Check the Orizuru config file for the hub username
+		if (_.get(config, 'orizuru.sfdx.hub.username')) {
+			config.sfdx = config.sfdx || {};
+			config.sfdx.hub = config.orizuru.sfdx.hub.username;
+			return Promise.resolve(config);
+		}
+
+		// Prompt the user to log into their SFDX dev hub
+		return Promise.resolve(config)
+			.then(logger.logEvent('You are about to be asked to log into your SFDX Dev hub'))
+			.then(() => shell.executeCommand({ cmd: 'sfdx', args: ['force:auth:web:login', '-s', '--json'] }, { exitOnError: true }))
+			.then(result => {
+				const hub = JSON.parse(result.stdout).result;
+				config.sfdx = config.sfdx || {};
+				config.sfdx.hub = hub;
+				return config;
+			});
+
 	},
 
 	createNewScratchOrg = (config) => {
@@ -105,7 +123,8 @@ const
 
 		const
 			newOrg = '<<Create new SFDX scratch org>>',
-			scratchOrgs = _.map(config.sfdx.scratchOrgs, org => ({ name: org.username, value: org }));
+			allScratchOrgs = _.get(config, 'sfdx.scratchOrgs'),
+			scratchOrgs = _.map(allScratchOrgs, org => ({ name: org.username, value: org }));
 
 		if (config.options && config.options.includeNew && config.options.includeNew.sfdx === true) {
 			scratchOrgs.push(newOrg);

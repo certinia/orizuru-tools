@@ -28,7 +28,7 @@
 
 const
 	_ = require('lodash'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	inquirer = require('inquirer'),
 	path = require('path'),
 	questions = require('../../util/questions'),
@@ -50,15 +50,17 @@ const
 
 		let buildpackIndex = 0;
 
-		const buildpackCommands = _.map(config.heroku.app.json.buildpacks, buildpack => {
+		const
+			buildpacks = _.get(config, 'heroku.app.json.buildpacks'),
+			buildpackCommands = _.map(buildpacks, buildpack => {
 
-			buildpackIndex++;
-			return {
-				cmd: 'heroku',
-				args: ['buildpacks:add', '--index', buildpackIndex, `${buildpack.url}`, '-a', config.parameters.heroku.app.name]
-			};
+				buildpackIndex++;
+				return {
+					cmd: 'heroku',
+					args: ['buildpacks:add', '--index', buildpackIndex, `${buildpack.url}`, '-a', config.parameters.heroku.app.name]
+				};
 
-		});
+			});
 
 		return shell.executeCommands(buildpackCommands, { exitOnError: false })
 			.then(() => config);
@@ -81,7 +83,9 @@ const
 
 	deployCurrentBranch = (config) => {
 
-		return shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${config.parameters.heroku.app.git_url}`], opts: { exitOnError: true } })
+		const gitUrl = _.get(config, 'parameters.heroku.app.git_url');
+
+		return shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${gitUrl}`], opts: { exitOnError: true } })
 			.then(() => shell.executeCommand({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } }))
 			.then(branch => shell.executeCommand({ cmd: 'git', args: ['push', 'autodeploy', `${branch.stdout}:master`], opts: { exitOnError: true } }))
 			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: true } }))
@@ -102,11 +106,19 @@ const
 	},
 
 	readAppJson = (config) => {
-		const appJson = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'app.json')));
-		config.heroku = config.heroku || {};
-		config.heroku.app = config.heroku.app || {};
-		config.heroku.app.json = appJson;
-		return config;
+
+		return Promise.resolve()
+			.then(() => path.resolve(process.cwd(), 'app.json'))
+			.then(filePath => {
+				return fs.readJSON(filePath);
+			})
+			.then(appJson => {
+				config.heroku = config.heroku || {};
+				config.heroku.app = config.heroku.app || {};
+				config.heroku.app.json = appJson;
+				return config;
+			});
+
 	},
 
 	selectApp = (config) => {
@@ -115,12 +127,19 @@ const
 			newApp = '<<Create new Heroku App>>',
 			apps = _.map(config.heroku.apps, app => ({ name: app.name, value: app }));
 
-		if (config.options && config.options.includeNew && config.options.includeNew.heroku === true) {
+		let defaultValue = 0;
+
+		if (_.get(config, 'options.includeNew.heroku') === true) {
 			apps.push(newApp);
+			defaultValue = newApp;
+		}
+
+		if (_.get(config, 'orizuru.heroku.app.name')) {
+			defaultValue = _.indexOf(_.map(apps, app => app.name), config.orizuru.heroku.app.name);
 		}
 
 		return inquirer.prompt([
-			questions.listField('Heroku App', 'heroku.app', undefined, apps)
+			questions.listField('Heroku App', 'heroku.app', undefined, apps, defaultValue)
 		]).then(answers => {
 			if (answers.heroku.app === newApp) {
 				return createNewApp(config);

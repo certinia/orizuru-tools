@@ -27,6 +27,7 @@
 'use strict';
 
 const
+	configFile = require('./deploy/shared/config'),
 	conn = require('./deploy/shared/connection'),
 	certificate = require('./deploy/certificate'),
 	connectedApp = require('./deploy/connectedApp'),
@@ -49,7 +50,7 @@ const
 			.then(sfdx.checkSfdxInstalled)
 			.then(heroku.checkHerokuCliInstalled)
 			.then(certificate.checkOpenSSLInstalled)
-			.then(logger.logEvent('You are about to be asked to log into your SFDX Dev hub'))
+			.then(configFile.readSettings)
 			.then(sfdx.login)
 			.then(logger.logEvent('Obtaining Heroku Apps'))
 			.then(heroku.getAllApps)

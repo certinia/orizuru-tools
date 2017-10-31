@@ -27,70 +27,62 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
-	chai = require('chai'),
-	proxyquire = require('proxyquire'),
-	sinon = require('sinon'),
-	sinonChai = require('sinon-chai'),
+	_ = require('lodash'),
+	fs = require('fs-extra'),
+	path = require('path'),
 
-	expect = chai.expect,
+	createFile = (config) => {
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
+		const
+			orizuruFolder = path.resolve(process.cwd(), '.orizuru'),
+			orizuruFile = path.resolve(process.cwd(), '.orizuru', 'config.json');
 
-	service = require(root + '/src/lib/service/fullDeploy'),
-	fullCommands = require(root + '/src/lib/bin/commands/deploy/full'),
+		return fs.mkdirp(orizuruFolder)
+			.then(() => fs.writeJSON(orizuruFile, {}))
+			.then(() => {
+				config = config || {};
+				config.file = orizuruFile;
+				return config;
+			});
 
-	sandbox = sinon.sandbox.create();
+	},
 
-chai.use(sinonChai);
+	readSettings = (config) => {
 
-describe('bin/commands/deploy/full.js', () => {
+		const filePath = path.resolve(process.cwd(), '.orizuru', 'config.json');
+		return fs.readJSON(filePath)
+			.then(result => {
+				config = config || {};
+				config.file = filePath;
+				config.orizuru = result;
+				return config;
+			})
+			.catch(() => createFile(config)
+				.then(() => {
+					config = config || {};
+					config.file = filePath;
+					config.orizuru = {};
+					return config;
+				}));
+	},
 
-	let mocks;
+	writeSetting = (config, setting) => {
 
-	afterEach(() => {
-		sandbox.restore();
-	});
+		return readSettings(config)
+			.then(config => {
+				const newData = _.merge({}, config.orizuru, setting);
+				return fs.writeJSON(config.file, newData, { spaces: '\t' })
+					.then(() => {
+						config.orizuru = newData;
+						return config;
+					});
+			})
+			.then(config => config);
 
-	it('should create the cli', () => {
+	};
 
-		// given
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
-
-		sandbox.stub(service, 'run');
-
-		const cli = proxyquire(root + '/src/lib/bin/commands/deploy/full', {
-			yargs: mocks.yargs
-		});
-
-		// when
-		cli.builder(mocks.yargs);
-
-		//then
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy full');
-
-	});
-
-	it('should have a handler that calls the full service', () => {
-
-		// given
-		const { handler } = fullCommands;
-
-		sandbox.stub(service, 'run');
-
-		// when
-		handler('test');
-
-		// then
-		expect(service.run).to.have.been.calledOnce;
-		expect(service.run).to.have.been.calledWith({ argv: 'test' });
-
-	});
-
-});
+module.exports = {
+	createFile,
+	readSettings,
+	writeSetting
+};
