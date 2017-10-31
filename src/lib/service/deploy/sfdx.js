@@ -30,13 +30,16 @@ const
 	debug = require('debug-plus')('financialforcedev:orizuru~tools:deploy:sfdx'),
 
 	_ = require('lodash'),
+	fs = require('fs'),
 	inquirer = require('inquirer'),
+	path = require('path'),
+	yaml = require('js-yaml'),
 	questions = require('../../util/questions'),
 	shell = require('./shared/shell'),
 
 	deployCommands = (config) => [
 		{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`] },
-		{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', 'OrizuruAdmin', '-u', `${config.parameters.sfdx.org.username}`] },
+		{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', `${config.sfdx.yaml['permset-name']}`, '-u', `${config.parameters.sfdx.org.username}`] },
 		{ cmd: 'sfdx', args: ['force:apex:test:run', '-r', 'human', '-u', `${config.parameters.sfdx.org.username}`, '--json'] },
 		{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
 	],
@@ -46,7 +49,7 @@ const
 	],
 
 	createNewScratchOrg = (config) => {
-		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', 'src/apex/config/project-scratch-def.json', '-s', '--json'] }, { exitOnError: true })
+		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', `${config.sfdx.yaml['scratch-org-def']}`, '-s', '--json'] }, { exitOnError: true })
 			.then(result => ({ sfdx: { org: JSON.parse(result.stdout).result } }));
 	},
 
@@ -91,6 +94,13 @@ const
 
 	},
 
+	readSfdxYaml = (config) => {
+		const dxYaml = yaml.safeLoad(fs.readFileSync(path.resolve(process.cwd(), '.salesforcedx.yaml')));
+		config.sfdx = config.sfdx || {};
+		config.sfdx.yaml = dxYaml;
+		return config;
+	},
+
 	selectApp = (config) => {
 
 		const
@@ -122,5 +132,6 @@ module.exports = {
 	getConnectionDetails,
 	getAllScratchOrgs,
 	openOrg,
+	readSfdxYaml,
 	selectApp
 };

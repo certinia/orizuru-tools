@@ -85,6 +85,7 @@ describe('service/fullDeploy.js', () => {
 			sandbox.stub(namedCredential, 'askQuestions');
 			sandbox.stub(namedCredential, 'create');
 
+			sandbox.stub(sfdx, 'readSfdxYaml');
 			sandbox.stub(sfdx, 'deploy');
 			sandbox.stub(sfdx, 'getAllScratchOrgs');
 			sandbox.stub(sfdx, 'getConnectionDetails');
@@ -96,7 +97,7 @@ describe('service/fullDeploy.js', () => {
 				.then(() => {
 
 					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logEvent).to.have.been.callCount(12);
+					expect(logger.logEvent).to.have.been.callCount(13);
 					expect(logger.logFinish).to.have.been.calledOnce;
 
 					expect(certificate.askQuestions).to.have.been.calledOnce;
@@ -119,6 +120,7 @@ describe('service/fullDeploy.js', () => {
 					expect(namedCredential.askQuestions).to.have.been.calledOnce;
 					expect(namedCredential.create).to.have.been.calledOnce;
 
+					expect(sfdx.readSfdxYaml).to.have.been.calledOnce;
 					expect(sfdx.deploy).to.have.been.calledOnce;
 					expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
 					expect(sfdx.getConnectionDetails).to.have.been.calledOnce;
