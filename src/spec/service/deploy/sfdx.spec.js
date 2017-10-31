@@ -121,7 +121,6 @@ describe('service/deploy/sfdx.js', () => {
 				expectedCommands = [
 					{ cmd: 'sfdx', args: ['force:source:push', '-u', expectedUsername] },
 					{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', expectedPermset, '-u', expectedUsername] },
-					{ cmd: 'sfdx', args: ['force:apex:test:run', '-r', 'human', '-u', expectedUsername, '--json'] },
 					{ cmd: 'sfdx', args: ['force:org:display', '-u', expectedUsername, '--json'] }
 				],
 				expectedInput = {
