@@ -32,7 +32,7 @@ private class HerokuConnectorTest
 	{
 		// given
 		IHerokuConnector connector = HerokuConnector.newInstance();
-		HttpCalloutMock mock = new CalloutMock();
+		CalloutMock mock = new CalloutMock();
 		ISerializable testSerialize = new SerializableMock();
 		Test.setMock(HttpCalloutMock.class, mock);
 

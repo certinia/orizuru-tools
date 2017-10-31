@@ -37,13 +37,13 @@ public class HerokuConnector implements IHerokuConnector
 
 	private static IHerokuConnector instance = new HerokuConnector();
 
-	public static IHerokuConnector getInstance() {
+	public static IHerokuConnector newInstance() {
 		return instance;
 	}
 
 	@TestVisible
 	private static void setMock(IHerokuConnector instance) {
-		this.instance = instance;
+		HerokuConnector.instance = instance;
 	}
 
 	private HerokuConnector() {}
