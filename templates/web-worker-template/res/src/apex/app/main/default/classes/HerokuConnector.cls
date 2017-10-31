@@ -33,7 +33,7 @@ public class HerokuConnector
     @TestVisible private static final String CONTENT_TYPE_HEADER = 'Content-Type';
     @TestVisible private static final String CONTENT_TYPE_VALUE = 'application/json';
     
-    public void post(String endpoint, ISerializable transport) 
+    public HttpResponse post(String endpoint, ISerializable transport) 
     {
         HttpRequest req = new HttpRequest();
 		req.setEndpoint(endpoint);
@@ -41,7 +41,7 @@ public class HerokuConnector
 		req.setHeader(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE);
         req.setHeader(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + UserInfo.getSessionId());
         req.setBody(transport.serialize());
-		postRequest(req);
+		return postRequest(req);
     }
     
     private static HttpResponse postRequest(HttpRequest req)
