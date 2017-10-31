@@ -27,23 +27,33 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
+	uuid = require('uuid');
 
-	{ expect } = require('chai'),
+module.exports = {
 
-	handlers = require(root + '/src/node/lib/boilerplate/shared/handlers');
+	middleware: [(req, res, next) => {
 
-describe('boilerplate/shared/handlers.js', () => {
+		// Add in id to context.
 
-	describe('get', () => {
+		const
+			orizuru = req.orizuru || {};
 
-		it('should return all handlers in the handlers folder', () => {
+		req.orizuru = orizuru;
+		orizuru.id = uuid();
+		next();
+	}],
 
-			// given - when - then
-			expect(handlers.get()).to.eql([]);
+	responseWriter: (err, response, orizuru) => {
+		if (err) {
+			response.status(400).send(err.message);
+		} else {
 
-		});
+			// Write back id.
 
-	});
+			response.json({
+				id: orizuru.id
+			});
+		}
+	}
 
-});
+};

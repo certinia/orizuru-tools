@@ -32,24 +32,22 @@ const
 	proxyquire = require('proxyquire').noCallThru(),
 
 	sinon = require('sinon'),
+	{ calledOnce, calledWith } = sinon.assert,
 
 	sandbox = sinon.sandbox.create(),
 	restore = sandbox.restore.bind(sandbox),
 
 	{ expect } = require('chai');
 
-describe('boilerplate/shared/read.js', () => {
+describe('boilerplate/shared/id.js', () => {
 
-	let read, readFileSyncStub, dummy;
+	let id, uuidStub;
 
 	beforeEach(() => {
-		dummy = {};
-		readFileSyncStub = sandbox.stub();
-		read = proxyquire(root + '/src/node/lib/boilerplate/shared/read', {
-			fs: {
-				readFileSync: readFileSyncStub
-			},
-			dummy: dummy
+		uuidStub = sandbox.stub();
+		uuidStub.returns('aaa123');
+		id = proxyquire(root + '/src/node/lib/boilerplate/shared/id', {
+			uuid: uuidStub
 		});
 	});
 
@@ -57,32 +55,92 @@ describe('boilerplate/shared/read.js', () => {
 		restore();
 	});
 
-	describe('readSchema', () => {
+	describe('middleware', () => {
 
-		it('should read a schema file to json', () => {
+		it('should return single function that sets id on the orizuru object', () => {
 
 			// given - when - then
+			const
+				middleware = id.middleware;
 
-			readFileSyncStub.returns(Buffer.from('{"a": "b"}'));
+			expect(middleware.length).to.eql(1);
+		});
 
-			expect(read.readSchema('blah')).to.eql({
-				a: 'b'
-			});
+		it('function should set orizuru object and set id on it', () => {
 
+			// given - when - then
+			const
+				middleware = id.middleware,
+				next = sandbox.stub(),
+				req = {},
+				res = {};
+
+			middleware[0](req, res, next);
+
+			expect(req.orizuru.id).to.eql('aaa123');
+			calledOnce(uuidStub);
+		});
+
+		it('function should set id on it', () => {
+
+			// given - when - then
+			const
+				middleware = id.middleware,
+				next = sandbox.stub(),
+				req = { orizuru: {} },
+				res = {};
+
+			middleware[0](req, res, next);
+
+			expect(req.orizuru.id).to.eql('aaa123');
+			calledOnce(uuidStub);
 		});
 
 	});
 
-	describe('readHandler', () => {
+	describe('responseWriter', () => {
 
-		it('should read a handler file', () => {
+		it('should write a happy result to the response', () => {
 
 			// given - when - then
 
-			readFileSyncStub.returns(Buffer.from('{"a": "b"}'));
+			const
+				jsonStub = sandbox.stub(),
+				responseWriter = id.responseWriter,
+				res = {
+					json: jsonStub
+				},
+				orizuru = { id: '123' };
 
-			expect(read.readHandler('dummy')).to.eql(dummy);
+			responseWriter(null, res, orizuru);
 
+			calledOnce(jsonStub);
+			calledWith(jsonStub, {
+				id: '123'
+			});
+		});
+
+		it('should write an error result to the response', () => {
+
+			// given - when - then
+
+			const
+				statusStub = sandbox.stub(),
+				sendStub = sandbox.stub(),
+				responseWriter = id.responseWriter,
+				res = {
+					status: statusStub,
+					send: sendStub
+				},
+				orizuru = { id: '123' };
+
+			statusStub.returns(res);
+			responseWriter(new Error('Test error.'), res, orizuru);
+
+			calledOnce(statusStub);
+			calledWith(statusStub, 400);
+			calledOnce(sendStub);
+			calledWith(sendStub, 'Test error.');
 		});
 
 	});

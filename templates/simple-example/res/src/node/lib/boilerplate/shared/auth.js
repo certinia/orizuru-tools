@@ -27,23 +27,25 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
+	JWT_SIGNING_KEY = process.env.JWT_SIGNING_KEY,
+	OPENID_CLIENT_ID = process.env.OPENID_CLIENT_ID,
+	OPENID_HTTP_TIMEOUT = parseInt(process.env.OPENID_HTTP_TIMEOUT, 10),
+	OPENID_ISSUER_URI = process.env.OPENID_ISSUER_URI,
 
-	{ expect } = require('chai'),
+	authEnv = {
+		jwtSigningKey: JWT_SIGNING_KEY,
+		openidClientId: OPENID_CLIENT_ID,
+		openidHTTPTimeout: OPENID_HTTP_TIMEOUT,
+		openidIssuerURI: OPENID_ISSUER_URI
+	},
 
-	handlers = require(root + '/src/node/lib/boilerplate/shared/handlers');
+	authMiddleware = require('@financialforcedev/orizuru-auth').middleware;
 
-describe('boilerplate/shared/handlers.js', () => {
+module.exports = {
 
-	describe('get', () => {
+	middleware: [
+		authMiddleware.tokenValidator(authEnv),
+		authMiddleware.grantChecker(authEnv)
+	]
 
-		it('should return all handlers in the handlers folder', () => {
-
-			// given - when - then
-			expect(handlers.get()).to.eql([]);
-
-		});
-
-	});
-
-});
+};

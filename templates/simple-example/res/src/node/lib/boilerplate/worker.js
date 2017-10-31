@@ -28,9 +28,12 @@
 
 const
 
+	CONCURRENCY = process.env.WEB_CONCURRENCY || 1,
+
 	// get utils
 	_ = require('lodash'),
-	debug = require('debug-plus')('financialforcedev:orizuru~tools:example:boilerplate:worker'),
+	throng = require('throng'),
+	debug = require('debug-plus')('boilerplate:worker'),
 	{ readSchema, readHandler } = require('./shared/read'),
 
 	// define transport
@@ -75,18 +78,26 @@ _.each(handlers, handler => {
 Handler.emitter.on(Handler.emitter.ERROR, debug.error);
 Handler.emitter.on(Handler.emitter.INFO, debug.log);
 
-// map tuples to handler handle promises and swallow any errors
-Promise.all(_.map(schemaAndHandlersFilePathUnion, (schemaHandlerTuple, sharedPath) => {
-	if (!schemaHandlerTuple.schema) {
-		debug.warn('no schema found for handler \'%s\'', sharedPath);
-		return null;
-	}
-	if (!schemaHandlerTuple.handler) {
-		debug.warn('no handler found for schema \'%s\'', sharedPath);
-		return null;
-	}
-	return handlerInstance.handle({
-		schema: schemaHandlerTuple.schema,
-		callback: schemaHandlerTuple.handler
-	});
-}));
+function handle() {
+	// map tuples to handler handle promises and swallow any errors
+	Promise.all(_.map(schemaAndHandlersFilePathUnion, (schemaHandlerTuple, sharedPath) => {
+		if (!schemaHandlerTuple.schema) {
+			debug.warn('no schema found for handler \'%s\'', sharedPath);
+			return null;
+		}
+		if (!schemaHandlerTuple.handler) {
+			debug.warn('no handler found for schema \'%s\'', sharedPath);
+			return null;
+		}
+		return handlerInstance.handle({
+			schema: schemaHandlerTuple.schema,
+			callback: schemaHandlerTuple.handler
+		});
+	}));
+}
+
+if (CONCURRENCY > 1) {
+	throng(CONCURRENCY, handle);
+} else {
+	handle();
+}

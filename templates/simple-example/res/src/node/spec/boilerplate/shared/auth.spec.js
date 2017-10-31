@@ -32,57 +32,74 @@ const
 	proxyquire = require('proxyquire').noCallThru(),
 
 	sinon = require('sinon'),
+	{ calledOnce, calledWith } = sinon.assert,
 
 	sandbox = sinon.sandbox.create(),
 	restore = sandbox.restore.bind(sandbox),
 
 	{ expect } = require('chai');
 
-describe('boilerplate/shared/read.js', () => {
+describe('boilerplate/shared/auth.js', () => {
 
-	let read, readFileSyncStub, dummy;
+	let
+		auth, tokenValidatorStub, grantCheckerStub,
+		tokenValidatorResult, grantCheckerResult;
 
 	beforeEach(() => {
-		dummy = {};
-		readFileSyncStub = sandbox.stub();
-		read = proxyquire(root + '/src/node/lib/boilerplate/shared/read', {
-			fs: {
-				readFileSync: readFileSyncStub
-			},
-			dummy: dummy
+		tokenValidatorStub = sandbox.stub();
+		tokenValidatorResult = sandbox.stub();
+
+		grantCheckerStub = sandbox.stub();
+		grantCheckerResult = sandbox.stub();
+
+		tokenValidatorStub.returns(tokenValidatorResult);
+		grantCheckerStub.returns(grantCheckerResult);
+
+		process.env.JWT_SIGNING_KEY = '123';
+		process.env.OPENID_CLIENT_ID = '456';
+		process.env.OPENID_HTTP_TIMEOUT = '5333';
+		process.env.OPENID_ISSUER_URI = 'http://test';
+
+		auth = proxyquire(root + '/src/node/lib/boilerplate/shared/auth', {
+			['@financialforcedev/orizuru-auth']: {
+				middleware: {
+					tokenValidator: tokenValidatorStub,
+					grantChecker: grantCheckerStub
+				}
+			}
 		});
+
 	});
 
 	afterEach(() => {
+		delete process.env.JWT_SIGNING_KEY;
+		delete process.env.OPENID_CLIENT_ID;
+		delete process.env.OPENID_HTTP_TIMEOUT;
+		delete process.env.OPENID_ISSUER_URI;
 		restore();
 	});
 
-	describe('readSchema', () => {
+	describe('middleware', () => {
 
-		it('should read a schema file to json', () => {
+		it('should return middleware', () => {
 
-			// given - when - then
+			// given - when
+			const
+				middleware = auth.middleware;
 
-			readFileSyncStub.returns(Buffer.from('{"a": "b"}'));
+			// then
 
-			expect(read.readSchema('blah')).to.eql({
-				a: 'b'
+			expect(middleware.length).to.eql(2);
+			expect(middleware[0]).to.eql(tokenValidatorResult);
+			expect(middleware[1]).to.eql(grantCheckerResult);
+
+			calledOnce(tokenValidatorStub);
+			calledWith(tokenValidatorStub, {
+				jwtSigningKey: '123',
+				openidClientId: '456',
+				openidHTTPTimeout: 5333,
+				openidIssuerURI: 'http://test'
 			});
-
-		});
-
-	});
-
-	describe('readHandler', () => {
-
-		it('should read a handler file', () => {
-
-			// given - when - then
-
-			readFileSyncStub.returns(Buffer.from('{"a": "b"}'));
-
-			expect(read.readHandler('dummy')).to.eql(dummy);
-
 		});
 
 	});
