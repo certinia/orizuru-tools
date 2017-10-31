@@ -34,6 +34,8 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
+	fs = require('fs'),
+
 	expect = chai.expect,
 
 	logger = require(root + '/src/lib/util/logger'),
@@ -104,8 +106,15 @@ describe('service/deploy/sfdx.js', () => {
 			// given
 			const
 				expectedUsername = 'test-ki9yknei6emv@orizuru.net',
-				expectedInput = {},
-				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', 'src/apex/config/project-scratch-def.json', '-s', '--json'] },
+				expectedOrgDef = 'src/apex/config/project-scratch-def.json',
+				expectedInput = {
+					sfdx: {
+						yaml: {
+							['scratch-org-def']: expectedOrgDef
+						}
+					}
+				},
+				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', expectedOrgDef, '-s', '--json'] },
 				expectedOutput = {
 					sfdx: {
 						org: {
@@ -137,10 +146,10 @@ describe('service/deploy/sfdx.js', () => {
 			// given
 			const
 				expectedUsername = 'test',
+				expectedPermset = 'OrizuruAdmin',
 				expectedCommands = [
 					{ cmd: 'sfdx', args: ['force:source:push', '-u', expectedUsername] },
-					{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', 'OrizuruAdmin', '-u', expectedUsername] },
-					{ cmd: 'sfdx', args: ['force:apex:test:run', '-r', 'human', '-u', expectedUsername, '--json'] },
+					{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', expectedPermset, '-u', expectedUsername] },
 					{ cmd: 'sfdx', args: ['force:org:display', '-u', expectedUsername, '--json'] }
 				],
 				expectedInput = {
@@ -150,10 +159,16 @@ describe('service/deploy/sfdx.js', () => {
 								username: expectedUsername
 							}
 						}
+					},
+					sfdx: {
+						yaml: {
+							['permset-name']: expectedPermset
+						}
 					}
 				},
 				expectedOutput = {
 					parameters: expectedInput.parameters,
+					sfdx: expectedInput.sfdx,
 					connectionInfo: undefined,
 					sfdxResults: {
 						command0: {
@@ -351,6 +366,33 @@ describe('service/deploy/sfdx.js', () => {
 
 	});
 
+	describe('readSfdxYaml', () => {
+
+		it('should execute the correct commands', () => {
+
+			// given
+			const expectedOutput = {
+				sfdx: {
+					yaml: {
+						'scratch-org-def': 'src/apex/config/project-scratch-def.json',
+						'assign-permset': true,
+						'permset-name': 'OrizuruAdmin',
+						'run-apex-tests': true,
+						'delete-scratch-org': false,
+						'show-scratch-org-url': true
+					}
+				}
+			};
+
+			sandbox.stub(fs, 'readFileSync').returns('scratch-org-def: src/apex/config/project-scratch-def.json\nassign-permset: true\npermset-name: OrizuruAdmin\nrun-apex-tests: true\ndelete-scratch-org: false\nshow-scratch-org-url: true\n');
+
+			// when - then
+			return expect(sfdx.readSfdxYaml({})).to.eql(expectedOutput);
+
+		});
+
+	});
+
 	describe('selectApp', () => {
 
 		it('should prompt the user to select the SFDX scratch org application without a new app option', () => {
@@ -442,6 +484,7 @@ describe('service/deploy/sfdx.js', () => {
 			// given
 			const
 				expectedScratchOrgUsername = 'testUsername',
+				expectedOrgDef = 'src/apex/config/project-scratch-def.json',
 				expectedInput = {
 					options: {
 						includeNew: {
@@ -451,7 +494,10 @@ describe('service/deploy/sfdx.js', () => {
 					sfdx: {
 						scratchOrgs: [{
 							username: expectedScratchOrgUsername
-						}]
+						}],
+						yaml: {
+							['scratch-org-def']: expectedOrgDef
+						}
 					}
 				},
 				expectedChoices = [{

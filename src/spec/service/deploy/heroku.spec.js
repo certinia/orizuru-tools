@@ -159,6 +159,58 @@ describe('service/deploy/heroku.js', () => {
 
 	});
 
+	describe('addFormation', () => {
+
+		it('should add the dyno formation specified in the app.json', () => {
+
+			// given
+			const
+				expectedInput = {
+					heroku: {
+						app: {
+							json: {
+								formation: {
+									web: {
+										quantity: 1,
+										size: 'standard-1x'
+									},
+									worker: {
+										quantity: 2,
+										size: 'standard-2x'
+									}
+								}
+							}
+						}
+					}
+				},
+				expectedOutput = expectedInput,
+				expectedCommand = [{
+					cmd: 'heroku',
+					args: [
+						'ps:scale',
+						'web=1:standard-1x'
+					]
+				}, {
+					cmd: 'heroku',
+					args: [
+						'ps:scale',
+						'worker=2:standard-2x'
+					]
+				}];
+
+			mocks.shell.executeCommands = sandbox.stub().resolves();
+
+			// when - then
+			return expect(heroku.addFormation(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: false });
+				});
+
+		});
+
+	});
+
 	describe('checkHerokuCliInstalled', () => {
 
 		it('should check that the Heroku CLI is installed', () => {

@@ -60,6 +60,7 @@
     "fs-extra": "4.0.2",
     "init-package-json": "1.10.1",
     "inquirer": "3.3.0",
+    "js-yaml": "3.10.0",
     "jsforce": "1.8.0",
     "klaw-sync": "3.0.2",
     "lodash": "4.17.4",

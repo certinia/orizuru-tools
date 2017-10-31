@@ -77,6 +77,7 @@ describe('service/deploy.js', () => {
 			sandbox.stub(connectedApp, 'updateHerokuConfigVariables');
 
 			sandbox.stub(heroku, 'addBuildpacks');
+			sandbox.stub(heroku, 'addFormation');
 			sandbox.stub(heroku, 'addAddOns');
 			sandbox.stub(heroku, 'checkHerokuCliInstalled');
 			sandbox.stub(heroku, 'deployCurrentBranch');
@@ -92,6 +93,7 @@ describe('service/deploy.js', () => {
 			sandbox.stub(sfdx, 'getAllScratchOrgs');
 			sandbox.stub(sfdx, 'getConnectionDetails');
 			sandbox.stub(sfdx, 'login');
+			sandbox.stub(sfdx, 'readSfdxYaml');
 			sandbox.stub(sfdx, 'selectApp');
 
 			// when - then
@@ -100,7 +102,7 @@ describe('service/deploy.js', () => {
 				.then(() => {
 
 					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logEvent).to.have.been.callCount(14);
+					expect(logger.logEvent).to.have.been.callCount(16);
 					expect(logger.logFinish).to.have.been.calledOnce;
 
 					expect(certificate.askQuestions).to.have.been.calledOnce;
@@ -118,6 +120,7 @@ describe('service/deploy.js', () => {
 					expect(heroku.selectApp).to.have.been.calledOnce;
 					expect(heroku.readAppJson).to.have.been.calledOnce;
 					expect(heroku.addBuildpacks).to.have.been.calledOnce;
+					expect(heroku.addFormation).to.have.been.calledOnce;
 					expect(heroku.addAddOns).to.have.been.calledOnce;
 					expect(heroku.deployCurrentBranch).to.have.been.calledOnce;
 
@@ -129,6 +132,7 @@ describe('service/deploy.js', () => {
 					expect(sfdx.login).to.have.been.calledOnce;
 					expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
 					expect(sfdx.getConnectionDetails).to.have.been.calledOnce;
+					expect(sfdx.readSfdxYaml).to.have.been.calledOnce;
 					expect(sfdx.selectApp).to.have.been.calledOnce;
 
 				});

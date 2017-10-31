@@ -72,6 +72,22 @@ const
 			.then(() => config);
 	},
 
+	addFormation = (config) => {
+
+		const
+			herokuFormation = _.get(config, 'heroku.app.json.formation'),
+			formationCommands = _.map(herokuFormation, (formation, key) => {
+				return {
+					cmd: 'heroku',
+					args: ['ps:scale', `${key}=${formation.quantity}:${formation.size}`]
+				};
+			});
+
+		return shell.executeCommands(formationCommands, { exitOnError: false })
+			.then(() => config);
+
+	},
+
 	createNewApp = (config) => {
 
 		return shell.executeCommand({ cmd: 'heroku', args: ['create', '--json'] }, { exitOnError: true })
@@ -156,6 +172,7 @@ const
 module.exports = {
 	addAddOns,
 	addBuildpacks,
+	addFormation,
 	checkHerokuCliInstalled,
 	createNewApp,
 	deployCurrentBranch,
