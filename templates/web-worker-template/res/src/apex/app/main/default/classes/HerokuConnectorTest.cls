@@ -24,46 +24,44 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-public class HerokuConnector implements IHerokuConnector
+@IsTest(SeeAllData=false)
+private class HerokuConnectorTest
 {
+	@IsTest
+	private static void post_sendsExpectedHttpRequest()
+	{
+		// given
+		IHerokuConnector connector = HerokuConnector.newInstance();
+		HttpCalloutMock mock = new CalloutMock();
+		ISerializable testSerialize = new SerializableMock();
+		Test.setMock(HttpCalloutMock.class, mock);
 
-	@TestVisible private static final String ACCOUNT_ENDPOINT = '/api/account';
-    @TestVisible private static final String POST_METHOD = 'POST';
-    @TestVisible private static final String REFERER_HEADER = 'Referer';
-    @TestVisible private static final String AUTHORIZATION_HEADER = 'Authorization';
-    @TestVisible private static final String AUTHORIZATION_PREFIX = 'Bearer ';
-    @TestVisible private static final String CONTENT_TYPE_HEADER = 'Content-Type';
-    @TestVisible private static final String CONTENT_TYPE_VALUE = 'application/json';
+		// when
+		connector.post('some/api/path', testSerialize);
 
-	private static IHerokuConnector instance = new HerokuConnector();
-
-	public static IHerokuConnector getInstance() {
-		return instance;
+		// then
+		System.assertEquals('Bearer ' + UserInfo.getSessionId(), mock.Request.getHeader('Authorization'));
+		System.assertEquals(Url.getSalesforceBaseUrl().toExternalForm(), mock.Request.getHeader('Referer'));
+		System.assertEquals('application/json', mock.Request.getHeader('Content-Type'));
+		System.assertEquals('testSerialize', mock.Request.getBody());
+		System.assertEquals('some/api/path', mock.Request.getEndpoint());
 	}
 
-	@TestVisible
-	private static void setMock(IHerokuConnector instance) {
-		this.instance = instance;
+	private class SerializableMock implements ISerializable
+	{
+		public String serialize() {
+			return 'testSerialize';
+		}
 	}
 
-	private HerokuConnector() {}
-
-	public HttpResponse post(String endpoint, ISerializable transport) 
-    {
-        HttpRequest req = new HttpRequest();
-		req.setEndpoint(endpoint);
-    	req.setMethod(POST_METHOD);
-		req.setHeader(REFERER_HEADER, Url.getSalesforceBaseUrl().toExternalForm());
-		req.setHeader(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE);
-        req.setHeader(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + UserInfo.getSessionId());
-        req.setBody(transport.serialize());
-		return postRequest(req);
-    }
-    
-    private static HttpResponse postRequest(HttpRequest req)
-    {
-        Http h = new Http();
-        return h.send(req);
-    }
+	private class CalloutMock implements HttpCalloutMock
+	{
+		public HttpRequest Request {get; private set;}
+		public HTTPResponse respond(HTTPRequest request)
+		{
+			this.Request = request;
+			return new HttpResponse();
+		}
+	}
 
 }
