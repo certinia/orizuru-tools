@@ -33,6 +33,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
+	configFile = require(root + '/src/lib/service/deploy/shared/config'),
 	conn = require(root + '/src/lib/service/deploy/shared/connection'),
 	certificate = require(root + '/src/lib/service/deploy/certificate'),
 	connectedApp = require(root + '/src/lib/service/deploy/connectedApp'),
@@ -69,6 +70,8 @@ describe('service/deploy.js', () => {
 			sandbox.stub(certificate, 'checkOpenSSLInstalled');
 			sandbox.stub(certificate, 'create');
 			sandbox.stub(certificate, 'read');
+
+			sandbox.stub(configFile, 'readSettings');
 
 			sandbox.stub(conn, 'create');
 
@@ -108,6 +111,8 @@ describe('service/deploy.js', () => {
 					expect(certificate.askQuestions).to.have.been.calledOnce;
 					expect(certificate.create).to.have.been.calledOnce;
 					expect(certificate.read).to.have.been.calledOnce;
+
+					expect(configFile.readSettings).to.have.been.calledOnce;
 
 					expect(conn.create).to.have.been.calledOnce;
 
