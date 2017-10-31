@@ -89,7 +89,7 @@ const
 			args: ['config:set', 'OPENID_ISSUER_URI=https://test.salesforce.com/', '-a', config.parameters.heroku.app.name]
 		}, {
 			cmd: 'heroku',
-			args: ['config:set', `JWT_SIGNING_KEY=${config.certificate.privateKey}`, '-a', config.parameters.heroku.app.name]
+			args: ['config:set', `JWT_SIGNING_KEY="${config.certificate.privateKey}"`, '-a', config.parameters.heroku.app.name]
 		}];
 
 		return shell.executeCommands(commands, { exitOnError: true })
