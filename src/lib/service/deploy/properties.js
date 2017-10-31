@@ -63,10 +63,13 @@ const
 			'OPENID_HTTP_TIMEOUT=4000'
 		);
 
-		return fs.writeFile(config.properties.filepath, config.properties.content.join('\n'));
+		return fs.writeFile(config.properties.filepath, config.properties.content.join('\n')).then(() => {
+			return config;
+		});
 	},
 
 	updateProperties = (config) => {
+		config.properties = {};
 		config.properties.filepath = path.resolve(process.cwd(), 'local.run.properties');
 
 		return Promise.resolve(config)
@@ -76,5 +79,7 @@ const
 	};
 
 module.exports = {
+	readProperties,
+	writeProperties,
 	updateProperties
 };
