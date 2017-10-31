@@ -40,7 +40,6 @@ const
 	deployCommands = (config) => [
 		{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`] },
 		{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', `${config.sfdx.yaml['permset-name']}`, '-u', `${config.parameters.sfdx.org.username}`] },
-		{ cmd: 'sfdx', args: ['force:apex:test:run', '-r', 'human', '-u', `${config.parameters.sfdx.org.username}`, '--json'] },
 		{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
 	],
 
@@ -58,7 +57,7 @@ const
 		return shell.executeCommands(deployCommands(config), { exitOnError: true })
 			.then(results => {
 				config.sfdxResults = results;
-				config.connectionInfo = JSON.parse(_.values(config.sfdxResults)[3].stdout).result;
+				config.connectionInfo = JSON.parse(_.values(config.sfdxResults)[2].stdout).result;
 				return config;
 			});
 
