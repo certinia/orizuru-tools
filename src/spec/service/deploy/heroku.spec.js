@@ -165,6 +165,7 @@ describe('service/deploy/heroku.js', () => {
 
 			// given
 			const
+				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
 					heroku: {
 						app: {
@@ -181,21 +182,22 @@ describe('service/deploy/heroku.js', () => {
 								}
 							}
 						}
+					},
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
+							}
+						}
 					}
 				},
 				expectedOutput = expectedInput,
 				expectedCommand = [{
 					cmd: 'heroku',
-					args: [
-						'ps:scale',
-						'web=1:standard-1x'
-					]
+					args: ['ps:scale', 'web=1:standard-1x', '-a', expectedAppName]
 				}, {
 					cmd: 'heroku',
-					args: [
-						'ps:scale',
-						'worker=2:standard-2x'
-					]
+					args: ['ps:scale', 'worker=2:standard-2x', '-a', expectedAppName]
 				}];
 
 			mocks.shell.executeCommands = sandbox.stub().resolves();
@@ -204,7 +206,7 @@ describe('service/deploy/heroku.js', () => {
 			return expect(heroku.addFormation(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: false });
+					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: true });
 				});
 
 		});

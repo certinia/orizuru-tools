@@ -79,11 +79,11 @@ const
 			formationCommands = _.map(herokuFormation, (formation, key) => {
 				return {
 					cmd: 'heroku',
-					args: ['ps:scale', `${key}=${formation.quantity}:${formation.size}`]
+					args: ['ps:scale', `${key}=${formation.quantity}:${formation.size}`, '-a', config.parameters.heroku.app.name]
 				};
 			});
 
-		return shell.executeCommands(formationCommands, { exitOnError: false })
+		return shell.executeCommands(formationCommands, { exitOnError: true })
 			.then(() => config);
 
 	},
