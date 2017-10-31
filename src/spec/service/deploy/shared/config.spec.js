@@ -155,9 +155,6 @@ describe('service/deploy/shared/config.js', () => {
 			// given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
-				expectedSetting = {
-					test: 'test'
-				},
 				expectedOutput = {
 					file: expectedCwd + '/.orizuru/config.json',
 					orizuru: {
@@ -172,7 +169,7 @@ describe('service/deploy/shared/config.js', () => {
 			mocks.fsextra.readJSON.rejects();
 
 			// when - then
-			return expect(configFile.writeSetting({}, expectedSetting))
+			return expect(configFile.writeSetting({}, 'test', 'test'))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.fsextra.mkdirp).to.have.been.calledOnce;
@@ -187,17 +184,16 @@ describe('service/deploy/shared/config.js', () => {
 			// given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
-				expectedSetting = {
-					test: 'test'
-				},
 				expectedReadJsonOutput = {
-					test2: 'test2'
+					test: 'test'
 				},
 				expectedOutput = {
 					file: expectedCwd + '/.orizuru/config.json',
 					orizuru: {
 						test: 'test',
-						test2: 'test2'
+						test2: {
+							test3: 'test'
+						}
 					}
 				};
 
@@ -208,7 +204,7 @@ describe('service/deploy/shared/config.js', () => {
 			mocks.fsextra.readJSON.resolves(expectedReadJsonOutput);
 
 			// when - then
-			return expect(configFile.writeSetting({}, expectedSetting))
+			return expect(configFile.writeSetting({}, 'test2.test3', 'test'))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.fsextra.mkdirp).to.not.have.been.called;

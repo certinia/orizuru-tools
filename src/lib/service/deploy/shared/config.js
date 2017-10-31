@@ -66,8 +66,9 @@ const
 				}));
 	},
 
-	writeSetting = (config, setting) => {
+	writeSetting = (config, key, value) => {
 
+		const setting = _.setWith({}, key, value);
 		return readSettings(config)
 			.then(config => {
 				const newData = _.merge({}, config.orizuru, setting);
