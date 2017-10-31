@@ -27,17 +27,18 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
-
+	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-
+	root = require('app-root-path'),
 	sinon = require('sinon'),
-	{ calledOnce, calledWith } = sinon.assert,
+	sinonChai = require('sinon-chai'),
+
+	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox),
+	restore = sandbox.restore.bind(sandbox);
 
-	{ expect } = require('chai');
+chai.use(sinonChai);
 
 describe('boilerplate/shared/walk.js', () => {
 
@@ -59,21 +60,19 @@ describe('boilerplate/shared/walk.js', () => {
 		it('should walk the file tree', () => {
 
 			// given 
-
 			klawSyncStub.returns([{
 				path: 'a/b'
 			}]);
 
 			// when - then
-
 			expect(walk.walk('/test', '.blah')).to.eql([{
 				fileName: 'b',
 				path: 'a/b',
 				sharedPath: ''
 			}]);
 
-			calledOnce(klawSyncStub);
-			calledWith(klawSyncStub, '/test', { filter: sinon.match.any, nodir: true });
+			expect(klawSyncStub).to.have.been.calledOnce;
+			expect(klawSyncStub).to.have.been.calledWith('/test', { filter: sinon.match.any, nodir: true });
 
 			const filter = klawSyncStub.getCall(0).args[1].filter;
 

@@ -28,10 +28,10 @@
 
 const
 	chai = require('chai'),
+	proxyquire = require('proxyquire'),
 	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
 
 	expect = chai.expect,
 

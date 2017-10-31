@@ -27,37 +27,41 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	sinon = require('sinon'),
 	proxyquire = require('proxyquire'),
+	root = require('app-root-path'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
-
-	calledOnce = sinon.assert.calledOnce,
-	calledWith = sinon.assert.calledWith,
 
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
+chai.use(sinonChai);
 
 describe('service/generateApexTransport/overwriteFile.js', () => {
 
 	let mocks, overwriteFile;
 
 	beforeEach(() => {
+
 		mocks = {
 			writeFileSync: sandbox.stub()
 		};
+
 		overwriteFile = proxyquire(root + '/src/lib/service/generateApexTransport/overwriteFile', {
 			fs: {
 				writeFileSync: mocks.writeFileSync
 			}
 		});
+
 	});
 
-	afterEach(() => sandbox.restore());
+	afterEach(() => {
+		sandbox.restore();
+	});
 
 	describe('overwriteFile', () => {
 
@@ -74,10 +78,8 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 			// when - then
 			expect(overwriteFile.overwriteFile(path, content)).to.eql(expected);
 
-			calledOnce(mocks.writeFileSync);
-			calledWith(mocks.writeFileSync, path, content, {
-				flag: 'w'
-			});
+			expect(mocks.writeFileSync).to.have.been.calledOnce;
+			expect(mocks.writeFileSync).to.have.been.calledWith(path, content, { flag: 'w' });
 
 		});
 

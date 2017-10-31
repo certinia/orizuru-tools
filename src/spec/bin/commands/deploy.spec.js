@@ -35,6 +35,9 @@ const
 
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
+	service = require(root + '/src/lib/service/deploy'),
+	deployCommand = require(root + '/src/lib/bin/commands/deploy'),
+
 	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
@@ -91,6 +94,22 @@ describe('bin/commands/deploy.js', () => {
 		expect(cli.command).to.eql('deploy');
 		expect(cli.aliases).to.eql(['d']);
 		expect(cli.desc).to.eql('Executes Deployment commands');
+
+	});
+
+	it('should have a handler that calls the init service', () => {
+
+		// given
+		const { handler } = deployCommand;
+
+		sandbox.stub(service, 'run');
+
+		// when
+		handler('test');
+
+		// then
+		expect(service.run).to.have.been.calledOnce;
+		expect(service.run).to.have.been.calledWith({ argv: 'test' });
 
 	});
 

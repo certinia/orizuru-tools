@@ -28,19 +28,18 @@
 
 const
 	_ = require('lodash'),
+	chai = require('chai'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
+
 	yargs = require('yargs'),
 
-	assert = sinon.assert,
-	// Note: Intentionally using called, not calledOnce.
-	// Yargs self-invokes certain functions.
-	// e.g. 'usage' to provide default usage instructions
-	called = assert.called,
-	calledOnce = assert.calledOnce,
-	calledWith = assert.calledWith,
+	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
+
+chai.use(sinonChai);
 
 describe('bin/cli.js', () => {
 
@@ -85,27 +84,27 @@ describe('bin/cli.js', () => {
 		});
 
 		// then
-		called(mockYargs.alias);
-		called(mockYargs.command);
-		called(mockYargs.demandCommand);
-		called(mockYargs.epilogue);
-		called(mockYargs.help);
-		called(mockYargs.showHelpOnFail);
-		called(mockYargs.strict);
-		called(mockYargs.usage);
-		called(mockYargs.version);
-		called(mockYargs.wrap);
+		expect(mockYargs.alias).to.have.been.called;
+		expect(mockYargs.command).to.have.been.called;
+		expect(mockYargs.demandCommand).to.have.been.called;
+		expect(mockYargs.epilogue).to.have.been.called;
+		expect(mockYargs.help).to.have.been.called;
+		expect(mockYargs.showHelpOnFail).to.have.been.called;
+		expect(mockYargs.strict).to.have.been.called;
+		expect(mockYargs.usage).to.have.been.called;
+		expect(mockYargs.version).to.have.been.called;
+		expect(mockYargs.wrap).to.have.been.called;
 
-		calledWith(mockYargs.usage, '\nUsage: orizuru COMMAND');
-		calledWith(mockYargs.demandCommand, 2, 'Run \'orizuru --help\' for more information on a command.\n');
-		calledWith(mockYargs.showHelpOnFail, true);
-		calledWith(mockYargs.help, 'h');
-		calledWith(mockYargs.alias, 'h', 'help');
-		calledWith(mockYargs.alias, 'v', 'version');
-		calledWith(mockYargs.strict, true);
-		calledWith(mockYargs.version, '1.0.0');
-		calledWith(mockYargs.epilogue, '(c) test');
-		calledWith(mockYargs.wrap, terminalWidth);
+		expect(mockYargs.usage).to.have.been.calledWith('\nUsage: orizuru COMMAND');
+		expect(mockYargs.demandCommand).to.have.been.calledWith(2, 'Run \'orizuru --help\' for more information on a command.\n');
+		expect(mockYargs.showHelpOnFail).to.have.been.calledWith(true);
+		expect(mockYargs.help).to.have.been.calledWith('h');
+		expect(mockYargs.alias).to.have.been.calledWith('h', 'help');
+		expect(mockYargs.alias).to.have.been.calledWith('v', 'version');
+		expect(mockYargs.strict).to.have.been.calledWith(true);
+		expect(mockYargs.version).to.have.been.calledWith('1.0.0');
+		expect(mockYargs.epilogue).to.have.been.calledWith('(c) test');
+		expect(mockYargs.wrap).to.have.been.calledWith(terminalWidth);
 
 	});
 
@@ -131,8 +130,8 @@ describe('bin/cli.js', () => {
 		});
 
 		// the
-		calledOnce(mockYargs.showHelp);
-		called(mockYargs.exit);
+		expect(mockYargs.showHelp).to.have.been.calledOnce;
+		expect(mockYargs.exit).to.have.been.called;
 
 	});
 

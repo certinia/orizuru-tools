@@ -30,6 +30,7 @@ const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
 	inquirer = require('inquirer'),
 	questions = require(root + '/src/lib/util/questions'),
@@ -39,12 +40,10 @@ const
 
 	expect = chai.expect,
 
-	calledOnce = sinon.assert.calledOnce,
-	calledWith = sinon.assert.calledWith,
-
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
+chai.use(sinonChai);
 
 describe('service/init/askQuestions.js', () => {
 
@@ -76,10 +75,10 @@ describe('service/init/askQuestions.js', () => {
 				],
 				folder: 'test'
 			}).then(() => {
-				calledOnce(inquirer.prompt);
-				calledWith(inquirer.prompt, ['test']);
-				calledOnce(questions.listField);
-				calledWith(questions.listField, 'Select app to create:', 'folder', validators.valid, [
+				expect(inquirer.prompt).to.have.been.calledOnce;
+				expect(questions.listField).to.have.been.calledOnce;
+				expect(inquirer.prompt).to.have.been.calledWith(['test']);
+				expect(questions.listField).to.have.been.calledWith('Select app to create:', 'folder', validators.valid, [
 					'af1',
 					'af2'
 				]);

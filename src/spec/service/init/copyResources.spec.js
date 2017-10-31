@@ -28,20 +28,19 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
+	proxyquire = require('proxyquire'),
 	root = require('app-root-path'),
 	sinon = require('sinon'),
-	proxyquire = require('proxyquire'),
+	sinonChai = require('sinon-chai'),
 
 	fs = require('fs-extra'),
 
 	expect = chai.expect,
 
-	calledOnce = sinon.assert.calledOnce,
-	calledWith = sinon.assert.calledWith,
-
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
+chai.use(sinonChai);
 
 describe('service/init/copyResources.js', () => {
 
@@ -78,10 +77,10 @@ describe('service/init/copyResources.js', () => {
 				templatesFolder,
 				folder
 			}).then(() => {
-				calledOnce(mocks.logger.log);
-				calledWith(mocks.logger.log, 'Copying resources to ' + process.cwd());
-				calledOnce(mocks.fsCopy);
-				calledWith(mocks.fsCopy, root + '/templates/simple-example/res', process.cwd());
+				expect(mocks.logger.log).to.have.been.calledOnce;
+				expect(mocks.fsCopy).to.have.been.calledOnce;
+				expect(mocks.logger.log).to.have.been.calledWith('Copying resources to ' + process.cwd());
+				expect(mocks.fsCopy).to.have.been.calledWith(root + '/templates/simple-example/res', process.cwd());
 			});
 
 		});
