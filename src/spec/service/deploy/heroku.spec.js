@@ -158,6 +158,88 @@ describe('service/deploy/heroku.js', () => {
 
 	});
 
+	describe('addFormation', () => {
+
+		it('should add the dyno formation specified in the app.json', () => {
+
+			// given
+			const
+				expectedInput = {
+					heroku: {
+						app: {
+							json: {
+								formation: {
+									web: {
+										quantity: 1,
+										size: 'standard-1x'
+									},
+									questionBuilder: {
+										quantity: 1,
+										size: 'standard-1x'
+									},
+									routeSolver: {
+										quantity: 1,
+										size: 'performance-l'
+									},
+									resultWriter: {
+										quantity: 1,
+										size: 'standard-1x'
+									},
+									dataCreator: {
+										quantity: 1,
+										size: 'standard-1x'
+									}
+								}
+							}
+						}
+					}
+				},
+				expectedOutput = expectedInput,
+				expectedCommand = [{
+					cmd: 'heroku',
+					args: [
+						'ps:scale',
+						'web=1:standard-1x'
+					]
+				}, {
+					cmd: 'heroku',
+					args: [
+						'ps:scale',
+						'questionBuilder=1:standard-1x'
+					]
+				}, {
+					cmd: 'heroku',
+					args: [
+						'ps:scale',
+						'routeSolver=1:performance-l'
+					]
+				}, {
+					cmd: 'heroku',
+					args: [
+						'ps:scale',
+						'resultWriter=1:standard-1x'
+					]
+				}, {
+					cmd: 'heroku',
+					args: [
+						'ps:scale',
+						'dataCreator=1:standard-1x'
+					]
+				}];
+
+			mocks.shell.executeCommands = sandbox.stub().resolves();
+
+			// when - then
+			return expect(heroku.addFormation(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: false });
+				});
+
+		});
+
+	});
+
 	describe('createNewApp', () => {
 
 		it('should create a new Heroku app', () => {
