@@ -53,6 +53,8 @@ const
 			.then(heroku.selectApp)
 			.then(logger.logEvent('Adding buildpacks'))
 			.then(heroku.addBuildpacks)
+			.then(logger.logEvent('Adding dyno formation'))
+			.then(heroku.addFormation)
 			.then(logger.logEvent('Adding add-ons'))
 			.then(heroku.addAddOns)
 			.then(logger.logEvent('Deploy code'))
