@@ -3,5 +3,4 @@
 coverage
 node_modules
 *.pem
-*.tgz
-apex.db
+.orizuru
