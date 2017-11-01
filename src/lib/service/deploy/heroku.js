@@ -34,7 +34,6 @@ const
 	questions = require('../../util/questions'),
 	shell = require('./shared/shell'),
 
-
 	addAddOns = (config) => {
 
 		const addOnCommands = _.map(_.get(config, 'heroku.app.json.addons'), addon => ({
@@ -107,7 +106,7 @@ const
 		const gitUrl = _.get(config, 'parameters.heroku.app.git_url');
 
 		return removeAutoDeploy()
-			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${gitUrl}`], opts: { exitOnError: false } }))
+			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${gitUrl}`], opts: { exitOnError: true } }))
 			.then(() => shell.executeCommand({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } }))
 			.then(branch => shell.executeCommand({ cmd: 'git', args: ['push', 'autodeploy', `${branch.stdout}:master`, '-f'], opts: { exitOnError: true } }))
 			.then(() => config)
