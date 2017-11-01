@@ -83,7 +83,5 @@ const
 	};
 
 module.exports = {
-	readProperties,
-	writeProperties,
 	updateProperties
 };
