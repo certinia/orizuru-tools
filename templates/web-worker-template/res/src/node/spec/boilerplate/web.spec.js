@@ -143,7 +143,7 @@ describe('boilerplate/web.js', () => {
 
 		// when - then
 		expect(orizuru.Server).to.have.been.calledOnce;
-		expect(orizuru.Server).to.have.been.calledWith(orizuru.Server, defaultTransport);
+		expect(orizuru.Server).to.have.been.calledWith(defaultTransport);
 
 		expect(addRouteSpy).to.have.been.calledOnce;
 		expect(addRouteSpy).to.have.been.calledWith({
