@@ -68,7 +68,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('addAddOns', () => {
 
-		it('should create the add-ons specified in the app.json', () => {
+		it('should create the add-ons specified in the app.json, filtering out existing addons', () => {
 
 			// given
 			const
@@ -86,24 +86,34 @@ describe('service/deploy/heroku.js', () => {
 							json: {
 								addons: [{
 									plan: 'cloudamqp:lemur'
+								}, {
+									plan: 'test:filter'
 								}]
 							}
 						}
 					}
 				},
 				expectedOutput = expectedInput,
-				expectedCommand = [{
+				expectedQueryCommand = {
+					cmd: 'heroku',
+					args: ['addons', '-a', 'rocky-shore-45862', '--json']
+				},
+				expectedCreateCommands = [{
 					args: ['addons:create', 'cloudamqp:lemur', '-a', 'rocky-shore-45862'],
 					cmd: 'heroku'
 				}];
 
+			mocks.shell.executeCommand = sandbox.stub().resolves({
+				stdout: '[{ "plan": { "name": "test:filter" } }]'
+			});
 			mocks.shell.executeCommands = sandbox.stub().resolves();
 
 			// when - then
 			return expect(heroku.addAddOns(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: true });
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedQueryCommand, { exitOnError: true });
+					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCreateCommands, { exitOnError: true });
 				});
 
 		});
