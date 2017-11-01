@@ -348,15 +348,24 @@ describe('service/deploy/sfdx.js', () => {
 
 			// given
 			const
+				expectedInput = {
+					parameters: {
+						sfdx: {
+							org: {
+								username: 'test@financialforce.com'
+							}
+						}
+					}
+				},
 				expectedCommands = [
-					{ cmd: 'sfdx', args: ['force:org:open'] }
+					{ cmd: 'sfdx', args: ['force:org:open', '-u', 'test@financialforce.com'] }
 				],
 				expectedOutput = {};
 
 			mocks.shell.executeCommands = sandbox.stub().resolves({});
 
 			// when - then
-			return expect(sfdx.openOrg({}))
+			return expect(sfdx.openOrg(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands);

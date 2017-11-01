@@ -108,10 +108,10 @@ const
 
 	},
 
-	openOrg = (result) => {
+	openOrg = (config) => {
 
 		const orgOpenCommands = [
-			{ cmd: 'sfdx', args: ['force:org:open'] }
+			{ cmd: 'sfdx', args: ['force:org:open', '-u', `${config.parameters.sfdx.org.username}`] }
 		];
 
 		return shell.executeCommands(orgOpenCommands, { exitOnError: true });
