@@ -44,25 +44,29 @@ const
 	},
 
 	filterProperties = (config) => {
-		config.properties.content = _.map(config.properties.content, prop => {
-			const key = prop.split('=')[0];
-			if (key.startsWith('JWT') || key.startsWith('OPENID')) {
-				prop = '#' + prop;
-			}
-			return prop;
-		});
+		const newprops = [
+				`JWT_SIGNING_KEY=${config.certificate.privateKey}`,
+				`OPENID_CLIENT_ID=${config.connectedApp.oauthConfig.consumerKey}`,
+				'OPENID_ISSUER_URI=https://test.salesforce.com/',
+				'OPENID_HTTP_TIMEOUT=4000'
+			],
+
+			uniqueContent = _.difference(config.properties.content, newprops),
+
+			filteredContent = _.map(uniqueContent, prop => {
+				const key = prop.split('=')[0];
+				if (key.startsWith('JWT') || key.startsWith('OPENID')) {
+					prop = '#' + prop;
+				}
+				return prop;
+			});
+
+		config.properties.content = filteredContent.concat(newprops);
 
 		return config;
 	},
 
 	writeProperties = (config) => {
-		config.properties.content.push(
-			`JWT_SIGNING_KEY=${config.certificate.privateKey}`,
-			`OPENID_CLIENT_ID=${config.connectedApp.oauthConfig.consumerKey}`,
-			'OPENID_ISSUER_URI=https://test.salesforce.com/',
-			'OPENID_HTTP_TIMEOUT=4000'
-		);
-
 		return fs.writeFile(config.properties.filepath, config.properties.content.join('\n')).then(() => {
 			return config;
 		});
