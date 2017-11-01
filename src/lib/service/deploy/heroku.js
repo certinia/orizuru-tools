@@ -36,7 +36,7 @@ const
 
 	addAddOns = (config) => {
 
-		const addOnCommands = _.map(config.heroku.app.json.addons, addon => ({
+		const addOnCommands = _.map(_.get(config, 'heroku.app.json.addons'), addon => ({
 			cmd: 'heroku',
 			args: ['addons:create', `${addon.plan}`, '-a', config.parameters.heroku.app.name]
 		}));
@@ -90,7 +90,7 @@ const
 
 	createNewApp = (config) => {
 
-		return shell.executeCommand({ cmd: 'heroku', args: ['create', '--json'] }, { exitOnError: true })
+		return shell.executeCommand({ cmd: 'heroku', args: ['create', '-t', 'research', '--json'] }, { exitOnError: true })
 			.then(result => {
 				return ({ heroku: { app: JSON.parse(result.stdout) } });
 			});
@@ -133,6 +133,9 @@ const
 				config.heroku.app = config.heroku.app || {};
 				config.heroku.app.json = appJson;
 				return config;
+			})
+			.catch(() => {
+				throw new Error('app.json is required in the root of your project when deploying to heroku.');
 			});
 
 	},
