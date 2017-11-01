@@ -106,19 +106,27 @@ describe('service/deploy/sfdx.js', () => {
 			// given
 			const
 				expectedUsername = 'test-ki9yknei6emv@orizuru.net',
+				expectedHubUsername = 'dev-hub@orizuru.net',
 				expectedOrgDef = 'src/apex/config/project-scratch-def.json',
 				expectedInput = {
+					orizuru: {
+						sfdx: {
+							hub: {
+								username: expectedHubUsername
+							}
+						}
+					},
 					sfdx: {
 						yaml: {
 							['scratch-org-def']: expectedOrgDef
 						}
 					}
 				},
-				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', expectedOrgDef, '-s', '--json'] },
+				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', expectedOrgDef, '-v', expectedHubUsername, '-s', '--json'] },
 				expectedOutput = {
 					sfdx: {
 						org: {
-							username: 'test-ki9yknei6emv@orizuru.net'
+							username: expectedUsername
 						}
 					}
 				};
@@ -493,11 +501,19 @@ describe('service/deploy/sfdx.js', () => {
 			// given
 			const
 				expectedScratchOrgUsername = 'testUsername',
+				expectedHubUsername = 'dev-hub@orizuru.net',
 				expectedOrgDef = 'src/apex/config/project-scratch-def.json',
 				expectedInput = {
 					options: {
 						includeNew: {
 							sfdx: true
+						}
+					},
+					orizuru: {
+						sfdx: {
+							hub: {
+								username: expectedHubUsername
+							}
 						}
 					},
 					sfdx: {
