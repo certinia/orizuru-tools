@@ -85,10 +85,7 @@ describe('service/deploy.js', () => {
 			sandbox.stub(logger, 'logEvent').resolves(expectedInput);
 			sandbox.stub(logger, 'logFinish').resolves(expectedInput);
 
-			sandbox.stub(certificate, 'askQuestions').resolves(expectedInput);
-			sandbox.stub(certificate, 'checkOpenSSLInstalled').resolves(expectedInput);
-			sandbox.stub(certificate, 'create').resolves(expectedInput);
-			sandbox.stub(certificate, 'read').resolves(expectedInput);
+			sandbox.stub(certificate, 'getCert').resolves(expectedInput);
 
 			sandbox.stub(configFile, 'readSettings').resolves(expectedInput);
 			sandbox.stub(configFile, 'writeSetting').resolves(expectedInput);
@@ -128,12 +125,10 @@ describe('service/deploy.js', () => {
 				.then(() => {
 
 					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logEvent).to.have.been.callCount(17);
+					expect(logger.logEvent).to.have.been.callCount(16);
 					expect(logger.logFinish).to.have.been.calledOnce;
 
-					expect(certificate.askQuestions).to.have.been.calledOnce;
-					expect(certificate.create).to.have.been.calledOnce;
-					expect(certificate.read).to.have.been.calledOnce;
+					expect(certificate.getCert).to.have.been.calledOnce;
 
 					expect(configFile.readSettings).to.have.been.calledOnce;
 					expect(configFile.writeSetting).to.have.been.calledThrice;

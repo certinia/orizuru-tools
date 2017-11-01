@@ -136,4 +136,89 @@ describe('service/deploy/certificate.js', () => {
 
 	});
 
+	describe('getCert', () => {
+		it('should generate cert', () => {
+			// given
+			const
+				expectedSslCommands = [{
+					cmd: 'openssl',
+					args: ['req', '-newkey', 'rsa:2048', '-nodes', '-keyout', 'key.pem', '-x509', '-days', '365', '-out', 'certificate.pem', '-subj', '/C=GB/ST=North Yorkshire/L=Harrogate/O=FinancialForce/OU=Research Team/CN=test@test.com']
+				}],
+				expectedCertificateDetails = {
+					country: 'GB',
+					state: 'North Yorkshire',
+					locality: 'Harrogate',
+					organization: 'FinancialForce',
+					organizationUnitName: 'Research Team',
+					commonName: 'test@test.com'
+				},
+				expectedReadCommands = [
+					{ cmd: 'cat', args: ['certificate.pem'] },
+					{ cmd: 'cat', args: ['key.pem'] }
+				],
+				expectedOutput = {
+					certificate: {
+						privateKey: 'privateKey',
+						publicKey: 'publicKey'
+					},
+					parameters: {
+						certificate: expectedCertificateDetails
+					}
+				};
+
+			mocks.inquirer.prompt.resolves(expectedCertificateDetails);
+
+			mocks.shell.executeCommands = sandbox.stub().resolves();
+			mocks.shell.executeCommands.onCall(0).resolves({});
+
+			mocks.shell.executeCommands.onCall(2).resolves({
+				command0: { stdout: 'publicKey' },
+				command1: { stdout: 'privateKey' }
+			});
+
+			// when - then
+			return expect(certificate.getCert({}))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommands).to.have.been.calledThrice;
+					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
+					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedSslCommands);
+					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
+				});
+
+		});
+
+		it('should not generate cert when certs already exit', () => {
+
+			// given
+			const
+
+				expectedReadCommands = [
+					{ cmd: 'cat', args: ['certificate.pem'] },
+					{ cmd: 'cat', args: ['key.pem'] }
+				],
+				expectedOutput = {
+					certificate: {
+						privateKey: 'privateKey',
+						publicKey: 'publicKey'
+					}
+				};
+
+			mocks.shell.executeCommands = sandbox.stub().resolves({
+				command0: { stdout: 'publicKey' },
+				command1: { stdout: 'privateKey' }
+			});
+
+			// when - then
+			return expect(certificate.getCert({}))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommands).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
+				});
+
+		});
+
+	});
+
 });
