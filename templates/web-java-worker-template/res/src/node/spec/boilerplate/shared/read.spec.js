@@ -27,16 +27,15 @@
 'use strict';
 
 const
+	chai = require('chai'),
 	root = require('app-root-path'),
-
 	proxyquire = require('proxyquire').noCallThru(),
-
 	sinon = require('sinon'),
 
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox),
+	expect = chai.expect,
 
-	{ expect } = require('chai');
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
 
 describe('boilerplate/shared/read.js', () => {
 
@@ -61,10 +60,10 @@ describe('boilerplate/shared/read.js', () => {
 
 		it('should read a schema file to json', () => {
 
-			// given - when - then
-
+			// given
 			readFileSyncStub.returns(Buffer.from('{"a": "b"}'));
 
+			// when - then
 			expect(read.readSchema('blah')).to.eql({
 				a: 'b'
 			});
@@ -77,10 +76,10 @@ describe('boilerplate/shared/read.js', () => {
 
 		it('should read a handler file', () => {
 
-			// given - when - then
-
+			// given
 			readFileSyncStub.returns(Buffer.from('{"a": "b"}'));
 
+			// when - then
 			expect(read.readHandler('dummy')).to.eql(dummy);
 
 		});

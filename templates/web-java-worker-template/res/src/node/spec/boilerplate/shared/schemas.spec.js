@@ -27,13 +27,34 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
+	chai = require('chai'),
+	proxyquire = require('proxyquire'),
+	sinon = require('sinon'),
 
-	{ expect } = require('chai'),
+	expect = chai.expect,
 
-	schemas = require(root + '/src/node/lib/boilerplate/shared/schemas');
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
 
 describe('boilerplate/shared/schemas.js', () => {
+
+	let mocks, schemas;
+
+	beforeEach(() => {
+
+		mocks = {};
+		mocks.walk = sandbox.stub();
+		mocks.walk.walk = sandbox.stub().returns([]);
+
+		schemas = proxyquire('../../../lib/boilerplate/shared/schemas', {
+			'./walk': mocks.walk
+		});
+
+	});
+
+	afterEach(() => {
+		restore();
+	});
 
 	describe('get', () => {
 
