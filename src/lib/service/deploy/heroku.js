@@ -34,6 +34,7 @@ const
 	questions = require('../../util/questions'),
 	shell = require('./shared/shell'),
 
+
 	addAddOns = (config) => {
 
 		const addOnCommands = _.map(config.heroku.app.json.addons, addon => ({
@@ -74,14 +75,21 @@ const
 
 	},
 
+	removeAutoDeploy = () => {
+		return shell.executeCommand({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: false } });
+	},
+
 	deployCurrentBranch = (config) => {
 
-		return shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${config.parameters.heroku.app.git_url}`], opts: { exitOnError: true } })
+		return removeAutoDeploy()
+			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${config.parameters.heroku.app.git_url}`], opts: { exitOnError: false } }))
 			.then(() => shell.executeCommand({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } }))
 			.then(branch => shell.executeCommand({ cmd: 'git', args: ['push', 'autodeploy', `${branch.stdout}:master`], opts: { exitOnError: true } }))
-			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: true } }))
-			.then(() => config);
-
+			.then(() => config)
+			.catch((error) => {
+				removeAutoDeploy();
+				throw error;
+			});
 	},
 
 	getAllApps = (config) => {
@@ -136,5 +144,6 @@ module.exports = {
 	deployCurrentBranch,
 	getAllApps,
 	readAppJson,
-	selectApp
+	selectApp,
+	removeAutoDeploy
 };

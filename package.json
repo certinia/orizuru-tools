@@ -7,8 +7,8 @@
   },
   "main": "lib/src/index.js",
   "scripts": {
-	"pretest": "eslint src",
-	"single-test": "nyc --all=false mocha",
+    "pretest": "eslint src",
+    "single-test": "nyc --all=false mocha",
     "test": "nyc mocha --recursive src/spec"
   },
   "repository": {
