@@ -27,17 +27,18 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
-
+	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-
+	root = require('app-root-path'),
 	sinon = require('sinon'),
-	{ calledOnce, calledWith } = sinon.assert,
+	sinonChai = require('sinon-chai'),
+
+	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox),
+	restore = sandbox.restore.bind(sandbox);
 
-	{ expect } = require('chai');
+chai.use(sinonChai);
 
 describe('boilerplate/shared/id.js', () => {
 
@@ -59,41 +60,48 @@ describe('boilerplate/shared/id.js', () => {
 
 		it('should return single function that sets id on the orizuru object', () => {
 
-			// given - when - then
-			const
-				middleware = id.middleware;
+			// given
+			const middleware = id.middleware;
 
+			// when - then
 			expect(middleware.length).to.eql(1);
+
 		});
 
 		it('function should set orizuru object and set id on it', () => {
 
-			// given - when - then
+			// given
 			const
 				middleware = id.middleware,
 				next = sandbox.stub(),
 				req = {},
 				res = {};
 
+			// when
 			middleware[0](req, res, next);
 
+			// then
 			expect(req.orizuru.id).to.eql('aaa123');
-			calledOnce(uuidStub);
+			expect(uuidStub).to.have.been.calledOnce;
+
 		});
 
 		it('function should set id on it', () => {
 
-			// given - when - then
+			// given
 			const
 				middleware = id.middleware,
 				next = sandbox.stub(),
 				req = { orizuru: {} },
 				res = {};
 
+			// when
 			middleware[0](req, res, next);
 
+			// then
 			expect(req.orizuru.id).to.eql('aaa123');
-			calledOnce(uuidStub);
+			expect(uuidStub).to.have.been.calledOnce;
+
 		});
 
 	});
@@ -102,8 +110,7 @@ describe('boilerplate/shared/id.js', () => {
 
 		it('should write a happy result to the response', () => {
 
-			// given - when - then
-
+			// given
 			const
 				jsonStub = sandbox.stub(),
 				responseWriter = id.responseWriter,
@@ -112,18 +119,20 @@ describe('boilerplate/shared/id.js', () => {
 				},
 				orizuru = { id: '123' };
 
+			// when
 			responseWriter(null, res, orizuru);
 
-			calledOnce(jsonStub);
-			calledWith(jsonStub, {
+			// then
+			expect(jsonStub).to.have.been.calledOnce;
+			expect(jsonStub).to.have.been.calledWith({
 				id: '123'
 			});
+
 		});
 
 		it('should write an error result to the response', () => {
 
-			// given - when - then
-
+			// given
 			const
 				statusStub = sandbox.stub(),
 				sendStub = sandbox.stub(),
@@ -135,12 +144,16 @@ describe('boilerplate/shared/id.js', () => {
 				orizuru = { id: '123' };
 
 			statusStub.returns(res);
+
+			// when
 			responseWriter(new Error('Test error.'), res, orizuru);
 
-			calledOnce(statusStub);
-			calledWith(statusStub, 400);
-			calledOnce(sendStub);
-			calledWith(sendStub, 'Test error.');
+			// then
+			expect(statusStub).to.have.been.calledOnce;
+			expect(sendStub).to.have.been.calledOnce;
+			expect(statusStub).to.have.been.calledWith(400);
+			expect(sendStub).to.have.been.calledWith('Test error.');
+
 		});
 
 	});

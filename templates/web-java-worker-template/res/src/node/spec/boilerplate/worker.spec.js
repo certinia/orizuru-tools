@@ -27,21 +27,24 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
-
+	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-
+	root = require('app-root-path'),
 	sinon = require('sinon'),
-	{ calledOnce, calledTwice, calledWith, calledWithNew } = sinon.assert,
+	sinonChai = require('sinon-chai'),
 
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox),
+	expect = chai.expect,
 
 	schemas = require(root + '/src/node/lib/boilerplate/shared/schemas'),
 	handlers = require(root + '/src/node/lib/boilerplate/shared/handlers'),
 	read = require(root + '/src/node/lib/boilerplate/shared/read'),
 	defaultTransport = require(root + '/src/node/lib/boilerplate/shared/transport'),
-	orizuru = require('@financialforcedev/orizuru');
+	orizuru = require('@financialforcedev/orizuru'),
+
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
+
+chai.use(sinonChai);
 
 describe('boilerplate/worker.js', () => {
 
@@ -95,16 +98,16 @@ describe('boilerplate/worker.js', () => {
 		require(root + '/src/node/lib/boilerplate/worker');
 
 		// then
-		calledOnce(orizuru.Handler);
-		calledWithNew(orizuru.Handler);
-		calledWith(orizuru.Handler, defaultTransport);
+		expect(orizuru.Handler).to.have.been.calledOnce;
+		expect(orizuru.Handler).to.have.been.calledWithNew;
+		expect(orizuru.Handler).to.have.been.calledWith(defaultTransport);
 
-		calledTwice(handleSpy);
-		calledWith(handleSpy, {
+		expect(handleSpy).to.have.been.calledTwice;
+		expect(handleSpy).to.have.been.calledWith({
 			schema: { mock: true },
 			callback: { mockHandler: true }
 		});
-		calledWith(handleSpy, {
+		expect(handleSpy).to.have.been.calledWith({
 			schema: { mock: true },
 			callback: { mockHandler: true }
 		});
@@ -144,22 +147,22 @@ describe('boilerplate/worker.js', () => {
 		});
 
 		// then
-		calledOnce(orizuru.Handler);
-		calledWithNew(orizuru.Handler);
-		calledWith(orizuru.Handler, defaultTransport);
+		expect(orizuru.Handler).to.have.been.calledOnce;
+		expect(orizuru.Handler).to.have.been.calledWithNew;
+		expect(orizuru.Handler).to.have.been.calledWith(defaultTransport);
 
-		calledTwice(handleSpy);
-		calledWith(handleSpy, {
+		expect(handleSpy).to.have.been.calledTwice;
+		expect(handleSpy).to.have.been.calledWith({
 			schema: { mock: true },
 			callback: { mockHandler: true }
 		});
-		calledWith(handleSpy, {
+		expect(handleSpy).to.have.been.calledWith({
 			schema: { mock: true },
 			callback: { mockHandler: true }
 		});
 
-		calledOnce(throngStub);
-		calledWith(throngStub, '2', sinon.match.any);
+		expect(throngStub).to.have.been.calledOnce;
+		expect(throngStub).to.have.been.calledWith('2', sinon.match.any);
 
 	});
 
@@ -185,12 +188,12 @@ describe('boilerplate/worker.js', () => {
 		require(root + '/src/node/lib/boilerplate/worker');
 
 		// then
-		calledOnce(orizuru.Handler);
-		calledWithNew(orizuru.Handler);
-		calledWith(orizuru.Handler, defaultTransport);
+		expect(orizuru.Handler).to.have.been.calledOnce;
+		expect(orizuru.Handler).to.have.been.calledWithNew;
+		expect(orizuru.Handler).to.have.been.calledWith(defaultTransport);
 
-		calledOnce(handleSpy);
-		calledWith(handleSpy, {
+		expect(handleSpy).to.have.been.calledOnce;
+		expect(handleSpy).to.have.been.calledWith({
 			schema: { mock: true },
 			callback: { mockHandler: true }
 		});
@@ -219,12 +222,12 @@ describe('boilerplate/worker.js', () => {
 		require(root + '/src/node/lib/boilerplate/worker');
 
 		// then
-		calledOnce(orizuru.Handler);
-		calledWithNew(orizuru.Handler);
-		calledWith(orizuru.Handler, defaultTransport);
+		expect(orizuru.Handler).to.have.been.calledOnce;
+		expect(orizuru.Handler).to.have.been.calledWithNew;
+		expect(orizuru.Handler).to.have.been.calledWith(defaultTransport);
 
-		calledOnce(handleSpy);
-		calledWith(handleSpy, {
+		expect(handleSpy).to.have.been.calledOnce;
+		expect(handleSpy).to.have.been.calledWith({
 			schema: { mock: true },
 			callback: { mockHandler: true }
 		});

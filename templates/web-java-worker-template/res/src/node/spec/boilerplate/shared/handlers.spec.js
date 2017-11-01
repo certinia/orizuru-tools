@@ -27,19 +27,40 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
+	chai = require('chai'),
+	proxyquire = require('proxyquire'),
+	sinon = require('sinon'),
 
-	{ expect } = require('chai'),
+	expect = chai.expect,
 
-	handlers = require(root + '/src/node/lib/boilerplate/shared/handlers');
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
 
 describe('boilerplate/shared/handlers.js', () => {
+
+	let handlers, mocks;
+
+	beforeEach(() => {
+
+		mocks = {};
+		mocks.walk = sandbox.stub();
+		mocks.walk.walk = sandbox.stub().returns([]);
+
+		handlers = proxyquire('../../../lib/boilerplate/shared/handlers', {
+			'./walk': mocks.walk
+		});
+
+	});
+
+	afterEach(() => {
+		restore();
+	});
 
 	describe('get', () => {
 
 		it('should return all handlers in the handlers folder', () => {
 
-			// given - when - then
+			// when - then
 			expect(handlers.get()).to.eql([]);
 
 		});
