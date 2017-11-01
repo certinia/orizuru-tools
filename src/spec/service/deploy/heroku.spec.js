@@ -34,8 +34,6 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	fs = require('fs'),
-
 	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
@@ -50,11 +48,14 @@ describe('service/deploy/heroku.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
+		mocks.fs = sandbox.stub();
+		mocks.fs.readJSON = sandbox.stub();
 		mocks.inquirer = {};
 		mocks.inquirer.prompt = sandbox.stub();
 		mocks.shell = {};
 
 		heroku = proxyquire(root + '/src/lib/service/deploy/heroku.js', {
+			'fs-extra': mocks.fs,
 			inquirer: mocks.inquirer,
 			'./shared/shell': mocks.shell
 		});
@@ -164,6 +165,7 @@ describe('service/deploy/heroku.js', () => {
 
 			// given
 			const
+				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
 					heroku: {
 						app: {
@@ -173,23 +175,18 @@ describe('service/deploy/heroku.js', () => {
 										quantity: 1,
 										size: 'standard-1x'
 									},
-									questionBuilder: {
-										quantity: 1,
-										size: 'standard-1x'
-									},
-									routeSolver: {
-										quantity: 1,
-										size: 'performance-l'
-									},
-									resultWriter: {
-										quantity: 1,
-										size: 'standard-1x'
-									},
-									dataCreator: {
-										quantity: 1,
-										size: 'standard-1x'
+									worker: {
+										quantity: 2,
+										size: 'standard-2x'
 									}
 								}
+							}
+						}
+					},
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
 							}
 						}
 					}
@@ -197,34 +194,10 @@ describe('service/deploy/heroku.js', () => {
 				expectedOutput = expectedInput,
 				expectedCommand = [{
 					cmd: 'heroku',
-					args: [
-						'ps:scale',
-						'web=1:standard-1x'
-					]
+					args: ['ps:scale', 'web=1:standard-1x', '-a', expectedAppName]
 				}, {
 					cmd: 'heroku',
-					args: [
-						'ps:scale',
-						'questionBuilder=1:standard-1x'
-					]
-				}, {
-					cmd: 'heroku',
-					args: [
-						'ps:scale',
-						'routeSolver=1:performance-l'
-					]
-				}, {
-					cmd: 'heroku',
-					args: [
-						'ps:scale',
-						'resultWriter=1:standard-1x'
-					]
-				}, {
-					cmd: 'heroku',
-					args: [
-						'ps:scale',
-						'dataCreator=1:standard-1x'
-					]
+					args: ['ps:scale', 'worker=2:standard-2x', '-a', expectedAppName]
 				}];
 
 			mocks.shell.executeCommands = sandbox.stub().resolves();
@@ -233,7 +206,28 @@ describe('service/deploy/heroku.js', () => {
 			return expect(heroku.addFormation(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: false });
+					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: true });
+				});
+
+		});
+
+	});
+
+	describe('checkHerokuCliInstalled', () => {
+
+		it('should check that the Heroku CLI is installed', () => {
+
+			// given
+			const expectedCommand = { cmd: 'heroku', args: ['version'] };
+
+			mocks.shell.executeCommand = sandbox.stub().resolves('heroku-toolbelt/3.43.9999 (x86_64-darwin10.8.0) ruby/1.9.3\nheroku-cli/6.14.36-15f8a25 (darwin-x64) node-v8.7.0');
+
+			// when - then
+			return expect(heroku.checkHerokuCliInstalled({}))
+				.to.eventually.eql({})
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
 				});
 
 		});
@@ -254,7 +248,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}
 				},
-				expectedCommand = { cmd: 'heroku', args: ['create', '--json'] },
+				expectedCommand = { cmd: 'heroku', args: ['create', '-t', 'research', '--json'] },
 				expectedOutput = expectedInput;
 
 			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });
@@ -282,7 +276,8 @@ describe('service/deploy/heroku.js', () => {
 					parameters: {
 						heroku: {
 							app: {
-								name: expectedAppName
+								name: expectedAppName,
+								['git_url']: `https://git.heroku.com/${expectedAppName}.git`
 							}
 						}
 					},
@@ -308,6 +303,10 @@ describe('service/deploy/heroku.js', () => {
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.shell.executeCommand).to.have.callCount(4);
+					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'add', 'autodeploy', 'https://git.heroku.com/rocky-shore-45862.git'], opts: { exitOnError: true } });
+					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } });
+					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['push', 'autodeploy', 'master:master', '-f'], opts: { exitOnError: true } });
+					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: true } });
 				});
 
 		});
@@ -380,10 +379,10 @@ describe('service/deploy/heroku.js', () => {
 					}
 				};
 
-			sandbox.stub(fs, 'readFileSync').returns('{"name":"rocky-shore-45862"}');
+			mocks.fs.readJSON.resolves({ name: 'rocky-shore-45862' });
 
 			// when - then
-			expect(heroku.readAppJson(expectedInput)).to.eql(expectedOutput);
+			return expect(heroku.readAppJson(expectedInput)).to.eventually.eql(expectedOutput);
 
 		});
 
@@ -413,7 +412,8 @@ describe('service/deploy/heroku.js', () => {
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
-					validate: undefined
+					validate: undefined,
+					['default']: 0
 				}],
 				expectedAnswer = {
 					heroku: {
@@ -465,7 +465,8 @@ describe('service/deploy/heroku.js', () => {
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
-					validate: undefined
+					validate: undefined,
+					['default']: '<<Create new Heroku App>>'
 				}],
 				expectedOutput = expectedInput;
 
@@ -512,7 +513,8 @@ describe('service/deploy/heroku.js', () => {
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
-					validate: undefined
+					validate: undefined,
+					['default']: '<<Create new Heroku App>>'
 				}],
 				expectedOutput = expectedInput;
 
@@ -525,6 +527,64 @@ describe('service/deploy/heroku.js', () => {
 				.then(() => {
 					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+				});
+
+		});
+
+		it('should default to the Heroku org provided in the Orizuru config', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedAppName2 = 'rocky-shore-45861',
+				expectedInput = {
+					orizuru: {
+						heroku: {
+							app: {
+								name: expectedAppName2
+							}
+						}
+					},
+					heroku: {
+						apps: [{
+							name: expectedAppName
+						}, {
+							name: expectedAppName2
+						}]
+					}
+				},
+				expectedChoices = [{
+					choices: [{
+						name: expectedAppName,
+						value: {
+							name: expectedAppName
+						}
+					}, {
+						name: expectedAppName2,
+						value: {
+							name: expectedAppName2
+						}
+					}],
+					message: 'Heroku App',
+					name: 'heroku.app',
+					type: 'list',
+					validate: undefined,
+					['default']: 1
+				}],
+				expectedAnswer = {
+					heroku: {
+						apps: expectedAppName
+					}
+				},
+				expectedOutput = expectedInput;
+
+			mocks.inquirer.prompt.resolves(expectedAnswer);
+
+			// when - then
+			return expect(heroku.selectApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 				});
 
 		});

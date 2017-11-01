@@ -27,9 +27,10 @@
 'use strict';
 
 const
+	chai = require('chai'),
 	root = require('app-root-path'),
 
-	{ expect } = require('chai'),
+	expect = chai.expect,
 
 	schemas = require(root + '/src/node/lib/boilerplate/shared/schemas');
 

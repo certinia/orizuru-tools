@@ -148,8 +148,9 @@ exports.devDependencies = {
 	"lodash": "4.17.4",
 	"mocha": "3.5.0",
 	"nyc": "11.1.0",
-	"sinon": "3.2.1",
 	"proxyquire": "1.8.0",
+	"sinon": "3.2.1",
+	"sinon-chai": "2.14.0"
 }
 
 // overrode scripts

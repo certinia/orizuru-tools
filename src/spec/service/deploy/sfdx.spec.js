@@ -38,6 +38,8 @@ const
 
 	expect = chai.expect,
 
+	logger = require(root + '/src/lib/util/logger'),
+
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
@@ -51,6 +53,9 @@ describe('service/deploy/sfdx.js', () => {
 
 		mocks = {};
 
+		mocks.config = sandbox.stub();
+		mocks.config.writeSetting = sandbox.stub();
+
 		mocks.inquirer = {};
 		mocks.inquirer.prompt = sandbox.stub();
 
@@ -59,8 +64,11 @@ describe('service/deploy/sfdx.js', () => {
 
 		mocks.shell = {};
 
+		sandbox.stub(logger, 'logEvent').resolves();
+
 		sfdx = proxyquire(root + '/src/lib/service/deploy/sfdx.js', {
 			inquirer: mocks.inquirer,
+			'./shared/config': mocks.config,
 			'./shared/shell': mocks.shell
 		});
 
@@ -68,6 +76,27 @@ describe('service/deploy/sfdx.js', () => {
 
 	afterEach(() => {
 		sandbox.restore();
+	});
+
+	describe('checkSfdxInstalled', () => {
+
+		it('should check that SFDX is installed', () => {
+
+			// given
+			const expectedCommand = { cmd: 'sfdx', args: ['version'] };
+
+			mocks.shell.executeCommand = sandbox.stub().resolves('sfdx-cli/6.0.13-a52f73c (darwin-x64) node-v8.6.0');
+
+			// when - then
+			return expect(sfdx.checkSfdxInstalled({}))
+				.to.eventually.eql({})
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
 	});
 
 	describe('createNewScratchOrg', () => {
@@ -121,7 +150,6 @@ describe('service/deploy/sfdx.js', () => {
 				expectedCommands = [
 					{ cmd: 'sfdx', args: ['force:source:push', '-u', expectedUsername] },
 					{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', expectedPermset, '-u', expectedUsername] },
-					{ cmd: 'sfdx', args: ['force:apex:test:run', '-r', 'human', '-u', expectedUsername, '--json'] },
 					{ cmd: 'sfdx', args: ['force:org:display', '-u', expectedUsername, '--json'] }
 				],
 				expectedInput = {
@@ -248,21 +276,96 @@ describe('service/deploy/sfdx.js', () => {
 
 	});
 
+	describe('login', () => {
+
+		it('should login to the SFDX dev hub', () => {
+
+			// given
+			const
+				expectedCommand = { cmd: 'sfdx', args: ['force:auth:web:login', '-s', '--json'] },
+				expectedOutput = {
+					sfdx: {
+						hub: {
+							username: 'test@financialforce.com'
+						}
+					}
+				};
+
+			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{"result":{"username":"test@financialforce.com"}}' });
+
+			// when - then
+			return expect(sfdx.login({}))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+		it('should use the Orizuru config file to get the dev hub if the file exists', () => {
+
+			// given
+			const
+				expectedInput = {
+					orizuru: {
+						sfdx: {
+							hub: {
+								username: 'test@financialforce.com'
+							}
+						}
+					}
+				},
+				expectedOutput = {
+					orizuru: {
+						sfdx: {
+							hub: {
+								username: 'test@financialforce.com'
+							}
+						}
+					},
+					sfdx: {
+						hub: 'test@financialforce.com'
+					}
+				};
+
+			mocks.shell.executeCommand = sandbox.stub();
+
+			// when - then
+			return expect(sfdx.login(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.not.have.been.called;
+				});
+
+		});
+
+	});
+
 	describe('openOrg', () => {
 
 		it('should execute the correct commands', () => {
 
 			// given
 			const
+				expectedInput = {
+					parameters: {
+						sfdx: {
+							org: {
+								username: 'test@financialforce.com'
+							}
+						}
+					}
+				},
 				expectedCommands = [
-					{ cmd: 'sfdx', args: ['force:org:open'] }
+					{ cmd: 'sfdx', args: ['force:org:open', '-u', 'test@financialforce.com'] }
 				],
 				expectedOutput = {};
 
 			mocks.shell.executeCommands = sandbox.stub().resolves({});
 
 			// when - then
-			return expect(sfdx.openOrg({}))
+			return expect(sfdx.openOrg(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands);
@@ -318,6 +421,7 @@ describe('service/deploy/sfdx.js', () => {
 					message: 'SFDX Scratch Org',
 					name: 'sfdx.org',
 					type: 'list',
+					['default']: undefined,
 					validate: undefined
 				}],
 				expectedAnswer = {
@@ -363,6 +467,7 @@ describe('service/deploy/sfdx.js', () => {
 					message: 'SFDX Scratch Org',
 					name: 'sfdx.org',
 					type: 'list',
+					['default']: undefined,
 					validate: undefined
 				}],
 				expectedAnswer = {
@@ -414,6 +519,7 @@ describe('service/deploy/sfdx.js', () => {
 					message: 'SFDX Scratch Org',
 					name: 'sfdx.org',
 					type: 'list',
+					['default']: undefined,
 					validate: undefined
 				}],
 				expectedAnswer = {
