@@ -1,6 +1,10 @@
 .nyc_output
 .sfdx
-coverage
-node_modules
-*.pem
 .orizuru
+
+node_modules
+coverage
+
+local.run.properties
+
+*.pem
