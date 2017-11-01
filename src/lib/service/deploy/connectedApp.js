@@ -67,7 +67,7 @@ const
 				}
 			};
 
-		return conn.metadata.create('ConnectedApp', connectedApp)
+		return conn.metadata.upsert('ConnectedApp', connectedApp)
 			.then(connectedApp => conn.metadata.read('ConnectedApp', name))
 			.then(connectedApp => {
 				config.connectedApp = connectedApp;
