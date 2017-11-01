@@ -69,7 +69,7 @@ describe('service/deploy/properties.js', () => {
 				expectedCwd = '/Users/test/git/orizuru-tools',
 				expectedInput = {
 					certificate: {
-						privateKey: 'privateKey'
+						privateKey: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\nCdHiDY5XGE=\n-----END RSA PRIVATE KEY----'
 					},
 					connectedApp: {
 						oauthConfig: {
@@ -79,7 +79,7 @@ describe('service/deploy/properties.js', () => {
 				},
 				expectedOutput = {
 					certificate: {
-						privateKey: 'privateKey'
+						privateKey: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\nCdHiDY5XGE=\n-----END RSA PRIVATE KEY----'
 					},
 					connectedApp: {
 						oauthConfig: {
@@ -89,7 +89,7 @@ describe('service/deploy/properties.js', () => {
 					properties: {
 						filepath: '/Users/test/git/orizuru-tools/local.run.properties',
 						content: [
-							'JWT_SIGNING_KEY=privateKey',
+							'JWT_SIGNING_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\nCdHiDY5XGE=\n-----END RSA PRIVATE KEY----"',
 							'OPENID_CLIENT_ID=consumerKey',
 							'OPENID_ISSUER_URI=https://test.salesforce.com/',
 							'OPENID_HTTP_TIMEOUT=4000'
@@ -115,7 +115,7 @@ describe('service/deploy/properties.js', () => {
 				expectedCwd = '/Users/test/git/orizuru-tools',
 				expectedInput = {
 					certificate: {
-						privateKey: 'privateKey'
+						privateKey: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\nCdHiDY5XGE=\n-----END RSA PRIVATE KEY----'
 					},
 					connectedApp: {
 						oauthConfig: {
@@ -124,10 +124,10 @@ describe('service/deploy/properties.js', () => {
 					}
 				},
 				readOutput =
-				'JWT_SIGNING_KEY=notSameKey\nOPENID_CLIENT_ID=anotherKey\nOPENID_ISSUER_URI=https://test.salesforce.com/\nOPENID_HTTP_TIMEOUT=4000\nDEBUG=*',
+				'JWT_SIGNING_KEY="notSameKey"\nOPENID_CLIENT_ID=anotherKey\nOPENID_ISSUER_URI=https://test.salesforce.com/\nOPENID_HTTP_TIMEOUT=4000\nDEBUG=*',
 				expectedOutput = {
 					certificate: {
-						privateKey: 'privateKey'
+						privateKey: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\nCdHiDY5XGE=\n-----END RSA PRIVATE KEY----'
 					},
 					connectedApp: {
 						oauthConfig: {
@@ -137,10 +137,10 @@ describe('service/deploy/properties.js', () => {
 					properties: {
 						filepath: '/Users/test/git/orizuru-tools/local.run.properties',
 						content: [
-							'#JWT_SIGNING_KEY=notSameKey',
+							'#JWT_SIGNING_KEY="notSameKey"',
 							'#OPENID_CLIENT_ID=anotherKey',
 							'DEBUG=*',
-							'JWT_SIGNING_KEY=privateKey',
+							'JWT_SIGNING_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\nCdHiDY5XGE=\n-----END RSA PRIVATE KEY----"',
 							'OPENID_CLIENT_ID=consumerKey',
 							'OPENID_ISSUER_URI=https://test.salesforce.com/',
 							'OPENID_HTTP_TIMEOUT=4000'

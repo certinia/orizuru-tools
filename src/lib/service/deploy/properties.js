@@ -44,8 +44,10 @@ const
 	},
 
 	filterProperties = (config) => {
-		const newprops = [
-				`JWT_SIGNING_KEY=${config.certificate.privateKey}`,
+		const
+			privateKey = config.certificate.privateKey,
+			newprops = [
+				`JWT_SIGNING_KEY="${privateKey}"`,
 				`OPENID_CLIENT_ID=${config.connectedApp.oauthConfig.consumerKey}`,
 				'OPENID_ISSUER_URI=https://test.salesforce.com/',
 				'OPENID_HTTP_TIMEOUT=4000'
