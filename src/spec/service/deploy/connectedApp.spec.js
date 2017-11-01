@@ -126,14 +126,14 @@ describe('service/deploy/connectedApp.js', () => {
 				};
 
 			expectedInput.conn.metadata = {};
-			expectedInput.conn.metadata.create = sandbox.stub().resolves();
+			expectedInput.conn.metadata.upsert = sandbox.stub().resolves();
 			expectedInput.conn.metadata.read = sandbox.stub().resolves();
 
 			// when - then
 			return expect(connectedApp.create(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(expectedInput.conn.metadata.create).to.have.been.calledOnce;
+					expect(expectedInput.conn.metadata.upsert).to.have.been.calledOnce;
 					expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
 				});
 
@@ -175,8 +175,8 @@ describe('service/deploy/connectedApp.js', () => {
 					args: ['config:set', 'OPENID_ISSUER_URI=https://test.salesforce.com/', '-a', expectedAppName],
 					cmd: 'heroku'
 				}, {
-					args: ['-c', 'OLDIFS=$IFS', '&&', 'IFS=', '&&', 'heroku', 'config:set', 'JWT_SIGNING_KEY=privateKey', '-a', expectedAppName, '&&', 'IFS=$OLDIFS'],
-					cmd: '/bin/sh'
+					args: ['config:set', 'JWT_SIGNING_KEY=privateKey', '-a', expectedAppName],
+					cmd: 'heroku'
 				}],
 				expectedOutput = expectedInput;
 

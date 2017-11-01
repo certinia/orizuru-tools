@@ -27,20 +27,23 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
-
+	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-
+	root = require('app-root-path'),
 	sinon = require('sinon'),
-	{ calledOnce, calledWith, calledWithNew } = sinon.assert,
+	sinonChai = require('sinon-chai'),
 
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox),
+	expect = chai.expect,
 
 	schemas = require(root + '/src/node/lib/boilerplate/shared/schemas'),
 	read = require(root + '/src/node/lib/boilerplate/shared/read'),
 	defaultTransport = require(root + '/src/node/lib/boilerplate/shared/transport'),
-	orizuru = require('@financialforcedev/orizuru');
+	orizuru = require('@financialforcedev/orizuru'),
+
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
+
+chai.use(sinonChai);
 
 describe('boilerplate/web.js', () => {
 
@@ -98,12 +101,12 @@ describe('boilerplate/web.js', () => {
 		});
 
 		// when - then
-		calledOnce(orizuru.Server);
-		calledWithNew(orizuru.Server);
-		calledWith(orizuru.Server, defaultTransport);
+		expect(orizuru.Server).to.have.been.calledOnce;
+		expect(orizuru.Server).to.have.been.calledWithNew;
+		expect(orizuru.Server, defaultTransport);
 
-		calledOnce(addRouteSpy);
-		calledWith(addRouteSpy, {
+		expect(addRouteSpy).to.have.been.calledOnce;
+		expect(addRouteSpy).to.have.calledWith({
 			schemaNameToDefinition: {
 				test1: { mock: true },
 				test2: { mock: true }
@@ -113,11 +116,10 @@ describe('boilerplate/web.js', () => {
 			responseWriter: responseWriterStub
 		});
 
-		calledOnce(getServerStub);
-		calledWith(getServerStub);
+		expect(getServerStub).to.have.been.calledOnce;
 
-		calledOnce(serverListenSpy);
-		calledWith(serverListenSpy, 8080);
+		expect(serverListenSpy).to.have.been.calledOnce;
+		expect(serverListenSpy).to.have.been.calledWith(8080);
 
 	});
 
@@ -140,12 +142,11 @@ describe('boilerplate/web.js', () => {
 		});
 
 		// when - then
-		calledOnce(orizuru.Server);
-		calledWithNew(orizuru.Server);
-		calledWith(orizuru.Server, defaultTransport);
+		expect(orizuru.Server).to.have.been.calledOnce;
+		expect(orizuru.Server).to.have.been.calledWith(defaultTransport);
 
-		calledOnce(addRouteSpy);
-		calledWith(addRouteSpy, {
+		expect(addRouteSpy).to.have.been.calledOnce;
+		expect(addRouteSpy).to.have.been.calledWith({
 			schemaNameToDefinition: {
 				test1: { mock: true },
 				test2: { mock: true }
@@ -155,14 +156,13 @@ describe('boilerplate/web.js', () => {
 			responseWriter: responseWriterStub
 		});
 
-		calledOnce(getServerStub);
-		calledWith(getServerStub);
+		expect(getServerStub).to.have.been.calledOnce;
 
-		calledOnce(serverListenSpy);
-		calledWith(serverListenSpy, 8080);
+		expect(serverListenSpy).to.have.been.calledOnce;
+		expect(serverListenSpy).to.have.been.calledWith(8080);
 
-		calledOnce(throngStub);
-		calledWith(throngStub, '2', sinon.match.any);
+		expect(throngStub).to.have.been.calledOnce;
+		expect(throngStub).to.have.been.calledWith('2', sinon.match.any);
 
 	});
 

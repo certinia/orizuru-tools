@@ -27,51 +27,63 @@
 'use strict';
 
 const
-	inquirer = require('inquirer'),
-	questions = require('../../util/questions'),
-	validators = require('../../util/validators'),
+	_ = require('lodash'),
+	fs = require('fs-extra'),
+	path = require('path'),
+	logger = require('../../util/logger'),
 
-	askQuestions = (config) => {
-
-		return inquirer.prompt([
-			questions.inputField('Named Credential Name', 'name', validators.validateNotEmpty, 'Orizuru')
-		]).then(answers => {
-
-			config.parameters = config.parameters || {};
-			config.parameters.namedCredential = {};
-			config.parameters.namedCredential.name = answers.name;
-
+	readProperties = (config) => {
+		return fs.readFile(config.properties.filepath).then(content => {
+			config.properties.content = content.toString().split('\n');
 			return config;
-
+		}).catch(err => {
+			config.properties.content = [];
+			logger.logEvent('local.run.properties does not exist');
+			return config;
 		});
-
 	},
 
-	create = (config) => {
-
+	filterProperties = (config) => {
 		const
-			conn = config.conn,
-			endpoint = config.parameters.heroku.app.web_url,
-			name = config.parameters.namedCredential.name,
+			privateKey = config.certificate.privateKey,
+			newprops = [
+				`JWT_SIGNING_KEY="${privateKey}"`,
+				`OPENID_CLIENT_ID=${config.connectedApp.oauthConfig.consumerKey}`,
+				'OPENID_ISSUER_URI=https://test.salesforce.com/',
+				'OPENID_HTTP_TIMEOUT=4000'
+			],
 
-			namedCredential = {
-				endpoint,
-				label: name,
-				fullName: name,
-				principalType: 'Anonymous',
-				protocol: 'NoAuthentication'
-			};
+			uniqueContent = _.difference(config.properties.content, newprops),
 
-		return conn.metadata.upsert('NamedCredential', namedCredential)
-			.then(() => conn.metadata.read('NamedCredential', name))
-			.then(namedCredential => {
-				config.namedCredential = namedCredential;
-				return config;
+			filteredContent = _.map(uniqueContent, prop => {
+				const key = prop.split('=')[0];
+				if (key.startsWith('JWT') || key.startsWith('OPENID')) {
+					prop = '#' + prop;
+				}
+				return prop;
 			});
 
+		config.properties.content = filteredContent.concat(newprops);
+
+		return config;
+	},
+
+	writeProperties = (config) => {
+		return fs.writeFile(config.properties.filepath, config.properties.content.join('\n')).then(() => {
+			return config;
+		});
+	},
+
+	updateProperties = (config) => {
+		config.properties = {};
+		config.properties.filepath = path.resolve(process.cwd(), 'local.run.properties');
+
+		return Promise.resolve(config)
+			.then(readProperties)
+			.then(filterProperties)
+			.then(writeProperties);
 	};
 
 module.exports = {
-	askQuestions,
-	create
+	updateProperties
 };

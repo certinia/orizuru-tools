@@ -27,17 +27,18 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
-
+	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-
+	root = require('app-root-path'),
 	sinon = require('sinon'),
-	{ calledOnce, calledWith } = sinon.assert,
+	sinonChai = require('sinon-chai'),
+
+	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox),
+	restore = sandbox.restore.bind(sandbox);
 
-	{ expect } = require('chai');
+chai.use(sinonChai);
 
 describe('boilerplate/shared/auth.js', () => {
 
@@ -46,6 +47,7 @@ describe('boilerplate/shared/auth.js', () => {
 		tokenValidatorResult, grantCheckerResult;
 
 	beforeEach(() => {
+
 		tokenValidatorStub = sandbox.stub();
 		tokenValidatorResult = sandbox.stub();
 
@@ -84,17 +86,15 @@ describe('boilerplate/shared/auth.js', () => {
 		it('should return middleware', () => {
 
 			// given - when
-			const
-				middleware = auth.middleware;
+			const middleware = auth.middleware;
 
 			// then
-
 			expect(middleware.length).to.eql(2);
 			expect(middleware[0]).to.eql(tokenValidatorResult);
 			expect(middleware[1]).to.eql(grantCheckerResult);
 
-			calledOnce(tokenValidatorStub);
-			calledWith(tokenValidatorStub, {
+			expect(tokenValidatorStub).to.have.been.calledOnce;
+			expect(tokenValidatorStub).to.have.been.calledWith({
 				jwtSigningKey: '123',
 				openidClientId: '456',
 				openidHTTPTimeout: 5333,

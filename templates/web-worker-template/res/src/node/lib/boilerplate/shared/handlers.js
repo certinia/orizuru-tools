@@ -26,8 +26,7 @@
 
 'use strict';
 
-const
-	walk = require('./walk');
+const walk = require('./walk');
 
 module.exports = {
 	get: () => walk.walk('handlers', '.js')

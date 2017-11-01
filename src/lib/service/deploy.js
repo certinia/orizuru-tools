@@ -33,6 +33,7 @@ const
 	connectedApp = require('./deploy/connectedApp'),
 	heroku = require('./deploy/heroku'),
 	namedCredential = require('./deploy/namedCredential'),
+	properties = require('./deploy/properties'),
 	sfdx = require('./deploy/sfdx'),
 
 	logger = require('../util/logger'),
@@ -88,6 +89,8 @@ const
 			.then(namedCredential.create)
 			.then(logger.logEvent('Adding dyno formation'))
 			.then(heroku.addFormation)
+			.then(logger.logEvent('Adding/Updating local.run.properties'))
+			.then(properties.updateProperties)
 			.then(sfdx.openOrg)
 			.then(logger.logFinish('Finished full deploy'))
 			.catch(logger.logError);

@@ -147,7 +147,7 @@ exports.devDependencies = {
 	"chai": "4.1.1",
 	"lodash": "4.17.4",
 	"mocha": "3.5.0",
-	"nyc": "11.1.0",
+	"nyc": "11.2.1",
 	"proxyquire": "1.8.0",
 	"sinon": "3.2.1",
 	"sinon-chai": "2.14.0"
@@ -166,10 +166,10 @@ exports.scripts = {
 exports.nyc = {
 	"check-coverage": true,
 	"per-file": true,
-	"lines": 100,
-	"statements": 100,
-	"functions": 100,
-	"branches": 100,
+	"lines": 0,
+	"statements": 0,
+	"functions": 0,
+	"branches": 0,
 	"include": [
 		"src"
 	],

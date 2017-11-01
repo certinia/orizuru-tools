@@ -1,7 +1,10 @@
 .nyc_output
 .sfdx
-coverage
+.orizuru
+
 node_modules
+coverage
+
+local.run.properties
+
 *.pem
-*.tgz
-apex.db

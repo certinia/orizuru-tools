@@ -26,7 +26,6 @@
 
 'use strict';
 
-
 const
 	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
