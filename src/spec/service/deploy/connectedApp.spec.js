@@ -175,8 +175,8 @@ describe('service/deploy/connectedApp.js', () => {
 					args: ['config:set', 'OPENID_ISSUER_URI=https://test.salesforce.com/', '-a', expectedAppName],
 					cmd: 'heroku'
 				}, {
-					args: ['config:set', 'JWT_SIGNING_KEY="privateKey"', '-a', expectedAppName],
-					cmd: 'heroku'
+					args: ['-c', 'OLDIFS=$IFS', '&&', 'IFS=', '&&', 'heroku config:set', 'JWT_SIGNING_KEY=privateKey', '-a', expectedAppName, '&&', 'IFS=$OLDIFS'],
+					cmd: '/bin/sh'
 				}],
 				expectedOutput = expectedInput;
 
