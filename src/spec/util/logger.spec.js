@@ -27,14 +27,16 @@
 'use strict';
 const
 	_ = require('lodash'),
+	chai = require('chai'),
 	root = require('app-root-path'),
 	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
-	assert = sinon.assert,
-	calledOnce = assert.calledOnce,
-	calledWith = assert.calledWith,
+	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
+
+chai.use(sinonChai);
 
 describe('util/logger.js', () => {
 
@@ -65,8 +67,8 @@ describe('util/logger.js', () => {
 			logger.log(message);
 
 			// then
-			calledOnce(process.stdout.write);
-			calledWith(process.stdout.write, expectedMessage);
+			expect(process.stdout.write).to.have.been.calledOnce;
+			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
 		});
 
@@ -83,8 +85,8 @@ describe('util/logger.js', () => {
 			logger.log(message);
 
 			// then
-			calledOnce(process.stdout.write);
-			calledWith(process.stdout.write, expectedMessage);
+			expect(process.stdout.write).to.have.been.calledOnce;
+			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
 		});
 
@@ -104,8 +106,8 @@ describe('util/logger.js', () => {
 			logger.logError(error);
 
 			// then
-			calledOnce(process.stdout.write);
-			calledWith(process.stdout.write, expectedMessage);
+			expect(process.stdout.write).to.have.been.calledOnce;
+			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
 		});
 
@@ -124,8 +126,8 @@ describe('util/logger.js', () => {
 			logger.logEvent(message)();
 
 			// then
-			calledOnce(process.stdout.write);
-			calledWith(process.stdout.write, expectedMessage);
+			expect(process.stdout.write).to.have.been.calledOnce;
+			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
 		});
 
@@ -144,8 +146,8 @@ describe('util/logger.js', () => {
 			logger.logFinish(message)();
 
 			// then
-			calledOnce(process.stdout.write);
-			calledWith(process.stdout.write, expectedMessage);
+			expect(process.stdout.write).to.have.been.calledOnce;
+			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
 		});
 
@@ -164,8 +166,8 @@ describe('util/logger.js', () => {
 			logger.logLn(message);
 
 			// then
-			calledOnce(process.stdout.write);
-			calledWith(process.stdout.write, expectedMessage);
+			expect(process.stdout.write).to.have.been.calledOnce;
+			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
 		});
 
@@ -184,8 +186,8 @@ describe('util/logger.js', () => {
 			logger.logLns(message);
 
 			// then
-			calledOnce(process.stdout.write);
-			calledWith(process.stdout.write, expectedMessage);
+			expect(process.stdout.write).to.have.been.calledOnce;
+			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
 		});
 
@@ -204,8 +206,8 @@ describe('util/logger.js', () => {
 			logger.logStart(message)();
 
 			// then
-			calledOnce(process.stdout.write);
-			calledWith(process.stdout.write, expectedMessage);
+			expect(process.stdout.write).to.have.been.calledOnce;
+			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
 		});
 

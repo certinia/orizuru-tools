@@ -31,6 +31,7 @@ const
 	chai = require('chai'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
 
@@ -39,10 +40,9 @@ const
 	InitService = require(root + '/src/lib/service/init'),
 	initCommand = require(root + '/src/lib/bin/commands/setup/init'),
 
-	calledOnce = sinon.assert.calledOnce,
-	calledWith = sinon.assert.calledWith,
-
 	sandbox = sinon.sandbox.create();
+
+chai.use(sinonChai);
 
 describe('bin/commands/setup/init.js', () => {
 
@@ -70,10 +70,10 @@ describe('bin/commands/setup/init.js', () => {
 		cli.builder(mocks.yargs);
 
 		//then
-		calledOnce(mocks.yargs.epilogue);
+		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
 
-		calledWith(mocks.yargs.epilogue, COPYRIGHT_NOTICE);
-		calledWith(mocks.yargs.usage, '\nUsage: orizuru setup init');
+		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup init');
 
 	});
 
@@ -96,8 +96,8 @@ describe('bin/commands/setup/init.js', () => {
 		handler('test');
 
 		// then
-		calledOnce(mocks.initServiceInit);
-		calledWith(mocks.initServiceInit, 'test');
+		expect(mocks.initServiceInit).to.have.been.calledOnce;
+		expect(mocks.initServiceInit).to.have.been.calledWith('test');
 
 	});
 

@@ -27,22 +27,24 @@
 'use strict';
 
 const
+	root = require('app-root-path'),
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
+	askQuestions = require('../../lib/service/init/askQuestions'),
+	readAppTemplates = require('../../lib/service/init/readAppTemplates'),
 	createPackageJson = require('../../lib/service/init/createPackageJson'),
 	copyResources = require('../../lib/service/init/copyResources'),
 
 	expect = chai.expect,
 
-	calledOnce = sinon.assert.calledOnce,
-	calledWith = sinon.assert.calledWith,
-
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
+chai.use(sinonChai);
 
 describe('service/init.js', () => {
 
@@ -51,8 +53,10 @@ describe('service/init.js', () => {
 	beforeEach(() => {
 		mocks = {
 			logger: sandbox.stub(),
-			createPackageJson: sandbox.stub(createPackageJson, 'createPackageJson').resolves('test1'),
-			copyResources: sandbox.stub(copyResources, 'copyResources').resolves('test2')
+			readAppTemplates: sandbox.stub(readAppTemplates, 'readAppTemplates').resolves('test1'),
+			askQuestions: sandbox.stub(askQuestions, 'askQuestions').resolves('test2'),
+			createPackageJson: sandbox.stub(createPackageJson, 'createPackageJson').resolves('test3'),
+			copyResources: sandbox.stub(copyResources, 'copyResources').resolves('test4')
 		};
 
 		mocks.logger.logStart = sandbox.stub();
@@ -75,12 +79,19 @@ describe('service/init.js', () => {
 			return expect(InitService.init())
 				.to.eventually.be.fulfilled
 				.then(() => {
-					calledOnce(mocks.logger.logStart);
-					calledWith(mocks.logger.logStart, 'Building new project');
-					calledOnce(mocks.createPackageJson);
-					calledWith(mocks.createPackageJson, undefined);
-					calledOnce(mocks.copyResources);
-					calledWith(mocks.copyResources, 'test1');
+					expect(mocks.logger.logStart).to.have.been.calledOnce;
+					expect(mocks.readAppTemplates).to.have.been.calledOnce;
+					expect(mocks.askQuestions).to.have.been.calledOnce;
+					expect(mocks.createPackageJson).to.have.been.calledOnce;
+					expect(mocks.copyResources).to.have.been.calledOnce;
+
+					expect(mocks.logger.logStart).to.have.been.calledWith('Building new project');
+					expect(mocks.readAppTemplates).to.have.been.calledWith({
+						templatesFolder: root + '/templates'
+					});
+					expect(mocks.askQuestions).to.have.been.calledWith('test1');
+					expect(mocks.createPackageJson).to.have.been.calledWith('test2');
+					expect(mocks.copyResources).to.have.been.calledWith('test3');
 				});
 
 		});
@@ -91,16 +102,16 @@ describe('service/init.js', () => {
 			const
 				expectedError = new Error('errorTest');
 
-			mocks.createPackageJson.rejects(expectedError);
+			mocks.readAppTemplates.rejects(expectedError);
 
 			// when/then
 			return expect(InitService.init())
 				.to.eventually.be.fulfilled
 				.then(() => {
-					calledOnce(mocks.logger.logStart);
-					calledWith(mocks.logger.logStart, 'Building new project');
-					calledOnce(mocks.logger.logError);
-					calledWith(mocks.logger.logError, expectedError);
+					expect(mocks.logger.logStart).to.have.been.calledOnce;
+					expect(mocks.logger.logError).to.have.been.calledOnce;
+					expect(mocks.logger.logStart, 'Building new project');
+					expect(mocks.logger.logError, expectedError);
 				});
 
 		});

@@ -52,6 +52,4 @@ function getAvscFilesOnPathRecursively(path) {
 	});
 }
 
-module.exports = {
-	getAvscFilesOnPathRecursively
-};
+module.exports = { getAvscFilesOnPathRecursively };

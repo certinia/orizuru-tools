@@ -29,11 +29,22 @@ const
 	root = require('app-root-path'),
 	chai = require('chai'),
 
-	validators = require(root + '/src/lib/util/validators.js'),
+	validators = require(root + '/src/lib/util/validators'),
 
 	expect = chai.expect;
 
 describe('util/validators.js', () => {
+
+	describe('valid', () => {
+
+		it('should return true', () => {
+
+			// given - when - then
+			expect(validators.valid()).to.eql(true);
+
+		});
+
+	});
 
 	describe('validateNotEmpty', () => {
 

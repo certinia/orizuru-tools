@@ -27,35 +27,59 @@
 'use strict';
 
 const
-	debug = require('debug-plus')('financialforcedev:orizuru~tools:deploy:sfdx'),
-
 	_ = require('lodash'),
+	fs = require('fs'),
 	inquirer = require('inquirer'),
+	path = require('path'),
+	yaml = require('js-yaml'),
+	logger = require('../../util/logger'),
 	questions = require('../../util/questions'),
 	shell = require('./shared/shell'),
 
-	deployCommands = (config) => [
-		{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`] },
-		{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', 'OrizuruAdmin', '-u', `${config.parameters.sfdx.org.username}`] },
-		{ cmd: 'sfdx', args: ['force:apex:test:run', '-r', 'human', '-u', `${config.parameters.sfdx.org.username}`, '--json'] },
-		{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
-	],
+	checkSfdxInstalled = (config) => {
+		return shell.executeCommand({ cmd: 'sfdx', args: ['version'] }, { exitOnError: true })
+			.then(() => config);
+	},
 
-	orgOpenCommands = [
-		{ cmd: 'sfdx', args: ['force:org:open'] }
-	],
+	login = (config) => {
+
+		// Check the Orizuru config file for the hub username
+		if (_.get(config, 'orizuru.sfdx.hub.username')) {
+			config.sfdx = config.sfdx || {};
+			config.sfdx.hub = config.orizuru.sfdx.hub.username;
+			return Promise.resolve(config);
+		}
+
+		// Prompt the user to log into their SFDX dev hub
+		return Promise.resolve(config)
+			.then(logger.logEvent('You are about to be asked to log into your SFDX Dev hub'))
+			.then(() => shell.executeCommand({ cmd: 'sfdx', args: ['force:auth:web:login', '-s', '--json'] }, { exitOnError: true }))
+			.then(result => {
+				const hub = JSON.parse(result.stdout).result;
+				config.sfdx = config.sfdx || {};
+				config.sfdx.hub = hub;
+				return config;
+			});
+
+	},
 
 	createNewScratchOrg = (config) => {
-		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', 'src/apex/config/project-scratch-def.json', '-s', '--json'] }, { exitOnError: true })
+		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', `${config.sfdx.yaml['scratch-org-def']}`, '-s', '--json'] }, { exitOnError: true })
 			.then(result => ({ sfdx: { org: JSON.parse(result.stdout).result } }));
 	},
 
 	deploy = (config) => {
 
-		return shell.executeCommands(deployCommands(config), { exitOnError: true })
+		const deployCommands = [
+			{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`] },
+			{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', `${config.sfdx.yaml['permset-name']}`, '-u', `${config.parameters.sfdx.org.username}`] },
+			{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
+		];
+
+		return shell.executeCommands(deployCommands, { exitOnError: true })
 			.then(results => {
 				config.sfdxResults = results;
-				config.connectionInfo = JSON.parse(_.values(config.sfdxResults)[3].stdout).result;
+				config.connectionInfo = JSON.parse(_.values(config.sfdxResults)[2].stdout).result;
 				return config;
 			});
 
@@ -84,18 +108,29 @@ const
 
 	},
 
-	openOrg = (result) => {
+	openOrg = (config) => {
 
-		debug.log('Open org');
+		const orgOpenCommands = [
+			{ cmd: 'sfdx', args: ['force:org:open', '-u', `${config.parameters.sfdx.org.username}`] }
+		];
+
 		return shell.executeCommands(orgOpenCommands, { exitOnError: true });
 
+	},
+
+	readSfdxYaml = (config) => {
+		const dxYaml = yaml.safeLoad(fs.readFileSync(path.resolve(process.cwd(), '.salesforcedx.yaml')));
+		config.sfdx = config.sfdx || {};
+		config.sfdx.yaml = dxYaml;
+		return config;
 	},
 
 	selectApp = (config) => {
 
 		const
 			newOrg = '<<Create new SFDX scratch org>>',
-			scratchOrgs = _.map(config.sfdx.scratchOrgs, org => ({ name: org.username, value: org }));
+			allScratchOrgs = _.get(config, 'sfdx.scratchOrgs'),
+			scratchOrgs = _.map(allScratchOrgs, org => ({ name: org.username, value: org }));
 
 		if (config.options && config.options.includeNew && config.options.includeNew.sfdx === true) {
 			scratchOrgs.push(newOrg);
@@ -117,10 +152,13 @@ const
 	};
 
 module.exports = {
+	checkSfdxInstalled,
 	createNewScratchOrg,
 	deploy,
 	getConnectionDetails,
 	getAllScratchOrgs,
+	login,
 	openOrg,
+	readSfdxYaml,
 	selectApp
 };

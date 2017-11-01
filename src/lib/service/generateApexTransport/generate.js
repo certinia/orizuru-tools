@@ -29,10 +29,18 @@
 const
 	_ = require('lodash'),
 
-	{ classesForSchema } = require('./generate/classesForSchema'),
-	{ wrappingOrizuruClass, wrappingOrizuruClassXml } = require('./generate/template'),
+	templates = require('./generate/apex/templates'),
+	tokenizer = require('./generate/tokenizer'),
+	apex = require('./generate/apex'),
 
 	CLASS_MERGE_DELIMITER = '\n';
+
+function generateForSchema(schemaJson) {
+	const
+		normalizedTokens = tokenizer.validateAndTokenize(schemaJson),
+		apexClasses = apex.build(normalizedTokens);
+	return apexClasses;
+}
 
 function generate(jsonAvroSchemas) {
 	const
@@ -40,9 +48,7 @@ function generate(jsonAvroSchemas) {
 		mergedClassIdentifiers = {};
 
 	_.each(jsonAvroSchemas, jsonAvroSchema => {
-		const classes = {};
-
-		classesForSchema(classes, jsonAvroSchema);
+		const classes = generateForSchema(jsonAvroSchema);
 
 		_.each(classes, (classString, classIdentifer) => {
 			if (_.hasIn(mergedClassIdentifiers, classIdentifer)) {
@@ -58,11 +64,9 @@ function generate(jsonAvroSchemas) {
 	});
 
 	return {
-		cls: wrappingOrizuruClass(_.trimStart(finalResult.join(CLASS_MERGE_DELIMITER))),
-		xml: wrappingOrizuruClassXml()
+		cls: templates.wrappingOrizuruClass(_.trimStart(finalResult.join(CLASS_MERGE_DELIMITER))),
+		xml: templates.wrappingOrizuruClassXml()
 	};
 }
 
-module.exports = {
-	generate
-};
+module.exports = { generate };

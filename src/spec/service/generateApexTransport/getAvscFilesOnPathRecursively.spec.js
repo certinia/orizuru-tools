@@ -27,19 +27,19 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	sinon = require('sinon'),
 	proxyquire = require('proxyquire'),
+	root = require('app-root-path'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
-
-	{ calledOnce, calledTwice, calledWith } = sinon.assert,
 
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
+chai.use(sinonChai);
 
 describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () => {
 
@@ -86,8 +86,8 @@ describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () =>
 			// when - then
 			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively(startPath)).to.eql(expected);
 
-			calledOnce(mocks.klawSync);
-			calledWith(mocks.klawSync, startPath, {
+			expect(mocks.klawSync).to.have.been.calledOnce;
+			expect(mocks.klawSync).to.have.been.calledWith(startPath, {
 				nodir: true,
 				filter: sinon.match.func
 			});
@@ -95,9 +95,9 @@ describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () =>
 			expect(mocks.klawSync.args[0][1].filter({ path: 'a.avsc' })).to.eql(true);
 			expect(mocks.klawSync.args[0][1].filter({ path: 'a.js' })).to.eql(false);
 
-			calledTwice(mocks.readFileSync);
-			calledWith(mocks.readFileSync, startPath + 'a/b/c.avsc');
-			calledWith(mocks.readFileSync, startPath + 'd/e/f.avsc');
+			expect(mocks.readFileSync).to.have.been.calledTwice;
+			expect(mocks.readFileSync).to.have.been.calledWith(startPath + 'a/b/c.avsc');
+			expect(mocks.readFileSync).to.have.been.calledWith(startPath + 'd/e/f.avsc');
 
 		});
 

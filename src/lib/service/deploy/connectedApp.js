@@ -88,8 +88,15 @@ const
 			cmd: 'heroku',
 			args: ['config:set', 'OPENID_ISSUER_URI=https://test.salesforce.com/', '-a', config.parameters.heroku.app.name]
 		}, {
-			cmd: 'heroku',
-			args: ['config:set', `JWT_SIGNING_KEY=${config.certificate.privateKey}`, '-a', config.parameters.heroku.app.name]
+			// Important: to correctly add the JWT_SIGNING_KEY to Heroku the IFS (Input Field Separators) 
+			// need to be removed so that spaces are not treated as a delimiter.
+			// This command takes a copy of the current IFS and resets it to this when the command is complete.
+			// You cannot wrap the key in quotes as the quotes are then added to the Heroku config variable.
+			// For more details of IFS see:
+			// http://pubs.opengroup.org/onlinepubs/009695399/utilities/xcu_chap02.html#tag_02_06_05
+			// https://unix.stackexchange.com/questions/26784/understanding-ifs
+			cmd: '/bin/sh',
+			args: ['-c', 'OLDIFS=$IFS', '&&', 'IFS=', '&&', 'heroku', 'config:set', `JWT_SIGNING_KEY=${config.certificate.privateKey}`, '-a', config.parameters.heroku.app.name, '&&', 'IFS=$OLDIFS']
 		}];
 
 		return shell.executeCommands(commands, { exitOnError: true })

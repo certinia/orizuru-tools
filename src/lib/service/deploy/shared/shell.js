@@ -66,7 +66,7 @@ const
 
 			child.on(EVENT_CLOSE, (exitCode) => {
 				if (exitCode !== 0 && opts && opts.exitOnError) {
-					return reject(new Error(`Command failed: ${formattedCommand}`));
+					return reject(new Error(`Command failed: ${formattedCommand}\n${stderr}`));
 				}
 				const retval = { formattedCommand, exitCode, stdout: _.trim(stdout), stderr: _.trim(stderr) };
 				debugOutput(retval);

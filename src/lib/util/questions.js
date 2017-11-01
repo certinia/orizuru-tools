@@ -43,12 +43,13 @@ const
 		['default']: defaultValue
 	}),
 
-	listField = (message, prop, validate, choices) => ({
+	listField = (message, prop, validate, choices, defaultValue) => ({
 		type: 'list',
 		message,
 		name: prop,
 		choices,
-		validate
+		validate,
+		['default']: defaultValue
 	}),
 
 	passwordField = (message, prop, validate, defaultValue) => ({

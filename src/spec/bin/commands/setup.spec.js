@@ -31,17 +31,15 @@ const
 	root = require('app-root-path'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	assert = sinon.assert,
-	callCount = assert.callCount,
-	calledOnce = assert.calledOnce,
-	calledWith = assert.calledWith,
-	deepEqual = chai.assert.deepEqual,
-	strictEqual = chai.assert.strictEqual,
+	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
+
+chai.use(sinonChai);
 
 describe('bin/commands/setup.js', () => {
 
@@ -75,24 +73,24 @@ describe('bin/commands/setup.js', () => {
 		cli.builder(mocks.yargs);
 
 		//then
-		callCount(mocks.yargs.command, 2);
-		calledOnce(mocks.yargs.demandCommand);
-		calledOnce(mocks.yargs.epilogue);
-		calledOnce(mocks.yargs.updateStrings);
+		expect(mocks.yargs.command).to.have.been.calledTwice;
+		expect(mocks.yargs.demandCommand).to.have.been.calledOnce;
+		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+		expect(mocks.yargs.updateStrings).to.have.been.calledOnce;
 
-		calledWith(mocks.yargs.demandCommand, 3, 'Run \'orizuru setup --help\' for more information on a command.\n');
-		calledWith(mocks.yargs.epilogue, COPYRIGHT_NOTICE);
-		calledWith(mocks.yargs.updateStrings, { 'Commands:': 'Setup:' });
-		calledWith(mocks.yargs.usage, '\nUsage: orizuru setup COMMAND');
+		expect(mocks.yargs.demandCommand).to.have.been.calledWith(3, 'Run \'orizuru setup --help\' for more information on a command.\n');
+		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(mocks.yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'Setup:' });
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup COMMAND');
 
 	});
 
 	it('should have the correct command, description and alias', () => {
 
 		// then
-		strictEqual(cli.command, 'setup');
-		deepEqual(cli.aliases, ['s']);
-		strictEqual(cli.desc, 'Executes Setup commands');
+		expect(cli.command).to.eql('setup');
+		expect(cli.aliases).to.eql(['s']);
+		expect(cli.desc).to.eql('Executes Setup commands');
 
 	});
 

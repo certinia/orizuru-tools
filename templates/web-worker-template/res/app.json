@@ -1,0 +1,20 @@
+{
+	"name": "Example",
+	"description": "Orizuru Example",
+	"formation": {
+		"web": {
+			"quantity": 1,
+			"size": "standard-1x"
+		},
+		"worker": {
+			"quantity": 1,
+			"size": "standard-1x"
+		}
+	},
+	"addons": [{
+		"plan": "cloudamqp:lemur"
+	}],
+	"buildpacks": [{
+		"url": "heroku/nodejs"
+	}]
+}

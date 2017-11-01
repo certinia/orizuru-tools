@@ -31,6 +31,7 @@ const
 	chai = require('chai'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
 
@@ -40,10 +41,9 @@ const
 	generateApexTransportCommandPath = root + '/src/lib/bin/commands/setup/generateApexTransport',
 	generateApexTransportCommand = require(generateApexTransportCommandPath),
 
-	calledOnce = sinon.assert.calledOnce,
-	calledWith = sinon.assert.calledWith,
-
 	sandbox = sinon.sandbox.create();
+
+chai.use(sinonChai);
 
 describe('bin/commands/setup/generateApexTransport.js', () => {
 
@@ -71,16 +71,16 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 		cli.builder(mocks.yargs);
 
 		//then
-		calledOnce(mocks.yargs.epilogue);
+		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
 
-		calledWith(mocks.yargs.epilogue, COPYRIGHT_NOTICE);
-		calledWith(mocks.yargs.usage, '\nUsage: orizuru setup generateapextransport [.avsc folder path] [apex class output path]');
+		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup generateapextransport [.avsc folder path] [apex class output path]');
 
 	});
 
 	it('should return the correct config', () => {
 
-		// given/when/then
+		// given - when - then
 		expect(generateApexTransportCommand).to.deep.contain({
 			command: ['generateapextransport [inputUrl] [outputUrl]', 'gat [inputUrl] [outputUrl]'],
 			description: 'Generates apex transport classes for .avsc files in a folder'
@@ -97,8 +97,8 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 		handler('test');
 
 		// then
-		calledOnce(mocks.generateApexTransport);
-		calledWith(mocks.generateApexTransport, 'test');
+		expect(mocks.generateApexTransport).to.have.been.calledOnce;
+		expect(mocks.generateApexTransport).to.have.been.calledWith('test');
 
 	});
 

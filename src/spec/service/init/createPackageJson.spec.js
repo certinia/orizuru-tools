@@ -28,18 +28,17 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
+	proxyquire = require('proxyquire'),
 	root = require('app-root-path'),
 	sinon = require('sinon'),
-	proxyquire = require('proxyquire'),
+	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
-
-	calledOnce = sinon.assert.calledOnce,
-	calledWith = sinon.assert.calledWith,
 
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
+chai.use(sinonChai);
 
 describe('service/init/createPackageJson.js', () => {
 
@@ -63,24 +62,36 @@ describe('service/init/createPackageJson.js', () => {
 
 		it('should call initPackageJson and resolve with input if initPackageJson callback has no error', () => {
 
+			// given
+			const
+				templatesFolder = root + '/templates',
+				folder = 'simple-example';
+
 			mocks.initPackageJson.callsArgWith(2, null);
 
-			return expect(createPackageJson.createPackageJson({ test: 'test' })).to.eventually.eql({ test: 'test' })
+			// when - then
+			return expect(createPackageJson.createPackageJson({ templatesFolder, folder })).to.eventually.eql({ templatesFolder, folder })
 				.then(() => {
-					calledOnce(mocks.initPackageJson);
-					calledWith(mocks.initPackageJson, process.cwd(), root + '/src/lib/service/init/createPackageJson/.init-package-json.config.js', sinon.match.func);
+					expect(mocks.initPackageJson).to.have.been.calledOnce;
+					expect(mocks.initPackageJson).to.have.been.calledWith(process.cwd(), root + '/templates/simple-example/.config.js', sinon.match.func);
 				});
 
 		});
 
 		it('should call initPackageJson and reject with error if initPackageJson callback has an error', () => {
 
+			// given
+			const
+				templatesFolder = root + '/templates',
+				folder = 'simple-example';
+
 			mocks.initPackageJson.callsArgWith(2, new Error('err'));
 
-			return expect(createPackageJson.createPackageJson({ test: 'test' })).to.eventually.be.rejectedWith('err')
+			// when - then
+			return expect(createPackageJson.createPackageJson({ templatesFolder, folder })).to.eventually.be.rejectedWith('err')
 				.then(() => {
-					calledOnce(mocks.initPackageJson);
-					calledWith(mocks.initPackageJson, process.cwd(), root + '/src/lib/service/init/createPackageJson/.init-package-json.config.js', sinon.match.func);
+					expect(mocks.initPackageJson).to.have.been.calledOnce;
+					expect(mocks.initPackageJson).to.have.been.calledWith(process.cwd(), root + '/templates/simple-example/.config.js', sinon.match.func);
 				});
 
 		});

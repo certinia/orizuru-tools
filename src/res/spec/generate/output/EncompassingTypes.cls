@@ -42,6 +42,7 @@ public abstract class OrizuruTransport implements ISerializable
 		public DeliveryTypeCls deliveryTypeCls { get; set; }
 		public List<DeliveryTypeEnum> arrayEnum { get; set; }
 		public List<DeliveryTypeCls> arrayCls { get; set; }
+		public List<String> arrayString { get; set; }
 		public Map<String, DeliveryTypeEnum> mapEnum { get; set; }
 		public Map<String, DeliveryTypeCls> mapCls { get; set; }
 		public Object testFieldNull { get; set; }
@@ -51,12 +52,13 @@ public abstract class OrizuruTransport implements ISerializable
 		public Double testFieldFloat { get; set; }
 		public Double testFieldDouble { get; set; }
 
-		public com_financialforce_Test(DeliveryTypeEnum deliveryType, DeliveryTypeCls deliveryTypeCls, List<DeliveryTypeEnum> arrayEnum, List<DeliveryTypeCls> arrayCls, Map<String, DeliveryTypeEnum> mapEnum, Map<String, DeliveryTypeCls> mapCls, Object testFieldNull, Boolean testFieldBoolean, Integer testFieldInt, Long testFieldLong, Double testFieldFloat, Double testFieldDouble) {
+		public com_financialforce_Test(DeliveryTypeEnum deliveryType, DeliveryTypeCls deliveryTypeCls, List<DeliveryTypeEnum> arrayEnum, List<DeliveryTypeCls> arrayCls, List<String> arrayString, Map<String, DeliveryTypeEnum> mapEnum, Map<String, DeliveryTypeCls> mapCls, Object testFieldNull, Boolean testFieldBoolean, Integer testFieldInt, Long testFieldLong, Double testFieldFloat, Double testFieldDouble) {
 			
 			this.deliveryType = deliveryType;
 			this.deliveryTypeCls = deliveryTypeCls;
 			this.arrayEnum = arrayEnum;
 			this.arrayCls = arrayCls;
+			this.arrayString = arrayString;
 			this.mapEnum = mapEnum;
 			this.mapCls = mapCls;
 			this.testFieldNull = testFieldNull;
@@ -79,7 +81,7 @@ public abstract class OrizuruTransport implements ISerializable
 
 	}
 
-	public class DeliveryTypeCls // Internal class defining a type within an Orizuru Avro transport schema, used within transport extensions
+	public class DeliveryTypeCls extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
 	{
 
 		public String testFieldString { get; set; }

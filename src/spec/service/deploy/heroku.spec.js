@@ -34,8 +34,6 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	fs = require('fs'),
-
 	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
@@ -50,11 +48,14 @@ describe('service/deploy/heroku.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
+		mocks.fs = sandbox.stub();
+		mocks.fs.readJSON = sandbox.stub();
 		mocks.inquirer = {};
 		mocks.inquirer.prompt = sandbox.stub();
 		mocks.shell = {};
 
 		heroku = proxyquire(root + '/src/lib/service/deploy/heroku.js', {
+			'fs-extra': mocks.fs,
 			inquirer: mocks.inquirer,
 			'./shared/shell': mocks.shell
 		});
@@ -158,6 +159,81 @@ describe('service/deploy/heroku.js', () => {
 
 	});
 
+	describe('addFormation', () => {
+
+		it('should add the dyno formation specified in the app.json', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					heroku: {
+						app: {
+							json: {
+								formation: {
+									web: {
+										quantity: 1,
+										size: 'standard-1x'
+									},
+									worker: {
+										quantity: 2,
+										size: 'standard-2x'
+									}
+								}
+							}
+						}
+					},
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
+							}
+						}
+					}
+				},
+				expectedOutput = expectedInput,
+				expectedCommand = [{
+					cmd: 'heroku',
+					args: ['ps:scale', 'web=1:standard-1x', '-a', expectedAppName]
+				}, {
+					cmd: 'heroku',
+					args: ['ps:scale', 'worker=2:standard-2x', '-a', expectedAppName]
+				}];
+
+			mocks.shell.executeCommands = sandbox.stub().resolves();
+
+			// when - then
+			return expect(heroku.addFormation(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: true });
+				});
+
+		});
+
+	});
+
+	describe('checkHerokuCliInstalled', () => {
+
+		it('should check that the Heroku CLI is installed', () => {
+
+			// given
+			const expectedCommand = { cmd: 'heroku', args: ['version'] };
+
+			mocks.shell.executeCommand = sandbox.stub().resolves('heroku-toolbelt/3.43.9999 (x86_64-darwin10.8.0) ruby/1.9.3\nheroku-cli/6.14.36-15f8a25 (darwin-x64) node-v8.7.0');
+
+			// when - then
+			return expect(heroku.checkHerokuCliInstalled({}))
+				.to.eventually.eql({})
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
 	describe('createNewApp', () => {
 
 		it('should create a new Heroku app', () => {
@@ -172,7 +248,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}
 				},
-				expectedCommand = { cmd: 'heroku', args: ['create', '--json'] },
+				expectedCommand = { cmd: 'heroku', args: ['create', '-t', 'research', '--json'] },
 				expectedOutput = expectedInput;
 
 			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });
@@ -258,12 +334,12 @@ describe('service/deploy/heroku.js', () => {
 
 				mocks.shell.executeCommand = sandbox.stub().rejects(new Error('error'));
 
+
 				// when - then
 				return expect(heroku.deployCurrentBranch(expectedInput)).to.be.rejected
 					.then(() => {
 						expect(mocks.shell.executeCommand).to.have.callCount(2);
 					});
-
 			});
 
 	});
@@ -334,10 +410,32 @@ describe('service/deploy/heroku.js', () => {
 					}
 				};
 
-			sandbox.stub(fs, 'readFileSync').returns('{"name":"rocky-shore-45862"}');
+			mocks.fs.readJSON.resolves({ name: 'rocky-shore-45862' });
 
 			// when - then
-			expect(heroku.readAppJson(expectedInput)).to.eql(expectedOutput);
+			return expect(heroku.readAppJson(expectedInput)).to.eventually.eql(expectedOutput);
+
+		});
+
+		it('should throw an error if app.json doesn\'t exist', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
+							}
+						}
+					}
+				};
+
+			mocks.fs.readJSON.rejects(new Error('test'));
+
+			// when - then
+			return expect(heroku.readAppJson(expectedInput)).to.eventually.be.rejectedWith('app.json is required in the root of your project when deploying to heroku.');
 
 		});
 
@@ -367,7 +465,8 @@ describe('service/deploy/heroku.js', () => {
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
-					validate: undefined
+					validate: undefined,
+					['default']: 0
 				}],
 				expectedAnswer = {
 					heroku: {
@@ -419,7 +518,8 @@ describe('service/deploy/heroku.js', () => {
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
-					validate: undefined
+					validate: undefined,
+					['default']: '<<Create new Heroku App>>'
 				}],
 				expectedOutput = expectedInput;
 
@@ -466,7 +566,8 @@ describe('service/deploy/heroku.js', () => {
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
-					validate: undefined
+					validate: undefined,
+					['default']: '<<Create new Heroku App>>'
 				}],
 				expectedOutput = expectedInput;
 
@@ -479,6 +580,64 @@ describe('service/deploy/heroku.js', () => {
 				.then(() => {
 					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+				});
+
+		});
+
+		it('should default to the Heroku org provided in the Orizuru config', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedAppName2 = 'rocky-shore-45861',
+				expectedInput = {
+					orizuru: {
+						heroku: {
+							app: {
+								name: expectedAppName2
+							}
+						}
+					},
+					heroku: {
+						apps: [{
+							name: expectedAppName
+						}, {
+							name: expectedAppName2
+						}]
+					}
+				},
+				expectedChoices = [{
+					choices: [{
+						name: expectedAppName,
+						value: {
+							name: expectedAppName
+						}
+					}, {
+						name: expectedAppName2,
+						value: {
+							name: expectedAppName2
+						}
+					}],
+					message: 'Heroku App',
+					name: 'heroku.app',
+					type: 'list',
+					validate: undefined,
+					['default']: 1
+				}],
+				expectedAnswer = {
+					heroku: {
+						apps: expectedAppName
+					}
+				},
+				expectedOutput = expectedInput;
+
+			mocks.inquirer.prompt.resolves(expectedAnswer);
+
+			// when - then
+			return expect(heroku.selectApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 				});
 
 		});

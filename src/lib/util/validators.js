@@ -42,9 +42,12 @@ const
 			return true;
 		}
 		return 'You must provide a valid HEX color, e.g. FF0000.';
-	};
+	},
+
+	valid = () => true;
 
 module.exports = {
 	validateNotEmpty,
-	validateHexColor
+	validateHexColor,
+	valid
 };
