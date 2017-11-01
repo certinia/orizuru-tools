@@ -24,46 +24,7 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-public class HerokuConnector implements IHerokuConnector
+public interface IHerokuConnector
 {
-
-	@TestVisible private static final String ACCOUNT_ENDPOINT = '/api/account';
-    @TestVisible private static final String POST_METHOD = 'POST';
-    @TestVisible private static final String REFERER_HEADER = 'Referer';
-    @TestVisible private static final String AUTHORIZATION_HEADER = 'Authorization';
-    @TestVisible private static final String AUTHORIZATION_PREFIX = 'Bearer ';
-    @TestVisible private static final String CONTENT_TYPE_HEADER = 'Content-Type';
-    @TestVisible private static final String CONTENT_TYPE_VALUE = 'application/json';
-
-	private static IHerokuConnector instance = new HerokuConnector();
-
-	public static IHerokuConnector newInstance() {
-		return instance;
-	}
-
-	@TestVisible
-	private static void setMock(IHerokuConnector instance) {
-		HerokuConnector.instance = instance;
-	}
-
-	private HerokuConnector() {}
-
-	public HttpResponse post(String endpoint, ISerializable transport) 
-    {
-        HttpRequest req = new HttpRequest();
-		req.setEndpoint(endpoint);
-    	req.setMethod(POST_METHOD);
-		req.setHeader(REFERER_HEADER, Url.getSalesforceBaseUrl().toExternalForm());
-		req.setHeader(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE);
-        req.setHeader(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + UserInfo.getSessionId());
-        req.setBody(transport.serialize());
-		return postRequest(req);
-    }
-    
-    private static HttpResponse postRequest(HttpRequest req)
-    {
-        Http h = new Http();
-        return h.send(req);
-    }
-
+	HttpResponse post(String endpoint, ISerializable transport); 
 }
