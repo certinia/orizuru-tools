@@ -34,8 +34,6 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	path = require('path'),
-
 	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
