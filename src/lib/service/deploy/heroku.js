@@ -36,14 +36,24 @@ const
 
 	addAddOns = (config) => {
 
-		const addOnCommands = _.map(_.get(config, 'heroku.app.json.addons'), addon => ({
-			cmd: 'heroku',
-			args: ['addons:create', `${addon.plan}`, '-a', config.parameters.heroku.app.name]
-		}));
+		const
+			getAddons = {
+				cmd: 'heroku',
+				args: ['addons', '-a', config.parameters.heroku.app.name, '--json']
+			};
 
-		return shell.executeCommands(addOnCommands, { exitOnError: true })
-			.then(() => config);
-
+		return shell.executeCommand(getAddons, { exitOnError: true })
+			.then(result => JSON.parse(result.stdout))
+			.then(result => {
+				const
+					filter = appJsonAddon => !_.reduce(result, (bool, addon) => bool || addon.plan.name === appJsonAddon.plan, false),
+					addOnCommands = _.map(_.filter(_.get(config, 'heroku.app.json.addons'), filter), addon => ({
+						cmd: 'heroku',
+						args: ['addons:create', `${addon.plan}`, '-a', config.parameters.heroku.app.name]
+					}));
+				return shell.executeCommands(addOnCommands, { exitOnError: true })
+					.then(() => config);
+			});
 	},
 
 	addBuildpacks = (config) => {
@@ -88,25 +98,43 @@ const
 
 	},
 
-	createNewApp = (config) => {
+	createNewApp = (config, args) => {
 
-		return shell.executeCommand({ cmd: 'heroku', args: ['create', '-t', 'research', '--json'] }, { exitOnError: true })
+		const commandArgs = args || ['create', '--json'];
+		return shell.executeCommand({ cmd: 'heroku', args: commandArgs }, { exitOnError: true })
 			.then(result => {
 				return ({ heroku: { app: JSON.parse(result.stdout) } });
 			});
 
 	},
 
+	removeAutoDeploy = () => {
+		return shell.executeCommand({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: false } });
+	},
+
+	createNewOrganizationApp = (config) => {
+
+		return shell.executeCommand({ cmd: 'heroku', args: ['orgs', '--json'], opts: { exitOnError: true } })
+			.then(result => {
+				const orgs = JSON.parse(result.stdout);
+				return _.map(orgs, org => org.name);
+			})
+			.then(orgNames => inquirer.prompt([
+				questions.listField('Organization', 'heroku.organization', undefined, orgNames)
+			]))
+			.then(answers => createNewApp(config, ['create', '-t', answers.heroku.organization, '--json']))
+			.then(config => config);
+	},
+
 	deployCurrentBranch = (config) => {
 
 		const gitUrl = _.get(config, 'parameters.heroku.app.git_url');
 
-		return shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${gitUrl}`], opts: { exitOnError: true } })
+		return removeAutoDeploy()
+			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${gitUrl}`], opts: { exitOnError: true } }))
 			.then(() => shell.executeCommand({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } }))
 			.then(branch => shell.executeCommand({ cmd: 'git', args: ['push', 'autodeploy', `${branch.stdout}:master`, '-f'], opts: { exitOnError: true } }))
-			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: true } }))
 			.then(() => config);
-
 	},
 
 	getAllApps = (config) => {
@@ -144,12 +172,14 @@ const
 
 		const
 			newApp = '<<Create new Heroku App>>',
+			newOrgApp = '<<Create new Heroku Organization App>>',
 			apps = _.map(config.heroku.apps, app => ({ name: app.name, value: app }));
 
 		let defaultValue = 0;
 
 		if (_.get(config, 'options.includeNew.heroku') === true) {
 			apps.push(newApp);
+			apps.push(newOrgApp);
 			defaultValue = newApp;
 		}
 
@@ -162,6 +192,8 @@ const
 		]).then(answers => {
 			if (answers.heroku.app === newApp) {
 				return createNewApp(config);
+			} else if (answers.heroku.app === newOrgApp) {
+				return createNewOrganizationApp(config);
 			}
 			return answers;
 		}).then(answers => {
@@ -178,8 +210,10 @@ module.exports = {
 	addFormation,
 	checkHerokuCliInstalled,
 	createNewApp,
+	createNewOrganizationApp,
 	deployCurrentBranch,
 	getAllApps,
 	readAppJson,
-	selectApp
+	selectApp,
+	removeAutoDeploy
 };

@@ -39,6 +39,7 @@ const
 	connectedApp = require(root + '/src/lib/service/deploy/connectedApp'),
 	heroku = require(root + '/src/lib/service/deploy/heroku'),
 	namedCredential = require(root + '/src/lib/service/deploy/namedCredential'),
+	properties = require(root + '/src/lib/service/deploy/properties'),
 	sfdx = require(root + '/src/lib/service/deploy/sfdx'),
 	logger = require(root + '/src/lib/util/logger'),
 
@@ -110,6 +111,8 @@ describe('service/deploy.js', () => {
 			sandbox.stub(namedCredential, 'askQuestions').resolves(expectedInput);
 			sandbox.stub(namedCredential, 'create').resolves(expectedInput);
 
+			sandbox.stub(properties, 'updateProperties').resolves(expectedInput);
+
 			sandbox.stub(sfdx, 'checkSfdxInstalled').resolves(expectedInput);
 			sandbox.stub(sfdx, 'deploy').resolves(expectedInput);
 			sandbox.stub(sfdx, 'getAllScratchOrgs').resolves(expectedInput);
@@ -125,7 +128,7 @@ describe('service/deploy.js', () => {
 				.then(() => {
 
 					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logEvent).to.have.been.callCount(16);
+					expect(logger.logEvent).to.have.been.callCount(17);
 					expect(logger.logFinish).to.have.been.calledOnce;
 
 					expect(certificate.askQuestions).to.have.been.calledOnce;
@@ -152,6 +155,8 @@ describe('service/deploy.js', () => {
 
 					expect(namedCredential.askQuestions).to.have.been.calledOnce;
 					expect(namedCredential.create).to.have.been.calledOnce;
+
+					expect(properties.updateProperties).to.have.been.calledOnce;
 
 					expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
 					expect(sfdx.deploy).to.have.been.calledOnce;
