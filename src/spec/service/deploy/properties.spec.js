@@ -38,21 +38,26 @@ const
 
 	expect = chai.expect,
 
-	sandbox = sinon.sandbox.create(),
-
-	properties = require(root + '/src/lib/service/deploy/properties');
+	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/deploy/properties.js', () => {
 
-	let mocks,
-		filepath = path.resolve(process.cwd(), 'local.run.properties');
+	let mocks, properties;
 
 	beforeEach(() => {
 
 		mocks = {};
+
+		mocks.fsextra = {};
+		mocks.fsextra.readFile = sandbox.stub();
+		mocks.fsextra.writeFile = sandbox.stub();
+
+		properties = proxyquire(root + '/src/lib/service/deploy/properties.js', {
+			'fs-extra': mocks.fsextra
+		});
 	});
 
 	afterEach(() => {
@@ -61,8 +66,9 @@ describe('service/deploy/properties.js', () => {
 
 	describe('updateProperties', () => {
 
-		it('should filter the properties file', () => {
+		it('should add the properties file with the right content', () => {
 			const
+				expectedCwd = '/Users/test/git/orizuru-tools',
 				expectedInput = {
 					certificate: {
 						privateKey: 'privateKey'
@@ -73,7 +79,7 @@ describe('service/deploy/properties.js', () => {
 						}
 					}
 				},
-				expectedOutputRead = {
+				expectedOutput = {
 					certificate: {
 						privateKey: 'privateKey'
 					},
@@ -83,31 +89,8 @@ describe('service/deploy/properties.js', () => {
 						}
 					},
 					properties: {
-						filepath: filepath,
+						filepath: '/Users/test/git/orizuru-tools/local.run.properties',
 						content: [
-							'JWT_SIGNING_KEY=privateKey',
-							'OPENID_CLIENT_ID=consumerKey',
-							'OPENID_ISSUER_URI=https://test.salesforce.com/',
-							'OPENID_HTTP_TIMEOUT=4000'
-						]
-					}
-				},
-				expectedOutputWrite = {
-					certificate: {
-						privateKey: 'privateKey'
-					},
-					connectedApp: {
-						oauthConfig: {
-							consumerKey: 'consumerKey'
-						}
-					},
-					properties: {
-						filepath: filepath,
-						content: [
-							'#JWT_SIGNING_KEY=privateKey',
-							'#OPENID_CLIENT_ID=consumerKey',
-							'#OPENID_ISSUER_URI=https://test.salesforce.com/',
-							'#OPENID_HTTP_TIMEOUT=4000',
 							'JWT_SIGNING_KEY=privateKey',
 							'OPENID_CLIENT_ID=consumerKey',
 							'OPENID_ISSUER_URI=https://test.salesforce.com/',
@@ -116,15 +99,67 @@ describe('service/deploy/properties.js', () => {
 					}
 				};
 
-			properties.readProperties.resolves(expectedOutputRead);
-			properties.writeProperties.resolves(expectedOutputWrite);
+			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			mocks.fsextra.readFile.resolves();
+			mocks.fsextra.writeFile.resolves();
 
 			// when - then
 			return expect(properties.updateProperties(expectedInput))
-				.to.eventually.eql(expectedOutputWrite)
+				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(properties.readProperties).to.be.calledOnce();
-					expect(properties.writeProperties).to.be.calledOnce();
+					expect(mocks.fsextra.readFile).to.have.been.calledOnce;
+					expect(mocks.fsextra.writeFile).to.have.been.calledOnce;
+				});
+		});
+
+		it('should update an existing properties file', () => {
+			const
+				expectedCwd = '/Users/test/git/orizuru-tools',
+				expectedInput = {
+					certificate: {
+						privateKey: 'privateKey'
+					},
+					connectedApp: {
+						oauthConfig: {
+							consumerKey: 'consumerKey'
+						}
+					}
+				},
+				readOutput =
+				'JWT_SIGNING_KEY=notSameKey\nOPENID_CLIENT_ID=anotherKey\nOPENID_ISSUER_URI=https://test.salesforce.com/\nOPENID_HTTP_TIMEOUT=4000\nDEBUG=*',
+				expectedOutput = {
+					certificate: {
+						privateKey: 'privateKey'
+					},
+					connectedApp: {
+						oauthConfig: {
+							consumerKey: 'consumerKey'
+						}
+					},
+					properties: {
+						filepath: '/Users/test/git/orizuru-tools/local.run.properties',
+						content: [
+							'#JWT_SIGNING_KEY=notSameKey',
+							'#OPENID_CLIENT_ID=anotherKey',
+							'DEBUG=*',
+							'JWT_SIGNING_KEY=privateKey',
+							'OPENID_CLIENT_ID=consumerKey',
+							'OPENID_ISSUER_URI=https://test.salesforce.com/',
+							'OPENID_HTTP_TIMEOUT=4000'
+						]
+					}
+				};
+
+			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			mocks.fsextra.readFile.resolves(readOutput);
+			mocks.fsextra.writeFile.resolves();
+
+			// when - then
+			return expect(properties.updateProperties(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.fsextra.readFile).to.have.been.calledOnce;
+					expect(mocks.fsextra.writeFile).to.have.been.calledOnce;
 				});
 		});
 	});
