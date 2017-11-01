@@ -1,0 +1,2 @@
+web: node src/node/lib/boilerplate/web.js
+worker: sh target/bin/worker

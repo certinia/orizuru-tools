@@ -1,0 +1,7 @@
+.nyc_output
+.sfdx
+coverage
+node_modules
+*.pem
+*.tgz
+apex.db
