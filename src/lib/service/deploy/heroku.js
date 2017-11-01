@@ -36,14 +36,24 @@ const
 
 	addAddOns = (config) => {
 
-		const addOnCommands = _.map(_.get(config, 'heroku.app.json.addons'), addon => ({
-			cmd: 'heroku',
-			args: ['addons:create', `${addon.plan}`, '-a', config.parameters.heroku.app.name]
-		}));
+		const
+			getAddons = {
+				cmd: 'heroku',
+				args: ['addons', '-a', config.parameters.heroku.app.name, '--json']
+			};
 
-		return shell.executeCommands(addOnCommands, { exitOnError: true })
-			.then(() => config);
-
+		return shell.executeCommand(getAddons, { exitOnError: true })
+			.then(result => JSON.parse(result.stdout))
+			.then(result => {
+				const
+					filter = appJsonAddon => !_.reduce(result, (bool, addon) => bool || addon.plan.name === appJsonAddon.plan, false),
+					addOnCommands = _.map(_.filter(_.get(config, 'heroku.app.json.addons'), filter), addon => ({
+						cmd: 'heroku',
+						args: ['addons:create', `${addon.plan}`, '-a', config.parameters.heroku.app.name]
+					}));
+				return shell.executeCommands(addOnCommands, { exitOnError: true })
+					.then(() => config);
+			});
 	},
 
 	addBuildpacks = (config) => {
