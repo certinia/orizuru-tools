@@ -1,7 +1,7 @@
 {
-    "orgName": "Brad Company",
-    "edition": "Developer",
-    "orgPreferences" : {
-        "enabled": ["S1DesktopEnabled"]
-    }
+	"orgName": "Orizuru Inc",
+	"edition": "Developer",
+	"orgPreferences": {
+		"enabled": ["S1DesktopEnabled"]
+	}
 }
