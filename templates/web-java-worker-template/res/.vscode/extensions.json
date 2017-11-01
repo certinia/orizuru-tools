@@ -1,0 +1,8 @@
+{
+
+	"recommendations": [
+		"alexdima.vscode-lcov",
+		"dbaeumer.vscode-eslint",
+		"HookyQR.beautify"
+	]
+}

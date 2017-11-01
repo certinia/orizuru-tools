@@ -422,6 +422,28 @@ describe('service/deploy/heroku.js', () => {
 
 		});
 
+		it('should throw an error if app.json doesn\'t exist', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					parameters: {
+						heroku: {
+							app: {
+								name: expectedAppName
+							}
+						}
+					}
+				};
+
+			mocks.fs.readJSON.rejects(new Error('test'));
+
+			// when - then
+			return expect(heroku.readAppJson(expectedInput)).to.eventually.be.rejectedWith('app.json is required in the root of your project when deploying to heroku.');
+
+		});
+
 	});
 
 	describe('selectApp', () => {
