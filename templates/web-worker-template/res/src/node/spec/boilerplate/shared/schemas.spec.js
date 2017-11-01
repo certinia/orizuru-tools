@@ -36,7 +36,6 @@ const
 	sandbox = sinon.sandbox.create(),
 	restore = sandbox.restore.bind(sandbox);
 
-
 describe('boilerplate/shared/schemas.js', () => {
 
 	let mocks, schemas;
