@@ -89,7 +89,7 @@ describe('service/deploy/properties.js', () => {
 					properties: {
 						filepath: '/Users/test/git/orizuru-tools/local.run.properties',
 						content: [
-							'JWT_SIGNING_KEY="-----BEGIN RSA PRIVATE KEY-----MIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrNCdHiDY5XGE=-----END RSA PRIVATE KEY----"',
+							'JWT_SIGNING_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\nCdHiDY5XGE=\n-----END RSA PRIVATE KEY----"',
 							'OPENID_CLIENT_ID=consumerKey',
 							'OPENID_ISSUER_URI=https://test.salesforce.com/',
 							'OPENID_HTTP_TIMEOUT=4000'
@@ -140,7 +140,7 @@ describe('service/deploy/properties.js', () => {
 							'#JWT_SIGNING_KEY="notSameKey"',
 							'#OPENID_CLIENT_ID=anotherKey',
 							'DEBUG=*',
-							'JWT_SIGNING_KEY="-----BEGIN RSA PRIVATE KEY-----MIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrNCdHiDY5XGE=-----END RSA PRIVATE KEY----"',
+							'JWT_SIGNING_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\nCdHiDY5XGE=\n-----END RSA PRIVATE KEY----"',
 							'OPENID_CLIENT_ID=consumerKey',
 							'OPENID_ISSUER_URI=https://test.salesforce.com/',
 							'OPENID_HTTP_TIMEOUT=4000'

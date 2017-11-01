@@ -45,7 +45,7 @@ const
 
 	filterProperties = (config) => {
 		const
-			privateKey = config.certificate.privateKey.replace(/\n/g, ''),
+			privateKey = config.certificate.privateKey,
 			newprops = [
 				`JWT_SIGNING_KEY="${privateKey}"`,
 				`OPENID_CLIENT_ID=${config.connectedApp.oauthConfig.consumerKey}`,
