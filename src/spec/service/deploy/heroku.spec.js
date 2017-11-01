@@ -248,7 +248,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}
 				},
-				expectedCommand = { cmd: 'heroku', args: ['create', '-t', 'research', '--json'] },
+				expectedCommand = { cmd: 'heroku', args: ['create', '--json'] },
 				expectedOutput = expectedInput;
 
 			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });
@@ -259,6 +259,42 @@ describe('service/deploy/heroku.js', () => {
 				.then(() => {
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
 					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
+	describe('createNewOrganizationApp', () => {
+
+		it('should create a new Heroku app in the expected organization', () => {
+
+			// given
+			const
+				expectedTeam = 'research',
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					heroku: {
+						app: {
+							name: expectedAppName
+						}
+					}
+				},
+				expectedOrgCommand = { cmd: 'heroku', args: ['orgs', '--json'], opts: { exitOnError: true } },
+				expectedAppCommand = { cmd: 'heroku', args: ['create', '-t', expectedTeam, '--json'] },
+				expectedOutput = expectedInput;
+
+			mocks.shell.executeCommand = sandbox.stub().withArgs(expectedOrgCommand).resolves({ stdout: `[{"name":"${expectedTeam}"}]` });
+			mocks.inquirer.prompt = sandbox.stub().resolves({ heroku: { organization: expectedTeam } });
+			mocks.shell.executeCommand = sandbox.stub().withArgs(expectedAppCommand, { exitOnError: true }).resolves({ stdout: `{"name":"${expectedAppName}"}` });
+
+			// when - then
+			return expect(heroku.createNewOrganizationApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedOrgCommand);
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedAppCommand);
 				});
 
 		});
@@ -483,7 +519,7 @@ describe('service/deploy/heroku.js', () => {
 						value: {
 							name: expectedAppName
 						}
-					}, '<<Create new Heroku App>>'],
+					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
@@ -531,7 +567,7 @@ describe('service/deploy/heroku.js', () => {
 						value: {
 							name: expectedAppName
 						}
-					}, '<<Create new Heroku App>>'],
+					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
 					name: 'heroku.app',
 					type: 'list',
@@ -549,6 +585,56 @@ describe('service/deploy/heroku.js', () => {
 				.then(() => {
 					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+				});
+
+		});
+
+		it('should prompt the user to select the Heroku application with a new app option and create a new tean app if that option is chosen', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedAnswer = {
+					heroku: {
+						app: '<<Create new Heroku Organization App>>'
+					}
+				},
+				expectedInput = {
+					options: {
+						includeNew: {
+							heroku: true
+						}
+					},
+					heroku: {
+						apps: [{
+							name: expectedAppName
+						}]
+					}
+				},
+				expectedChoices = [{
+					choices: [{
+						name: expectedAppName,
+						value: {
+							name: expectedAppName
+						}
+					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
+					message: 'Heroku App',
+					name: 'heroku.app',
+					type: 'list',
+					validate: undefined,
+					['default']: '<<Create new Heroku App>>'
+				}],
+				expectedOutput = expectedInput;
+
+			mocks.inquirer.prompt.resolves(expectedAnswer);
+			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+
+			// when - then
+			return expect(heroku.selectApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
+					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
 				});
 
 		});
