@@ -86,7 +86,6 @@ const
 				config.certificate.privateKey = certificate[1];
 
 				return config;
-
 			});
 
 	},
@@ -100,7 +99,21 @@ const
 			.then(read)
 			.then(logFinish('Generated certificates'))
 			.catch(logError);
+	},
 
+	certsExist = (config) => {
+		return config.certificate && config.certificate.publicKey && config.certificate.privateKey;
+	},
+
+	getCert = (config) => {
+		return read(config)
+			.then(result => {
+				if (certsExist(result)) {
+					return result;
+				} else {
+					return generate(config);
+				}
+			});
 	};
 
 module.exports = {
@@ -108,5 +121,6 @@ module.exports = {
 	checkOpenSSLInstalled,
 	create,
 	generate,
-	read
+	read,
+	getCert
 };
