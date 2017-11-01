@@ -589,6 +589,56 @@ describe('service/deploy/heroku.js', () => {
 
 		});
 
+		it('should prompt the user to select the Heroku application with a new app option and create a new tean app if that option is chosen', () => {
+
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedAnswer = {
+					heroku: {
+						app: '<<Create new Heroku Organization App>>'
+					}
+				},
+				expectedInput = {
+					options: {
+						includeNew: {
+							heroku: true
+						}
+					},
+					heroku: {
+						apps: [{
+							name: expectedAppName
+						}]
+					}
+				},
+				expectedChoices = [{
+					choices: [{
+						name: expectedAppName,
+						value: {
+							name: expectedAppName
+						}
+					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
+					message: 'Heroku App',
+					name: 'heroku.app',
+					type: 'list',
+					validate: undefined,
+					['default']: '<<Create new Heroku App>>'
+				}],
+				expectedOutput = expectedInput;
+
+			mocks.inquirer.prompt.resolves(expectedAnswer);
+			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+
+			// when - then
+			return expect(heroku.selectApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
+					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
+				});
+
+		});
+
 		it('should default to the Heroku org provided in the Orizuru config', () => {
 
 			// given
