@@ -115,6 +115,7 @@ describe('service/deploy.js', () => {
 			sandbox.stub(sfdx, 'getAllScratchOrgs').resolves(expectedInput);
 			sandbox.stub(sfdx, 'getConnectionDetails').resolves(expectedInput);
 			sandbox.stub(sfdx, 'login').resolves(expectedInput);
+			sandbox.stub(sfdx, 'openOrg').resolves(expectedInput);
 			sandbox.stub(sfdx, 'readSfdxYaml').resolves(expectedInput);
 			sandbox.stub(sfdx, 'selectApp').resolves(expectedInput);
 
@@ -154,9 +155,10 @@ describe('service/deploy.js', () => {
 
 					expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
 					expect(sfdx.deploy).to.have.been.calledOnce;
-					expect(sfdx.login).to.have.been.calledOnce;
 					expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
 					expect(sfdx.getConnectionDetails).to.have.been.calledOnce;
+					expect(sfdx.login).to.have.been.calledOnce;
+					expect(sfdx.openOrg).to.have.been.calledOnce;
 					expect(sfdx.readSfdxYaml).to.have.been.calledOnce;
 					expect(sfdx.selectApp).to.have.been.calledOnce;
 

@@ -91,6 +91,7 @@ const
 			.then(namedCredential.create)
 			.then(logger.logEvent('Adding dyno formation'))
 			.then(heroku.addFormation)
+			.then(sfdx.openOrg)
 			.then(logger.logFinish('Finished full deploy'))
 			.catch(logger.logError);
 
