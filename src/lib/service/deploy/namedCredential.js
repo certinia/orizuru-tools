@@ -62,7 +62,7 @@ const
 				protocol: 'NoAuthentication'
 			};
 
-		return conn.metadata.create('NamedCredential', namedCredential)
+		return conn.metadata.upsert('NamedCredential', namedCredential)
 			.then(() => conn.metadata.read('NamedCredential', name))
 			.then(namedCredential => {
 				config.namedCredential = namedCredential;

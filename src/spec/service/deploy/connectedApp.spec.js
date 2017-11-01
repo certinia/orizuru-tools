@@ -126,14 +126,14 @@ describe('service/deploy/connectedApp.js', () => {
 				};
 
 			expectedInput.conn.metadata = {};
-			expectedInput.conn.metadata.create = sandbox.stub().resolves();
+			expectedInput.conn.metadata.upsert = sandbox.stub().resolves();
 			expectedInput.conn.metadata.read = sandbox.stub().resolves();
 
 			// when - then
 			return expect(connectedApp.create(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(expectedInput.conn.metadata.create).to.have.been.calledOnce;
+					expect(expectedInput.conn.metadata.upsert).to.have.been.calledOnce;
 					expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
 				});
 

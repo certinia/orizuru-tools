@@ -166,10 +166,10 @@ exports.scripts = {
 exports.nyc = {
 	"check-coverage": true,
 	"per-file": true,
-	"lines": 100,
-	"statements": 100,
-	"functions": 100,
-	"branches": 100,
+	"lines": 0,
+	"statements": 0,
+	"functions": 0,
+	"branches": 0,
 	"include": [
 		"src"
 	],
