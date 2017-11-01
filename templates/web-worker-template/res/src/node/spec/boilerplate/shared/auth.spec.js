@@ -29,6 +29,7 @@
 const
 	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
+	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 

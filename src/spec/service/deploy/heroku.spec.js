@@ -248,7 +248,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}
 				},
-				expectedCommand = { cmd: 'heroku', args: ['create', '--json'] },
+				expectedCommand = { cmd: 'heroku', args: ['create', '-t', 'research', '--json'] },
 				expectedOutput = expectedInput;
 
 			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });

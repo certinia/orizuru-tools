@@ -96,7 +96,7 @@ const
 			// http://pubs.opengroup.org/onlinepubs/009695399/utilities/xcu_chap02.html#tag_02_06_05
 			// https://unix.stackexchange.com/questions/26784/understanding-ifs
 			cmd: '/bin/sh',
-			args: ['-c', 'OLDIFS=$IFS', '&&', 'IFS=', '&&', 'heroku config:set', `JWT_SIGNING_KEY=${config.certificate.privateKey}`, '-a', config.parameters.heroku.app.name, '&&', 'IFS=$OLDIFS']
+			args: ['-c', 'OLDIFS=$IFS', '&&', 'IFS=', '&&', 'heroku', 'config:set', `JWT_SIGNING_KEY=${config.certificate.privateKey}`, '-a', config.parameters.heroku.app.name, '&&', 'IFS=$OLDIFS']
 		}];
 
 		return shell.executeCommands(commands, { exitOnError: true })
