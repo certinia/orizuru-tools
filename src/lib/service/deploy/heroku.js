@@ -133,6 +133,9 @@ const
 				config.heroku.app = config.heroku.app || {};
 				config.heroku.app.json = appJson;
 				return config;
+			})
+			.catch(() => {
+				throw new Error('app.json is required in the root of your project when deploying to heroku.');
 			});
 
 	},
