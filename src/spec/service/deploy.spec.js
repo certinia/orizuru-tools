@@ -33,6 +33,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
+	configFile = require(root + '/src/lib/service/deploy/shared/config'),
 	conn = require(root + '/src/lib/service/deploy/shared/connection'),
 	certificate = require(root + '/src/lib/service/deploy/certificate'),
 	connectedApp = require(root + '/src/lib/service/deploy/connectedApp'),
@@ -41,7 +42,7 @@ const
 	sfdx = require(root + '/src/lib/service/deploy/sfdx'),
 	logger = require(root + '/src/lib/util/logger'),
 
-	service = require(root + '/src/lib/service/fullDeploy'),
+	service = require(root + '/src/lib/service/deploy'),
 
 	expect = chai.expect,
 
@@ -50,60 +51,89 @@ const
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('service/fullDeploy.js', () => {
+describe('service/deploy.js', () => {
 
 	afterEach(() => {
 		sandbox.restore();
 	});
 
-	describe('create', () => {
+	describe('full', () => {
 
 		it('should call the correct functions', () => {
 
 			// given
-			sandbox.stub(logger, 'logStart');
-			sandbox.stub(logger, 'logEvent');
-			sandbox.stub(logger, 'logFinish');
+			const expectedInput = {
+				parameters: {
+					heroku: {
+						app: {
+							name: 'herokuApp'
+						}
+					},
+					sfdx: {
+						org: {
+							username: 'testUsername'
+						}
+					}
+				},
+				sfdx: {
+					hub: 'hubOrg'
+				}
+			};
 
-			sandbox.stub(certificate, 'askQuestions');
-			sandbox.stub(certificate, 'create');
-			sandbox.stub(certificate, 'read');
+			sandbox.stub(logger, 'logStart').resolves(expectedInput);
+			sandbox.stub(logger, 'logEvent').resolves(expectedInput);
+			sandbox.stub(logger, 'logFinish').resolves(expectedInput);
 
-			sandbox.stub(conn, 'create');
+			sandbox.stub(certificate, 'askQuestions').resolves(expectedInput);
+			sandbox.stub(certificate, 'checkOpenSSLInstalled').resolves(expectedInput);
+			sandbox.stub(certificate, 'create').resolves(expectedInput);
+			sandbox.stub(certificate, 'read').resolves(expectedInput);
 
-			sandbox.stub(connectedApp, 'askQuestions');
-			sandbox.stub(connectedApp, 'create');
-			sandbox.stub(connectedApp, 'updateHerokuConfigVariables');
+			sandbox.stub(configFile, 'readSettings').resolves(expectedInput);
+			sandbox.stub(configFile, 'writeSetting').resolves(expectedInput);
 
-			sandbox.stub(heroku, 'getAllApps');
-			sandbox.stub(heroku, 'selectApp');
-			sandbox.stub(heroku, 'readAppJson');
-			sandbox.stub(heroku, 'addBuildpacks');
-			sandbox.stub(heroku, 'addFormation');
-			sandbox.stub(heroku, 'addAddOns');
-			sandbox.stub(heroku, 'deployCurrentBranch');
+			sandbox.stub(conn, 'create').resolves(expectedInput);
 
-			sandbox.stub(namedCredential, 'askQuestions');
-			sandbox.stub(namedCredential, 'create');
+			sandbox.stub(connectedApp, 'askQuestions').resolves(expectedInput);
+			sandbox.stub(connectedApp, 'create').resolves(expectedInput);
+			sandbox.stub(connectedApp, 'updateHerokuConfigVariables').resolves(expectedInput);
 
-			sandbox.stub(sfdx, 'readSfdxYaml');
-			sandbox.stub(sfdx, 'deploy');
-			sandbox.stub(sfdx, 'getAllScratchOrgs');
-			sandbox.stub(sfdx, 'getConnectionDetails');
-			sandbox.stub(sfdx, 'selectApp');
+			sandbox.stub(heroku, 'addBuildpacks').resolves(expectedInput);
+			sandbox.stub(heroku, 'addFormation').resolves(expectedInput);
+			sandbox.stub(heroku, 'addAddOns').resolves(expectedInput);
+			sandbox.stub(heroku, 'checkHerokuCliInstalled').resolves(expectedInput);
+			sandbox.stub(heroku, 'deployCurrentBranch').resolves(expectedInput);
+			sandbox.stub(heroku, 'getAllApps').resolves(expectedInput);
+			sandbox.stub(heroku, 'selectApp').resolves(expectedInput);
+			sandbox.stub(heroku, 'readAppJson').resolves(expectedInput);
+
+			sandbox.stub(namedCredential, 'askQuestions').resolves(expectedInput);
+			sandbox.stub(namedCredential, 'create').resolves(expectedInput);
+
+			sandbox.stub(sfdx, 'checkSfdxInstalled').resolves(expectedInput);
+			sandbox.stub(sfdx, 'deploy').resolves(expectedInput);
+			sandbox.stub(sfdx, 'getAllScratchOrgs').resolves(expectedInput);
+			sandbox.stub(sfdx, 'getConnectionDetails').resolves(expectedInput);
+			sandbox.stub(sfdx, 'login').resolves(expectedInput);
+			sandbox.stub(sfdx, 'openOrg').resolves(expectedInput);
+			sandbox.stub(sfdx, 'readSfdxYaml').resolves(expectedInput);
+			sandbox.stub(sfdx, 'selectApp').resolves(expectedInput);
 
 			// when - then
-			return expect(service.run({}))
+			return expect(service.run({ argv: { full: true } }))
 				.to.eventually.be.fulfilled
 				.then(() => {
 
 					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logEvent).to.have.been.callCount(14);
+					expect(logger.logEvent).to.have.been.callCount(16);
 					expect(logger.logFinish).to.have.been.calledOnce;
 
 					expect(certificate.askQuestions).to.have.been.calledOnce;
 					expect(certificate.create).to.have.been.calledOnce;
 					expect(certificate.read).to.have.been.calledOnce;
+
+					expect(configFile.readSettings).to.have.been.calledOnce;
+					expect(configFile.writeSetting).to.have.been.calledThrice;
 
 					expect(conn.create).to.have.been.calledOnce;
 
@@ -111,6 +141,7 @@ describe('service/fullDeploy.js', () => {
 					expect(connectedApp.create).to.have.been.calledOnce;
 					expect(connectedApp.updateHerokuConfigVariables).to.have.been.calledOnce;
 
+					expect(heroku.checkHerokuCliInstalled).to.have.been.calledOnce;
 					expect(heroku.getAllApps).to.have.been.calledOnce;
 					expect(heroku.selectApp).to.have.been.calledOnce;
 					expect(heroku.readAppJson).to.have.been.calledOnce;
@@ -122,10 +153,13 @@ describe('service/fullDeploy.js', () => {
 					expect(namedCredential.askQuestions).to.have.been.calledOnce;
 					expect(namedCredential.create).to.have.been.calledOnce;
 
-					expect(sfdx.readSfdxYaml).to.have.been.calledOnce;
+					expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
 					expect(sfdx.deploy).to.have.been.calledOnce;
 					expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
 					expect(sfdx.getConnectionDetails).to.have.been.calledOnce;
+					expect(sfdx.login).to.have.been.calledOnce;
+					expect(sfdx.openOrg).to.have.been.calledOnce;
+					expect(sfdx.readSfdxYaml).to.have.been.calledOnce;
 					expect(sfdx.selectApp).to.have.been.calledOnce;
 
 				});

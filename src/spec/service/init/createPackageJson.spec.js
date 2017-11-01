@@ -28,18 +28,17 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
+	proxyquire = require('proxyquire'),
 	root = require('app-root-path'),
 	sinon = require('sinon'),
-	proxyquire = require('proxyquire'),
+	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
-
-	calledOnce = sinon.assert.calledOnce,
-	calledWith = sinon.assert.calledWith,
 
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
+chai.use(sinonChai);
 
 describe('service/init/createPackageJson.js', () => {
 
@@ -73,8 +72,8 @@ describe('service/init/createPackageJson.js', () => {
 			// when - then
 			return expect(createPackageJson.createPackageJson({ templatesFolder, folder })).to.eventually.eql({ templatesFolder, folder })
 				.then(() => {
-					calledOnce(mocks.initPackageJson);
-					calledWith(mocks.initPackageJson, process.cwd(), root + '/templates/simple-example/.config.js', sinon.match.func);
+					expect(mocks.initPackageJson).to.have.been.calledOnce;
+					expect(mocks.initPackageJson).to.have.been.calledWith(process.cwd(), root + '/templates/simple-example/.config.js', sinon.match.func);
 				});
 
 		});
@@ -91,8 +90,8 @@ describe('service/init/createPackageJson.js', () => {
 			// when - then
 			return expect(createPackageJson.createPackageJson({ templatesFolder, folder })).to.eventually.be.rejectedWith('err')
 				.then(() => {
-					calledOnce(mocks.initPackageJson);
-					calledWith(mocks.initPackageJson, process.cwd(), root + '/templates/simple-example/.config.js', sinon.match.func);
+					expect(mocks.initPackageJson).to.have.been.calledOnce;
+					expect(mocks.initPackageJson).to.have.been.calledWith(process.cwd(), root + '/templates/simple-example/.config.js', sinon.match.func);
 				});
 
 		});

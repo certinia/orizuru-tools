@@ -27,6 +27,7 @@
 'use strict';
 
 const
+	configFile = require('./deploy/shared/config'),
 	conn = require('./deploy/shared/connection'),
 	certificate = require('./deploy/certificate'),
 	connectedApp = require('./deploy/connectedApp'),
@@ -45,16 +46,23 @@ const
 
 		return Promise.resolve(config)
 			.then(logger.logStart('Starting full deploy'))
+			.then(logger.logEvent('Checking for required installations'))
+			.then(sfdx.checkSfdxInstalled)
+			.then(heroku.checkHerokuCliInstalled)
+			.then(certificate.checkOpenSSLInstalled)
+			.then(configFile.readSettings)
+			.then(sfdx.login)
+			.then(config => configFile.writeSetting(config, 'sfdx.hub.username', config.sfdx.hub.username))
 			.then(logger.logEvent('Reading app.json'))
 			.then(heroku.readAppJson)
 			.then(logger.logEvent('Reading .salesforcedx.yaml'))
 			.then(sfdx.readSfdxYaml)
+			.then(logger.logEvent('Obtaining Heroku Apps'))
 			.then(heroku.getAllApps)
 			.then(heroku.selectApp)
+			.then(config => configFile.writeSetting(config, 'heroku.app.name', config.parameters.heroku.app.name))
 			.then(logger.logEvent('Adding buildpacks'))
 			.then(heroku.addBuildpacks)
-			.then(logger.logEvent('Adding dyno formation'))
-			.then(heroku.addFormation)
 			.then(logger.logEvent('Adding add-ons'))
 			.then(heroku.addAddOns)
 			.then(logger.logEvent('Deploy code'))
@@ -66,6 +74,7 @@ const
 			.then(logger.logEvent('\nObtaining SFDX scratch orgs'))
 			.then(sfdx.getAllScratchOrgs)
 			.then(sfdx.selectApp)
+			.then(config => configFile.writeSetting(config, 'sfdx.org.username', config.parameters.sfdx.org.username))
 			.then(logger.logEvent('\nDeploy SFDX code'))
 			.then(sfdx.deploy)
 			.then(logger.logEvent('Get SFDX scratch org credentials'))
@@ -80,6 +89,9 @@ const
 			.then(logger.logEvent('Create Named Credential'))
 			.then(namedCredential.askQuestions)
 			.then(namedCredential.create)
+			.then(logger.logEvent('Adding dyno formation'))
+			.then(heroku.addFormation)
+			.then(sfdx.openOrg)
 			.then(logger.logFinish('Finished full deploy'))
 			.catch(logger.logError);
 

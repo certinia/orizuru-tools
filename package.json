@@ -55,7 +55,7 @@
   "dependencies": {
     "avsc": "5.0.6",
     "bluebird": "3.5.1",
-    "cliui": "^3.2.0",
+    "cliui": "3.2.0",
     "debug-plus": "1.2.2",
     "fs-extra": "4.0.2",
     "init-package-json": "1.10.1",

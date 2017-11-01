@@ -28,17 +28,17 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
+	proxyquire = require('proxyquire'),
 	root = require('app-root-path'),
 	sinon = require('sinon'),
-	proxyquire = require('proxyquire'),
+	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
-
-	{ calledOnce, calledTwice, calledWith } = sinon.assert,
 
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
+chai.use(sinonChai);
 
 describe('service/init/readAppTemplates.js', () => {
 
@@ -87,11 +87,11 @@ describe('service/init/readAppTemplates.js', () => {
 				appFolders: [templatesFolder + '/a']
 			});
 
-			calledOnce(mocks.fs.readdirSync);
-			calledWith(mocks.fs.readdirSync, templatesFolder);
-			calledTwice(mocks.fs.lstatSync);
-			calledWith(mocks.fs.lstatSync, templatesFolder + '/a');
-			calledWith(mocks.fs.lstatSync, templatesFolder + '/b.js');
+			expect(mocks.fs.readdirSync).to.have.been.calledOnce;
+			expect(mocks.fs.lstatSync).to.have.been.calledTwice;
+			expect(mocks.fs.readdirSync).to.have.been.calledWith(templatesFolder);
+			expect(mocks.fs.lstatSync).to.have.been.calledWith(templatesFolder + '/a');
+			expect(mocks.fs.lstatSync).to.have.been.calledWith(templatesFolder + '/b.js');
 
 		});
 

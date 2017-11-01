@@ -74,12 +74,13 @@ describe('util/questions.js', () => {
 		it('should return the config for an input field', () => {
 
 			// when/then
-			expect(questions.listField('a', 'b', 'c', 'd')).to.eql({
+			expect(questions.listField('a', 'b', 'c', 'd', 'e')).to.eql({
 				type: 'list',
 				message: 'a',
 				name: 'b',
 				validate: 'c',
-				choices: 'd'
+				choices: 'd',
+				['default']: 'e'
 			});
 
 		});
