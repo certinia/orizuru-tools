@@ -269,78 +269,42 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should deploy the current branch to Heroku', () => {
 
-				// given
-				const
-					expectedAppName = 'rocky-shore-45862',
-					expectedInput = {
-						parameters: {
-							heroku: {
-								app: {
-									name: expectedAppName
-								}
-							}
-						},
+			// given
+			const
+				expectedAppName = 'rocky-shore-45862',
+				expectedInput = {
+					parameters: {
 						heroku: {
 							app: {
-								json: {
-									buildpacks: [{
-										url: 'heroku/nodejs'
-									}, {
-										url: 'heroku/java'
-									}]
-								}
+								name: expectedAppName
 							}
 						}
 					},
-					expectedOutput = expectedInput;
-
-				mocks.shell.executeCommand = sandbox.stub().resolves();
-				mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } }).resolves({ stdout: 'master' });
-
-				// when - then
-				return expect(heroku.deployCurrentBranch(expectedInput))
-					.to.eventually.eql(expectedOutput)
-					.then(() => {
-						expect(mocks.shell.executeCommand).to.have.callCount(4);
-					});
-
-			}),
-
-			it('should delete autodeploy on error', () => {
-
-				// given
-				const
-					expectedAppName = 'rocky-shore-45862',
-					expectedInput = {
-						parameters: {
-							heroku: {
-								app: {
-									name: expectedAppName
-								}
-							}
-						},
-						heroku: {
-							app: {
-								json: {
-									buildpacks: [{
-										url: 'heroku/nodejs'
-									}, {
-										url: 'heroku/java'
-									}]
-								}
+					heroku: {
+						app: {
+							json: {
+								buildpacks: [{
+									url: 'heroku/nodejs'
+								}, {
+									url: 'heroku/java'
+								}]
 							}
 						}
-					};
+					}
+				},
+				expectedOutput = expectedInput;
 
-				mocks.shell.executeCommand = sandbox.stub().rejects(new Error('error'));
+			mocks.shell.executeCommand = sandbox.stub().resolves();
+			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } }).resolves({ stdout: 'master' });
 
+			// when - then
+			return expect(heroku.deployCurrentBranch(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.callCount(4);
+				});
 
-				// when - then
-				return expect(heroku.deployCurrentBranch(expectedInput)).to.be.rejected
-					.then(() => {
-						expect(mocks.shell.executeCommand).to.have.callCount(2);
-					});
-			});
+		});
 
 	});
 
