@@ -37,10 +37,10 @@ private class HerokuConnectorTest
 		Test.setMock(HttpCalloutMock.class, mock);
 
 		// when
-		connector.post('some/api/path', testSerialize);
+		connector.post('some/api/path', testSerialize, 'test');
 
 		// then
-		System.assertEquals('Bearer ' + UserInfo.getSessionId(), mock.Request.getHeader('Authorization'));
+		System.assertEquals('Bearer test', mock.Request.getHeader('Authorization'));
 		System.assertEquals(Url.getSalesforceBaseUrl().toExternalForm(), mock.Request.getHeader('Referer'));
 		System.assertEquals('application/json', mock.Request.getHeader('Content-Type'));
 		System.assertEquals('testSerialize', mock.Request.getBody());
