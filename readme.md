@@ -1,6 +1,6 @@
 # Orizuru Tools
 
-Orizuru tools are command line tools to streamline development with the orizuru framework.
+Orizuru tools are command line tools to streamline development with the [Orizuru framework](https://www.npmjs.com/package/@financialforcedev/orizuru).
 
 ## Install
 
