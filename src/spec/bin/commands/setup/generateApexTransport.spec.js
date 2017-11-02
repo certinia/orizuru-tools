@@ -82,7 +82,7 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 
 		// given - when - then
 		expect(generateApexTransportCommand).to.deep.contain({
-			command: ['generateapextransport [inputUrl] [outputUrl]', 'gat [inputUrl] [outputUrl]'],
+			command: ['generate-apex-transport [inputUrl] [outputUrl]', 'gat [inputUrl] [outputUrl]'],
 			description: 'Generates apex transport classes for .avsc files in a folder'
 		});
 
