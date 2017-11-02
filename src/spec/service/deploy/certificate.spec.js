@@ -137,7 +137,9 @@ describe('service/deploy/certificate.js', () => {
 	});
 
 	describe('getCert', () => {
-		it('should generate cert', () => {
+
+		it('should generate certificate', () => {
+
 			// given
 			const
 				expectedSslCommands = [{
@@ -169,7 +171,7 @@ describe('service/deploy/certificate.js', () => {
 			mocks.inquirer.prompt.resolves(expectedCertificateDetails);
 
 			mocks.shell.executeCommands = sandbox.stub().resolves();
-			mocks.shell.executeCommands.onCall(0).resolves({});
+			mocks.shell.executeCommands.onCall(0).rejects();
 
 			mocks.shell.executeCommands.onCall(2).resolves({
 				command0: { stdout: 'publicKey' },
@@ -188,7 +190,7 @@ describe('service/deploy/certificate.js', () => {
 
 		});
 
-		it('should not generate cert when certs already exit', () => {
+		it('should not generate certificate when it already exists', () => {
 
 			// given
 			const

@@ -13,13 +13,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@stash.dev.financialforce.com:29418/research/orizuru-tools.git"
+    "url": "https://github.com/financialforcedev/orizuru-tools"
   },
   "keywords": [
     "Orizuru",
     "tools"
   ],
-  "author": "sfry@financialforce.com",
+  "author": "FinancialForce",
   "license": "BSD-3-Clause",
   "nyc": {
     "check-coverage": true,
