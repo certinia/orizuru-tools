@@ -67,6 +67,7 @@ const
 			.then(logger.logEvent('Adding add-ons'))
 			.then(heroku.addAddOns)
 			.then(logger.logEvent('Deploy code'))
+			.then(heroku.checkWorkingChanges)
 			.then(heroku.deployCurrentBranch)
 			.then(certificate.getCert)
 			.then(logger.logEvent('Obtaining SFDX scratch orgs'))
