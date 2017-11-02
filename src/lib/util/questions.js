@@ -35,6 +35,14 @@ const
 		validate
 	}),
 
+	confirmField = (message, prop, validate, defaultValue) => ({
+		type: 'confirm',
+		message,
+		name: prop,
+		validate,
+		['default']: defaultValue
+	}),
+
 	inputField = (message, prop, validate, defaultValue) => ({
 		type: 'input',
 		message,
@@ -62,6 +70,7 @@ const
 
 module.exports = {
 	checkboxField,
+	confirmField,
 	inputField,
 	listField,
 	passwordField
