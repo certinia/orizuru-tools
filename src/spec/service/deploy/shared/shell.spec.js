@@ -73,16 +73,28 @@ describe('service/deploy/shared/shell.js', () => {
 
 		mocks = createMocks();
 
+		mocks.debug = sandbox.stub().returns(sandbox.stub());
+		mocks.debug.create = sandbox.stub().returnsThis();
+		mocks.debug.create.enable = sandbox.stub();
+
 		const spawn = mocks.childProcess.spawn;
 		spawn.returns(spawn);
+
 		spawn.stdout = sandbox.stub();
+		spawn.stdout.pipe = sandbox.stub();
+		spawn.stdout.pipe.returns(spawn.stdout.pipe);
+		spawn.stdout.pipe.resume = sandbox.stub();
 		spawn.stdout.on = sandbox.stub();
 
 		spawn.stderr = sandbox.stub();
+		spawn.stderr.pipe = sandbox.stub();
+		spawn.stderr.pipe.returns(spawn.stderr.pipe);
+		spawn.stderr.pipe.resume = sandbox.stub();
 		spawn.stderr.on = sandbox.stub();
 
 		shell = proxyquire(root + '/src/lib/service/deploy/shared/shell.js', {
-			['child_process']: mocks.childProcess
+			['child_process']: mocks.childProcess,
+			'../../../util/debug': mocks.debug
 		});
 
 	});
@@ -222,6 +234,33 @@ describe('service/deploy/shared/shell.js', () => {
 				// when - then
 				return expect(shell.executeCommand(command))
 					.to.eventually.eql(expectedResult);
+
+			});
+
+			it('and log out if the namespace option is set', () => {
+
+				// given
+				const
+					expectedCommand = 'command',
+					expectedArgs = ['args'],
+					expectedOptions = { namespace: 'testing' },
+					command = { cmd: expectedCommand, args: expectedArgs, opts: expectedOptions },
+					expectedResult = {
+						exitCode: 0,
+						formattedCommand: 'command args',
+						stderr: 'test',
+						stdout: ''
+					};
+
+				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.stderr.on.withArgs('data').yields('test');
+
+				// when - then
+				return expect(shell.executeCommand(command))
+					.to.eventually.eql(expectedResult)
+					.then(() => {
+						expect(mocks.debug.create.enable).to.have.been.calledOnce;
+					});
 
 			});
 

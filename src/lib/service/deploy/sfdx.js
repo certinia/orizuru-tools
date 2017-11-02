@@ -37,7 +37,7 @@ const
 	shell = require('./shared/shell'),
 
 	checkSfdxInstalled = (config) => {
-		return shell.executeCommand({ cmd: 'sfdx', args: ['version'] }, { exitOnError: true })
+		return shell.executeCommand({ cmd: 'sfdx', args: ['version'], opts: { exitOnError: true } })
 			.then(() => config);
 	},
 
@@ -53,7 +53,7 @@ const
 		// Prompt the user to log into their SFDX dev hub
 		return Promise.resolve(config)
 			.then(logger.logEvent('You are about to be asked to log into your SFDX Dev hub'))
-			.then(() => shell.executeCommand({ cmd: 'sfdx', args: ['force:auth:web:login', '-s', '--json'] }, { exitOnError: true }))
+			.then(() => shell.executeCommand({ cmd: 'sfdx', args: ['force:auth:web:login', '-s', '--json'], opts: { exitOnError: true } }))
 			.then(result => {
 				const hub = JSON.parse(result.stdout).result;
 				config.sfdx = config.sfdx || {};
@@ -64,14 +64,14 @@ const
 	},
 
 	createNewScratchOrg = (config) => {
-		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', config.sfdx.yaml['scratch-org-def'], '-v', config.orizuru.sfdx.hub.username, '-s', '--json'] }, { exitOnError: true })
+		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', config.sfdx.yaml['scratch-org-def'], '-v', config.orizuru.sfdx.hub.username, '-s', '--json'], opts: { exitOnError: true } })
 			.then(result => ({ sfdx: { org: JSON.parse(result.stdout).result } }));
 	},
 
 	deploy = (config) => {
 
 		const deployCommands = [
-			{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`] },
+			{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`], opts: { namespace: 'deploy' } },
 			{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', `${config.sfdx.yaml['permset-name']}`, '-u', `${config.parameters.sfdx.org.username}`] },
 			{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
 		];

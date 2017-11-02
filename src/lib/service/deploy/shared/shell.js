@@ -28,8 +28,7 @@
 
 const
 	_ = require('lodash'),
-	debug = require('debug-plus')('financialforcedev:orizuru~tools:shell'),
-	debugOutput = require('debug-plus')('financialforcedev:orizuru~tools:shell:output'),
+	debug = require('../../../util/debug'),
 
 	childProcess = require('child_process'),
 	spawn = childProcess.spawn,
@@ -41,7 +40,7 @@ const
 
 	shellDebug = (cmd, args) => {
 		const formattedCommand = cmd + (args ? ' ' + args.join(' ') : '');
-		debug('Executing: ' + formattedCommand);
+		debug.create('Executing: ' + formattedCommand);
 		return formattedCommand;
 	},
 
@@ -50,11 +49,30 @@ const
 		return new Promise((resolve, reject) => {
 
 			const
+				namespace = opts && opts.namespace || 'shell',
+				namespaceOutput = namespace + ':output',
 				formattedCommand = shellDebug(cmd, args),
+				log = debug.create(namespace),
+				logOutput = debug.create(namespaceOutput),
 				child = spawn(cmd, args);
 
 			let stdout = '',
 				stderr = '';
+
+			var stdoutStream,
+				stderrStream;
+
+			if (opts && opts.namespace) {
+				debug.create.enable(opts.namespace);
+			}
+
+			stdoutStream = debug.debugStream(log)('%b');
+			stderrStream = debug.debugStream(log)('%b');
+
+			debug.addBufferFormatter(log);
+
+			child.stdout.pipe(stdoutStream).resume();
+			child.stderr.pipe(stderrStream).resume();
 
 			child.stdout.on(EVENT_DATA, (data) => {
 				stdout += data;
@@ -69,7 +87,7 @@ const
 					return reject(new Error(`Command failed: ${formattedCommand}\n${stderr}`));
 				}
 				const retval = { formattedCommand, exitCode, stdout: _.trim(stdout), stderr: _.trim(stderr) };
-				debugOutput(retval);
+				logOutput(retval);
 				return resolve(retval);
 			});
 
