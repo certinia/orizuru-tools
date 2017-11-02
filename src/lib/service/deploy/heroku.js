@@ -32,6 +32,7 @@ const
 	inquirer = require('inquirer'),
 	path = require('path'),
 	questions = require('../../util/questions'),
+	validators = require('../../util/validators'),
 	shell = require('./shared/shell'),
 
 	addAddOns = (config) => {
@@ -105,7 +106,6 @@ const
 			.then(result => {
 				return ({ heroku: { app: JSON.parse(result.stdout) } });
 			});
-
 	},
 
 	removeAutoDeploy = () => {
@@ -124,6 +124,31 @@ const
 			]))
 			.then(answers => createNewApp(config, ['create', '-t', answers.heroku.organization, '--json']))
 			.then(config => config);
+	},
+
+	checkWorkingChanges = (config) => {
+		return shell.executeCommand({ cmd: 'git', args: ['diff-index', 'HEAD'], opts: { exitOnError: true } })
+			.then(output => {
+				if (output.stdout.length > 0) {
+					return inquirer.prompt([
+						questions.confirmField(
+							'You have uncommitted changes in your current branch, would you like to continue?',
+							'ignoreChanges',
+							validators.validateNotEmpty,
+							false
+						)
+					]);
+				}
+
+				return { ignoreChanges: true };
+			})
+			.then(answer => {
+				if (!answer.ignoreChanges) {
+					throw new Error('Aborting deploy due to uncomitted changes');
+				}
+
+				return config;
+			});
 	},
 
 	deployCurrentBranch = (config) => {
@@ -211,6 +236,7 @@ module.exports = {
 	checkHerokuCliInstalled,
 	createNewApp,
 	createNewOrganizationApp,
+	checkWorkingChanges,
 	deployCurrentBranch,
 	getAllApps,
 	readAppJson,

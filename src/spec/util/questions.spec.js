@@ -52,6 +52,23 @@ describe('util/questions.js', () => {
 
 	});
 
+	describe('confirmField', () => {
+
+		it('should return the config for an input field', () => {
+
+			// when/then
+			expect(questions.confirmField('a', 'b', 'c', 'd')).to.eql({
+				type: 'confirm',
+				message: 'a',
+				name: 'b',
+				validate: 'c',
+				['default']: 'd'
+			});
+
+		});
+
+	});
+
 	describe('inputField', () => {
 
 		it('should return the config for an input field', () => {

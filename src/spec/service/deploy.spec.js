@@ -100,6 +100,7 @@ describe('service/deploy.js', () => {
 			sandbox.stub(heroku, 'addFormation').resolves(expectedInput);
 			sandbox.stub(heroku, 'addAddOns').resolves(expectedInput);
 			sandbox.stub(heroku, 'checkHerokuCliInstalled').resolves(expectedInput);
+			sandbox.stub(heroku, 'checkWorkingChanges').resolves(expectedInput);
 			sandbox.stub(heroku, 'deployCurrentBranch').resolves(expectedInput);
 			sandbox.stub(heroku, 'getAllApps').resolves(expectedInput);
 			sandbox.stub(heroku, 'selectApp').resolves(expectedInput);
@@ -146,6 +147,7 @@ describe('service/deploy.js', () => {
 					expect(heroku.addBuildpacks).to.have.been.calledOnce;
 					expect(heroku.addFormation).to.have.been.calledOnce;
 					expect(heroku.addAddOns).to.have.been.calledOnce;
+					expect(heroku.checkWorkingChanges).to.have.been.calledOnce;
 					expect(heroku.deployCurrentBranch).to.have.been.calledOnce;
 
 					expect(namedCredential.askQuestions).to.have.been.calledOnce;
