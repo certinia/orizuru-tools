@@ -1,6 +1,7 @@
 # Orizuru Tools
 
 [![Build Status](https://travis-ci.org/financialforcedev/orizuru-tools.svg?branch=master)](https://travis-ci.org/financialforcedev/orizuru-tools)
+[![NSP Status](https://nodesecurity.io/orgs/ffres/projects/bc6dad23-104f-4cd9-9c13-2c5f828d8d97/badge)](https://nodesecurity.io/orgs/ffres/projects/bc6dad23-104f-4cd9-9c13-2c5f828d8d97)
 
 Orizuru tools are command line tools to streamline development with the [Orizuru framework](https://www.npmjs.com/package/@financialforcedev/orizuru).
 
