@@ -26,5 +26,5 @@
 
 public interface IHerokuConnector
 {
-	HttpResponse post(String endpoint, ISerializable transport); 
+	HttpResponse post(String endpoint, ISerializable transport, String sessionId); 
 }
