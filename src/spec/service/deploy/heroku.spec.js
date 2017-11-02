@@ -311,6 +311,70 @@ describe('service/deploy/heroku.js', () => {
 
 	});
 
+	describe('checkWorkingChanges', () => {
+
+		it('should resolve if there are working changes and the user responds yes to prompt', () => {
+
+			// given
+			const
+				shellOutput = {
+					stdout: ':100644 100644 a65538bf48cb14f8cb616072be2a7ecbd0d30a9e 0000000000000000000000000000000000000000 M\tpath/to/file/file.js'
+				};
+
+			mocks.shell.executeCommand = sandbox.stub().resolves();
+			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'], opts: { exitOnError: true } }).resolves(shellOutput);
+			mocks.inquirer.prompt = sandbox.stub().resolves({ ignoreChanges: true });
+
+			// when - then
+			return expect(heroku.checkWorkingChanges({}))
+				.to.eventually.eql({})
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
+				});
+		});
+
+		it('should reject if there are working changes and the user responds no to prompt', () => {
+
+			// given
+			const
+				shellOutput = {
+					stdout: ':100644 100644 a65538bf48cb14f8cb616072be2a7ecbd0d30a9e 0000000000000000000000000000000000000000 M\tpath/to/file/file.js'
+				};
+
+			mocks.shell.executeCommand = sandbox.stub().resolves();
+			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'], opts: { exitOnError: true } }).resolves(shellOutput);
+			mocks.inquirer.prompt = sandbox.stub().resolves({ ignoreChanges: false });
+
+			// when - then
+			return expect(heroku.checkWorkingChanges({}))
+				.to.eventually.be.rejectedWith('Aborting deploy due to uncomitted changes')
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
+				});
+		});
+
+		it('should resolve if there are no working changes', () => {
+
+			// given
+			const
+				shellOutput = {
+					stdout: ''
+				};
+
+			mocks.shell.executeCommand = sandbox.stub().resolves();
+			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'], opts: { exitOnError: true } }).resolves(shellOutput);
+
+			// when - then
+			return expect(heroku.checkWorkingChanges({}))
+				.to.eventually.eql({})
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+				});
+		});
+	});
+
 	describe('deployCurrentBranch', () => {
 
 		it('should deploy the current branch to Heroku', () => {
