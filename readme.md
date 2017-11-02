@@ -25,7 +25,7 @@ You can create a new template project from our list of projects. These projects 
 
 You can generate apex classes for Apache Avro schemas specified as ```json``` in ```.avsc``` files. Our usage examples usually wrap this command within an npm command that specifies the input folder and output folder. Rerun this command if you change a schema in an example and would like your apex transport classes to reflect this change.
 
-	$ orizuru setup generateapextransport [Input folder] [Output folder]
+	$ orizuru setup generate-apex-transport [Input folder] [Output folder]
 
 Input folder: contains your ```.avsc``` files.
 
