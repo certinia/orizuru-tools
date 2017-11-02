@@ -47,15 +47,15 @@ public class HerokuConnector implements IHerokuConnector
 	}
 
 	private HerokuConnector() {}
-
-	public HttpResponse post(String endpoint, ISerializable transport) 
+    
+    public HttpResponse post(String endpoint, ISerializable transport, String sessionId) 
     {
         HttpRequest req = new HttpRequest();
 		req.setEndpoint(endpoint);
     	req.setMethod(POST_METHOD);
 		req.setHeader(REFERER_HEADER, Url.getSalesforceBaseUrl().toExternalForm());
 		req.setHeader(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE);
-        req.setHeader(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + UserInfo.getSessionId());
+        req.setHeader(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + sessionId);
         req.setBody(transport.serialize());
 		return postRequest(req);
     }
