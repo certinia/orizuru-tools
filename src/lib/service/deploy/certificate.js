@@ -33,7 +33,7 @@ const
 	validators = require('../../util/validators'),
 	shell = require('./shared/shell'),
 
-	{ logStart, logFinish, logError } = require('../../util/logger'),
+	{ logError, logEvent } = require('../../util/logger'),
 
 	askQuestions = (config) => {
 		return inquirer.prompt([
@@ -86,6 +86,10 @@ const
 				config.certificate.privateKey = certificate[1];
 
 				return config;
+
+			}).catch(error => {
+				logEvent('Certificate files have not been found')(config);
+				return config;
 			});
 
 	},
@@ -93,11 +97,11 @@ const
 	generate = (config) => {
 
 		return Promise.resolve(config)
-			.then(logStart('Generating certificates\nYou are about to be asked to enter information that will be incorporated into your certificate.'))
+			.then(logEvent('Generating certificates\nYou are about to be asked to enter information that will be incorporated into your certificate.'))
 			.then(askQuestions)
 			.then(create)
 			.then(read)
-			.then(logFinish('Generated certificates'))
+			.then(logEvent('\nGenerated certificates'))
 			.catch(logError);
 	},
 
