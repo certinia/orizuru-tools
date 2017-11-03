@@ -435,7 +435,7 @@ describe('service/deploy/sfdx.js', () => {
 					message: 'SFDX Scratch Org',
 					name: 'sfdx.org',
 					type: 'list',
-					['default']: undefined,
+					['default']: 0,
 					validate: undefined
 				}],
 				expectedAnswer = {
@@ -481,7 +481,7 @@ describe('service/deploy/sfdx.js', () => {
 					message: 'SFDX Scratch Org',
 					name: 'sfdx.org',
 					type: 'list',
-					['default']: undefined,
+					['default']: 0,
 					validate: undefined
 				}],
 				expectedAnswer = {
@@ -546,7 +546,80 @@ describe('service/deploy/sfdx.js', () => {
 					message: 'SFDX Scratch Org',
 					name: 'sfdx.org',
 					type: 'list',
-					['default']: undefined,
+					['default']: 0,
+					validate: undefined
+				}],
+				expectedAnswer = {
+					sfdx: {
+						org: '<<Create new SFDX scratch org>>'
+					}
+				},
+				expectedOutput = expectedInput;
+
+			mocks.inquirer.prompt.resolves(expectedAnswer);
+			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+
+			// when - then
+			return expect(sfdx.selectApp(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+				});
+
+		});
+
+		it('should default to the SFDX org provided in the Orizuru config', () => {
+
+			// given
+			const
+				expectedScratchOrgUsername = 'testUsername1',
+				expectedScratchOrgUsername2 = 'testUsername2',
+				expectedHubUsername = 'dev-hub@orizuru.net',
+				expectedOrgDef = 'src/apex/config/project-scratch-def.json',
+				expectedInput = {
+					options: {
+						includeNew: {
+							sfdx: true
+						}
+					},
+					orizuru: {
+						sfdx: {
+							hub: {
+								username: expectedHubUsername
+							},
+							org: {
+								username: expectedScratchOrgUsername2
+							}
+						}
+					},
+					sfdx: {
+						scratchOrgs: [{
+							username: expectedScratchOrgUsername
+						}, {
+							username: expectedScratchOrgUsername2
+						}],
+						yaml: {
+							['scratch-org-def']: expectedOrgDef
+						}
+					}
+				},
+				expectedChoices = [{
+					choices: [{
+						name: expectedScratchOrgUsername,
+						value: {
+							username: expectedScratchOrgUsername
+						}
+					}, {
+						name: expectedScratchOrgUsername2,
+						value: {
+							username: expectedScratchOrgUsername2
+						}
+					}, '<<Create new SFDX scratch org>>'],
+					message: 'SFDX Scratch Org',
+					name: 'sfdx.org',
+					type: 'list',
+					['default']: 1,
 					validate: undefined
 				}],
 				expectedAnswer = {
