@@ -591,6 +591,11 @@ describe('service/deploy/sfdx.js', () => {
 							org: {
 								username: expectedScratchOrgUsername2
 							}
+						},
+						heroku: {
+							app: {
+								name: 'test'
+							}
 						}
 					},
 					sfdx: {
