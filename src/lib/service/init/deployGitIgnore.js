@@ -28,27 +28,17 @@
 
 const
 	path = require('path'),
-	createPackageJson = require('./init/createPackageJson'),
-	copyResources = require('./init/copyResources'),
-	deployGitIgnore = require('./init/deployGitIgnore'),
-	readAppTemplates = require('./init/readAppTemplates'),
-	askQuestions = require('./init/askQuestions'),
-	{ logStart, logFinish, logError } = require('../util/logger');
+	fs = require('fs-extra'),
+	{ log } = require('../../util/logger'),
 
-class Init {
+	CWD = process.cwd(),
 
-	static init(options) {
-		return Promise.resolve({ templatesFolder: path.resolve(__dirname, '..', '..', '..', 'templates') })
-			.then(logStart('Building new project'))
-			.then(readAppTemplates.readAppTemplates)
-			.then(askQuestions.askQuestions)
-			.then(createPackageJson.createPackageJson)
-			.then(copyResources.copyResources)
-			.then(deployGitIgnore.deployGitIgnore)
-			.then(logFinish('Built project'))
-			.catch(logError);
-	}
+	deployGitIgnore = config => {
+		log('Creating .gitignore in ' + CWD);
+		return fs.copy(path.resolve(config.templatesFolder, config.folder, 'gitignore'), path.resolve(CWD, '.gitignore'))
+			.then(() => config);
+	};
 
-}
-
-module.exports = Init;
+module.exports = {
+	deployGitIgnore: config => deployGitIgnore(config)
+};

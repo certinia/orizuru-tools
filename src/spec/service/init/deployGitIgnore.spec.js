@@ -23,32 +23,68 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
-
 'use strict';
 
 const
-	path = require('path'),
-	createPackageJson = require('./init/createPackageJson'),
-	copyResources = require('./init/copyResources'),
-	deployGitIgnore = require('./init/deployGitIgnore'),
-	readAppTemplates = require('./init/readAppTemplates'),
-	askQuestions = require('./init/askQuestions'),
-	{ logStart, logFinish, logError } = require('../util/logger');
+	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
+	proxyquire = require('proxyquire'),
+	root = require('app-root-path'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
-class Init {
+	fs = require('fs-extra'),
 
-	static init(options) {
-		return Promise.resolve({ templatesFolder: path.resolve(__dirname, '..', '..', '..', 'templates') })
-			.then(logStart('Building new project'))
-			.then(readAppTemplates.readAppTemplates)
-			.then(askQuestions.askQuestions)
-			.then(createPackageJson.createPackageJson)
-			.then(copyResources.copyResources)
-			.then(deployGitIgnore.deployGitIgnore)
-			.then(logFinish('Built project'))
-			.catch(logError);
-	}
+	expect = chai.expect,
 
-}
+	sandbox = sinon.sandbox.create();
 
-module.exports = Init;
+chai.use(chaiAsPromised);
+chai.use(sinonChai);
+
+describe('service/init/deployGitIgnore.js', () => {
+
+	let mocks, deployGitIgnore;
+
+	beforeEach(() => {
+
+		mocks = {
+			logger: sandbox.stub(),
+			fsCopy: sandbox.stub(fs, 'copy').resolves()
+		};
+
+		mocks.logger.log = sandbox.stub();
+
+		deployGitIgnore = proxyquire(root + '/src/lib/service/init/deployGitIgnore', {
+			'../../util/logger': mocks.logger
+		});
+
+	});
+
+	afterEach(() => sandbox.restore());
+
+	describe('deployGitIgnore', () => {
+
+		it('should call fs-extra copy with the correct arguments, and return input', () => {
+
+			// given
+			const
+				templatesFolder = root + '/templates',
+				folder = 'simple-example';
+
+			// when - then
+			return expect(deployGitIgnore.deployGitIgnore({ templatesFolder, folder })).to.eventually.eql({
+				templatesFolder,
+				folder
+			}).then(() => {
+				expect(mocks.logger.log).to.have.been.calledOnce;
+				expect(mocks.fsCopy).to.have.been.calledOnce;
+				expect(mocks.logger.log).to.have.been.calledWith('Creating .gitignore in ' + process.cwd());
+				expect(mocks.fsCopy).to.have.been.calledWith(root + '/templates/simple-example/gitignore', process.cwd() + '/.gitignore');
+			});
+
+		});
+
+	});
+
+});
