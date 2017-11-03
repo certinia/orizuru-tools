@@ -64,7 +64,7 @@ const
 	},
 
 	createNewScratchOrg = (config) => {
-		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', config.sfdx.yaml['scratch-org-def'], '-v', config.orizuru.sfdx.hub.username, '-s', '--json'], opts: { exitOnError: true } })
+		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', config.sfdx.yaml['scratch-org-def'], '-v', config.orizuru.sfdx.hub.username, '-a', config.orizuru.heroku.app.name, '-s', '--json'], opts: { exitOnError: true } })
 			.then(result => ({ sfdx: { org: JSON.parse(result.stdout).result } }));
 	},
 
