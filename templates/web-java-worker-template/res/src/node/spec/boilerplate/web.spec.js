@@ -29,15 +29,14 @@
 const
 	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
 
-	schemas = require(root + '/src/node/lib/boilerplate/shared/schemas'),
-	read = require(root + '/src/node/lib/boilerplate/shared/read'),
-	defaultTransport = require(root + '/src/node/lib/boilerplate/shared/transport'),
+	schemas = require('../../lib/boilerplate/shared/schemas'),
+	read = require('../../lib/boilerplate/shared/read'),
+	defaultTransport = require('../../lib/boilerplate/shared/transport'),
 	orizuru = require('@financialforcedev/orizuru'),
 
 	sandbox = sinon.sandbox.create(),

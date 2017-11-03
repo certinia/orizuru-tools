@@ -29,7 +29,6 @@
 const
 	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -62,7 +61,7 @@ describe('boilerplate/shared/auth.js', () => {
 		process.env.OPENID_HTTP_TIMEOUT = '5333';
 		process.env.OPENID_ISSUER_URI = 'http://test';
 
-		auth = proxyquire(root + '/src/node/lib/boilerplate/shared/auth', {
+		auth = proxyquire('../../../lib/boilerplate/shared/auth', {
 			['@financialforcedev/orizuru-auth']: {
 				middleware: {
 					tokenValidator: tokenValidatorStub,
@@ -100,6 +99,7 @@ describe('boilerplate/shared/auth.js', () => {
 				openidHTTPTimeout: 5333,
 				openidIssuerURI: 'http://test'
 			});
+
 		});
 
 	});

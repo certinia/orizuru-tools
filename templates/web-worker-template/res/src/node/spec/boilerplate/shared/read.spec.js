@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	root = require('app-root-path'),
 	proxyquire = require('proxyquire').noCallThru(),
 	sinon = require('sinon'),
 
@@ -44,7 +43,7 @@ describe('boilerplate/shared/read.js', () => {
 	beforeEach(() => {
 		dummy = {};
 		readFileSyncStub = sandbox.stub();
-		read = proxyquire(root + '/src/node/lib/boilerplate/shared/read', {
+		read = proxyquire('../../../lib/boilerplate/shared/read', {
 			fs: {
 				readFileSync: readFileSyncStub
 			},
