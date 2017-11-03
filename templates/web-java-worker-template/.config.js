@@ -143,7 +143,6 @@ exports.dependencies = {
 // overrode devDependencies
 exports.devDependencies = {
 	"@financialforcedev/eslint-config": "^3.0.0",
-	"app-root-path": "2.0.1",
 	"chai": "4.1.1",
 	"lodash": "4.17.4",
 	"mocha": "3.5.0",
@@ -159,7 +158,7 @@ exports.scripts = {
 	"pretest": "eslint src/node",
 	"single-test": "nyc --all=false mocha",
 	"test": "nyc mocha --recursive src/node/spec",
-	"generate-apex-transport": "orizuru setup generateapextransport src/node/lib/schemas src/apex/app/main/default/classes"
+	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schemas src/apex/app/main/default/classes"
 }
 
 // added nyc

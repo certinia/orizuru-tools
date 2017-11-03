@@ -89,7 +89,7 @@ describe('boilerplate/web.js', () => {
 	it('should create an orizuru server', () => {
 
 		// given
-		proxyquire(root + '/src/node/lib/boilerplate/web', {
+		proxyquire('../../lib/boilerplate/web', {
 			['./shared/auth']: {
 				middleware: authMiddleware
 			},
@@ -129,7 +129,7 @@ describe('boilerplate/web.js', () => {
 		throngStub.yields();
 		process.env.WEB_CONCURRENCY = 2;
 
-		proxyquire(root + '/src/node/lib/boilerplate/web', {
+		proxyquire('../../lib/boilerplate/web', {
 			['./shared/auth']: {
 				middleware: authMiddleware
 			},
