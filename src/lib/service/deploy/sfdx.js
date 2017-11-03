@@ -132,12 +132,18 @@ const
 			allScratchOrgs = _.get(config, 'sfdx.scratchOrgs'),
 			scratchOrgs = _.map(allScratchOrgs, org => ({ name: org.username, value: org }));
 
+		let defaultValue = 0;
+
 		if (config.options && config.options.includeNew && config.options.includeNew.sfdx === true) {
 			scratchOrgs.push(newOrg);
 		}
 
+		if (_.get(config, 'orizuru.sfdx.org.username')) {
+			defaultValue = _.indexOf(_.map(allScratchOrgs, org => org.username), config.orizuru.sfdx.org.username);
+		}
+
 		return inquirer.prompt([
-			questions.listField('SFDX Scratch Org', 'sfdx.org', undefined, scratchOrgs)
+			questions.listField('SFDX Scratch Org', 'sfdx.org', undefined, scratchOrgs, defaultValue)
 		]).then(answers => {
 			if (answers.sfdx.org === newOrg) {
 				return createNewScratchOrg(config);
