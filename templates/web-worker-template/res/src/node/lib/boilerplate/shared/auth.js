@@ -39,13 +39,17 @@ const
 		openidIssuerURI: OPENID_ISSUER_URI
 	},
 
-	authMiddleware = require('@financialforcedev/orizuru-auth').middleware;
+	auth = require('@financialforcedev/orizuru-auth'),
+	authMiddleware = auth.middleware,
+	authGrant = auth.grant;
 
 module.exports = {
 
 	middleware: [
 		authMiddleware.tokenValidator(authEnv),
 		authMiddleware.grantChecker(authEnv)
-	]
+	],
+
+	grant: authGrant.getToken(authEnv)
 
 };
