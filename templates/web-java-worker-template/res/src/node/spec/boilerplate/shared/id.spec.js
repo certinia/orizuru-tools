@@ -29,7 +29,6 @@
 const
 	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -47,7 +46,7 @@ describe('boilerplate/shared/id.js', () => {
 	beforeEach(() => {
 		uuidStub = sandbox.stub();
 		uuidStub.returns('aaa123');
-		id = proxyquire(root + '/src/node/lib/boilerplate/shared/id', {
+		id = proxyquire('../../../lib/boilerplate/shared/id', {
 			uuid: uuidStub
 		});
 	});

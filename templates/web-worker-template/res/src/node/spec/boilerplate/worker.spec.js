@@ -29,16 +29,15 @@
 const
 	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
 
-	schemas = require(root + '/src/node/lib/boilerplate/shared/schemas'),
-	handlers = require(root + '/src/node/lib/boilerplate/shared/handlers'),
-	read = require(root + '/src/node/lib/boilerplate/shared/read'),
-	defaultTransport = require(root + '/src/node/lib/boilerplate/shared/transport'),
+	schemas = require('../../lib/boilerplate/shared/schemas'),
+	handlers = require('../../lib/boilerplate/shared/handlers'),
+	read = require('../../lib/boilerplate/shared/read'),
+	defaultTransport = require('../../lib/boilerplate/shared/transport'),
 	orizuru = require('@financialforcedev/orizuru'),
 
 	sandbox = sinon.sandbox.create(),
@@ -66,7 +65,7 @@ describe('boilerplate/worker.js', () => {
 	});
 
 	afterEach(() => {
-		delete require.cache[require.resolve(root + '/src/node/lib/boilerplate/worker')];
+		delete require.cache[require.resolve('../../lib/boilerplate/worker')];
 		delete process.env.WEB_CONCURRENCY;
 
 		restore();
@@ -95,7 +94,7 @@ describe('boilerplate/worker.js', () => {
 		}]);
 
 		// when
-		require(root + '/src/node/lib/boilerplate/worker');
+		require('../../lib/boilerplate/worker');
 
 		// then
 		expect(orizuru.Handler).to.have.been.calledOnce;
@@ -142,7 +141,7 @@ describe('boilerplate/worker.js', () => {
 		}]);
 
 		// when
-		proxyquire(root + '/src/node/lib/boilerplate/worker', {
+		proxyquire('../../lib/boilerplate/worker', {
 			throng: throngStub
 		});
 
@@ -185,7 +184,7 @@ describe('boilerplate/worker.js', () => {
 		}]);
 
 		// when
-		require(root + '/src/node/lib/boilerplate/worker');
+		require('../../lib/boilerplate/worker');
 
 		// then
 		expect(orizuru.Handler).to.have.been.calledOnce;
@@ -219,7 +218,7 @@ describe('boilerplate/worker.js', () => {
 		}]);
 
 		// when
-		require(root + '/src/node/lib/boilerplate/worker');
+		require('../../lib/boilerplate/worker');
 
 		// then
 		expect(orizuru.Handler).to.have.been.calledOnce;
