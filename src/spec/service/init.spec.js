@@ -38,6 +38,7 @@ const
 	readAppTemplates = require('../../lib/service/init/readAppTemplates'),
 	createPackageJson = require('../../lib/service/init/createPackageJson'),
 	copyResources = require('../../lib/service/init/copyResources'),
+	deployGitIgnore = require('../../lib/service/init/deployGitIgnore'),
 
 	expect = chai.expect,
 
@@ -56,7 +57,8 @@ describe('service/init.js', () => {
 			readAppTemplates: sandbox.stub(readAppTemplates, 'readAppTemplates').resolves('test1'),
 			askQuestions: sandbox.stub(askQuestions, 'askQuestions').resolves('test2'),
 			createPackageJson: sandbox.stub(createPackageJson, 'createPackageJson').resolves('test3'),
-			copyResources: sandbox.stub(copyResources, 'copyResources').resolves('test4')
+			copyResources: sandbox.stub(copyResources, 'copyResources').resolves('test4'),
+			deployGitIgnore: sandbox.stub(deployGitIgnore, 'deployGitIgnore').resolves()
 		};
 
 		mocks.logger.logStart = sandbox.stub();
@@ -92,6 +94,7 @@ describe('service/init.js', () => {
 					expect(mocks.askQuestions).to.have.been.calledWith('test1');
 					expect(mocks.createPackageJson).to.have.been.calledWith('test2');
 					expect(mocks.copyResources).to.have.been.calledWith('test3');
+					expect(mocks.deployGitIgnore).to.have.been.calledWith('test4');
 				});
 
 		});
