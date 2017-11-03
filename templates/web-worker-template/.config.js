@@ -158,7 +158,7 @@ exports.scripts = {
 	"pretest": "eslint src/node",
 	"single-test": "nyc --all=false mocha",
 	"test": "nyc mocha --recursive src/node/spec",
-	"generate-apex-transport": "orizuru setup generateapextransport src/node/lib/schemas src/apex/app/main/default/classes"
+	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schemas src/apex/app/main/default/classes"
 }
 
 // added nyc

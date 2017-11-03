@@ -108,11 +108,17 @@ describe('service/deploy/sfdx.js', () => {
 				expectedUsername = 'test-ki9yknei6emv@orizuru.net',
 				expectedHubUsername = 'dev-hub@orizuru.net',
 				expectedOrgDef = 'src/apex/config/project-scratch-def.json',
+				expectedAlias = 'alias',
 				expectedInput = {
 					orizuru: {
 						sfdx: {
 							hub: {
 								username: expectedHubUsername
+							}
+						},
+						heroku: {
+							app: {
+								name: expectedAlias
 							}
 						}
 					},
@@ -122,7 +128,7 @@ describe('service/deploy/sfdx.js', () => {
 						}
 					}
 				},
-				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', expectedOrgDef, '-v', expectedHubUsername, '-s', '--json'], opts: { exitOnError: true } },
+				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', expectedOrgDef, '-v', expectedHubUsername, '-a', expectedAlias, '-s', '--json'], opts: { exitOnError: true } },
 				expectedOutput = {
 					sfdx: {
 						org: {
@@ -513,6 +519,11 @@ describe('service/deploy/sfdx.js', () => {
 						sfdx: {
 							hub: {
 								username: expectedHubUsername
+							}
+						},
+						heroku: {
+							app: {
+								name: 'test'
 							}
 						}
 					},

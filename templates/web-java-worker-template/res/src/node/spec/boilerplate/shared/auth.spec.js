@@ -43,7 +43,7 @@ describe('boilerplate/shared/auth.js', () => {
 
 	let
 		auth, tokenValidatorStub, grantCheckerStub,
-		tokenValidatorResult, grantCheckerResult;
+		tokenValidatorResult, grantCheckerResult, getTokenStub;
 
 	beforeEach(() => {
 
@@ -52,6 +52,7 @@ describe('boilerplate/shared/auth.js', () => {
 
 		grantCheckerStub = sandbox.stub();
 		grantCheckerResult = sandbox.stub();
+		getTokenStub = sandbox.stub();
 
 		tokenValidatorStub.returns(tokenValidatorResult);
 		grantCheckerStub.returns(grantCheckerResult);
@@ -66,6 +67,9 @@ describe('boilerplate/shared/auth.js', () => {
 				middleware: {
 					tokenValidator: tokenValidatorStub,
 					grantChecker: grantCheckerStub
+				},
+				grant: {
+					getToken: getTokenStub
 				}
 			}
 		});
@@ -82,7 +86,7 @@ describe('boilerplate/shared/auth.js', () => {
 
 	describe('middleware', () => {
 
-		it('should return middleware', () => {
+		it('should return middleware and grant', () => {
 
 			// given - when
 			const middleware = auth.middleware;
@@ -92,6 +96,7 @@ describe('boilerplate/shared/auth.js', () => {
 			expect(middleware[0]).to.eql(tokenValidatorResult);
 			expect(middleware[1]).to.eql(grantCheckerResult);
 
+			expect(getTokenStub).to.have.been.calledOnce;
 			expect(tokenValidatorStub).to.have.been.calledOnce;
 			expect(tokenValidatorStub).to.have.been.calledWith({
 				jwtSigningKey: '123',
