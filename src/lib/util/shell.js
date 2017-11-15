@@ -28,7 +28,7 @@
 
 const
 	_ = require('lodash'),
-	debug = require('../../../util/debug'),
+	debug = require('./debug'),
 
 	childProcess = require('child_process'),
 	spawn = childProcess.spawn,

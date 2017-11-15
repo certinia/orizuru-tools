@@ -65,7 +65,7 @@ function createMocks() {
 
 }
 
-describe('service/deploy/shared/shell.js', () => {
+describe('util/shell.js', () => {
 
 	let mocks, shell;
 
@@ -92,9 +92,9 @@ describe('service/deploy/shared/shell.js', () => {
 		spawn.stderr.pipe.resume = sandbox.stub();
 		spawn.stderr.on = sandbox.stub();
 
-		shell = proxyquire(root + '/src/lib/service/deploy/shared/shell.js', {
+		shell = proxyquire(root + '/src/lib/util/shell.js', {
 			['child_process']: mocks.childProcess,
-			'../../../util/debug': mocks.debug
+			'./debug': mocks.debug
 		});
 
 	});
