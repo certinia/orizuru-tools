@@ -29,7 +29,7 @@
 const
 	inquirer = require('inquirer'),
 	questions = require('../../util/questions'),
-	shell = require('./shared/shell'),
+	shell = require('../../util/shell'),
 	validators = require('../../util/validators'),
 
 	askQuestions = (config) => {

@@ -53,7 +53,7 @@ describe('service/deploy/certificate.js', () => {
 		mocks.inquirer.prompt = sandbox.stub();
 
 		certificate = proxyquire(root + '/src/lib/service/deploy/certificate.js', {
-			'./shared/shell': mocks.shell,
+			'../../util/shell': mocks.shell,
 			inquirer: mocks.inquirer
 		});
 
