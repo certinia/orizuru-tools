@@ -1,0 +1,10 @@
+.nyc_output
+.sfdx
+.orizuru
+
+node_modules
+coverage
+
+local.run.properties
+
+*.pem
