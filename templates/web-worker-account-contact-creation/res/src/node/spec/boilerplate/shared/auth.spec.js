@@ -29,7 +29,6 @@
 const
 	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -44,7 +43,7 @@ describe('boilerplate/shared/auth.js', () => {
 
 	let
 		auth, tokenValidatorStub, grantCheckerStub,
-		tokenValidatorResult, grantCheckerResult;
+		tokenValidatorResult, grantCheckerResult, getTokenStub;
 
 	beforeEach(() => {
 
@@ -53,6 +52,7 @@ describe('boilerplate/shared/auth.js', () => {
 
 		grantCheckerStub = sandbox.stub();
 		grantCheckerResult = sandbox.stub();
+		getTokenStub = sandbox.stub();
 
 		tokenValidatorStub.returns(tokenValidatorResult);
 		grantCheckerStub.returns(grantCheckerResult);
@@ -62,11 +62,14 @@ describe('boilerplate/shared/auth.js', () => {
 		process.env.OPENID_HTTP_TIMEOUT = '5333';
 		process.env.OPENID_ISSUER_URI = 'http://test';
 
-		auth = proxyquire(root + '/src/node/lib/boilerplate/shared/auth', {
+		auth = proxyquire('../../../lib/boilerplate/shared/auth', {
 			['@financialforcedev/orizuru-auth']: {
 				middleware: {
 					tokenValidator: tokenValidatorStub,
 					grantChecker: grantCheckerStub
+				},
+				grant: {
+					getToken: getTokenStub
 				}
 			}
 		});
@@ -83,7 +86,7 @@ describe('boilerplate/shared/auth.js', () => {
 
 	describe('middleware', () => {
 
-		it('should return middleware', () => {
+		it('should return middleware and grant', () => {
 
 			// given - when
 			const middleware = auth.middleware;
@@ -93,6 +96,7 @@ describe('boilerplate/shared/auth.js', () => {
 			expect(middleware[0]).to.eql(tokenValidatorResult);
 			expect(middleware[1]).to.eql(grantCheckerResult);
 
+			expect(getTokenStub).to.have.been.calledOnce;
 			expect(tokenValidatorStub).to.have.been.calledOnce;
 			expect(tokenValidatorStub).to.have.been.calledWith({
 				jwtSigningKey: '123',
@@ -100,6 +104,7 @@ describe('boilerplate/shared/auth.js', () => {
 				openidHTTPTimeout: 5333,
 				openidIssuerURI: 'http://test'
 			});
+
 		});
 
 	});

@@ -29,7 +29,6 @@
 const
 	chai = require('chai'),
 	proxyquire = require('proxyquire').noCallThru(),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -46,7 +45,7 @@ describe('boilerplate/shared/walk.js', () => {
 
 	beforeEach(() => {
 		klawSyncStub = sandbox.stub();
-		walk = proxyquire(root + '/src/node/lib/boilerplate/shared/walk', {
+		walk = proxyquire('../../../lib/boilerplate/shared/walk', {
 			'klaw-sync': klawSyncStub
 		});
 	});
