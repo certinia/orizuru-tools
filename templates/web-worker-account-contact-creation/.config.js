@@ -131,12 +131,15 @@ exports.directories = function (cb) {
 exports.dependencies = {
 	"@financialforcedev/orizuru": "^5.0.2",
 	"@financialforcedev/orizuru-auth": "^3.0.3",
-	"@financialforcedev/orizuru-transport-rabbitmq": "^3.0.3",
 	"@financialforcedev/orizuru-openapi": "^2.0.1",
+	"@financialforcedev/orizuru-transport-rabbitmq": "^3.0.3",
 	"debug-plus": "1.2.2",
+	"hunterio": "1.0.0",
+	"jsforce": "1.8.0",
 	"klaw-sync": "3.0.0",
 	"pkginfo": "0.4.1",
 	"throng": "4.0.0",
+	"tldjs": "2.2.0",
 	"uuid": "3.1.0"
 }
 
