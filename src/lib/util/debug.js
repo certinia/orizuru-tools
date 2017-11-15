@@ -38,7 +38,7 @@ const
 			_.each(_.initial(lines), (value) => {
 				debug(value);
 			});
-			return _.last(lines) || '';
+			return _.last(lines);
 		};
 
 	};
