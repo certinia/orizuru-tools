@@ -33,20 +33,22 @@ const
 	deployGitIgnore = require('./init/deployGitIgnore'),
 	readAppTemplates = require('./init/readAppTemplates'),
 	askQuestions = require('./init/askQuestions'),
-	{ logStart, logFinish, logError } = require('../util/logger');
+	npm = require('./init/npm'),
+	logger = require('../util/logger');
 
 class Init {
 
 	static init(options) {
 		return Promise.resolve({ templatesFolder: path.resolve(__dirname, '..', '..', '..', 'templates') })
-			.then(logStart('Building new project'))
+			.then(logger.logStart('Building new project'))
 			.then(readAppTemplates.readAppTemplates)
 			.then(askQuestions.askQuestions)
 			.then(createPackageJson.createPackageJson)
 			.then(copyResources.copyResources)
 			.then(deployGitIgnore.deployGitIgnore)
-			.then(logFinish('Built project'))
-			.catch(logError);
+			.then(npm.install)
+			.then(logger.logFinish('Built project'))
+			.catch(logger.logError);
 	}
 
 }
