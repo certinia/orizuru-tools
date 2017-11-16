@@ -1,0 +1,10 @@
+{
+	"orgName": "Orizuru Sample App",
+	"country": "US",
+	"edition": "Developer",
+	"hasSampleData": "false",
+	"features": ["MultiCurrency"],
+	"orgPreferences": {
+		"enabled": ["S1DesktopEnabled"]
+	}
+}
