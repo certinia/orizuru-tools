@@ -165,10 +165,10 @@ exports.scripts = {
 exports.nyc = {
 	"check-coverage": true,
 	"per-file": true,
-	"lines": 0,
-	"statements": 0,
-	"functions": 0,
-	"branches": 0,
+	"lines": 100,
+	"statements": 100,
+	"functions": 100,
+	"branches": 100,
 	"include": [
 		"src"
 	],
@@ -180,11 +180,6 @@ exports.nyc = {
 	],
 	"cache": true,
 	"all": true
-}
-
-// added engine
-exports.engines = {
-	"node": "6.11.2"
 }
 
 if (!package.repository) {

@@ -10,7 +10,7 @@
     "pretest": "eslint src",
     "single-test": "nyc --all=false mocha",
     "test": "nyc --include src mocha --recursive src/spec",
-    "posttest": "sh posttest.sh"
+    "posttest": "nyc --include templates/base-template/res/src/node/lib mocha --recursive templates/base-template/res/src/node/spec"
   },
   "repository": {
     "type": "git",

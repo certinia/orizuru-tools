@@ -27,24 +27,86 @@
 'use strict';
 
 const
-	_ = require('lodash'),
-	coreDebug = require('debug'),
-	debugStream = require('debug-stream'),
+	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
+	proxyquire = require('proxyquire'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
-	addBufferFormatter = (debug) => {
+	expect = chai.expect,
 
-		coreDebug.formatters.b = (buffer) => {
-			const lines = _.compact(_.split(buffer, '\n'));
-			_.each(_.initial(lines), (value) => {
-				debug(value);
-			});
-			return _.last(lines) || '';
-		};
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
 
-	};
+chai.use(chaiAsPromised);
+chai.use(sinonChai);
 
-module.exports = {
-	create: coreDebug,
-	debugStream,
-	addBufferFormatter
-};
+describe('handler/api/account.js', () => {
+
+	let handler, mocks;
+
+	beforeEach(() => {
+
+		process.env.JWT_SIGNING_KEY = '123';
+		process.env.OPENID_CLIENT_ID = '456';
+		process.env.OPENID_HTTP_TIMEOUT = '5333';
+		process.env.OPENID_ISSUER_URI = 'http://test';
+
+		class Connection {}
+
+		mocks = {};
+
+		mocks.auth = sandbox.stub();
+		mocks.auth.grant = sandbox.stub();
+
+		mocks.jsforce = sandbox.stub();
+		mocks.jsforce.Connection = Connection;
+
+		mocks.sobject = sandbox.stub();
+		mocks.sobject.create = sandbox.stub();
+
+		mocks.jsforce.Connection.prototype.sobject = sandbox.stub().returns(mocks.sobject);
+
+		handler = proxyquire('../../../lib/handlers/api/account', {
+			jsforce: mocks.jsforce,
+			'../../boilerplate/auth': mocks.auth
+		});
+
+	});
+
+	afterEach(() => {
+
+		delete process.env.JWT_SIGNING_KEY;
+		delete process.env.OPENID_CLIENT_ID;
+		delete process.env.OPENID_HTTP_TIMEOUT;
+		delete process.env.OPENID_ISSUER_URI;
+
+		restore();
+
+	});
+
+	describe('handler', () => {
+
+		it('handler', () => {
+
+			// given
+			const event = {
+				context: {
+					user: 'test@test.com'
+				},
+				message: {
+					ids: ['test id']
+				}
+			};
+
+			mocks.auth.grant.resolves();
+
+			// when - then
+			return expect(handler(event))
+				.to.eventually.be.fulfilled;
+
+		});
+
+	});
+
+});

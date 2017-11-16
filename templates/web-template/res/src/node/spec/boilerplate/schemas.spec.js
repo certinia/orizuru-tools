@@ -27,24 +27,44 @@
 'use strict';
 
 const
-	_ = require('lodash'),
-	coreDebug = require('debug'),
-	debugStream = require('debug-stream'),
+	chai = require('chai'),
+	proxyquire = require('proxyquire'),
+	sinon = require('sinon'),
 
-	addBufferFormatter = (debug) => {
+	expect = chai.expect,
 
-		coreDebug.formatters.b = (buffer) => {
-			const lines = _.compact(_.split(buffer, '\n'));
-			_.each(_.initial(lines), (value) => {
-				debug(value);
-			});
-			return _.last(lines) || '';
-		};
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
 
-	};
+describe('boilerplate/schemas.js', () => {
 
-module.exports = {
-	create: coreDebug,
-	debugStream,
-	addBufferFormatter
-};
+	let mocks, schemas;
+
+	beforeEach(() => {
+
+		mocks = {};
+		mocks.walk = sandbox.stub();
+		mocks.walk.walk = sandbox.stub().returns([]);
+
+		schemas = proxyquire('../../lib/boilerplate/schemas', {
+			'./walk': mocks.walk
+		});
+
+	});
+
+	afterEach(() => {
+		restore();
+	});
+
+	describe('get', () => {
+
+		it('should return all schemas in the schemas folder', () => {
+
+			// given - when - then
+			expect(schemas.get()).to.eql([]);
+
+		});
+
+	});
+
+});

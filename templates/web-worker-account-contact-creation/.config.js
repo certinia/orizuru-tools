@@ -134,12 +134,11 @@ exports.dependencies = {
 	"@financialforcedev/orizuru-openapi": "^2.0.1",
 	"@financialforcedev/orizuru-transport-rabbitmq": "^3.0.3",
 	"debug-plus": "1.2.2",
-	"hunterio": "1.0.0",
 	"jsforce": "1.8.0",
 	"klaw-sync": "3.0.0",
+	"lodash": "4.17.4",
 	"pkginfo": "0.4.1",
 	"throng": "4.0.0",
-	"tldjs": "2.2.0",
 	"uuid": "3.1.0"
 }
 
@@ -147,6 +146,7 @@ exports.dependencies = {
 exports.devDependencies = {
 	"@financialforcedev/eslint-config": "^3.0.0",
 	"chai": "4.1.1",
+	"chai-as-promised": "7.1.1",
 	"lodash": "4.17.4",
 	"mocha": "3.5.0",
 	"nyc": "11.2.1",
@@ -183,11 +183,6 @@ exports.nyc = {
 	],
 	"cache": true,
 	"all": true
-}
-
-// added engine
-exports.engines = {
-	"node": "6.11.2"
 }
 
 if (!package.repository) {

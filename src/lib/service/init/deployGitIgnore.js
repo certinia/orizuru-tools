@@ -35,7 +35,7 @@ const
 
 	deployGitIgnore = config => {
 		log('Creating .gitignore in ' + CWD);
-		return fs.copy(path.resolve(config.templatesFolder, config.folder, 'gitignore'), path.resolve(CWD, '.gitignore'))
+		return fs.rename(path.resolve(CWD, 'gitignore'), path.resolve(CWD, '.gitignore'))
 			.then(() => config);
 	};
 

@@ -26,25 +26,8 @@
 
 'use strict';
 
-const
-	_ = require('lodash'),
-	coreDebug = require('debug'),
-	debugStream = require('debug-stream'),
-
-	addBufferFormatter = (debug) => {
-
-		coreDebug.formatters.b = (buffer) => {
-			const lines = _.compact(_.split(buffer, '\n'));
-			_.each(_.initial(lines), (value) => {
-				debug(value);
-			});
-			return _.last(lines) || '';
-		};
-
-	};
+const walk = require('./walk');
 
 module.exports = {
-	create: coreDebug,
-	debugStream,
-	addBufferFormatter
+	get: () => walk.walk('schemas', '.avsc')
 };

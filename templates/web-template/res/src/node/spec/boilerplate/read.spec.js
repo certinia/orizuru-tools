@@ -27,24 +27,62 @@
 'use strict';
 
 const
-	_ = require('lodash'),
-	coreDebug = require('debug'),
-	debugStream = require('debug-stream'),
+	chai = require('chai'),
+	proxyquire = require('proxyquire').noCallThru(),
+	sinon = require('sinon'),
 
-	addBufferFormatter = (debug) => {
+	expect = chai.expect,
 
-		coreDebug.formatters.b = (buffer) => {
-			const lines = _.compact(_.split(buffer, '\n'));
-			_.each(_.initial(lines), (value) => {
-				debug(value);
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
+
+describe('boilerplate/read.js', () => {
+
+	let read, readFileSyncStub, dummy;
+
+	beforeEach(() => {
+		dummy = {};
+		readFileSyncStub = sandbox.stub();
+		read = proxyquire('../../lib/boilerplate/read', {
+			fs: {
+				readFileSync: readFileSyncStub
+			},
+			dummy: dummy
+		});
+	});
+
+	afterEach(() => {
+		restore();
+	});
+
+	describe('readSchema', () => {
+
+		it('should read a schema file to json', () => {
+
+			// given
+			readFileSyncStub.returns(Buffer.from('{"a": "b"}'));
+
+			// when - then
+			expect(read.readSchema('blah')).to.eql({
+				a: 'b'
 			});
-			return _.last(lines) || '';
-		};
 
-	};
+		});
 
-module.exports = {
-	create: coreDebug,
-	debugStream,
-	addBufferFormatter
-};
+	});
+
+	describe('readHandler', () => {
+
+		it('should read a handler file', () => {
+
+			// given
+			readFileSyncStub.returns(Buffer.from('{"a": "b"}'));
+
+			// when - then
+			expect(read.readHandler('dummy')).to.eql(dummy);
+
+		});
+
+	});
+
+});

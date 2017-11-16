@@ -23,64 +23,86 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
+
 'use strict';
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
+	proxyquire = require('proxyquire').noCallThru(),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	fs = require('fs-extra'),
-
 	expect = chai.expect,
 
-	sandbox = sinon.sandbox.create();
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('service/init/copyResources.js', () => {
+describe('boilerplate/auth.js', () => {
 
-	let mocks, copyResources;
+	let
+		auth, tokenValidatorStub, grantCheckerStub,
+		tokenValidatorResult, grantCheckerResult, getTokenStub;
 
 	beforeEach(() => {
 
-		mocks = {
-			logger: sandbox.stub(),
-			fsCopy: sandbox.stub(fs, 'copy').resolves()
-		};
+		tokenValidatorStub = sandbox.stub();
+		tokenValidatorResult = sandbox.stub();
 
-		mocks.logger.log = sandbox.stub();
+		grantCheckerStub = sandbox.stub();
+		grantCheckerResult = sandbox.stub();
+		getTokenStub = sandbox.stub();
 
-		copyResources = proxyquire(root + '/src/lib/service/init/copyResources', {
-			'../../util/logger': mocks.logger
+		tokenValidatorStub.returns(tokenValidatorResult);
+		grantCheckerStub.returns(grantCheckerResult);
+
+		process.env.JWT_SIGNING_KEY = '123';
+		process.env.OPENID_CLIENT_ID = '456';
+		process.env.OPENID_HTTP_TIMEOUT = '5333';
+		process.env.OPENID_ISSUER_URI = 'http://test';
+
+		auth = proxyquire('../../lib/boilerplate/auth', {
+			['@financialforcedev/orizuru-auth']: {
+				middleware: {
+					tokenValidator: tokenValidatorStub,
+					grantChecker: grantCheckerStub
+				},
+				grant: {
+					getToken: getTokenStub
+				}
+			}
 		});
 
 	});
 
-	afterEach(() => sandbox.restore());
+	afterEach(() => {
+		delete process.env.JWT_SIGNING_KEY;
+		delete process.env.OPENID_CLIENT_ID;
+		delete process.env.OPENID_HTTP_TIMEOUT;
+		delete process.env.OPENID_ISSUER_URI;
+		restore();
+	});
 
-	describe('copyResources', () => {
+	describe('middleware', () => {
 
-		it('should call fs-extra copy with the correct arguments, and return input', () => {
+		it('should return middleware and grant', () => {
 
-			// given
-			const
-				templatesFolder = root + '/templates',
-				folder = 'simple-example';
+			// given - when
+			const middleware = auth.middleware;
 
-			// when - then
-			return expect(copyResources.copyResources({ templatesFolder, folder })).to.eventually.eql({
-				templatesFolder,
-				folder
-			}).then(() => {
-				expect(mocks.logger.log).to.have.been.calledOnce;
-				expect(mocks.fsCopy).to.have.been.calledThrice;
-				expect(mocks.logger.log).to.have.been.calledWith('Copying resources to ' + process.cwd());
-				expect(mocks.fsCopy).to.have.been.calledWith(root + '/templates/simple-example/res', process.cwd());
+			// then
+			expect(middleware.length).to.eql(2);
+			expect(middleware[0]).to.eql(tokenValidatorResult);
+			expect(middleware[1]).to.eql(grantCheckerResult);
+
+			expect(getTokenStub).to.have.been.calledOnce;
+			expect(tokenValidatorStub).to.have.been.calledOnce;
+			expect(tokenValidatorStub).to.have.been.calledWith({
+				jwtSigningKey: '123',
+				openidClientId: '456',
+				openidHTTPTimeout: 5333,
+				openidIssuerURI: 'http://test'
 			});
 
 		});

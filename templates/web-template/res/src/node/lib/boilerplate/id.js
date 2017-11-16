@@ -28,23 +28,24 @@
 
 const
 	_ = require('lodash'),
-	coreDebug = require('debug'),
-	debugStream = require('debug-stream'),
+	uuid = require('uuid');
 
-	addBufferFormatter = (debug) => {
+function middleware(req, res, next) {
+	_.set(req, 'orizuru.id', uuid());
+	next();
+}
 
-		coreDebug.formatters.b = (buffer) => {
-			const lines = _.compact(_.split(buffer, '\n'));
-			_.each(_.initial(lines), (value) => {
-				debug(value);
-			});
-			return _.last(lines) || '';
-		};
-
-	};
+function responseWriter(err, response, orizuru) {
+	if (err) {
+		response.status(400).send(err.message);
+	} else {
+		response.json({
+			id: orizuru.id
+		});
+	}
+}
 
 module.exports = {
-	create: coreDebug,
-	debugStream,
-	addBufferFormatter
+	middleware: [middleware],
+	responseWriter
 };

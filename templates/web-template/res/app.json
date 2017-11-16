@@ -1,0 +1,16 @@
+{
+	"name": "Orizuru Base Template",
+	"description": "Orizuru Base Template",
+	"formation": {
+		"web": {
+			"quantity": 1,
+			"size": "standard-1x"
+		}
+	},
+	"addons": [{
+		"plan": "cloudamqp:lemur"
+	}],
+	"buildpacks": [{
+		"url": "heroku/nodejs"
+	}]
+}

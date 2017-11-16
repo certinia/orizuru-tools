@@ -1,98 +1,113 @@
+/**
+ * Copyright (c) 2017, FinancialForce.com, inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, 
+ *   are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice, 
+ *      this list of conditions and the following disclaimer.
+ * - Redistributions in binary form must reproduce the above copyright notice, 
+ *      this list of conditions and the following disclaimer in the documentation 
+ *      and/or other materials provided with the distribution.
+ * - Neither the name of the FinancialForce.com, inc nor the names of its contributors 
+ *      may be used to endorse or promote products derived from this software without 
+ *      specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+ *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
+ *  THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
+
 'use strict';
 
 const
 	_ = require('lodash'),
 	debug = require('debug-plus')('account-handler'),
-	grant = require('../../boilerplate/shared/auth').grant,
 	jsforce = require('jsforce'),
-	Hunter = require('hunterio'),
-	{ parse } = require('tldjs'),
 
-	HUNTER_KEY = process.env.HUNTER_KEY,
-	CONFIDENCE = process.env.CONFIDENCE || 80,
+	grant = require('../../boilerplate/auth').grant,
 
-	CONTACT_SOBJECT_NAME = 'Contact',
-	ACCOUNT_SOBJECT_NAME = 'Account',
+	Connection = jsforce.Connection,
 
-	newJsforceConnection = credentials => new jsforce.Connection(credentials),
-	getJsforceConnection = user => grant(user).then(newJsforceConnection),
+	CONTACT_SOBJECT_NAME = 'Contact';
 
-	getAccountDomain = (conn, id) => () => {
-		return conn.sobject(ACCOUNT_SOBJECT_NAME).retrieve(id)
-			.then(account => parse(account.Website).domain)
-			.catch(error => null);
-	},
+/**
+ * Logs information from the event
+ */
+function logEvent(event) {
 
-	getEmails = domain => {
-		if (!domain) {
-			return [];
-		}
-		return new Promise((resolve, reject) => {
-			var hunter = new Hunter(HUNTER_KEY);
-
-			hunter.domainSearch({
-				domain
-			}, (err, body) => {
-				if (err) {
-					reject(err);
-				} else {
-					resolve(body.data.emails);
-				}
-			});
-		});
-	},
-
-	getContactsFromEmails = id => emails => {
-		return emails
-			.filter(email => {
-				return email.type === 'personal' &&
-					email.confidence > CONFIDENCE &&
-					email.last_name &&
-					email.first_name;
-			})
-			.map(email => {
-				return {
-					firstName: email.first_name,
-					lastName: email.last_name,
-					accountId: id,
-					email: email.value,
-					title: email.position
-				};
-			});
-	},
-
-	createContacts = conn => contacts => {
-
-		const
-			processChunck = (chain, tenContacts) => {
-				return chain
-					.then(() =>
-						Promise.all(
-							_.map(tenContacts, contact => conn.sobject(CONTACT_SOBJECT_NAME).create(contact))
-						)
-					);
-			};
-
-		return (_.reduce(_.chunk(contacts, 10), processChunck, Promise.resolve()))
-			.then(() => debug.log('success!')).catch(debug.error);
-	};
-
-module.exports = ({ message, context }) => {
 	debug.log('Handled event for schema \'api/account\'...');
 	debug.log('Context:');
-	debug.log(JSON.stringify(context));
+	debug.log(JSON.stringify(event.context));
 	debug.log('Message:');
-	debug.log(JSON.stringify(message));
-	debug.log(`Confidence Threshold: ${CONFIDENCE}`);
+	debug.log(JSON.stringify(event.message));
 
-	return getJsforceConnection(context.user)
-		.then(conn => {
-			return _.reduce(message.ids, (chain, id) => {
-				return chain
-					.then(getAccountDomain(conn, id))
-					.then(getEmails)
-					.then(getContactsFromEmails(id))
-					.then(createContacts(conn));
-			}, Promise.resolve());
+	return event;
+
+}
+
+/**
+ * Creates a new connection for the given credentials
+ */
+function newConnection(credentials) {
+	return new Connection(credentials);
+}
+
+/**
+ * Get an authenticated connection using the credentials from the event
+ */
+function getConnection(event) {
+	return grant(event.context.user)
+		.then(newConnection)
+		.then(conn => ({ conn, event }));
+}
+
+/**
+ * Creates a contact for each of the account IDs found in the event
+ */
+function createContacts(config) {
+
+	const
+		conn = config.conn,
+		event = config.event,
+		message = event.message,
+		contacts = [];
+
+	let promise = Promise.resolve();
+
+	_.each(message.ids, id => {
+		contacts.push({
+			firstName: 'Default contact',
+			lastName: id,
+			accountId: id
 		});
+	});
+
+	_.each(_.chunk(contacts, 10), tenContacts => {
+		promise = promise.then(() =>
+			Promise.all(
+				_.map(tenContacts, contact => conn.sobject(CONTACT_SOBJECT_NAME).create(contact))
+			)
+		);
+	});
+
+	return promise;
+
+}
+
+module.exports = (event) => {
+
+	return Promise.resolve(event)
+		.then(logEvent)
+		.then(getConnection)
+		.then(createContacts)
+		.then(() => debug.log('Success!'))
+		.catch(debug.error);
+
 };

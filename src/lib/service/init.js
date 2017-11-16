@@ -36,21 +36,26 @@ const
 	npm = require('./init/npm'),
 	logger = require('../util/logger');
 
-class Init {
+function init(options) {
 
-	static init(options) {
-		return Promise.resolve({ templatesFolder: path.resolve(__dirname, '..', '..', '..', 'templates') })
-			.then(logger.logStart('Building new project'))
-			.then(readAppTemplates.readAppTemplates)
-			.then(askQuestions.askQuestions)
-			.then(createPackageJson.createPackageJson)
-			.then(copyResources.copyResources)
-			.then(deployGitIgnore.deployGitIgnore)
-			.then(npm.install)
-			.then(logger.logFinish('Built project'))
-			.catch(logger.logError);
-	}
+	const config = {
+		templatesFolder: path.resolve(__dirname, '..', '..', '..', 'templates')
+	};
 
+	return Promise.resolve(config)
+		.then(logger.logStart('Building new project'))
+		.then(readAppTemplates.readAppTemplates)
+		.then(askQuestions.askQuestions)
+		.then(createPackageJson.createPackageJson)
+		.then(copyResources.copyResources)
+		.then(deployGitIgnore.deployGitIgnore)
+		.then(npm.install)
+		.then(npm.generateApexTransport)
+		.then(npm.test)
+		.then(logger.logFinish('Built project'))
+		.catch(logger.logError);
 }
 
-module.exports = Init;
+module.exports = {
+	init
+};

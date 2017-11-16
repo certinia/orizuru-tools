@@ -27,24 +27,59 @@
 'use strict';
 
 const
-	_ = require('lodash'),
-	coreDebug = require('debug'),
-	debugStream = require('debug-stream'),
+	chai = require('chai'),
+	proxyquire = require('proxyquire').noCallThru(),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
-	addBufferFormatter = (debug) => {
+	expect = chai.expect,
 
-		coreDebug.formatters.b = (buffer) => {
-			const lines = _.compact(_.split(buffer, '\n'));
-			_.each(_.initial(lines), (value) => {
-				debug(value);
-			});
-			return _.last(lines) || '';
-		};
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
 
-	};
+chai.use(sinonChai);
 
-module.exports = {
-	create: coreDebug,
-	debugStream,
-	addBufferFormatter
-};
+describe('boilerplate/walk.js', () => {
+
+	let walk, klawSyncStub;
+
+	beforeEach(() => {
+		klawSyncStub = sandbox.stub();
+		walk = proxyquire('../../lib/boilerplate/walk', {
+			'klaw-sync': klawSyncStub
+		});
+	});
+
+	afterEach(() => {
+		restore();
+	});
+
+	describe('walk', () => {
+
+		it('should walk the file tree', () => {
+
+			// given 
+			klawSyncStub.returns([{
+				path: 'a/b'
+			}]);
+
+			// when - then
+			expect(walk.walk('/test', '.blah')).to.eql([{
+				fileName: 'b',
+				path: 'a/b',
+				sharedPath: ''
+			}]);
+
+			expect(klawSyncStub).to.have.been.calledOnce;
+			expect(klawSyncStub).to.have.been.calledWith('/test', { filter: sinon.match.any, nodir: true });
+
+			const filter = klawSyncStub.getCall(0).args[1].filter;
+
+			expect(filter({ path: 'bob.blah' })).to.eql(true);
+			expect(filter({ path: 'bob.avsc' })).to.eql(false);
+
+		});
+
+	});
+
+});

@@ -37,6 +37,22 @@ function install(config) {
 		.then(() => config);
 }
 
+function generateApexTransport(config) {
+	return Promise.resolve(config)
+		.then(logger.logStart('Generating Apex transport classes'))
+		.then(() => shell.executeCommand({ cmd: 'npm', args: ['run', 'generate-apex-transport'], opts: { exitOnError: true, namespace: 'npm~generate~apex~transport' } }))
+		.then(() => config);
+}
+
+function test(config) {
+	return Promise.resolve(config)
+		.then(logger.logStart('Running tests'))
+		.then(() => shell.executeCommand({ cmd: 'npm', args: ['test'], opts: { exitOnError: true, namespace: 'npm~test' } }))
+		.then(() => config);
+}
+
 module.exports = {
-	install
+	install,
+	generateApexTransport,
+	test
 };
