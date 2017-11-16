@@ -35,7 +35,7 @@ const
 module.exports = {
 	walk: (folder, ext) => {
 		const
-			DIR = resolve(__dirname, '..', '..', folder),
+			DIR = resolve(__dirname, '..', folder),
 			FILTER = ({ path }) => path.endsWith(ext);
 
 		return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
