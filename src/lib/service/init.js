@@ -52,6 +52,7 @@ function init(options) {
 		.then(npm.install)
 		.then(npm.generateApexTransport)
 		.then(npm.test)
+		.then(npm.orizuruPostInit)
 		.then(logger.logFinish('Built project'))
 		.catch(logger.logError);
 }

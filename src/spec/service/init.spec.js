@@ -64,6 +64,7 @@ describe('service/init.js', () => {
 		sandbox.stub(npm, 'install').resolves('test6');
 		sandbox.stub(npm, 'generateApexTransport').resolves('test7');
 		sandbox.stub(npm, 'test').resolves('test8');
+		sandbox.stub(npm, 'orizuruPostInit').resolves('test9');
 		sandbox.stub(readAppTemplates, 'readAppTemplates').resolves('test1');
 
 	});
@@ -87,6 +88,7 @@ describe('service/init.js', () => {
 					expect(npm.install).to.have.been.calledOnce;
 					expect(npm.generateApexTransport).to.have.been.calledOnce;
 					expect(npm.test).to.have.been.calledOnce;
+					expect(npm.orizuruPostInit).to.have.been.calledOnce;
 
 					expect(logger.logStart).to.have.been.calledWith('Building new project');
 					expect(readAppTemplates.readAppTemplates).to.have.been.calledWith({
@@ -99,6 +101,7 @@ describe('service/init.js', () => {
 					expect(npm.install).to.have.been.calledWith('test5');
 					expect(npm.generateApexTransport).to.have.been.calledWith('test6');
 					expect(npm.test).to.have.been.calledWith('test7');
+					expect(npm.orizuruPostInit).to.have.been.calledWith('test8');
 
 				});
 

@@ -118,6 +118,34 @@ describe('service/init/npm.js', () => {
 
 	});
 
+	describe('orizuruPostInit', () => {
+
+		it('should run the npm run orizuru-post-init command', () => {
+
+			// given
+			const
+				expectedInput = { test: 'input' },
+				expectedCommand = {
+					args: ['run', 'orizuru-post-init'],
+					cmd: 'npm',
+					opts: { exitOnError: false, namespace: 'npm~orizuru~post~init' }
+				};
+
+			// when - then
+			return expect(npm.orizuruPostInit(expectedInput))
+				.to.eventually.eql(expectedInput)
+				.then(() => {
+					expect(mocks.logger.logStart).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+
+					expect(mocks.logger.logStart).to.have.been.calledWith('Running Orizuru post init');
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
 	describe('test', () => {
 
 		it('should run the npm test command', () => {
