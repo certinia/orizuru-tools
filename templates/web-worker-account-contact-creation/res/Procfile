@@ -1,2 +1,2 @@
-web: node src/node/lib/boilerplate/web.js
-worker: node src/node/lib/boilerplate/worker.js
+web: node src/node/lib/web.js
+worker: node src/node/lib/worker.js
