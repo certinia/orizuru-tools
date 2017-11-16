@@ -6,45 +6,70 @@
 Orizuru tools are command line tools to streamline development with the [Orizuru framework](https://www.npmjs.com/package/@financialforcedev/orizuru).
 
 ## Install
+Use [npm](https://docs.npmjs.com/getting-started/installing-node) to install Orizuru on the command line with the following command.
 
-	$ npm install @financialforcedev/orizuru-tools -g
+```dos
+npm install @financialforcedev/orizuru-tools --global
+```
 
 ## Usage
 
 ### Create new project
 
-You can create a new template project from our list of projects. These projects are usage examples that can then me modified further to suit your use case. They wrap the orizuru framework with boilerplate to allow for the rapid development, and come with authentication and API integration with apex, etc.
+Orizuru includes templates, which are self-contained skeleton apps, built on top of the Orizuru framework. They include authentication, API integration with Apex and more.
 
-	$ mkdir new-project
+Each template can be deployed to Heroku and Force.com as-is, but you should probably extend them to meet your specific business requirements first. When you're ready to deploy, run the following commands on the command line.
 
-	$ cd new-project
+```dos
+mkdir new-project
+cd new-project
+orizuru setup init
+```
 
-	$ orizuru setup init
+### Generate Apex Transport Layer
 
-### Generate apex transport layer
+You can generate Apex classes for Apache Avro schemas. Do this whenever you create or change a schema, so that your Apex classes reflect the schema. To do so, run the following command on the command line:
 
-You can generate apex classes for Apache Avro schemas specified as ```json``` in ```.avsc``` files. Our usage examples usually wrap this command within an npm command that specifies the input folder and output folder. Rerun this command if you change a schema in an example and would like your apex transport classes to reflect this change.
+```dos
+orizuru setup generate-apex-transport [path/to/input/folder] [path/to/output/folder]
+```
 
-	$ orizuru setup generate-apex-transport [Input folder] [Output folder]
+The command takes the following arguments:
 
-Input folder: contains your ```.avsc``` files.
-
-Output folder: the folder you would like your generated ```OrizuruTransport.cls``` file to be generated in.
+|Argument|Description|
+|---|---|
+|path/to/input/folder|The relative path from the current directory to the folder that contains your avro schemas. Avro schemas must have the extension `.avsc` and the content should be in `JSON` format.
+|path/to/output/folder|The relative path to the folder in which the generated files should be saved.|
 
 ### Deploy
 
-You can use the deploy command to push an initial template to both Heroku and an sfdx scratch org. This requires you to have the **heroku cli** and **sfdx cli** installed, as well as **openssl**.
+Your app will be comprised of a distinct Force.com component and Heroku component.You can deploy both components using the `deploy` command.
 
-**NOTE:** when using ```deploy```, the latest commit in your current branch will be pushed to your Heroku app. As such, make sure you've committed any changes you would like to push **before** running the command.
+```dos
+orizuru deploy
+```
 
-	$ orizuru deploy
-
-The command will ask you questions about which Heroku app you would like to deploy to (you can create a new one). It will also generate and push authentication certificate values to both Salesforce and Heroku to ensure your Heroku app can authenticate with Salesforce. The command uses a ```.orizuru``` folder to cache your answers to these questions, so subsequent deploys do not require as much input.
+Be aware that this deploys the latest git commit, so make sure you have committed any code you want to deploy. Orizuru will generate certificates which will allow the Heroku app to authenticate with Force.com.
 
 You can also choose to generate certificates independently with
 
-	$ orizuru deploy certificate
+```dos
+orizuru deploy certificate
+```
 
-Or push a connected app to your sfdx scratch org with
+Or push a connected app to your scratch org with
 
-	$ orizuru deploy connected-app
+```dos
+orizuru deploy connected-app
+```
+
+You will be prompted to enter some details about your app, for example:
+* Whether you want to create a new scratch org, or deploy to an existing one
+* Whether you want to create a new Heroku app, or deploy to an existing one
+Where possible, the tools will suggest default values.
+
+As prerequisites, ensure you have:
+* Installed the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
+* Installed the [SFDX CLI](https://developer.salesforce.com/tools/sfdxcli)
+* Installed [OpenSSL](https://www.openssl.org/)
+* An active [Dev Hub](https://developer.salesforce.com/promotions/orgs/dx-signup)
