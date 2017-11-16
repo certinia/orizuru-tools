@@ -90,4 +90,60 @@ describe('service/init/npm.js', () => {
 
 	});
 
+	describe('generateApexTransport', () => {
+
+		it('should run the npm run generate-apex-transport command', () => {
+
+			// given
+			const
+				expectedInput = { test: 'input' },
+				expectedCommand = {
+					args: ['run', 'generate-apex-transport'],
+					cmd: 'npm',
+					opts: { exitOnError: true, namespace: 'npm~generate~apex~transport' }
+				};
+
+			// when - then
+			return expect(npm.generateApexTransport(expectedInput))
+				.to.eventually.eql(expectedInput)
+				.then(() => {
+					expect(mocks.logger.logStart).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+
+					expect(mocks.logger.logStart).to.have.been.calledWith('Generating Apex transport classes');
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
+	describe('test', () => {
+
+		it('should run the npm test command', () => {
+
+			// given
+			const
+				expectedInput = { test: 'input' },
+				expectedCommand = {
+					args: ['test'],
+					cmd: 'npm',
+					opts: { exitOnError: true, namespace: 'npm~test' }
+				};
+
+			// when - then
+			return expect(npm.test(expectedInput))
+				.to.eventually.eql(expectedInput)
+				.then(() => {
+					expect(mocks.logger.logStart).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+
+					expect(mocks.logger.logStart).to.have.been.calledWith('Running tests');
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
 });
