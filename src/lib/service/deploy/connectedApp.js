@@ -72,13 +72,6 @@ function create(config) {
 		.then(connectedApp => {
 			config.connectedApp = connectedApp;
 			return config;
-		})
-		.then(config => {
-			return conn.query('SELECT Id, Name, OptionsAllowAdminApprovedUsersOnly FROM ConnectedApplication WHERE Name = \'' + name + '\'')
-				.then(result => {
-					config.connectedApp.sobject = result.records[0];
-					return config;
-				});
 		});
 
 }
