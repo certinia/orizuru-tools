@@ -154,12 +154,12 @@ exports.devDependencies = {
 
 // overrode scripts
 exports.scripts = {
+	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schemas src/apex/app/main/default/classes",
 	"lint-fix": "eslint src/node --fix",
+	"orizuru-post-init": "mvn clean install",
 	"pretest": "eslint src/node",
 	"single-test": "nyc --all=false mocha",
-	"test": "nyc mocha --recursive src/node/spec",
-	"posttest": "mvn clean install",
-	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schemas src/apex/app/main/default/classes"
+	"test": "nyc mocha --recursive src/node/spec"
 }
 
 // added nyc
