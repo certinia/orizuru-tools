@@ -159,7 +159,7 @@ const
 			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${gitUrl}`], opts: { exitOnError: true } }))
 			.then(() => shell.executeCommand({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } }))
 			.then(branch => shell.executeCommand({ cmd: 'git', args: ['push', 'autodeploy', `${branch.stdout}:master`, '-f'], opts: { exitOnError: true, namespace: 'deploy' } }))
-			.then(removeAutoDeploy())
+			.then(() => removeAutoDeploy())
 			.then(() => config);
 	},
 

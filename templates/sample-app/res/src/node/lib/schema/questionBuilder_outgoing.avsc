@@ -24,14 +24,15 @@
 						"type": "record",
 						"name": "Cost",
 						"fields": [{
-								"name": "fixed",
-								"type": "double"
-							},
-							{
-								"name": "distance",
-								"type": "double"
-							}
-						]
+							"name": "fixed",
+							"type": "double"
+						}, {
+							"name": "distance",
+							"type": "double"
+						}, {
+							"name": "time",
+							"type": "double"
+						}]
 					}
 				}]
 			}

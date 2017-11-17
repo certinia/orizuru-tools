@@ -57,8 +57,8 @@
 	<nameField>
 		<displayFormat>Delivery Plan {0}</displayFormat>
 		<label>Delivery Plan Name</label>
-		<type>AutoNumber</type>
 		<startingNumber>1</startingNumber>
+		<type>AutoNumber</type>
 	</nameField>
 	<pluralLabel>Delivery Plans</pluralLabel>
 	<searchLayouts/>

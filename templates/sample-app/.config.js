@@ -153,7 +153,7 @@ exports.devDependencies = {
 }
 
 exports.scripts = {
-	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schema src/apex/app/main/default/classes",
+	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schema/api src/apex/app/main/default/classes",
 	"lint-fix": "eslint src/node --fix",
 	"orizuru-post-init": "mvn clean install",
 	"pretest": "eslint src/node",
