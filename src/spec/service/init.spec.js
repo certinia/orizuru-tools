@@ -30,15 +30,18 @@ const
 	root = require('app-root-path'),
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
+
+	service = require('../../lib/service/init'),
 
 	askQuestions = require('../../lib/service/init/askQuestions'),
 	readAppTemplates = require('../../lib/service/init/readAppTemplates'),
 	createPackageJson = require('../../lib/service/init/createPackageJson'),
 	copyResources = require('../../lib/service/init/copyResources'),
 	deployGitIgnore = require('../../lib/service/init/deployGitIgnore'),
+	npm = require('../../lib/service/init/npm'),
+	logger = require('../../lib/util/logger'),
 
 	expect = chai.expect,
 
@@ -49,25 +52,20 @@ chai.use(sinonChai);
 
 describe('service/init.js', () => {
 
-	let mocks, InitService;
-
 	beforeEach(() => {
-		mocks = {
-			logger: sandbox.stub(),
-			readAppTemplates: sandbox.stub(readAppTemplates, 'readAppTemplates').resolves('test1'),
-			askQuestions: sandbox.stub(askQuestions, 'askQuestions').resolves('test2'),
-			createPackageJson: sandbox.stub(createPackageJson, 'createPackageJson').resolves('test3'),
-			copyResources: sandbox.stub(copyResources, 'copyResources').resolves('test4'),
-			deployGitIgnore: sandbox.stub(deployGitIgnore, 'deployGitIgnore').resolves()
-		};
 
-		mocks.logger.logStart = sandbox.stub();
-		mocks.logger.logFinish = sandbox.stub();
-		mocks.logger.logError = sandbox.stub();
-
-		InitService = proxyquire('../../lib/service/init', {
-			'../util/logger': mocks.logger
-		});
+		sandbox.stub(askQuestions, 'askQuestions').resolves('test2');
+		sandbox.stub(createPackageJson, 'createPackageJson').resolves('test3');
+		sandbox.stub(copyResources, 'copyResources').resolves('test4');
+		sandbox.stub(deployGitIgnore, 'deployGitIgnore').resolves('test5');
+		sandbox.stub(logger, 'logStart');
+		sandbox.stub(logger, 'logFinish');
+		sandbox.stub(logger, 'logError');
+		sandbox.stub(npm, 'install').resolves('test6');
+		sandbox.stub(npm, 'generateApexTransport').resolves('test7');
+		sandbox.stub(npm, 'test').resolves('test8');
+		sandbox.stub(npm, 'orizuruPostInit').resolves('test9');
+		sandbox.stub(readAppTemplates, 'readAppTemplates').resolves('test1');
 
 	});
 
@@ -78,23 +76,33 @@ describe('service/init.js', () => {
 		it('should call init functions in order', () => {
 
 			// when/then
-			return expect(InitService.init())
+			return expect(service.init())
 				.to.eventually.be.fulfilled
 				.then(() => {
-					expect(mocks.logger.logStart).to.have.been.calledOnce;
-					expect(mocks.readAppTemplates).to.have.been.calledOnce;
-					expect(mocks.askQuestions).to.have.been.calledOnce;
-					expect(mocks.createPackageJson).to.have.been.calledOnce;
-					expect(mocks.copyResources).to.have.been.calledOnce;
 
-					expect(mocks.logger.logStart).to.have.been.calledWith('Building new project');
-					expect(mocks.readAppTemplates).to.have.been.calledWith({
+					expect(logger.logStart).to.have.been.calledOnce;
+					expect(readAppTemplates.readAppTemplates).to.have.been.calledOnce;
+					expect(askQuestions.askQuestions).to.have.been.calledOnce;
+					expect(createPackageJson.createPackageJson).to.have.been.calledOnce;
+					expect(copyResources.copyResources).to.have.been.calledOnce;
+					expect(npm.install).to.have.been.calledOnce;
+					expect(npm.generateApexTransport).to.have.been.calledOnce;
+					expect(npm.test).to.have.been.calledOnce;
+					expect(npm.orizuruPostInit).to.have.been.calledOnce;
+
+					expect(logger.logStart).to.have.been.calledWith('Building new project');
+					expect(readAppTemplates.readAppTemplates).to.have.been.calledWith({
 						templatesFolder: root + '/templates'
 					});
-					expect(mocks.askQuestions).to.have.been.calledWith('test1');
-					expect(mocks.createPackageJson).to.have.been.calledWith('test2');
-					expect(mocks.copyResources).to.have.been.calledWith('test3');
-					expect(mocks.deployGitIgnore).to.have.been.calledWith('test4');
+					expect(askQuestions.askQuestions).to.have.been.calledWith('test1');
+					expect(createPackageJson.createPackageJson).to.have.been.calledWith('test2');
+					expect(copyResources.copyResources).to.have.been.calledWith('test3');
+					expect(deployGitIgnore.deployGitIgnore).to.have.been.calledWith('test4');
+					expect(npm.install).to.have.been.calledWith('test5');
+					expect(npm.generateApexTransport).to.have.been.calledWith('test6');
+					expect(npm.test).to.have.been.calledWith('test7');
+					expect(npm.orizuruPostInit).to.have.been.calledWith('test8');
+
 				});
 
 		});
@@ -105,16 +113,16 @@ describe('service/init.js', () => {
 			const
 				expectedError = new Error('errorTest');
 
-			mocks.readAppTemplates.rejects(expectedError);
+			readAppTemplates.readAppTemplates.rejects(expectedError);
 
 			// when/then
-			return expect(InitService.init())
+			return expect(service.init())
 				.to.eventually.be.fulfilled
 				.then(() => {
-					expect(mocks.logger.logStart).to.have.been.calledOnce;
-					expect(mocks.logger.logError).to.have.been.calledOnce;
-					expect(mocks.logger.logStart, 'Building new project');
-					expect(mocks.logger.logError, expectedError);
+					expect(logger.logStart).to.have.been.calledOnce;
+					expect(logger.logError).to.have.been.calledOnce;
+					expect(logger.logStart, 'Building new project');
+					expect(logger.logError, expectedError);
 				});
 
 		});

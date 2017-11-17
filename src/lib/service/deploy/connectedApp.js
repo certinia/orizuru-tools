@@ -29,73 +29,73 @@
 const
 	inquirer = require('inquirer'),
 	questions = require('../../util/questions'),
-	shell = require('./shared/shell'),
-	validators = require('../../util/validators'),
+	shell = require('../../util/shell'),
+	validators = require('../../util/validators');
 
-	askQuestions = (config) => {
+function askQuestions(config) {
 
-		return inquirer.prompt([
-			questions.inputField('Connected App Name', 'name', validators.validateNotEmpty, 'Orizuru'),
-			questions.inputField('Connected App Email', 'email', validators.validateNotEmpty, 'test@test.com')
-		]).then(answers => {
-			config.parameters = config.parameters || {};
-			config.parameters.connectedApp = config.parameters.connectedApp || {};
-			config.parameters.connectedApp.name = answers.name;
-			config.parameters.connectedApp.email = answers.email;
+	return inquirer.prompt([
+		questions.inputField('Connected App Name', 'name', validators.validateNotEmpty, 'Orizuru'),
+		questions.inputField('Connected App Email', 'email', validators.validateNotEmpty, 'test@test.com')
+	]).then(answers => {
+		config.parameters = config.parameters || {};
+		config.parameters.connectedApp = config.parameters.connectedApp || {};
+		config.parameters.connectedApp.name = answers.name;
+		config.parameters.connectedApp.email = answers.email;
+		return config;
+
+	});
+
+}
+
+function create(config) {
+
+	const
+		conn = config.conn,
+		name = config.parameters.connectedApp.name,
+		email = config.parameters.connectedApp.email,
+		certificate = config.certificate.publicKey,
+
+		connectedApp = {
+			contactEmail: email,
+			label: name,
+			fullName: name,
+			oauthConfig: {
+				callbackUrl: 'https://login.salesforce.com/success',
+				scopes: ['Api', 'RefreshToken'],
+				certificate
+			}
+		};
+
+	return conn.metadata.upsert('ConnectedApp', connectedApp)
+		.then(connectedApp => conn.metadata.read('ConnectedApp', name))
+		.then(connectedApp => {
+			config.connectedApp = connectedApp;
 			return config;
-
 		});
 
-	},
+}
 
-	create = (config) => {
+function updateHerokuConfigVariables(config) {
 
-		const
-			conn = config.conn,
-			name = config.parameters.connectedApp.name,
-			email = config.parameters.connectedApp.email,
-			certificate = config.certificate.publicKey,
+	const commands = [{
+		cmd: 'heroku',
+		args: ['config:set', `OPENID_CLIENT_ID=${config.connectedApp.oauthConfig.consumerKey}`, '-a', config.parameters.heroku.app.name]
+	}, {
+		cmd: 'heroku',
+		args: ['config:set', 'OPENID_HTTP_TIMEOUT=4000', '-a', config.parameters.heroku.app.name]
+	}, {
+		cmd: 'heroku',
+		args: ['config:set', 'OPENID_ISSUER_URI=https://test.salesforce.com/', '-a', config.parameters.heroku.app.name]
+	}, {
+		cmd: 'heroku',
+		args: ['config:set', `JWT_SIGNING_KEY=${config.certificate.privateKey}`, '-a', config.parameters.heroku.app.name]
+	}];
 
-			connectedApp = {
-				contactEmail: email,
-				label: name,
-				fullName: name,
-				oauthConfig: {
-					callbackUrl: 'https://login.salesforce.com/success',
-					scopes: ['Api', 'RefreshToken'],
-					certificate
-				}
-			};
+	return shell.executeCommands(commands, { exitOnError: true })
+		.then(() => config);
 
-		return conn.metadata.upsert('ConnectedApp', connectedApp)
-			.then(connectedApp => conn.metadata.read('ConnectedApp', name))
-			.then(connectedApp => {
-				config.connectedApp = connectedApp;
-				return config;
-			});
-
-	},
-
-	updateHerokuConfigVariables = (config) => {
-
-		const commands = [{
-			cmd: 'heroku',
-			args: ['config:set', `OPENID_CLIENT_ID=${config.connectedApp.oauthConfig.consumerKey}`, '-a', config.parameters.heroku.app.name]
-		}, {
-			cmd: 'heroku',
-			args: ['config:set', 'OPENID_HTTP_TIMEOUT=4000', '-a', config.parameters.heroku.app.name]
-		}, {
-			cmd: 'heroku',
-			args: ['config:set', 'OPENID_ISSUER_URI=https://test.salesforce.com/', '-a', config.parameters.heroku.app.name]
-		}, {
-			cmd: 'heroku',
-			args: ['config:set', `JWT_SIGNING_KEY=${config.certificate.privateKey}`, '-a', config.parameters.heroku.app.name]
-		}];
-
-		return shell.executeCommands(commands, { exitOnError: true })
-			.then(() => config);
-
-	};
+}
 
 module.exports = {
 	askQuestions,

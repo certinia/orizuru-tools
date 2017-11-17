@@ -31,13 +31,14 @@ const
 	fs = require('fs-extra'),
 	{ log } = require('../../util/logger'),
 
-	CWD = process.cwd(),
+	CWD = process.cwd();
 
-	copyResources = config => {
-		log('Copying resources to ' + CWD);
-		return fs.copy(path.resolve(config.templatesFolder, config.folder, 'res'), CWD)
-			.then(() => config);
-	};
+function copyResources(config) {
+	log('Copying resources to ' + CWD);
+	return fs.copy(path.resolve(config.templatesFolder, 'web-template', 'res'), CWD)
+		.then(() => fs.copy(path.resolve(config.templatesFolder, config.folder, 'res'), CWD))
+		.then(() => config);
+}
 
 module.exports = {
 	copyResources: config => copyResources(config)

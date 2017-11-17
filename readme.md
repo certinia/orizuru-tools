@@ -18,7 +18,11 @@ npm install @financialforcedev/orizuru-tools --global
 
 Orizuru includes templates, which are self-contained skeleton apps, built on top of the Orizuru framework. They include authentication, API integration with Apex and more.
 
-Each template can be deployed to Heroku and Force.com as-is, but you should probably extend them to meet your specific business requirements first. When you're ready to deploy, run the following commands on the command line.
+Orizuru includes a [base template](/templates/web-template) which produces a web server. All the other templates extend the base template adding additional functionality.
+
+Each template can be deployed to Heroku and Force.com as-is, but you should probably extend them to meet your specific business requirements first. 
+
+When you're ready to deploy, run the following commands on the command line.
 
 ```dos
 mkdir new-project

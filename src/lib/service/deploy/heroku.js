@@ -32,8 +32,8 @@ const
 	inquirer = require('inquirer'),
 	path = require('path'),
 	questions = require('../../util/questions'),
+	shell = require('../../util/shell'),
 	validators = require('../../util/validators'),
-	shell = require('./shared/shell'),
 
 	addAddOns = (config) => {
 

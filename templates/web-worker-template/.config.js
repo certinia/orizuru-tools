@@ -154,21 +154,22 @@ exports.devDependencies = {
 
 // overrode scripts
 exports.scripts = {
+	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schemas src/apex/app/main/default/classes",
 	"lint-fix": "eslint src/node --fix",
+	"orizuru-post-init": "echo 'No post init steps'",
 	"pretest": "eslint src/node",
 	"single-test": "nyc --all=false mocha",
-	"test": "nyc mocha --recursive src/node/spec",
-	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schemas src/apex/app/main/default/classes"
+	"test": "nyc mocha --recursive src/node/spec"
 }
 
 // added nyc
 exports.nyc = {
 	"check-coverage": true,
 	"per-file": true,
-	"lines": 0,
-	"statements": 0,
-	"functions": 0,
-	"branches": 0,
+	"lines": 100,
+	"statements": 100,
+	"functions": 100,
+	"branches": 100,
 	"include": [
 		"src"
 	],
@@ -180,11 +181,6 @@ exports.nyc = {
 	],
 	"cache": true,
 	"all": true
-}
-
-// added engine
-exports.engines = {
-	"node": "6.11.2"
 }
 
 if (!package.repository) {

@@ -73,15 +73,17 @@ describe('service/init/copyResources.js', () => {
 				folder = 'simple-example';
 
 			// when - then
-			return expect(copyResources.copyResources({ templatesFolder, folder })).to.eventually.eql({
-				templatesFolder,
-				folder
-			}).then(() => {
-				expect(mocks.logger.log).to.have.been.calledOnce;
-				expect(mocks.fsCopy).to.have.been.calledOnce;
-				expect(mocks.logger.log).to.have.been.calledWith('Copying resources to ' + process.cwd());
-				expect(mocks.fsCopy).to.have.been.calledWith(root + '/templates/simple-example/res', process.cwd());
-			});
+			return expect(copyResources.copyResources({ templatesFolder, folder }))
+				.to.eventually.eql({
+					templatesFolder,
+					folder
+				}).then(() => {
+					expect(mocks.logger.log).to.have.been.calledOnce;
+					expect(mocks.fsCopy).to.have.been.calledTwice;
+					expect(mocks.logger.log).to.have.been.calledWith('Copying resources to ' + process.cwd());
+					expect(mocks.fsCopy).to.have.been.calledWith(root + '/templates/web-template/res', process.cwd());
+					expect(mocks.fsCopy).to.have.been.calledWith(root + '/templates/simple-example/res', process.cwd());
+				});
 
 		});
 

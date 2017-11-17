@@ -50,7 +50,7 @@ describe('service/init/deployGitIgnore.js', () => {
 
 		mocks = {
 			logger: sandbox.stub(),
-			fsCopy: sandbox.stub(fs, 'copy').resolves()
+			fsCopy: sandbox.stub(fs, 'rename').resolves()
 		};
 
 		mocks.logger.log = sandbox.stub();
@@ -80,7 +80,7 @@ describe('service/init/deployGitIgnore.js', () => {
 				expect(mocks.logger.log).to.have.been.calledOnce;
 				expect(mocks.fsCopy).to.have.been.calledOnce;
 				expect(mocks.logger.log).to.have.been.calledWith('Creating .gitignore in ' + process.cwd());
-				expect(mocks.fsCopy).to.have.been.calledWith(root + '/templates/simple-example/gitignore', process.cwd() + '/.gitignore');
+				expect(mocks.fsCopy).to.have.been.calledWith(process.cwd() + '/gitignore', process.cwd() + '/.gitignore');
 			});
 
 		});

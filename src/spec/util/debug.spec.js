@@ -69,6 +69,29 @@ describe('util/debug.js', () => {
 
 		});
 
+		it('should replace undefined with a blank string ', () => {
+
+			// given
+			const
+				input = undefined,
+				debug = require(root + '/src/lib/util/debug.js');
+
+			var debugInstance;
+
+			debug.create.enable('instance');
+
+			debugInstance = debug.create('instance');
+			debug.addBufferFormatter(debugInstance);
+
+			// when
+			debugInstance('%b', input);
+
+			// then
+			expect(process.stderr.write).to.have.callCount(1);
+			expect(process.stderr.write.args[0][0]).to.contain('');
+
+		});
+
 	});
 
 });

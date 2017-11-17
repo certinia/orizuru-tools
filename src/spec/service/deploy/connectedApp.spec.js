@@ -64,7 +64,7 @@ describe('service/deploy/connectedApp.js', () => {
 		connectedApp = proxyquire(root + '/src/lib/service/deploy/connectedApp.js', {
 			inquirer: mocks.inquirer,
 			jsforce: mocks.jsforce,
-			'./shared/shell': mocks.shell
+			'../../util/shell': mocks.shell
 		});
 
 	});

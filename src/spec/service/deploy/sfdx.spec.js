@@ -69,7 +69,7 @@ describe('service/deploy/sfdx.js', () => {
 		sfdx = proxyquire(root + '/src/lib/service/deploy/sfdx.js', {
 			inquirer: mocks.inquirer,
 			'./shared/config': mocks.config,
-			'./shared/shell': mocks.shell
+			'../../util/shell': mocks.shell
 		});
 
 	});

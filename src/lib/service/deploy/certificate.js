@@ -30,8 +30,8 @@ const
 	_ = require('lodash'),
 	inquirer = require('inquirer'),
 	questions = require('../../util/questions'),
+	shell = require('../../util/shell'),
 	validators = require('../../util/validators'),
-	shell = require('./shared/shell'),
 
 	{ logError, logEvent } = require('../../util/logger'),
 

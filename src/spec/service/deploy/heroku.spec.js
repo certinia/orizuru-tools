@@ -57,7 +57,7 @@ describe('service/deploy/heroku.js', () => {
 		heroku = proxyquire(root + '/src/lib/service/deploy/heroku.js', {
 			'fs-extra': mocks.fs,
 			inquirer: mocks.inquirer,
-			'./shared/shell': mocks.shell
+			'../../util/shell': mocks.shell
 		});
 
 	});

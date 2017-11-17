@@ -34,7 +34,7 @@ const
 	yaml = require('js-yaml'),
 	logger = require('../../util/logger'),
 	questions = require('../../util/questions'),
-	shell = require('./shared/shell'),
+	shell = require('../../util/shell'),
 
 	checkSfdxInstalled = (config) => {
 		return shell.executeCommand({ cmd: 'sfdx', args: ['version'], opts: { exitOnError: true } })
