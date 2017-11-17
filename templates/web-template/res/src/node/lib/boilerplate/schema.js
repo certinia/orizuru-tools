@@ -28,8 +28,34 @@
 
 const
 	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename, resolve } = require('path');
+	walk = require('./walk'),
+
+	EMPTY = '',
+	INCOMING = '_incoming',
+	OUTGOING = '_outgoing';
+
+/**
+ * Gets all the schemas for a web dyno.
+ * 
+ * Web dyno schemas are identified as any file without the suffixes `_incoming` and `_outgoing`.
+ */
+function getWebSchemas() {
+
+	const schemas = walk.walk('schema', '.avsc');
+
+	return _.reduce(schemas, (results, schema) => {
+
+		const fileName = schema.fileName;
+
+		if (!fileName.endsWith(INCOMING) && !fileName.endsWith(OUTGOING)) {
+			results[fileName] = schema;
+		}
+
+		return results;
+
+	}, {});
+
+}
 
 /**
  * @typedef FileInfo
@@ -39,29 +65,55 @@ const
  */
 
 /**
- * Get all files in the given folder with the given extension.
- * 
- * @param {string} folder - The folder
- * @param {string} extension - The file extension
- * @returns {[FileInfo]}
+ * @typedef Schema
+ * @property {FileInfo} incoming 
+ * @property {FileInfo} outgoing 
  */
-function walk(folder, extension) {
 
-	const
-		directory = resolve(__dirname, '..', folder),
-		filter = ({ path }) => path.endsWith(extension);
+/**
+ * @typedef {Object.<string, Schema>} WorkerSchema
+ */
 
-	return _.map(klawSync(directory, { nodir: true, filter }), value => {
-		const { path } = value;
-		return {
-			path,
-			sharedPath: dirname(path).substring(directory.length),
-			fileName: basename(path, extension)
-		};
-	});
+/**
+ * Gets all the schemas for a worker dyno.
+ * 
+ * Worker dyno schemas are identified via the file name suffixes `_incoming` and `_outgoing`.
+ * 
+ * An `_incoming` schema is always required.
+ * 
+ * An `_outgoing` schema is optional. It is used for publishing onward messages to other worker dynos.
+ * 
+ * @returns {WorkerSchema}
+ */
+function getWorkerSchemas() {
+
+	const schemas = walk.walk('schema', '.avsc');
+
+	return _.reduce(schemas, (results, schema) => {
+
+		const fileName = schema.fileName;
+
+		let property;
+
+		if (fileName.endsWith(INCOMING)) {
+			const incomingFileName = fileName.replace(INCOMING, EMPTY);
+			property = incomingFileName + '.incoming';
+		} else if (fileName.endsWith(OUTGOING)) {
+			const outgoingFileName = fileName.replace(OUTGOING, EMPTY);
+			property = outgoingFileName + '.outgoing';
+		}
+
+		if (property) {
+			_.set(results, property, schema);
+		}
+
+		return results;
+
+	}, {});
 
 }
 
 module.exports = {
-	walk
+	getWebSchemas,
+	getWorkerSchemas
 };

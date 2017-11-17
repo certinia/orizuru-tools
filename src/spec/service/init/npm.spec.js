@@ -128,7 +128,7 @@ describe('service/init/npm.js', () => {
 				expectedCommand = {
 					args: ['run', 'orizuru-post-init'],
 					cmd: 'npm',
-					opts: { exitOnError: false, namespace: 'npm~orizuru~post~init' }
+					opts: { exitOnError: true, namespace: 'npm~orizuru~post~init' }
 				};
 
 			// when - then

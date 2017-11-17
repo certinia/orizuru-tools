@@ -41,7 +41,6 @@ var validateName = require('validate-npm-package-name')
 var npa = require('npm-package-arg')
 var semver = require('semver')
 
-// more popular packages should go here, maybe?
 function isTestPkg(p) {
 	return !!p.match(/^(expresso|mocha|tap|coffee-script|coco|streamline)$/)
 }
@@ -127,13 +126,13 @@ exports.directories = function (cb) {
 	})
 }
 
-// overrode dependencies
 exports.dependencies = {
 	"@financialforcedev/orizuru": "^5.0.2",
 	"@financialforcedev/orizuru-auth": "^3.0.3",
 	"@financialforcedev/orizuru-transport-rabbitmq": "^3.0.3",
 	"@financialforcedev/orizuru-openapi": "^2.0.1",
 	"debug-plus": "1.2.2",
+	"fs-extra": "4.0.2",
 	"jsforce": "1.8.0",
 	"klaw-sync": "3.0.0",
 	"lodash": "4.17.4",
@@ -142,7 +141,6 @@ exports.dependencies = {
 	"uuid": "3.1.0"
 }
 
-// overrode devDependencies
 exports.devDependencies = {
 	"@financialforcedev/eslint-config": "^3.0.0",
 	"chai": "4.1.1",
@@ -154,9 +152,8 @@ exports.devDependencies = {
 	"sinon-chai": "2.14.0"
 }
 
-// overrode scripts
 exports.scripts = {
-	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schemas src/apex/app/main/default/classes",
+	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schema src/apex/app/main/default/classes",
 	"lint-fix": "eslint src/node --fix",
 	"orizuru-post-init": "mvn clean install",
 	"pretest": "eslint src/node",
@@ -164,7 +161,6 @@ exports.scripts = {
 	"test": "nyc mocha --recursive src/node/spec"
 }
 
-// added nyc
 exports.nyc = {
 	"check-coverage": true,
 	"per-file": true,

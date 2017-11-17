@@ -71,13 +71,20 @@ function testError(inputFiles, errorMsg) {
 function testSuccess(inputFiles, outputFile) {
 
 	// given
-	const input = [],
+	const
+		input = [],
 		outputCls = read(outputPath(outputFile)),
-		outputXml = read(outputPath('Default.cls-meta.xml'));
+		outputXml = read(outputPath('Default.cls-meta.xml')),
+		outputClsLines = outputCls.split('\n');
 
 	_.each(inputFiles, inputFile => input.push(schemaToJson(inputPath(inputFile))));
 
 	// when - then
+
+	_.each(generate(input).cls.split('\n'), (line, index) => {
+		expect(line).to.eql(outputClsLines[index], 'Mismatch line: ' + (index + 1) + ' File: ' + outputFile);
+	});
+
 	expect(generate(input)).to.eql({
 		cls: outputCls,
 		xml: outputXml

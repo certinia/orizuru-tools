@@ -34,8 +34,8 @@ const
 
 	expect = chai.expect,
 
-	schemas = require('../lib/boilerplate/schemas'),
-	handlers = require('../lib/boilerplate/handlers'),
+	schemas = require('../lib/boilerplate/schema'),
+	handlers = require('../lib/boilerplate/handler'),
 	read = require('../lib/boilerplate/read'),
 	defaultTransport = require('../lib/boilerplate/transport'),
 	orizuru = require('@financialforcedev/orizuru'),
@@ -57,7 +57,7 @@ describe('worker.js', () => {
 		});
 		sandbox.stub(read, 'readSchema').returns({ mock: true });
 		sandbox.stub(read, 'readHandler').returns({ mockHandler: true });
-		sandbox.stub(schemas, 'get');
+		sandbox.stub(schemas, 'getWorkerSchemas');
 		sandbox.stub(handlers, 'get');
 		orizuru.Handler.emitter = {
 			on: sandbox.stub()
@@ -74,15 +74,28 @@ describe('worker.js', () => {
 	it('should create an orizuru handler', () => {
 
 		// given
-		schemas.get.returns([{
-			path: 'api/test1.avsc',
-			sharedPath: '/api',
-			fileName: 'test1'
-		}, {
-			path: 'api/test2.avsc',
-			sharedPath: '/api',
-			fileName: 'test2'
-		}]);
+		schemas.getWorkerSchemas.returns({
+			test1: {
+				incoming: {
+					path: 'api/test1_incoming.avsc',
+					sharedPath: '/api',
+					fileName: 'test1'
+				},
+				outgoing: {
+					path: 'api/test1_outgoing.avsc',
+					sharedPath: '/api',
+					fileName: 'test1'
+				}
+			},
+			test2: {
+				incoming: {
+					path: 'api/test2_incoming.avsc',
+					sharedPath: '/api',
+					fileName: 'test2'
+				}
+			}
+		});
+
 		handlers.get.returns([{
 			path: 'api/test1.js',
 			sharedPath: '/api',
@@ -121,15 +134,23 @@ describe('worker.js', () => {
 		throngStub.yields();
 		process.env.WEB_CONCURRENCY = 2;
 
-		schemas.get.returns([{
-			path: 'api/test1.avsc',
-			sharedPath: '/api',
-			fileName: 'test1'
-		}, {
-			path: 'api/test2.avsc',
-			sharedPath: '/api',
-			fileName: 'test2'
-		}]);
+		schemas.getWorkerSchemas.returns({
+			test1: {
+				incoming: {
+					path: 'api/test1_incoming.avsc',
+					sharedPath: '/api',
+					fileName: 'test1'
+				}
+			},
+			test2: {
+				incoming: {
+					path: 'api/test2_incoming.avsc',
+					sharedPath: '/api',
+					fileName: 'test2'
+				}
+			}
+		});
+
 		handlers.get.returns([{
 			path: 'api/test1.js',
 			sharedPath: '/api',
@@ -168,11 +189,16 @@ describe('worker.js', () => {
 	it('should not register a handler if no handler for a schema exists', () => {
 
 		// given
-		schemas.get.returns([{
-			path: 'api/test1.avsc',
-			sharedPath: '/api',
-			fileName: 'test1'
-		}]);
+		schemas.getWorkerSchemas.returns({
+			test1: {
+				incoming: {
+					path: 'api/test1_incoming.avsc',
+					sharedPath: '/api',
+					fileName: 'test1'
+				}
+			}
+		});
+
 		handlers.get.returns([{
 			path: 'api/test1.js',
 			sharedPath: '/api',
@@ -202,15 +228,23 @@ describe('worker.js', () => {
 	it('should not register a handler if schema for a handler exists', () => {
 
 		// given
-		schemas.get.returns([{
-			path: 'api/test1.avsc',
-			sharedPath: '/api',
-			fileName: 'test1'
-		}, {
-			path: 'api/test2.avsc',
-			sharedPath: '/api',
-			fileName: 'test2'
-		}]);
+		schemas.getWorkerSchemas.returns({
+			test1: {
+				incoming: {
+					path: 'api/test1_incoming.avsc',
+					sharedPath: '/api',
+					fileName: 'test1'
+				}
+			},
+			test2: {
+				incoming: {
+					path: 'api/test2_incoming.avsc',
+					sharedPath: '/api',
+					fileName: 'test2'
+				}
+			}
+		});
+
 		handlers.get.returns([{
 			path: 'api/test1.js',
 			sharedPath: '/api',

@@ -35,16 +35,16 @@ const
 
 	sandbox = sinon.sandbox.create(),
 
-	buildQuestion = require('../../../lib/handlers/api/question'),
+	buildQuestion = require('../../lib/handler/questionBuilder'),
 
-	connection = require('../../../lib/service/salesforce/connection'),
-	reader = require('../../../lib/service/salesforce/reader'),
-	writer = require('../../../lib/service/salesforce/writer'),
+	connection = require('../../lib/service/salesforce/connection'),
+	reader = require('../../lib/service/salesforce/reader'),
+	writer = require('../../lib/service/salesforce/writer'),
 
-	vehicleQuery = require('../../../res/spec/questionBuilder/vehicleQuery.json'),
-	vehicleTypeQuery = require('../../../res/spec/questionBuilder/vehicleTypeQuery.json'),
-	orderQuery = require('../../../res/spec/questionBuilder/orderQuery.json'),
-	convertedResult = require('../../../res/spec/questionBuilder/result.json');
+	vehicleQuery = require('./questionBuilder/vehicleQuery.json'),
+	vehicleTypeQuery = require('./questionBuilder/vehicleTypeQuery.json'),
+	orderQuery = require('./questionBuilder/orderQuery.json'),
+	convertedResult = require('./questionBuilder/result.json');
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);

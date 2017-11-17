@@ -33,5 +33,6 @@
 		"pattern": "**/*.js",
 		"command": "npm test"
 	}],
+	"runCurrentTest.run": "npm run single-test -- ${relativeTestPath}",
 	"terminal.integrated.scrollback": 10000
 }

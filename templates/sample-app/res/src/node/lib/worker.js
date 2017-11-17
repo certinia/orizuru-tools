@@ -39,39 +39,35 @@ const
 	// define transport
 	transport = require('./boilerplate/transport'),
 
-	// get handler
-	{ Handler } = require('@financialforcedev/orizuru'),
+	// get orizuru classes
+	{ Handler, Publisher } = require('@financialforcedev/orizuru'),
 	handlerInstance = new Handler(transport),
+	publisherInstance = new Publisher(transport),
 
 	// get all files in our 'schemas' and 'handlers' directories
-	schemas = require('./boilerplate/schemas').get(),
-	handlers = require('./boilerplate/handlers').get(),
+	schemas = require('./boilerplate/schema').getWorkerSchemas(),
+	handler = require('./boilerplate/handler'),
+	handlers = handler.get(),
 
 	// create an object to contain the union of schema and handler paths
-	schemaAndHandlersFilePathUnion = {};
-
-// function to add a tuple to the union object if needed
-function addPathToUnionObjectIfRequired(path) {
-	if (!schemaAndHandlersFilePathUnion[path]) {
-		schemaAndHandlersFilePathUnion[path] = {
-			schema: null,
-			handler: null
-		};
-	}
-}
+	schemasAndHandlers = {};
 
 // map schemas on to the union
-_.each(schemas, schema => {
-	const fullyQualifiedName = schema.sharedPath + '/' + schema.fileName;
-	addPathToUnionObjectIfRequired(fullyQualifiedName);
-	schemaAndHandlersFilePathUnion[fullyQualifiedName].schema = readSchema(schema.path);
+_.each(schemas, (schema, schemaName) => {
+
+	const fullyQualifiedName = schema.incoming.sharedPath + '/' + schemaName;
+	_.set(schemasAndHandlers, fullyQualifiedName + '.schema.incoming', readSchema(schema.incoming.path));
+
+	if (_.get(schema, 'outgoing.path')) {
+		_.set(schemasAndHandlers, fullyQualifiedName + '.schema.outgoing', readSchema(schema.outgoing.path));
+	}
+
 });
 
 // map handlers on to the union
 _.each(handlers, handler => {
 	const fullyQualifiedName = handler.sharedPath + '/' + handler.fileName;
-	addPathToUnionObjectIfRequired(fullyQualifiedName);
-	schemaAndHandlersFilePathUnion[fullyQualifiedName].handler = readHandler(handler.path);
+	_.set(schemasAndHandlers, fullyQualifiedName + '.handler', readHandler(handler.path));
 });
 
 // debug out errors and info
@@ -80,18 +76,32 @@ Handler.emitter.on(Handler.emitter.INFO, debug.log);
 
 function handle() {
 	// map tuples to handler handle promises and swallow any errors
-	Promise.all(_.map(schemaAndHandlersFilePathUnion, (schemaHandlerTuple, sharedPath) => {
-		if (!schemaHandlerTuple.schema) {
+	Promise.all(_.map(schemasAndHandlers, (schemasAndHandler, sharedPath) => {
+
+		if (!schemasAndHandler.schema) {
 			debug.warn('no schema found for handler \'%s\'', sharedPath);
 			return null;
 		}
-		if (!schemaHandlerTuple.handler) {
+
+		if (!schemasAndHandler.handler) {
 			debug.warn('no handler found for schema \'%s\'', sharedPath);
 			return null;
 		}
+
+		let callback = schemasAndHandler.handler;
+
+		if (schemasAndHandler.schema.outgoing) {
+
+			callback = handler.publishHandler({
+				schemasAndHandler,
+				publisherInstance
+			});
+
+		}
+
 		return handlerInstance.handle({
-			schema: schemaHandlerTuple.schema,
-			callback: schemaHandlerTuple.handler
+			schema: schemasAndHandler.schema.incoming,
+			callback
 		});
 	}));
 }

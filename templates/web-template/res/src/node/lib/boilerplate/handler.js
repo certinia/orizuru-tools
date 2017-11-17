@@ -28,6 +28,30 @@
 
 const walk = require('./walk');
 
+function get() {
+	return walk.walk('handler', '.js');
+}
+
+function publishHandler({ schemasAndHandler, publisherInstance }) {
+
+	return function (event) {
+
+		return schemasAndHandler.handler(event)
+			.then(result => {
+
+				return publisherInstance.publish({
+					message: result,
+					schema: schemasAndHandler.schema.outgoing,
+					context: event.context
+				});
+
+			});
+
+	};
+
+}
+
 module.exports = {
-	get: () => walk.walk('handlers', '.js')
+	get,
+	publishHandler
 };

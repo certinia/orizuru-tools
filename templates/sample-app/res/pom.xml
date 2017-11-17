@@ -181,7 +181,7 @@
 							<goal>schema</goal>
 						</goals>
 						<configuration>
-							<sourceDirectory>${basedir}/src/node/lib/schemas</sourceDirectory>
+							<sourceDirectory>${basedir}/src/node/lib/schema</sourceDirectory>
 							<outputDirectory>target/generated-sources/avro/</outputDirectory>
 						</configuration>
 					</execution>
@@ -291,7 +291,6 @@
 										<exclude>com.financialforce.routesolver.problem.avro.*</exclude>
 										<exclude>com.financialforce.routesolver.problem.jsprit.*</exclude>
 										<exclude>com.financialforce.orizuru.problem.avro.*</exclude>
-										<exclude>com.ffdc.orizuru.problem.avro.*</exclude>
 									</excludes>
 									<limits>
 										<limit>

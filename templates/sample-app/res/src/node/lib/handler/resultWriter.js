@@ -28,8 +28,8 @@
 
 const
 	_ = require('lodash'),
-	connection = require('../../service/salesforce/connection'),
-	writer = require('../../service/salesforce/writer'),
+	connection = require('../service/salesforce/connection'),
+	writer = require('../service/salesforce/writer'),
 
 	sendEvent = event => config => {
 

@@ -28,9 +28,9 @@
 
 const
 	_ = require('lodash'),
-	connection = require('../../service/salesforce/connection'),
-	reader = require('../../service/salesforce/reader'),
-	writer = require('../../service/salesforce/writer'),
+	connection = require('../service/salesforce/connection'),
+	reader = require('../service/salesforce/reader'),
+	writer = require('../service/salesforce/writer'),
 
 	vehicleQuery = 'SELECT Id, VehicleType__c, Warehouse__r.Contact__r.MailingLatitude, Warehouse__r.Contact__r.MailingLongitude FROM Vehicle__c',
 	typeQuery = 'SELECT Id, MaximumPayloadCapacity__c, Distance__c, Fixed__c, Time__c from VehicleType__c',

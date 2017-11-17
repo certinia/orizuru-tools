@@ -2,7 +2,6 @@
 	{
 		{{getSetParams}}
 		public {{qualifiedName}}({{constructorParams}}) {
-			
 			{{getSetParamAssignments}}
 		}
 	}

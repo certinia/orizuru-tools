@@ -28,17 +28,17 @@
 
 const
 	_ = require('lodash'),
-	connection = require('../../service/salesforce/connection'),
-	writer = require('../../service/salesforce/writer'),
+	connection = require('../service/salesforce/connection'),
+	writer = require('../service/salesforce/writer'),
 
 	dataToCreate = {
-		accounts: require('../../../res/dataCreator/Account.json').records,
-		contacts: require('../../../res/dataCreator/Contact.json').records,
-		orders: require('../../../res/dataCreator/Order.json').records,
-		vehicles: require('../../../res/dataCreator/Vehicle__c.json').records,
-		vehicleTypes: require('../../../res/dataCreator/VehicleType__c.json').records,
-		warehouses: require('../../../res/dataCreator/Warehouse__c.json').records,
-		warehouseContacts: require('../../../res/dataCreator/WarehouseContacts.json').records
+		accounts: require('./createData/sampleData/Account.json').records,
+		contacts: require('./createData/sampleData/Contact.json').records,
+		orders: require('./createData/sampleData/Order.json').records,
+		vehicles: require('./createData/sampleData/Vehicle__c.json').records,
+		vehicleTypes: require('./createData/sampleData/VehicleType__c.json').records,
+		warehouses: require('./createData/sampleData/Warehouse__c.json').records,
+		warehouseContacts: require('./createData/sampleData/WarehouseContacts.json').records
 	},
 
 	CREATED_ACCOUNTS = { message: 'Created Accounts', status: 'CREATED_ACCOUNTS' },

@@ -83,11 +83,9 @@ function generateConstructorParams(namesToTypesMap) {
 }
 
 function generateGetSetParamAssignments(names) {
-	let result = '';
-	_.each(names, name => {
-		result += findAndReplace({ name }, TEMPLATES.GET_SET_PARAM_ASSIGNMENT + '\n');
-	});
-	return _.trimStart(result);
+	return _.trimStart(_.map(names, name => {
+		return findAndReplace({ name }, TEMPLATES.GET_SET_PARAM_ASSIGNMENT);
+	}).join('\n'));
 }
 
 function transportClass(fieldNamesToFieldTypesMap, qualifiedName) {

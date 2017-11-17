@@ -36,8 +36,8 @@ const
 
 	sandbox = sinon.sandbox.create(),
 
-	connection = require('../../../lib/service/salesforce/connection'),
-	writer = require('../../../lib/service/salesforce/writer');
+	connection = require('../../lib/service/salesforce/connection'),
+	writer = require('../../lib/service/salesforce/writer');
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -61,13 +61,13 @@ describe('dataCreator/service.js', () => {
 			sandbox.stub(writer, 'bulkCreateObject').resolves(fakeReturnedSobjects);
 			sandbox.stub(writer, 'sendPlatformEvent').resolves();
 
-			service = proxyquire('../../../lib/handlers/api/createData', {
-				'../../../res/dataCreator/Account.json': {
+			service = proxyquire('../../lib/handler/createData', {
+				'./createData/sampleData/Account.json': {
 					records: [{
 						Name: 'Mission High School'
 					}]
 				},
-				'../../../res/dataCreator/Contact.json': {
+				'./createData/sampleData/Contact.json': {
 					records: [{
 						FirstName: 'Mission High School',
 						LastName: 'Mission High School',
@@ -76,18 +76,18 @@ describe('dataCreator/service.js', () => {
 						MailingCountry: 'USA'
 					}]
 				},
-				'../../../res/dataCreator/Order.json': {
+				'./createData/sampleData/Order.json': {
 					records: [{
 						Status: 'Draft',
 						EffectiveDate: '2017-10-01'
 					}]
 				},
-				'../../../res/dataCreator/Vehicle__c.json': {
+				'./createData/sampleData/Vehicle__c.json': {
 					records: [{
 						Name: 'Van 1'
 					}]
 				},
-				'../../../res/dataCreator/VehicleType__c.json': {
+				'./createData/sampleData/VehicleType__c.json': {
 					records: [{
 						name: 'Mercedes-Benz 2018 Sprinter Cargo Van 3500 High Roof V6 170',
 						['MaximumPayloadCapacity__c']: 10,
@@ -96,12 +96,12 @@ describe('dataCreator/service.js', () => {
 						['Time__c']: 0.0
 					}]
 				},
-				'../../../res/dataCreator/Warehouse__c.json': {
+				'./createData/sampleData/Warehouse__c.json': {
 					records: [{
 						Name: 'Port of San Francisco'
 					}]
 				},
-				'../../../res/dataCreator/WarehouseContacts.json': {
+				'./createData/sampleData/WarehouseContacts.json': {
 					records: [{
 						FirstName: 'Warehouse 1',
 						LastName: 'Warehouse 1',

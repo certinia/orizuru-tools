@@ -45,7 +45,7 @@ public class HerokuConnectorForSampleApp
 
 	public HttpResponse generateData(String id)
 	{
-		return HerokuConnector.newInstance().post('callout:Orizuru/api/createData', new OrizuruTransport.com_ffdc_orizuru_problem_avro_createData(id), UserInfo.getSessionId());
+		return HerokuConnector.newInstance().post('callout:Orizuru/api/createData', new OrizuruTransport.com_financialforce_orizuru_problem_avro_createData(id), UserInfo.getSessionId());
 	}
 
 }

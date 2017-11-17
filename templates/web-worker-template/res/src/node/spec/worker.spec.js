@@ -34,8 +34,8 @@ const
 
 	expect = chai.expect,
 
-	schemas = require('../lib/boilerplate/schemas'),
-	handlers = require('../lib/boilerplate/handlers'),
+	schemas = require('../lib/boilerplate/schema'),
+	handlers = require('../lib/boilerplate/handler'),
 	read = require('../lib/boilerplate/read'),
 	defaultTransport = require('../lib/boilerplate/transport'),
 	orizuru = require('@financialforcedev/orizuru'),

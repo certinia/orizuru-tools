@@ -44,8 +44,8 @@ const
 	handlerInstance = new Handler(transport),
 
 	// get all files in our 'schemas' and 'handlers' directories
-	schemas = require('./boilerplate/schemas').get(),
-	handlers = require('./boilerplate/handlers').get(),
+	schemas = require('./boilerplate/schema').get(),
+	handlers = require('./boilerplate/handler').get(),
 
 	// create an object to contain the union of schema and handler paths
 	schemaAndHandlersFilePathUnion = {};

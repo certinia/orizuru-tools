@@ -32,10 +32,10 @@ const
 	sinonChai = require('sinon-chai'),
 	chaiAsPromised = require('chai-as-promised'),
 
-	service = require('../../../lib/handlers/api/answer'),
+	service = require('../../lib/handler/resultWriter'),
 
-	connection = require('../../../lib/service/salesforce/connection'),
-	writer = require('../../../lib/service/salesforce/writer'),
+	connection = require('../../lib/service/salesforce/connection'),
+	writer = require('../../lib/service/salesforce/writer'),
 
 	expect = chai.expect,
 
