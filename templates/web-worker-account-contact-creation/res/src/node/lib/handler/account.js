@@ -31,7 +31,7 @@ const
 	debug = require('debug-plus')('account-handler'),
 	jsforce = require('jsforce'),
 
-	grant = require('../../boilerplate/auth').grant,
+	grant = require('../boilerplate/auth').grant,
 
 	Connection = jsforce.Connection,
 

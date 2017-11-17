@@ -41,7 +41,7 @@ const
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('handler/api/account.js', () => {
+describe('handler/account.js', () => {
 
 	let handler, mocks;
 
@@ -67,9 +67,9 @@ describe('handler/api/account.js', () => {
 
 		mocks.jsforce.Connection.prototype.sobject = sandbox.stub().returns(mocks.sobject);
 
-		handler = proxyquire('../../../lib/handlers/api/account', {
+		handler = proxyquire('../../lib/handler/account', {
 			jsforce: mocks.jsforce,
-			'../../boilerplate/auth': mocks.auth
+			'../boilerplate/auth': mocks.auth
 		});
 
 	});
