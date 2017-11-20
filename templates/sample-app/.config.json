@@ -1,0 +1,11 @@
+{
+	"extends": [
+		"web",
+		"web-node-worker"
+	],
+	"package": {
+		"scripts": {
+			"orizuru-post-init": "mvn clean install"
+		}
+	}
+}
