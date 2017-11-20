@@ -3,12 +3,24 @@
 		"js": {
 			"type": [
 				"javascript",
-				"json"
+				"javascriptreact",
+				"json",
+				"apex"
 			],
 			"filename": [
 				".jsbeautifyrc"
 			]
-		}
+		},
+		"css": [
+			"css",
+			"scss"
+		],
+		"html": [
+			"htm",
+			"html",
+			"xml",
+			"visualforce"
+		]
 	},
 	"beautify.ignore": [
 		"package.json"
