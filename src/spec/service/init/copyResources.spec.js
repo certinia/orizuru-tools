@@ -33,8 +33,6 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	fs = require('fs-extra'),
-
 	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
@@ -44,45 +42,96 @@ chai.use(sinonChai);
 
 describe('service/init/copyResources.js', () => {
 
-	let mocks, copyResources;
+	let copyResources, mocks;
 
 	beforeEach(() => {
 
-		mocks = {
-			logger: sandbox.stub(),
-			fsCopy: sandbox.stub(fs, 'copy').resolves()
-		};
+		mocks = {};
+		mocks.fs = sandbox.stub();
+		mocks.fs.copy = sandbox.stub();
 
-		mocks.logger.log = sandbox.stub();
+		mocks.logger = sandbox.stub();
+		mocks.logger.logLn = sandbox.stub();
 
 		copyResources = proxyquire(root + '/src/lib/service/init/copyResources', {
+			'fs-extra': mocks.fs,
 			'../../util/logger': mocks.logger
 		});
 
 	});
 
-	afterEach(() => sandbox.restore());
+	afterEach(() => {
+		sandbox.restore();
+	});
 
 	describe('copyResources', () => {
 
-		it('should call fs-extra copy with the correct arguments, and return input', () => {
+		it('should copy a template that does not extend other templates', () => {
 
 			// given
 			const
 				templatesFolder = root + '/templates',
-				folder = 'simple-example';
+				folder = 'simple-example',
+				expectedInput = {
+					template: {
+						selected: {
+							fullPath: templatesFolder + '/' + folder
+						}
+					}
+				},
+				expectedOutput = expectedInput;
+
+			mocks.fs.copy.resolves();
 
 			// when - then
-			return expect(copyResources.copyResources({ templatesFolder, folder }))
-				.to.eventually.eql({
-					templatesFolder,
-					folder
-				}).then(() => {
-					expect(mocks.logger.log).to.have.been.calledOnce;
-					expect(mocks.fsCopy).to.have.been.calledTwice;
-					expect(mocks.logger.log).to.have.been.calledWith('Copying resources to ' + process.cwd());
-					expect(mocks.fsCopy).to.have.been.calledWith(root + '/templates/web-template/res', process.cwd());
-					expect(mocks.fsCopy).to.have.been.calledWith(root + '/templates/simple-example/res', process.cwd());
+			return expect(copyResources(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.logger.logLn).to.have.been.calledTwice;
+					expect(mocks.fs.copy).to.have.been.calledOnce;
+					expect(mocks.logger.logLn).to.have.been.calledWith('Copying resources to ' + process.cwd());
+					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templatesFolder + '/' + folder + '/res');
+					expect(mocks.fs.copy).to.have.been.calledWith(root + '/templates/simple-example/res', process.cwd());
+				});
+
+		});
+
+		it('should copy a template that extends another template', () => {
+
+			// given
+			const
+				templatesFolder = root + '/templates',
+				mainTemplate = 'main-template',
+				extendedTemplate = 'other-template',
+				expectedInput = {
+					template: {
+						folder: templatesFolder,
+						selected: {
+							configuration: {
+								current: {
+									'extends': [extendedTemplate]
+								}
+							},
+							fullPath: templatesFolder + '/' + mainTemplate
+						}
+					}
+				},
+				expectedOutput = expectedInput;
+
+			mocks.fs.copy.resolves();
+
+			// when - then
+			return expect(copyResources(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.logger.logLn).to.have.been.calledThrice;
+					expect(mocks.fs.copy).to.have.been.calledTwice;
+					expect(mocks.logger.logLn).to.have.been.calledWith('Copying resources to ' + process.cwd());
+					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templatesFolder + '/' + extendedTemplate + '/res');
+					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templatesFolder + '/' + mainTemplate + '/res');
+					expect(mocks.logger.logLn).to.have.been.calledWith('Copying resources to ' + process.cwd());
+					expect(mocks.fs.copy).to.have.been.calledWith(templatesFolder + '/' + extendedTemplate + '/res', process.cwd());
+					expect(mocks.fs.copy).to.have.been.calledWith(templatesFolder + '/' + mainTemplate + '/res', process.cwd());
 				});
 
 		});

@@ -23,71 +23,40 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
+
 'use strict';
 
 const
-	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
-	sinon = require('sinon'),
-	sinonChai = require('sinon-chai'),
+	_ = require('lodash'),
+	fs = require('fs-extra'),
+	path = require('path'),
 
-	expect = chai.expect,
+	shell = require('../lib/util/shell');
 
-	sandbox = sinon.sandbox.create();
+function isDirectory(source) {
+	return fs.lstatSync(source).isDirectory();
+}
 
-chai.use(chaiAsPromised);
-chai.use(sinonChai);
+function getTemplates(source) {
+	return fs.readdir(source)
+		.then(files => _.filter(files, file => isDirectory(path.resolve(source, file))));
+}
 
-describe('service/init/deployGitIgnore.js', () => {
+function runTests() {
 
-	let mocks, deployGitIgnore;
+	const source = path.resolve(__dirname, '..', '..', 'templates');
+	return getTemplates(source)
+		.then(templates => {
 
-	beforeEach(() => {
-
-		mocks = {};
-		mocks.fs = sandbox.stub();
-		mocks.fs.rename = sandbox.stub();
-
-		mocks.logger = sandbox.stub();
-		mocks.logger.log = sandbox.stub();
-
-		deployGitIgnore = proxyquire(root + '/src/lib/service/init/deployGitIgnore', {
-			'fs-extra': mocks.fs,
-			'../../util/logger': mocks.logger
-		});
-
-	});
-
-	afterEach(() => {
-		sandbox.restore();
-	});
-
-	describe('deployGitIgnore', () => {
-
-		it('should rename the gitignore file to .gitignore', () => {
-
-			// given
-			const
-				templatesFolder = root + '/templates',
-				folder = 'simple-example';
-
-			mocks.fs.rename.resolves();
-
-			// when - then
-			return expect(deployGitIgnore({ templatesFolder, folder })).to.eventually.eql({
-				templatesFolder,
-				folder
-			}).then(() => {
-				expect(mocks.logger.log).to.have.been.calledOnce;
-				expect(mocks.fs.rename).to.have.been.calledOnce;
-				expect(mocks.logger.log).to.have.been.calledWith('Creating .gitignore in ' + process.cwd());
-				expect(mocks.fs.rename).to.have.been.calledWith(process.cwd() + '/gitignore', process.cwd() + '/.gitignore');
+			const commands = _.map(templates, (template, index) => {
+				return ({ cmd: '/bin/bash', args: ['-c', 'mkdir test' + (index + 1) + ' && cd test' + (index + 1) + ' && orizuru setup init -t ' + template + ' -y && cd .. && rm -r test' + (index + 1)] });
 			});
 
-		});
+			return shell.executeCommands(commands, { exitOnError: true, namespace: 'system~tests' });
 
-	});
+		})
+		.then(() => process.exit(0))
+		.catch(() => process.exit(1));
+}
 
-});
+runTests();
