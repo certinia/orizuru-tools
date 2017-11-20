@@ -5,6 +5,9 @@ coverage
 bin
 target
 
+.classpath
+.project
+
 *.pem
 *.tgz
 
