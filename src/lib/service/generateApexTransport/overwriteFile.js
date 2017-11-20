@@ -24,14 +24,30 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
+/**
+ * Simple module to overwrite a file.
+ * @module service/generateApexTransport/overwriteFile
+ * @see module:service/generateApexTransport/overwriteFile
+ */
+
 'use strict';
 
-const { writeFileSync } = require('fs');
+const
+	fs = require('fs-extra'),
+	path = require('path');
 
-function overwriteFile(path, content) {
-	return writeFileSync(path, content, {
+/**
+ * Overwrite the file at the given path with the given contents.
+ * @instance
+ * @param {string} folder - The folder path.
+ * @param {string} file - The file name and extension.
+ * @param {string} content - The new file contents.
+ */
+function overwriteFile(folder, file, content) {
+	const filePath = path.resolve(folder, file);
+	return fs.writeFile(filePath, content, {
 		flag: 'w'
 	});
 }
 
-module.exports = { overwriteFile };
+module.exports = overwriteFile;

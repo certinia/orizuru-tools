@@ -24,24 +24,35 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
+/**
+ * Utility module to handle debugging.
+ * @module util/debug
+ * @see module:util/debug
+ */
+
 'use strict';
 
 const
 	_ = require('lodash'),
 	coreDebug = require('debug'),
-	debugStream = require('debug-stream'),
+	debugStream = require('debug-stream');
 
-	addBufferFormatter = (debug) => {
+/**
+ * Adds the buffer formatter to the debugger.
+ * @instance
+ * @param {*} debug - The debug instance
+ */
+function addBufferFormatter(debug) {
 
-		coreDebug.formatters.b = (buffer) => {
-			const lines = _.compact(_.split(buffer, '\n'));
-			_.each(_.initial(lines), (value) => {
-				debug(value);
-			});
-			return _.last(lines) || '';
-		};
-
+	coreDebug.formatters.b = (buffer) => {
+		const lines = _.compact(_.split(buffer, '\n'));
+		_.each(_.initial(lines), (value) => {
+			debug(value);
+		});
+		return _.last(lines) || '';
 	};
+
+}
 
 module.exports = {
 	create: coreDebug,

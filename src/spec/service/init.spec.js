@@ -27,7 +27,6 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
@@ -35,12 +34,10 @@ const
 
 	service = require('../../lib/service/init'),
 
-	askQuestions = require('../../lib/service/init/askQuestions'),
-	readAppTemplates = require('../../lib/service/init/readAppTemplates'),
-	createPackageJson = require('../../lib/service/init/createPackageJson'),
 	copyResources = require('../../lib/service/init/copyResources'),
 	deployGitIgnore = require('../../lib/service/init/deployGitIgnore'),
 	npm = require('../../lib/service/init/npm'),
+	template = require('../../lib/service/init/template'),
 	logger = require('../../lib/util/logger'),
 
 	expect = chai.expect,
@@ -54,8 +51,6 @@ describe('service/init.js', () => {
 
 	beforeEach(() => {
 
-		sandbox.stub(askQuestions, 'askQuestions').resolves('test2');
-		sandbox.stub(createPackageJson, 'createPackageJson').resolves('test3');
 		sandbox.stub(copyResources, 'copyResources').resolves('test4');
 		sandbox.stub(deployGitIgnore, 'deployGitIgnore').resolves('test5');
 		sandbox.stub(logger, 'logStart');
@@ -65,7 +60,7 @@ describe('service/init.js', () => {
 		sandbox.stub(npm, 'generateApexTransport').resolves('test7');
 		sandbox.stub(npm, 'test').resolves('test8');
 		sandbox.stub(npm, 'orizuruPostInit').resolves('test9');
-		sandbox.stub(readAppTemplates, 'readAppTemplates').resolves('test1');
+		sandbox.stub(template, 'readAppTemplates').resolves('test1');
 
 	});
 
@@ -81,9 +76,6 @@ describe('service/init.js', () => {
 				.then(() => {
 
 					expect(logger.logStart).to.have.been.calledOnce;
-					expect(readAppTemplates.readAppTemplates).to.have.been.calledOnce;
-					expect(askQuestions.askQuestions).to.have.been.calledOnce;
-					expect(createPackageJson.createPackageJson).to.have.been.calledOnce;
 					expect(copyResources.copyResources).to.have.been.calledOnce;
 					expect(npm.install).to.have.been.calledOnce;
 					expect(npm.generateApexTransport).to.have.been.calledOnce;
@@ -91,11 +83,6 @@ describe('service/init.js', () => {
 					expect(npm.orizuruPostInit).to.have.been.calledOnce;
 
 					expect(logger.logStart).to.have.been.calledWith('Building new project');
-					expect(readAppTemplates.readAppTemplates).to.have.been.calledWith({
-						templatesFolder: root + '/templates'
-					});
-					expect(askQuestions.askQuestions).to.have.been.calledWith('test1');
-					expect(createPackageJson.createPackageJson).to.have.been.calledWith('test2');
 					expect(copyResources.copyResources).to.have.been.calledWith('test3');
 					expect(deployGitIgnore.deployGitIgnore).to.have.been.calledWith('test4');
 					expect(npm.install).to.have.been.calledWith('test5');
@@ -113,7 +100,7 @@ describe('service/init.js', () => {
 			const
 				expectedError = new Error('errorTest');
 
-			readAppTemplates.readAppTemplates.rejects(expectedError);
+			template.readAppTemplates.rejects(expectedError);
 
 			// when/then
 			return expect(service.init())

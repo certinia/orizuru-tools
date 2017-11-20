@@ -26,20 +26,62 @@
 
 'use strict';
 
+/**
+ * Service for copying resources when creating Orizuru templates.
+ * @module service/init/copyResources
+ * @see module:service/init/copyResources
+ */
+
 const
+	_ = require('lodash'),
 	path = require('path'),
 	fs = require('fs-extra'),
-	{ log } = require('../../util/logger'),
+	logger = require('../../util/logger'),
 
-	CWD = process.cwd();
+	Promise = require('bluebird'),
 
+	SELECTED_TEMPLATE_CONFIGURATION_FILE_EXTENSIONS = 'selectedTemplate.configuration.extensions',
+	SELECTED_TEMPLATE_PATH = 'selectedTemplate.fullPath',
+	TEMPLATE_FOLDER = 'templateFolder',
+
+	CWD = process.cwd(),
+	log = logger.logLn;
+
+/**
+ * Copy an individual resource folder.
+ */
+function copyResource(results, resource) {
+
+	return Promise.resolve()
+		.then(() => log(`Copying ${resource}`))
+		.then(() => fs.copy(resource, CWD))
+		.then(result => {
+			results.push(resource);
+			return results;
+		});
+
+}
+
+/**
+ * Copy the resources required for this template.
+ * @instance
+ */
 function copyResources(config) {
+
 	log('Copying resources to ' + CWD);
-	return fs.copy(path.resolve(config.templatesFolder, 'web-template', 'res'), CWD)
-		.then(() => fs.copy(path.resolve(config.templatesFolder, config.folder, 'res'), CWD))
+
+	const
+		templateFolder = _.get(config, TEMPLATE_FOLDER),
+		templateSelectedPath = _.get(config, SELECTED_TEMPLATE_PATH),
+		extensions = _.get(config, SELECTED_TEMPLATE_CONFIGURATION_FILE_EXTENSIONS),
+		resourcePath = path.resolve(templateSelectedPath, 'res'),
+		extensionResources = _.map(extensions, (extensionPackage, extension) => {
+			return path.resolve(templateFolder, extension, 'res');
+		});
+
+	return Promise.reduce(extensionResources, copyResource, [])
+		.then(() => copyResource([], resourcePath))
 		.then(() => config);
 }
 
-module.exports = {
-	copyResources: config => copyResources(config)
-};
+module.exports = copyResources;

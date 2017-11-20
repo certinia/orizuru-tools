@@ -31,14 +31,19 @@ const
 	fs = require('fs-extra'),
 	{ log } = require('../../util/logger'),
 
-	CWD = process.cwd(),
+	CWD = process.cwd();
 
-	deployGitIgnore = config => {
-		log('Creating .gitignore in ' + CWD);
-		return fs.rename(path.resolve(CWD, 'gitignore'), path.resolve(CWD, '.gitignore'))
-			.then(() => config);
-	};
+function deployGitIgnore(config) {
 
-module.exports = {
-	deployGitIgnore: config => deployGitIgnore(config)
-};
+	log('Creating .gitignore in ' + CWD);
+
+	const
+		oldPath = path.resolve(CWD, 'gitignore'),
+		newPath = path.resolve(CWD, '.gitignore');
+
+	return fs.rename(oldPath, newPath)
+		.then(() => config);
+
+}
+
+module.exports = deployGitIgnore;

@@ -37,5 +37,5 @@ module.exports = {
 	builder: yargs => yargs
 		.usage('\nUsage: orizuru setup generateapextransport [.avsc folder path] [apex class output path]')
 		.epilogue(COPYRIGHT_NOTICE),
-	handler: (argv) => generateApexTransport.generateApexTransport(argv)
+	handler: (argv) => generateApexTransport(argv)
 };

@@ -36,6 +36,19 @@ module.exports = {
 	description: 'Initialises a new project in your current folder',
 	builder: yargs => yargs
 		.usage('\nUsage: orizuru setup init')
+		.options('template', {
+			alias: 't',
+			describe: 'Orizuru template',
+			demandOption: false,
+			nargs: 1,
+			type: 'string'
+		})
+		.options('useDefaults', {
+			alias: 'y',
+			describe: 'Use defaults',
+			demandOption: false,
+			type: 'boolean'
+		})
 		.epilogue(COPYRIGHT_NOTICE),
 	handler: (argv) => InitService.init(argv)
 };

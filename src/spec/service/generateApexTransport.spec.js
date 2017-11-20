@@ -49,7 +49,7 @@ chai.use(sinonChai);
 
 describe('service/generateApexTransport.js', () => {
 
-	let mocks, GenerateApexTransportService;
+	let mocks, generateApexTransport;
 
 	beforeEach(() => {
 		mocks = {
@@ -62,7 +62,7 @@ describe('service/generateApexTransport.js', () => {
 		mocks.logger.logError = sandbox.stub();
 		mocks.logger.log = sandbox.stub();
 
-		GenerateApexTransportService = proxyquire(root + '/src/lib/service/generateApexTransport', {
+		generateApexTransport = proxyquire(root + '/src/lib/service/generateApexTransport', {
 			'../util/logger': mocks.logger
 		});
 
@@ -80,7 +80,7 @@ describe('service/generateApexTransport.js', () => {
 			const input = {};
 
 			//when - then
-			return expect(GenerateApexTransportService.generateApexTransport(input)).to.be.fulfilled
+			return expect(generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.logger.logError).to.have.been.calledOnce;
 					expect(mocks.logger.logError).to.have.been.calledWith(sinon.match.instanceOf(Error));
@@ -96,7 +96,7 @@ describe('service/generateApexTransport.js', () => {
 			};
 
 			// when - then
-			return expect(GenerateApexTransportService.generateApexTransport(input)).to.be.fulfilled
+			return expect(generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.logger.logError).to.have.been.calledOnce;
 					expect(mocks.logger.logError).to.have.been.calledWith(sinon.match.instanceOf(Error));
@@ -116,7 +116,7 @@ describe('service/generateApexTransport.js', () => {
 			mocks.getAvscFilesOnPathRecursively.throws(expectedError);
 
 			// when - then
-			return expect(GenerateApexTransportService.generateApexTransport(input)).to.be.fulfilled
+			return expect(generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
 					expect(mocks.logger.logError).to.have.been.calledOnce;
@@ -139,7 +139,7 @@ describe('service/generateApexTransport.js', () => {
 			}]);
 
 			// when - then
-			return expect(GenerateApexTransportService.generateApexTransport(input)).to.be.fulfilled
+			return expect(generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
 					expect(mocks.logger.logError).to.have.been.calledOnce;
@@ -164,7 +164,7 @@ describe('service/generateApexTransport.js', () => {
 			mocks.generate.throws(expectedError);
 
 			// when - then
-			return expect(GenerateApexTransportService.generateApexTransport(input)).to.be.fulfilled
+			return expect(generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
 					expect(mocks.generate).to.have.been.calledOnce;
@@ -195,7 +195,7 @@ describe('service/generateApexTransport.js', () => {
 			mocks.overwriteFile.throws(expectedError);
 
 			// when - then
-			return expect(GenerateApexTransportService.generateApexTransport(input)).to.be.fulfilled
+			return expect(generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
 					expect(mocks.generate).to.have.been.calledOnce;
@@ -227,7 +227,7 @@ describe('service/generateApexTransport.js', () => {
 			mocks.overwriteFile.returns(true);
 
 			// when - then
-			return expect(GenerateApexTransportService.generateApexTransport(input)).to.be.fulfilled
+			return expect(generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
 					expect(mocks.generate).to.have.been.calledOnce;

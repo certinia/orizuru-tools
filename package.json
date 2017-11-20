@@ -7,7 +7,9 @@
   },
   "main": "lib/src/index.js",
   "scripts": {
-    "pretest": "eslint src",
+	"doc": "jsdoc -c config/jsdoc.json",
+	"posttest": "node src/systemtests/templates.js",
+	"pretest": "eslint src",
     "single-test": "nyc --all=false mocha",
     "test": "nyc --include src mocha --recursive src/spec"
   },
@@ -21,21 +23,22 @@
   ],
   "author": "FinancialForce",
   "license": "BSD-3-Clause",
-  "nyc": {
-    "check-coverage": true,
-    "per-file": true,
-    "lines": 100,
-    "statements": 100,
-    "functions": 100,
-    "branches": 100,
-    "reporter": [
-      "lcov",
-      "html",
-      "text",
-      "text-summary"
-    ],
-    "cache": true,
-    "all": true
+  "dependencies": {
+    "avsc": "5.0.6",
+    "bluebird": "3.5.1",
+    "cliui": "3.2.0",
+    "debug": "3.1.0",
+    "debug-plus": "1.2.2",
+    "debug-stream": "3.0.1",
+    "fs-extra": "4.0.2",
+    "init-package-json": "1.10.1",
+    "inquirer": "3.3.0",
+    "js-yaml": "3.10.0",
+    "jsdoc": "3.5.5",
+    "jsforce": "1.8.0",
+    "klaw-sync": "3.0.2",
+    "lodash": "4.17.4",
+    "yargs": "9.0.1"
   },
   "devDependencies": {
     "@financialforcedev/eslint-config": "^3.0.1",
@@ -55,20 +58,23 @@
     "sinon-chai": "2.14.0",
     "throng": "4.0.0"
   },
-  "dependencies": {
-    "avsc": "5.0.6",
-    "bluebird": "3.5.1",
-    "cliui": "3.2.0",
-    "debug": "3.1.0",
-    "debug-plus": "1.2.2",
-    "debug-stream": "3.0.1",
-    "fs-extra": "4.0.2",
-    "init-package-json": "1.10.1",
-    "inquirer": "3.3.0",
-    "js-yaml": "3.10.0",
-    "jsforce": "1.8.0",
-    "klaw-sync": "3.0.2",
-    "lodash": "4.17.4",
-    "yargs": "9.0.1"
+  "nyc": {
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+	"branches": 100,
+	"exclude": [
+		"src/systemtests"
+	],
+    "reporter": [
+      "lcov",
+      "html",
+      "text",
+      "text-summary"
+    ],
+    "cache": true,
+    "all": true
   }
 }
