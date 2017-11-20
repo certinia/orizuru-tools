@@ -25,8 +25,8 @@
  **/
 
 @isTest(seeAllData=false)
-public class RouteAPITest {
-
+public class RouteAPITest 
+{
 	@isTest
 	private static void saveRoutes_null_exception()
    	{
@@ -46,7 +46,7 @@ public class RouteAPITest {
 
 	@isTest
 	private static void saveRoutes_inValidRoutes_exception()
-    {   
+	{   
 		// Given
 		List<DeliveryRoute__c> routesToSave = ceateRoutesToSave();
 
@@ -61,11 +61,11 @@ public class RouteAPITest {
 		catch(Exception ex)
 		{
 		}
-    }
+	}
 
 	@isTest
 	private static void saveRoutes_validRoutes_Saves()
-    {
+	{
 	   	//Given
 		List<DeliveryRoute__c> routesToSave = ceateRoutesToSave();
 
@@ -74,7 +74,7 @@ public class RouteAPITest {
 
 		//Then
 		assertEquals(routesToSave, response);
-    }
+	}
 
 	private static void assertEquals(List<DeliveryRoute__c> expected, List<DeliveryRoute__c> actual)
 	{
@@ -99,17 +99,17 @@ public class RouteAPITest {
 		Account account = new Account(Name='Account One');
 		insert account;
 
-        Contact contact = new Contact(FirstName = 'Contact', LastName = 'One', MailingLatitude = 1, MailingLongitude = 1);
+		Contact contact = new Contact(FirstName = 'Contact', LastName = 'One', MailingLatitude = 1, MailingLongitude = 1);
 		insert contact;
-        
-        Warehouse__c warehouse = new Warehouse__c(Contact__c = contact.Id);
+		
+		Warehouse__c warehouse = new Warehouse__c(Contact__c = contact.Id);
 		insert warehouse;
-        
-        VehicleType__c vtype = new VehicleType__c(name ='test');
+		
+		VehicleType__c vtype = new VehicleType__c(name ='test');
 		insert vtype;
-        
-        Vehicle__c vehicle = new Vehicle__c(VehicleType__c = vtype.id, Warehouse__c = warehouse.id);
-        insert vehicle;
+		
+		Vehicle__c vehicle = new Vehicle__c(VehicleType__c = vtype.id, Warehouse__c = warehouse.id);
+		insert vehicle;
 
 		DeliveryPlan__c plan = new DeliveryPlan__c();
 		insert plan;
@@ -120,12 +120,5 @@ public class RouteAPITest {
 		routes.add(new DeliveryRoute__c(DeliveryPlan__c = plan.Id, URL__c ='Test', Vehicle__c = vehicle.Id));
 
 		return routes;
-
-	/*	List<DeliveryWaypoint__c> waypoints = new List<DeliveryWaypoint__c>();
-		for(Integer count = 0; count < 5; count++)
-		{
-			waypoints.add(new DeliveryWaypoint__c(DeliveryRoute__c = route.Id, Order__c = order.Id, WaypointNumber__c = count));
-		}
-		insert waypoints;*/
 	}
 }

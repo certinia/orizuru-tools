@@ -26,10 +26,9 @@
 
 public with sharing class DeliveryWaypointController 
 {
-    @auraEnabled
-    public static String calculateRoute(Id routeId)
-    {
+	@auraEnabled
+	public static String calculateRoute(Id routeId)
+	{
 		return DeliveryRouteService.newInstance().generateUrl(routeId);
-    }
-	
+	}
 }

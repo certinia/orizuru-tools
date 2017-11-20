@@ -4,8 +4,7 @@
 			"type": [
 				"javascript",
 				"javascriptreact",
-				"json",
-				"apex"
+				"json"
 			],
 			"filename": [
 				".jsbeautifyrc"

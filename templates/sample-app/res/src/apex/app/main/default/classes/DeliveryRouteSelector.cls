@@ -26,42 +26,42 @@
 
 public with sharing class DeliveryRouteSelector
 {
-    @testVisible
-    private static DeliveryRouteSelector instance = null;
+	@testVisible
+	private static DeliveryRouteSelector instance = null;
 
-    public static DeliveryRouteSelector newInstance()
-    {
-        if (instance == null)
-        {
-            instance = new DeliveryRouteSelector();
-        }
+	public static DeliveryRouteSelector newInstance()
+	{
+		if (instance == null)
+		{
+			instance = new DeliveryRouteSelector();
+		}
 
-        return instance;
-    }
+		return instance;
+	}
 
-    public DeliveryRoute__c[] selectByIds(Set<Id> deliveryRouteIds)
-    {
-        if (deliveryRouteIds == null || deliveryRouteIds.size() == 0) {
-            return new List<DeliveryRoute__c>();
-        }
-        return [
-            SELECT Id, Name, DeliveryPlan__c, Vehicle__r.Id, Vehicle__r.Warehouse__r.Contact__r.MailingLatitude, Vehicle__r.Warehouse__r.Contact__r.MailingLongitude 
-            FROM DeliveryRoute__c 
-            WHERE Id IN :deliveryRouteIds
-        ];
-    }
-    
+	public DeliveryRoute__c[] selectByIds(Set<Id> deliveryRouteIds)
+	{
+		if (deliveryRouteIds == null || deliveryRouteIds.size() == 0) {
+			return new List<DeliveryRoute__c>();
+		}
+		return [
+			SELECT Id, Name, DeliveryPlan__c, Vehicle__r.Id, Vehicle__r.Warehouse__r.Contact__r.MailingLatitude, Vehicle__r.Warehouse__r.Contact__r.MailingLongitude 
+			FROM DeliveryRoute__c 
+			WHERE Id IN :deliveryRouteIds
+		];
+	}
+	
 	public DeliveryRoute__c[] selectByPlanIds(Set<Id> deliveryPlanIds)
-    {
-        if (deliveryPlanIds == null || deliveryPlanIds.size() == 0) {
-            return new List<DeliveryRoute__c>();
-        }
-        return [
-            SELECT Id, Name, DeliveryPlan__c, Vehicle__r.Id, Vehicle__r.Warehouse__r.Contact__r.MailingLatitude, Vehicle__r.Warehouse__r.Contact__r.MailingLongitude, Vehicle__r.Name, Vehicle__r.Warehouse__r.Name 
-            FROM DeliveryRoute__c 
-            WHERE DeliveryPlan__c IN :deliveryPlanIds
+	{
+		if (deliveryPlanIds == null || deliveryPlanIds.size() == 0) {
+			return new List<DeliveryRoute__c>();
+		}
+		return [
+			SELECT Id, Name, DeliveryPlan__c, Vehicle__r.Id, Vehicle__r.Warehouse__r.Contact__r.MailingLatitude, Vehicle__r.Warehouse__r.Contact__r.MailingLongitude, Vehicle__r.Name, Vehicle__r.Warehouse__r.Name 
+			FROM DeliveryRoute__c 
+			WHERE DeliveryPlan__c IN :deliveryPlanIds
 			ORDER BY Name
-        ];
-    }
+		];
+	}
 	
 }

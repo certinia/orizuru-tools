@@ -27,25 +27,25 @@
 @isTest(SeeAllData=false)
 private class DataGeneratorStepTriggerTest 
 {
-    @isTest static void dataGeneratorStepTrigger_shouldUpdateGenerateDataTask() 
+	@isTest static void dataGeneratorStepTrigger_shouldUpdateGenerateDataTask() 
 	{
-        GenerateDataTask__c task = new GenerateDataTask__c();
+		GenerateDataTask__c task = new GenerateDataTask__c();
 		insert task;
-        DataGeneratorStep__e stepEvent = new DataGeneratorStep__e(SObjectId__c = task.Id, 
-                                             Severity__c = 'Info', 
-                                             Messages__c = 'Created Orders',
+		DataGeneratorStep__e stepEvent = new DataGeneratorStep__e(SObjectId__c = task.Id, 
+											 Severity__c = 'Info', 
+											 Messages__c = 'Created Orders',
 											 Status__c = 'CREATED_ORDERS');
-        
-        Test.startTest();
-        
-        Database.SaveResult sr = EventBus.publish(stepEvent);
-            
-        Test.stopTest();
+		
+		Test.startTest();
+		
+		Database.SaveResult sr = EventBus.publish(stepEvent);
+			
+		Test.stopTest();
 
-        System.assertEquals(true, sr.isSuccess());
-        
-        GenerateDataTask__c updatedTask = [SELECT Id, TaskStatus__c FROM GenerateDataTask__c WHERE Id=:task.Id LIMIT 1];
+		System.assertEquals(true, sr.isSuccess());
+		
+		GenerateDataTask__c updatedTask = [SELECT Id, TaskStatus__c FROM GenerateDataTask__c WHERE Id=:task.Id LIMIT 1];
 
-        System.assertEquals('CREATED_ORDERS', updatedTask.TaskStatus__c);
-    }
+		System.assertEquals('CREATED_ORDERS', updatedTask.TaskStatus__c);
+	}
 }

@@ -26,17 +26,17 @@
 
 public with sharing class DeliveryRouteMapChooserController 
 {
-    @auraEnabled
-    public static List<DeliveryRoute__c> getRoutes(List<Id> planIds)
-    {
+	@auraEnabled
+	public static List<DeliveryRoute__c> getRoutes(List<Id> planIds)
+	{
 		return DeliveryRouteSelector.newInstance().selectByPlanIds(new Set<Id>(planIds));
-    }
+	}
 	
 	@AuraEnabled
-    public static String getPlanStatus(String id)
-    {
+	public static String getPlanStatus(String id)
+	{
 		DeliveryPlan__c dpc = [SELECT Id, PlanStatus__c FROM DeliveryPlan__c WHERE Id=:id LIMIT 1];
 		return dpc.PlanStatus__c;
-    }
+	}
 	
 }

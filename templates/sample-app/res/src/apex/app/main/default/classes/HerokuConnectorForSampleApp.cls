@@ -47,5 +47,4 @@ public class HerokuConnectorForSampleApp
 	{
 		return HerokuConnector.newInstance().post('callout:Orizuru/api/createData', new OrizuruTransport.com_financialforce_orizuru_problem_avro_createData(id), UserInfo.getSessionId());
 	}
-
 }

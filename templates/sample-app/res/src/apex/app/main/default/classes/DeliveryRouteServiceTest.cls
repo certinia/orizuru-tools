@@ -61,10 +61,10 @@ private class DeliveryRouteServiceTest
 		insert plan;
 
 		DeliveryRoute__c deliveryRoute = new DeliveryRoute__c(DeliveryPlan__c = plan.Id, Vehicle__c = vehicle.Id);
-        insert deliveryRoute;
+		insert deliveryRoute;
 
 		DeliveryWaypoint__c waypoint = new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = order.Id, WaypointNumber__c = 1);
-        insert waypoint;
+		insert waypoint;
 
 		DeliveryRouteService service = DeliveryRouteService.newInstance();
 
@@ -119,14 +119,14 @@ private class DeliveryRouteServiceTest
 		insert plan;
 
 		DeliveryRoute__c deliveryRoute = new DeliveryRoute__c(DeliveryPlan__c = plan.Id, Vehicle__c = vehicle.Id);
-        insert deliveryRoute;
+		insert deliveryRoute;
 		
 		DeliveryWaypoint__c[] waypoints = new DeliveryWaypoint__c[]{
-            new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = orders[0].Id, WaypointNumber__c = 1),
-            new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = orders[1].Id, WaypointNumber__c = 2),
+			new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = orders[0].Id, WaypointNumber__c = 1),
+			new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = orders[1].Id, WaypointNumber__c = 2),
 			new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = orders[2].Id, WaypointNumber__c = 3)
-        };
-        insert waypoints;
+		};
+		insert waypoints;
 
 		DeliveryRouteService service = DeliveryRouteService.newInstance();
 
@@ -136,4 +136,5 @@ private class DeliveryRouteServiceTest
 		//Then
 		System.assertEquals(expected, actual);
 	}
+
 }

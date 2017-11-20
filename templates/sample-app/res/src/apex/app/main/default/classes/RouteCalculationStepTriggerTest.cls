@@ -27,25 +27,25 @@
 @isTest(SeeAllData=false)
 private class RouteCalculationStepTriggerTest 
 {
-    @isTest static void routeCalculationStepTrigger_shouldUpdateDeliveryPlan() 
+	@isTest static void routeCalculationStepTrigger_shouldUpdateDeliveryPlan() 
 	{
-        DeliveryPlan__c plan = new DeliveryPlan__c();
+		DeliveryPlan__c plan = new DeliveryPlan__c();
 		insert plan;
-        RouteCalculationStep__e stepEvent = new RouteCalculationStep__e(SObjectId__c = plan.Id, 
-                                             Severity__c = 'Info', 
-                                             Messages__c = 'Route(s) Created',
+		RouteCalculationStep__e stepEvent = new RouteCalculationStep__e(SObjectId__c = plan.Id, 
+											 Severity__c = 'Info', 
+											 Messages__c = 'Route(s) Created',
 											 Status__c = 'COMPLETED');
-        
-        Test.startTest();
-        
-        Database.SaveResult sr = EventBus.publish(stepEvent);
-            
-        Test.stopTest();
+		
+		Test.startTest();
+		
+		Database.SaveResult sr = EventBus.publish(stepEvent);
+			
+		Test.stopTest();
 
-        System.assertEquals(true, sr.isSuccess());
-        
-        DeliveryPlan__c updatedPlan = [SELECT Id, PlanStatus__c FROM DeliveryPlan__c WHERE Id=:plan.Id LIMIT 1];
+		System.assertEquals(true, sr.isSuccess());
+		
+		DeliveryPlan__c updatedPlan = [SELECT Id, PlanStatus__c FROM DeliveryPlan__c WHERE Id=:plan.Id LIMIT 1];
 
-        System.assertEquals('COMPLETED', updatedPlan.PlanStatus__c);
-    }
+		System.assertEquals('COMPLETED', updatedPlan.PlanStatus__c);
+	}
 }

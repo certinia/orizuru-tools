@@ -27,23 +27,23 @@
 @isTest(SeeAllData=false)
 private class DeliveryWaypointControllerTest
 {
-    @isTest
-    static void calculateRoute_withId_callsGenerateUrl()
-    {
-        // Given
-        Id fakeId = 'a009E000006Fi28';
-        String expectedURL = 'testUrl';
-        
-        StubProvider mocks = new StubProvider();
-        DeliveryRouteService mockService = (DeliveryRouteService) mocks.mock(DeliveryRouteService.class);
-        DeliveryRouteService.instance = mockService;
+	@isTest
+	static void calculateRoute_withId_callsGenerateUrl()
+	{
+		// Given
+		Id fakeId = 'a009E000006Fi28';
+		String expectedURL = 'testUrl';
+		
+		StubProvider mocks = new StubProvider();
+		DeliveryRouteService mockService = (DeliveryRouteService) mocks.mock(DeliveryRouteService.class);
+		DeliveryRouteService.instance = mockService;
 
-        mocks.stub(mockService, 'generateUrl', new Type[]{id.class}, new Object[]{fakeId}, expectedURL);
-        
-        // When
-        String result = DeliveryWaypointController.calculateRoute(fakeId);
-        
-        // Then
-        System.assertEquals(expectedURL, result);
-    }  
+		mocks.stub(mockService, 'generateUrl', new Type[]{id.class}, new Object[]{fakeId}, expectedURL);
+		
+		// When
+		String result = DeliveryWaypointController.calculateRoute(fakeId);
+		
+		// Then
+		System.assertEquals(expectedURL, result);
+	}  
 }

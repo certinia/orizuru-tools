@@ -26,19 +26,19 @@
 
 public class DataDeleter 
 {
-    public static void deleteData()
-    {
-        Id userId = UserInfo.getUserId();
-        delete [SELECT Id FROM Vehicle__c];
-        delete [SELECT Id FROM VehicleType__c];
+	public static void deleteData()
+	{
+		Id userId = UserInfo.getUserId();
+		delete [SELECT Id FROM Vehicle__c];
+		delete [SELECT Id FROM VehicleType__c];
 		delete [SELECT Id FROM DeliveryWaypoint__c];
 		delete [SELECT Id FROM DeliveryRoute__c];
 		delete [SELECT Id FROM DeliveryPlan__c];
-        delete [SELECT Id FROM Order];
-        delete [SELECT Id FROM Warehouse__c];
+		delete [SELECT Id FROM Order];
+		delete [SELECT Id FROM Warehouse__c];
 		delete [SELECT Id FROM Product2];
-        delete [SELECT Id FROM Contact];
+		delete [SELECT Id FROM Contact];
 		delete [SELECT Id FROM Account];
 		delete [SELECT Id FROM GenerateDataTask__c];
-    }
+	}
 }

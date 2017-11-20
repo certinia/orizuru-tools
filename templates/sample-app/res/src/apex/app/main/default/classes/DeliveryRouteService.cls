@@ -27,10 +27,10 @@
 public with sharing class DeliveryRouteService
 {
 	private static final String GOOGLE_API = 'https://www.google.com/maps/embed/v1/directions?key=';
-    
-    private static final String START_TOKEN= '&origin=';
-    private static final String WAYPOINT_TOKEN = '&waypoints=';
-    private static final String END_TOKEN ='&destination=';
+	
+	private static final String START_TOKEN= '&origin=';
+	private static final String WAYPOINT_TOKEN = '&waypoints=';
+	private static final String END_TOKEN ='&destination=';
 
 	@testVisible
 	private static DeliveryRouteService instance = null;
@@ -45,13 +45,13 @@ public with sharing class DeliveryRouteService
 	}
 
 	public String generateUrl(Id routeId)
-    {
+	{
 		Waypoint warehouseWaypoint = getStartLocation(routeId);
 		List<Waypoint> waypoints = getWaypointsForRouteId(routeId);
 		
 		Route route = new Route(warehouseWaypoint, waypoints, warehouseWaypoint);
-        return route.generateUrl();
-    }
+		return route.generateUrl();
+	}
 
 	private Waypoint getStartLocation(Id routeId)
 	{
@@ -61,7 +61,7 @@ public with sharing class DeliveryRouteService
 	}
 
 	private List<Waypoint> getWaypointsForRouteId(Id routeId)
-    {
+	{
 		List<Waypoint> waypointDtos = new List<Waypoint>();
 
 		DeliveryWaypointSelector selector = DeliveryWaypointSelector.newInstance();
@@ -72,8 +72,8 @@ public with sharing class DeliveryRouteService
 		}
 
 		return waypointDtos;
-    }
-    
+	}
+	
 	private class Route 
 	{
 		private Waypoint startPoint;
@@ -126,28 +126,28 @@ public with sharing class DeliveryRouteService
 
 	}
 
-    private class Waypoint
-    {
-    	private String lat;
+	private class Waypoint
+	{
+		private String lat;
 		private String lng;
 
 		public Waypoint(DeliveryRoute__c dr)
-        {
-            this.lat = String.valueOf(dr.Vehicle__r.Warehouse__r.Contact__r.MailingLatitude);
+		{
+			this.lat = String.valueOf(dr.Vehicle__r.Warehouse__r.Contact__r.MailingLatitude);
 			this.lng = String.valueOf(dr.Vehicle__r.Warehouse__r.Contact__r.MailingLongitude); 
-        }
+		}
 
-	    public Waypoint(DeliveryWaypoint__c wp)
-        {
-            this.lat = String.valueOf(wp.Order__r.ShipToContact.MailingLatitude);
+		public Waypoint(DeliveryWaypoint__c wp)
+		{
+			this.lat = String.valueOf(wp.Order__r.ShipToContact.MailingLatitude);
 			this.lng = String.valueOf(wp.Order__r.ShipToContact.MailingLongitude); 
-        }
+		}
 
-        public String asGeolocation()
-        {
-            return this.lat + ',' + this.lng;
-        }
+		public String asGeolocation()
+		{
+			return this.lat + ',' + this.lng;
+		}
 
-    }
+	}
 	
 }

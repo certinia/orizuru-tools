@@ -120,5 +120,4 @@ private class DeliveryWaypointSelectorTest
 		System.assertEquals(expected[0].DeliveryRoute__c, actual[0].DeliveryRoute__c);
 		System.assertEquals(expected[1].DeliveryRoute__c, actual[1].DeliveryRoute__c);
 	}
-    
 }
