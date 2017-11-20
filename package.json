@@ -9,8 +9,7 @@
   "scripts": {
     "pretest": "eslint src",
     "single-test": "nyc --all=false mocha",
-    "test": "nyc --include src mocha --recursive src/spec",
-    "posttest": "nyc --include templates/web-template/res/src/node/lib mocha --recursive templates/web-template/res/src/node/spec"
+    "test": "nyc --include src mocha --recursive src/spec"
   },
   "repository": {
     "type": "git",
