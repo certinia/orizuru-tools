@@ -92,7 +92,7 @@ describe('util/debug.js', () => {
 
 	describe('log', () => {
 
-		it('should log a message', () => {
+		it('should log a message if debug is true', () => {
 
 			// given
 			const
@@ -100,7 +100,7 @@ describe('util/debug.js', () => {
 				debug = require(root + '/src/lib/util/debug.js');
 
 			// when
-			debug.log({}, 'test', input);
+			debug.log({ debug: true }, 'test', input);
 
 			// then
 			expect(process.stderr.write).to.have.been.calledOnce;
@@ -116,7 +116,7 @@ describe('util/debug.js', () => {
 				debug = require(root + '/src/lib/util/debug.js');
 
 			// when
-			debug.log({ silent: true }, 'test', input);
+			debug.log({ silent: true, debug: false }, 'test', input);
 
 			// then
 			expect(process.stderr.write).to.not.have.been.calledWith(input);
@@ -135,7 +135,7 @@ describe('util/debug.js', () => {
 				debug = require(root + '/src/lib/util/debug.js');
 
 			// when
-			debug.stringify({}, 'test', input);
+			debug.stringify({ debug: true }, 'test', input);
 
 			// then
 			expect(process.stderr.write).to.have.been.calledOnce;

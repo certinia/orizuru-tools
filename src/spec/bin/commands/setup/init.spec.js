@@ -73,7 +73,7 @@ describe('bin/commands/setup/init.js', () => {
 
 		//then
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-		expect(mocks.yargs.options).to.have.callCount(4);
+		expect(mocks.yargs.options).to.have.callCount(5);
 
 		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
 		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup init');

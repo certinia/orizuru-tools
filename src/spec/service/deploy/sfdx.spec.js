@@ -83,7 +83,7 @@ describe('service/deploy/sfdx.js', () => {
 		it('should check that SFDX is installed', () => {
 
 			// given
-			const expectedCommand = { cmd: 'sfdx', args: ['version'], opts: { exitOnError: true } };
+			const expectedCommand = { cmd: 'sfdx', args: ['version'] };
 
 			mocks.shell.executeCommand = sandbox.stub().resolves('sfdx-cli/6.0.13-a52f73c (darwin-x64) node-v8.6.0');
 
@@ -128,7 +128,7 @@ describe('service/deploy/sfdx.js', () => {
 						}
 					}
 				},
-				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', expectedOrgDef, '-v', expectedHubUsername, '-a', expectedAlias, '-s', '--json'], opts: { exitOnError: true } },
+				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', expectedOrgDef, '-v', expectedHubUsername, '-a', expectedAlias, '-s', '--json'] },
 				expectedOutput = {
 					sfdx: {
 						org: {
@@ -296,7 +296,7 @@ describe('service/deploy/sfdx.js', () => {
 
 			// given
 			const
-				expectedCommand = { cmd: 'sfdx', args: ['force:auth:web:login', '-s', '--json'], opts: { exitOnError: true } },
+				expectedCommand = { cmd: 'sfdx', args: ['force:auth:web:login', '-s', '--json'] },
 				expectedOutput = {
 					sfdx: {
 						hub: {

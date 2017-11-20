@@ -310,13 +310,13 @@ describe('util/shell.js', () => {
 
 			});
 
-			it('and log out if the namespace option is set', () => {
+			it('and log out if the namespace option is set and debug is true', () => {
 
 				// given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
-					expectedOptions = { namespace: 'testing' },
+					expectedOptions = { namespace: 'testing', debug: true },
 					command = { cmd: expectedCommand, args: expectedArgs, opts: expectedOptions },
 					expectedResult = {
 						exitCode: 0,
