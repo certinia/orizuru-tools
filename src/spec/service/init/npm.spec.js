@@ -62,34 +62,6 @@ describe('service/init/npm.js', () => {
 
 	afterEach(() => sandbox.restore());
 
-	describe('install', () => {
-
-		it('should run the npm install command', () => {
-
-			// given
-			const
-				expectedInput = { test: 'input' },
-				expectedCommand = {
-					args: ['install'],
-					cmd: 'npm',
-					opts: { exitOnError: true, namespace: 'npm~install' }
-				};
-
-			// when - then
-			return expect(npm.install(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.logger.logStart).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-
-					expect(mocks.logger.logStart).to.have.been.calledWith('Installing NPM dependencies');
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
-
-		});
-
-	});
-
 	describe('generateApexTransport', () => {
 
 		it('should run the npm run generate-apex-transport command', () => {
@@ -111,6 +83,90 @@ describe('service/init/npm.js', () => {
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
 
 					expect(mocks.logger.logStart).to.have.been.calledWith('Generating Apex transport classes');
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
+	describe('generateDocumentation', () => {
+
+		it('should run the npm run doc command', () => {
+
+			// given
+			const
+				expectedInput = { test: 'input' },
+				expectedCommand = {
+					args: ['run', 'doc'],
+					cmd: 'npm',
+					opts: { exitOnError: true, namespace: 'npm~generate~documentation' }
+				};
+
+			// when - then
+			return expect(npm.generateDocumentation(expectedInput))
+				.to.eventually.eql(expectedInput)
+				.then(() => {
+					expect(mocks.logger.logStart).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+
+					expect(mocks.logger.logStart).to.have.been.calledWith('Generating documentation');
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
+	describe('init', () => {
+
+		it('should run the npm init command', () => {
+
+			// given
+			const
+				expectedInput = { test: 'input' },
+				expectedCommand = {
+					args: ['init', '-y'],
+					cmd: 'npm',
+					opts: { exitOnError: true }
+				};
+
+			// when - then
+			return expect(npm.init(expectedInput))
+				.to.eventually.eql(expectedInput)
+				.then(() => {
+					expect(mocks.logger.logStart).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+
+					expect(mocks.logger.logStart).to.have.been.calledWith('Generating default package.json');
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
+	describe('install', () => {
+
+		it('should run the npm install command', () => {
+
+			// given
+			const
+				expectedInput = { test: 'input' },
+				expectedCommand = {
+					args: ['install'],
+					cmd: 'npm',
+					opts: { exitOnError: true, namespace: 'npm~install' }
+				};
+
+			// when - then
+			return expect(npm.install(expectedInput))
+				.to.eventually.eql(expectedInput)
+				.then(() => {
+					expect(mocks.logger.logStart).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+
+					expect(mocks.logger.logStart).to.have.been.calledWith('Installing NPM dependencies');
 					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
 				});
 
