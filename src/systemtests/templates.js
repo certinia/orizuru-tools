@@ -53,7 +53,7 @@ function runTests() {
 				return ({ cmd: '/bin/bash', args: ['-c', 'mkdir test' + (index + 1) + ' && cd test' + (index + 1) + ' && orizuru setup init -t ' + template + ' -y && cd .. && rm -r test' + (index + 1)] });
 			});
 
-			return shell.executeCommands(commands, { namespace: 'system~tests' });
+			return shell.executeCommands(commands, { namespace: 'system~tests', debug: true });
 
 		})
 		.then(() => process.exit(0))

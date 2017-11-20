@@ -7,6 +7,7 @@
 			"@financialforcedev/orizuru-transport-rabbitmq": "^3.0.3",
 			"debug-plus": "1.2.2",
 			"fs-extra": "4.0.2",
+			"jsdoc": "3.5.5",
 			"jsforce": "1.8.0",
 			"klaw-sync": "3.0.0",
 			"lodash": "4.17.4",
@@ -25,6 +26,7 @@
 			"sinon-chai": "2.14.0"
 		},
 		"scripts": {
+			"doc": "jsdoc -c config/jsdoc.json",
 			"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schema src/apex/app/main/default/classes",
 			"lint-fix": "eslint src/node --fix",
 			"orizuru-post-init": "echo 'No post init steps'",
