@@ -5,17 +5,7 @@
 		"request": "launch",
 		"name": "Debug web dyno",
 		"runtimeArgs": [
-			"src/node/lib/boilerplate/web.js"
-		],
-		"env": {
-			"DEBUG": "*"
-		}
-	}, {
-		"type": "node",
-		"request": "launch",
-		"name": "Debug worker dyno",
-		"runtimeArgs": [
-			"src/node/lib/boilerplate/worker.js"
+			"src/node/lib/web.js"
 		],
 		"env": {
 			"DEBUG": "*"

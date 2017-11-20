@@ -34,7 +34,7 @@ const
 
 	expect = chai.expect,
 
-	schemas = require('../lib/boilerplate/schemas'),
+	schemas = require('../lib/boilerplate/schema'),
 	read = require('../lib/boilerplate/read'),
 	defaultTransport = require('../lib/boilerplate/transport'),
 	orizuru = require('@financialforcedev/orizuru'),
@@ -67,7 +67,7 @@ describe('web.js', () => {
 			this.getServer = getServerStub;
 		});
 		sandbox.stub(read, 'readSchema').returns({ mock: true });
-		sandbox.stub(schemas, 'get').returns([{
+		sandbox.stub(schemas, 'getWebSchemas').returns([{
 			path: 'api/test1.avsc',
 			sharedPath: '/api',
 			fileName: 'test1'

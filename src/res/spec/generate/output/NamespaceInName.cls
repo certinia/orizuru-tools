@@ -37,30 +37,22 @@ public abstract class OrizuruTransport implements ISerializable
 
 	public class com_financialforce_Test extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
 	{
-
 		public String deliveryPlanId { get; set; }
 		public com_financialforce_child deliveries { get; set; }
 
 		public com_financialforce_Test(String deliveryPlanId, com_financialforce_child deliveries) {
-			
 			this.deliveryPlanId = deliveryPlanId;
 			this.deliveries = deliveries;
-
 		}
-
 	}
 
 	public class com_financialforce_child extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
 	{
-
 		public String deliveryId { get; set; }
 
 		public com_financialforce_child(String deliveryId) {
-			
 			this.deliveryId = deliveryId;
-
 		}
-
 	}
 
 }

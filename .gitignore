@@ -1,9 +1,16 @@
-node_modules
-coverage
+.classpath
+.project
 .nyc_output
+.orizuru
+.settings/org.eclipse.core.resources.prefs
+.settings/org.eclipse.m2e.core.prefs
+
+bin
+coverage
+node_modules
+target
 
 *.pem
 *.tgz
 
 apex.db
-.orizuru

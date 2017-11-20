@@ -26,9 +26,25 @@
 
 'use strict';
 
-const fs = require('fs');
+const fs = require('fs-extra');
+
+/**
+ * Reads a schema from a given path
+ * @param {string} path - The file path
+ */
+function readSchema(path) {
+	return fs.readJsonSync(path);
+}
+
+/**
+ * Reads a handler from a given path
+ * @param {string} path - The file path
+ */
+function readHandler(path) {
+	return require(path);
+}
 
 module.exports = {
-	readSchema: path => JSON.parse(fs.readFileSync(path)),
-	readHandler: path => require(path)
+	readSchema,
+	readHandler
 };

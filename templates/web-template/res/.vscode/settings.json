@@ -3,22 +3,34 @@
 		"js": {
 			"type": [
 				"javascript",
-				"json"
+				"javascriptreact",
+				"json",
+				"apex"
 			],
 			"filename": [
 				".jsbeautifyrc"
 			]
-		}
+		},
+		"css": [
+			"css",
+			"scss"
+		],
+		"html": [
+			"htm",
+			"html",
+			"xml",
+			"visualforce"
+		]
 	},
 	"beautify.ignore": [
 		"package.json"
 	],
-	"editor.detectIndentation": false,
-	"editor.formatOnSave": true,
-	"editor.insertSpaces": false,
 	"files.associations": {
 		"*.avsc": "json"
 	},
+	"editor.detectIndentation": false,
+	"editor.formatOnSave": true,
+	"editor.insertSpaces": false,
 	"files.exclude": {
 		"**/.nyc_output": true,
 		"**/.git": true,
@@ -33,5 +45,6 @@
 		"pattern": "**/*.js",
 		"command": "npm test"
 	}],
+	"runCurrentTest.run": "npm run single-test -- ${relativeTestPath}",
 	"terminal.integrated.scrollback": 10000
 }

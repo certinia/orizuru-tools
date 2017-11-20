@@ -31,21 +31,37 @@ const
 	klawSync = require('klaw-sync'),
 	{ dirname, basename, resolve } = require('path');
 
-// get all files in the given folder with the given extension
-module.exports = {
-	walk: (folder, ext) => {
-		const
-			DIR = resolve(__dirname, '..', folder),
-			FILTER = ({ path }) => path.endsWith(ext);
+/**
+ * @typedef FileInfo
+ * @property {string} path - The full path to the file.
+ * @property {string} sharedPath - The relative path to the file.
+ * @property {string} fileName - The last portion of the file path without the extension.
+ */
 
-		return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
-			const { path } = value;
-			// add sharedPath and fileName to the result
-			return {
-				path,
-				sharedPath: dirname(path).substring(DIR.length),
-				fileName: basename(path, ext)
-			};
-		});
-	}
+/**
+ * Get all files in the given folder with the given extension.
+ * 
+ * @param {string} folder - The folder
+ * @param {string} extension - The file extension
+ * @returns {[FileInfo]}
+ */
+function walk(folder, extension) {
+
+	const
+		directory = resolve(__dirname, '..', folder),
+		filter = ({ path }) => path.endsWith(extension);
+
+	return _.map(klawSync(directory, { nodir: true, filter }), value => {
+		const { path } = value;
+		return {
+			path,
+			sharedPath: dirname(path).substring(directory.length),
+			fileName: basename(path, extension)
+		};
+	});
+
+}
+
+module.exports = {
+	walk
 };

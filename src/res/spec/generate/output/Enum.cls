@@ -37,24 +37,18 @@ public abstract class OrizuruTransport implements ISerializable
 
 	public class com_financialforce_Test extends OrizuruTransport // Transport extension for use when sending data to Orizuru Heroku apis
 	{
-
 		public DeliveryTypeEnum deliveryType { get; set; }
 
 		public com_financialforce_Test(DeliveryTypeEnum deliveryType) {
-			
 			this.deliveryType = deliveryType;
-
 		}
-
 	}
 
 	public enum DeliveryTypeEnum // Internal enum defining a type within an Orizuru Avro transport schema, used within transport extensions
 	{
-
 		A,
 		B,
 		C
-
 	}
 
 }

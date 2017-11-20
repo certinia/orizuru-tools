@@ -412,7 +412,7 @@ describe('service/deploy/heroku.js', () => {
 			return expect(heroku.deployCurrentBranch(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.callCount(4);
+					expect(mocks.shell.executeCommand).to.have.callCount(5);
 					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: false } });
 					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'add', 'autodeploy', 'https://git.heroku.com/rocky-shore-45862.git'], opts: { exitOnError: true } });
 					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } });

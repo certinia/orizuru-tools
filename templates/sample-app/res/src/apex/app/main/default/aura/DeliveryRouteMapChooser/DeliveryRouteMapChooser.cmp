@@ -1,0 +1,39 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId, force:hasSObjectName" controller="DeliveryRouteMapChooserController">
+
+	<!-- Attributes -->
+	<aura:attribute name="show" type="Boolean" default="false" access="private" />
+	<aura:attribute name="planComplete" type="Boolean" default="false" access="private" />
+	<aura:attribute name="routeId" type="String" />
+	<aura:attribute name="routeOptions" type="List" default="[]" />
+
+	<!-- Handlers -->
+	<aura:handler name="init" value="{!this}" action="{!c.onInit}" />
+	<aura:handler event="c:RouteCalculationStepEvent" action="{!c.handleStepEvent}" />
+
+	<!-- Body -->
+	<aura:if isTrue="{! v.show }">
+
+		<lightning:card>
+
+			<aura:set attribute="iconName" value="standard:location"></aura:set>
+			<aura:set attribute="title">Delivery Routes</aura:set>
+
+			<aura:set attribute="actions">
+				<!-- View Route button -->
+				<lightning:button label="View Route" onclick="{! c.viewRoute }" />
+			</aura:set>
+
+			<div class="map">
+
+				<!-- Route selection -->
+				<lightning:combobox class="selectRoute" name="route" label="Route" placeholder="Select Route" value="{!v.routeId}" options="{!v.routeOptions}" />
+
+				<c:DeliveryRouteMap routeId="{!v.routeId}" />
+
+			</div>
+
+		</lightning:card>
+
+	</aura:if>
+
+</aura:component>

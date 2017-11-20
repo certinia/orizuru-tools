@@ -38,16 +38,19 @@ const
 
 describe('boilerplate/read.js', () => {
 
-	let read, readFileSyncStub, dummy;
+	let read, mocks;
 
 	beforeEach(() => {
-		dummy = {};
-		readFileSyncStub = sandbox.stub();
+
+		mocks = {};
+		mocks.fsextra = {};
+		mocks.fsextra.readJsonSync = sandbox.stub();
+
+		mocks.requiredFile = {};
+
 		read = proxyquire('../../lib/boilerplate/read', {
-			fs: {
-				readFileSync: readFileSyncStub
-			},
-			dummy: dummy
+			'fs-extra': mocks.fsextra,
+			requiredFile: mocks.requiredFile
 		});
 	});
 
@@ -60,7 +63,7 @@ describe('boilerplate/read.js', () => {
 		it('should read a schema file to json', () => {
 
 			// given
-			readFileSyncStub.returns(Buffer.from('{"a": "b"}'));
+			mocks.fsextra.readJsonSync.returns({ a: 'b' });
 
 			// when - then
 			expect(read.readSchema('blah')).to.eql({
@@ -75,11 +78,8 @@ describe('boilerplate/read.js', () => {
 
 		it('should read a handler file', () => {
 
-			// given
-			readFileSyncStub.returns(Buffer.from('{"a": "b"}'));
-
 			// when - then
-			expect(read.readHandler('dummy')).to.eql(dummy);
+			expect(read.readHandler('requiredFile')).to.eql(mocks.requiredFile);
 
 		});
 

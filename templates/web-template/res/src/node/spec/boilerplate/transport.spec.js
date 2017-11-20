@@ -26,4 +26,4 @@
 
 'use strict';
 
-describe('boilerplate/transport.js', () => it('should be tested via ./web and ./worker'));
+describe('boilerplate/transport.js', () => it('should be tested via ./web'));

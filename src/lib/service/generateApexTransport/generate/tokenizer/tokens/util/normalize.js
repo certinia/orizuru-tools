@@ -27,6 +27,7 @@
 'use strict';
 
 function child(entity, classpath) {
+
 	const
 		Record = require('../record'),
 		Enum = require('../enum'),
@@ -35,8 +36,10 @@ function child(entity, classpath) {
 	if (entity instanceof Record ||
 		entity instanceof Enum) {
 		classpath.push(entity);
+		entity.normalize(classpath);
 		return new Reference(entity.reference);
 	}
+
 	entity.normalize(classpath);
 	return null;
 }

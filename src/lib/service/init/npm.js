@@ -47,7 +47,7 @@ function generateApexTransport(config) {
 function orizuruPostInit(config) {
 	return Promise.resolve(config)
 		.then(logger.logStart('Running Orizuru post init'))
-		.then(() => shell.executeCommand({ cmd: 'npm', args: ['run', 'orizuru-post-init'], opts: { exitOnError: false, namespace: 'npm~orizuru~post~init' } }))
+		.then(() => shell.executeCommand({ cmd: 'npm', args: ['run', 'orizuru-post-init'], opts: { exitOnError: true, namespace: 'npm~orizuru~post~init' } }))
 		.then(() => config);
 }
 

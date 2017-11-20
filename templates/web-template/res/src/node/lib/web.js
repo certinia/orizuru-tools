@@ -50,7 +50,7 @@ const
 	{ Server } = require('@financialforcedev/orizuru'),
 
 	// get all files in our 'schemas' directory
-	schemas = require('./boilerplate/schemas').get(),
+	schemas = require('./boilerplate/schema').getWebSchemas(),
 
 	auth = require('./boilerplate/auth'),
 
@@ -71,8 +71,7 @@ const
 	},
 
 	serve = () => {
-		const
-			serverInstance = new Server(transport);
+		const serverInstance = new Server(transport);
 
 		require('pkginfo')(module, 'version', 'name', 'description');
 
@@ -82,6 +81,7 @@ const
 			debug.log('Found schema \'%s\' at \'%s\'', schema.fileName, schema.sharedPath);
 			sharedPathToAddRouteInput[schema.sharedPath].schemaNameToDefinition[schema.fileName] = readSchema(schema.path);
 			return sharedPathToAddRouteInput;
+
 		}, {}), routeInfo => {
 			debug.log('Adding route(s) for \'%s\'', routeInfo.apiEndpoint);
 			_.each(routeInfo.schemaNameToDefinition, (value, key) => {
