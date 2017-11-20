@@ -102,7 +102,7 @@ describe('service/init/template.js', () => {
 					folder: expectedTemplate,
 					fullPath: process.cwd() + '/templates/' + expectedTemplate
 				},
-				templateFolder: '/Users/Matthew/GIT/financialforcedev/orizuru-tools/templates'
+				templateFolder: `${process.cwd()}/templates`
 			};
 
 		mocks.lstatSync.isDirectory.returns(true);
@@ -155,9 +155,9 @@ describe('service/init/template.js', () => {
 						extensions: {}
 					},
 					folder: expectedTemplate,
-					fullPath: process.cwd() + '/templates/' + expectedTemplate
+					fullPath: `${process.cwd()}/templates/${expectedTemplate}`
 				},
-				templateFolder: '/Users/Matthew/GIT/financialforcedev/orizuru-tools/templates'
+				templateFolder: `${process.cwd()}/templates`
 			};
 
 		mocks.lstatSync.isDirectory.returns(true);
@@ -218,7 +218,7 @@ describe('service/init/template.js', () => {
 					folder: expectedTemplate,
 					fullPath: process.cwd() + '/templates/' + expectedTemplate
 				},
-				templateFolder: '/Users/Matthew/GIT/financialforcedev/orizuru-tools/templates'
+				templateFolder: `${process.cwd()}/templates`
 			};
 
 		mocks.lstatSync.isDirectory.returns(true);

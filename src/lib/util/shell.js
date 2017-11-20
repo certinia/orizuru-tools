@@ -35,6 +35,7 @@
 const
 	_ = require('lodash'),
 	debug = require('./debug'),
+	logger = require('./logger'),
 
 	childProcess = require('child_process'),
 	spawn = childProcess.spawn,
@@ -52,24 +53,27 @@ const
 
 /**
  * Executes a single shell command.
- * @instance
  * @param {Command} command - The command to execute.
- * @param {string} command.cmd - The process to execute; the executable.
- * @param {string[]} command.args - The arguments to pass to the executable.
- * @param {object} [command.opts] - Options.
- * @param {boolean} [command.opts.exitOnError] - If true, the process exits if the command fails.<br/>Note that for the command to fail the process must return a non-zero exit code.
- * @param {string} [command.opts.namepace] - If set, any logging to stdout or stderr is printed with the given namespace.
  */
-function executeCommand({ cmd, args, opts }) {
+function executeInternal({ cmd, args, opts }) {
 
 	return new Promise((resolve, reject) => {
 
 		const
-			namespace = opts && opts.namespace || 'shell',
+			debugMode = _.get(opts, 'debug', false),
+			silent = _.get(opts, 'silent', false),
+			namespace = _.get(opts, 'namespace', 'shell'),
 			namespaceOutput = namespace + ':output',
-			formattedCommand = shellDebug(cmd, args),
+			verbose = _.get(opts, 'verbose', false),
+			exitOnError = _.get(opts, 'exitOnError', true),
+			startLogging = _.get(opts, 'logging.start'),
+			finishLogging = _.get(opts, 'logging.finish'),
+			shouldDebug = _.get(opts, 'namespace'),
+
 			log = debug.create(namespace),
 			logOutput = debug.create(namespaceOutput),
+
+			formattedCommand = shellDebug(cmd, args),
 			child = spawn(cmd, args);
 
 		let stdout = '',
@@ -78,8 +82,12 @@ function executeCommand({ cmd, args, opts }) {
 		var stdoutStream,
 			stderrStream;
 
-		if (opts && opts.namespace) {
-			debug.create.enable(opts.namespace);
+		logger.logEvent(startLogging)(opts);
+
+		if (verbose === true) {
+			debug.create.enable(namespace + ',' + namespaceOutput);
+		} else if (!silent && debugMode && shouldDebug) {
+			debug.create.enable(namespace);
 		}
 
 		stdoutStream = debug.debugStream(log)('%b');
@@ -99,15 +107,48 @@ function executeCommand({ cmd, args, opts }) {
 		});
 
 		child.on(EVENT_CLOSE, (exitCode) => {
-			if (exitCode !== 0 && opts && opts.exitOnError) {
+
+			if (exitCode !== 0 && exitOnError) {
 				return reject(new Error(`Command failed: ${formattedCommand}\n${stderr}`));
 			}
+
 			const retval = { formattedCommand, exitCode, stdout: _.trim(stdout), stderr: _.trim(stderr) };
 			logOutput(retval);
+			logger.logEvent(finishLogging)(opts);
 			return resolve(retval);
+
 		});
 
 	});
+
+}
+
+/**
+ * Executes a single shell command.
+ * 
+ * Optionally, merge in the CLI command line arguments from a configuration object.
+ * @instance
+ * @param {Command} command - The command to execute.
+ * @param {string} command.cmd - The process to execute; the executable.
+ * @param {string[]} command.args - The arguments to pass to the executable.
+ * @param {object} [command.opts] - Options.
+ * @param {boolean} [command.opts.exitOnError=true] - If true, the process exits if the command fails.<br/>Note that for the command to fail the process must return a non-zero exit code.
+ * @param {string} [command.opts.logging.start] - If set, logs the given string before the command executes.
+ * @param {string} [command.opts.logging.finish] - If set, logs the given string after the command executes.
+ * @param {string} [command.opts.namepace] - If set, any logging to stdout or stderr is printed with the given namespace.
+ * @param {boolean} [command.opts.silent=false] - If true, no logging is produced.
+ * @param {boolean} [command.opts.verbose=false] - If true, all logging is produced.
+ * @param {Object} [config] - The configuration object passed through the process.
+ */
+function executeCommand(command, config) {
+
+	if (config) {
+		return Promise.resolve(_.merge(command, { opts: config.argv }))
+			.then(executeInternal)
+			.then(() => config);
+	}
+
+	return executeInternal(command);
 
 }
 

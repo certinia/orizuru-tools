@@ -60,17 +60,20 @@ describe('bin/commands/setup/init.js', () => {
 		// given
 		mocks.yargs = {};
 		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.options = sandbox.stub().returns(mocks.yargs);
 		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
 
-		const cli = proxyquire(root + '/src/lib/bin/commands/setup/init', {
-			yargs: mocks.yargs
-		});
+		const
+			cli = proxyquire(root + '/src/lib/bin/commands/setup/init', {
+				yargs: mocks.yargs
+			});
 
 		// when
 		cli.builder(mocks.yargs);
 
 		//then
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+		expect(mocks.yargs.options).to.have.callCount(4);
 
 		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
 		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup init');

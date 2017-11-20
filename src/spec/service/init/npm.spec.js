@@ -47,14 +47,10 @@ describe('service/init/npm.js', () => {
 
 		mocks = {};
 
-		mocks.logger = sandbox.stub();
-		mocks.logger.logStart = sandbox.stub();
-
 		mocks.shell = sandbox.stub();
 		mocks.shell.executeCommand = sandbox.stub();
 
 		npm = proxyquire('../../../lib/service/init/npm', {
-			'../../util/logger': mocks.logger,
 			'../../util/shell': mocks.shell
 		});
 
@@ -68,22 +64,29 @@ describe('service/init/npm.js', () => {
 
 			// given
 			const
-				expectedInput = { test: 'input' },
+				expectedInput = {
+					test: 'input'
+				},
 				expectedCommand = {
-					args: ['run', 'generate-apex-transport'],
 					cmd: 'npm',
-					opts: { exitOnError: true, namespace: 'npm~generate~apex~transport' }
+					args: ['run', 'generate-apex-transport'],
+					opts: {
+						logging: {
+							start: 'Generating Apex transport classes',
+							finish: 'Generated Apex transport classes'
+						},
+						namespace: 'npm~generate~apex~transport'
+					}
 				};
+
+			mocks.shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.generateApexTransport(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.logger.logStart).to.have.been.calledOnce;
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-
-					expect(mocks.logger.logStart).to.have.been.calledWith('Generating Apex transport classes');
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -96,22 +99,29 @@ describe('service/init/npm.js', () => {
 
 			// given
 			const
-				expectedInput = { test: 'input' },
+				expectedInput = {
+					test: 'input'
+				},
 				expectedCommand = {
-					args: ['run', 'doc'],
 					cmd: 'npm',
-					opts: { exitOnError: true, namespace: 'npm~generate~documentation' }
+					args: ['run', 'doc'],
+					opts: {
+						logging: {
+							start: 'Generating documentation',
+							finish: 'Generated documentation'
+						},
+						namespace: 'npm~generate~documentation'
+					}
 				};
+
+			mocks.shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.generateDocumentation(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.logger.logStart).to.have.been.calledOnce;
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-
-					expect(mocks.logger.logStart).to.have.been.calledWith('Generating documentation');
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -124,22 +134,29 @@ describe('service/init/npm.js', () => {
 
 			// given
 			const
-				expectedInput = { test: 'input' },
+				expectedInput = {
+					test: 'input'
+				},
 				expectedCommand = {
-					args: ['init', '-y'],
 					cmd: 'npm',
-					opts: { exitOnError: true }
+					args: ['init', '-y'],
+					opts: {
+						logging: {
+							start: 'Generating default package.json',
+							finish: 'Generated default package.json'
+						},
+						namespace: 'npm~init'
+					}
 				};
+
+			mocks.shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.init(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.logger.logStart).to.have.been.calledOnce;
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-
-					expect(mocks.logger.logStart).to.have.been.calledWith('Generating default package.json');
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -152,22 +169,29 @@ describe('service/init/npm.js', () => {
 
 			// given
 			const
-				expectedInput = { test: 'input' },
+				expectedInput = {
+					test: 'input'
+				},
 				expectedCommand = {
-					args: ['install'],
 					cmd: 'npm',
-					opts: { exitOnError: true, namespace: 'npm~install' }
+					args: ['install'],
+					opts: {
+						logging: {
+							start: 'Installing NPM dependencies',
+							finish: 'Installed NPM dependencies'
+						},
+						namespace: 'npm~install'
+					}
 				};
+
+			mocks.shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.install(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.logger.logStart).to.have.been.calledOnce;
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-
-					expect(mocks.logger.logStart).to.have.been.calledWith('Installing NPM dependencies');
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -180,22 +204,29 @@ describe('service/init/npm.js', () => {
 
 			// given
 			const
-				expectedInput = { test: 'input' },
+				expectedInput = {
+					test: 'input'
+				},
 				expectedCommand = {
-					args: ['run', 'orizuru-post-init'],
 					cmd: 'npm',
-					opts: { exitOnError: true, namespace: 'npm~orizuru~post~init' }
+					args: ['run', 'orizuru-post-init'],
+					opts: {
+						logging: {
+							start: 'Started Orizuru post init',
+							finish: 'Finished Orizuru post init'
+						},
+						namespace: 'npm~orizuru~post~init'
+					}
 				};
+
+			mocks.shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.orizuruPostInit(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.logger.logStart).to.have.been.calledOnce;
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-
-					expect(mocks.logger.logStart).to.have.been.calledWith('Running Orizuru post init');
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -208,22 +239,29 @@ describe('service/init/npm.js', () => {
 
 			// given
 			const
-				expectedInput = { test: 'input' },
+				expectedInput = {
+					test: 'input'
+				},
 				expectedCommand = {
-					args: ['test'],
 					cmd: 'npm',
-					opts: { exitOnError: true, namespace: 'npm~test' }
+					args: ['test'],
+					opts: {
+						logging: {
+							start: 'Started tests',
+							finish: 'Finished tests'
+						},
+						namespace: 'npm~test'
+					}
 				};
+
+			mocks.shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.test(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.logger.logStart).to.have.been.calledOnce;
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-
-					expect(mocks.logger.logStart).to.have.been.calledWith('Running tests');
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});

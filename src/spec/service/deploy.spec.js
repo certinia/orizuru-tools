@@ -41,7 +41,6 @@ const
 	namedCredential = require(root + '/src/lib/service/deploy/namedCredential'),
 	properties = require(root + '/src/lib/service/deploy/properties'),
 	sfdx = require(root + '/src/lib/service/deploy/sfdx'),
-	logger = require(root + '/src/lib/util/logger'),
 
 	service = require(root + '/src/lib/service/deploy'),
 
@@ -64,6 +63,9 @@ describe('service/deploy.js', () => {
 
 			// given
 			const expectedInput = {
+				argv: {
+					silent: true
+				},
 				parameters: {
 					heroku: {
 						app: {
@@ -80,10 +82,6 @@ describe('service/deploy.js', () => {
 					hub: 'hubOrg'
 				}
 			};
-
-			sandbox.stub(logger, 'logStart').resolves(expectedInput);
-			sandbox.stub(logger, 'logEvent').resolves(expectedInput);
-			sandbox.stub(logger, 'logFinish').resolves(expectedInput);
 
 			sandbox.stub(certificate, 'getCert').resolves(expectedInput);
 
@@ -121,13 +119,9 @@ describe('service/deploy.js', () => {
 			sandbox.stub(sfdx, 'selectApp').resolves(expectedInput);
 
 			// when - then
-			return expect(service.run({ argv: { full: true } }))
+			return expect(service.run(expectedInput))
 				.to.eventually.be.fulfilled
 				.then(() => {
-
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logEvent).to.have.been.callCount(16);
-					expect(logger.logFinish).to.have.been.calledOnce;
 
 					expect(certificate.getCert).to.have.been.calledOnce;
 

@@ -36,11 +36,11 @@ const
 	_ = require('lodash'),
 	path = require('path'),
 
-	{ getAvscFilesOnPathRecursively } = require('./generateApexTransport/getAvscFilesOnPathRecursively'),
-	{ generate } = require('./generateApexTransport/generate'),
+	getAvscFilesOnPathRecursively = require('./generateApexTransport/getAvscFilesOnPathRecursively').getAvscFilesOnPathRecursively,
+	generate = require('./generateApexTransport/generate').generate,
 	overwriteFile = require('./generateApexTransport/overwriteFile'),
 
-	{ log, logStart, logError } = require('../util/logger');
+	logger = require('../util/logger');
 
 function validateArgs(config) {
 	if (!_.isString(config.inputUrl)) {
@@ -74,7 +74,7 @@ function generateClasses(config) {
 
 	return overwriteFile(outputPath, 'OrizuruTransport.cls', result.cls)
 		.then(() => overwriteFile(outputPath, 'OrizuruTransport.cls-meta.xml', result.xml))
-		.then(config => config);
+		.then(() => config);
 }
 
 /**
@@ -87,10 +87,10 @@ function generateApexTransport(argv) {
 	return Promise
 		.resolve(argv)
 		.then(validateArgs)
-		.then(logStart('Generating apex transport classes'))
+		.then(logger.logStart('Generating apex transport classes'))
 		.then(generateClasses)
-		.then(config => log('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + path.resolve(process.cwd(), config.outputUrl)))
-		.catch(logError);
+		.then((config) => logger.log('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + path.resolve(process.cwd(), config.outputUrl)))
+		.catch(logger.logError);
 
 }
 

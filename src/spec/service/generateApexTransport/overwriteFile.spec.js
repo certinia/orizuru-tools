@@ -68,17 +68,18 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 			// given
 			const
 				path = 'a',
-				content = 'b',
-				expected = 'c';
+				file = 'b',
+				content = 'c',
+				expected = 'd';
 
 			mocks.fs.writeFile.resolves(expected);
 
 			// when - then
-			return expect(overwriteFile(path, content))
+			return expect(overwriteFile(path, file, content))
 				.to.eventually.eql(expected)
 				.then(() => {
 					expect(mocks.fs.writeFile).to.have.been.calledOnce;
-					expect(mocks.fs.writeFile).to.have.been.calledWith(path, content, { flag: 'w' });
+					expect(mocks.fs.writeFile).to.have.been.calledWith(process.cwd() + '/' + path + '/' + file, content, { flag: 'w' });
 				});
 
 		});

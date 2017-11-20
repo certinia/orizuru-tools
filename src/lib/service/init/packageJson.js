@@ -37,6 +37,9 @@ const
 	fs = require('fs-extra'),
 	inquirer = require('inquirer'),
 	path = require('path'),
+
+	debug = require('../../util/debug'),
+	logger = require('../../util/logger'),
 	questions = require('../../util/questions'),
 	validators = require('../../util/validators'),
 
@@ -48,7 +51,7 @@ const
 			name: 'Orizuru',
 			version: '1.0.0',
 			description: '',
-			main: 'index.js',
+			main: 'src/node/lib/web.js',
 			author: 'FinancialForce',
 			license: 'BSD-3-Clause'
 		}
@@ -65,7 +68,7 @@ const
 function askQuestions(config) {
 
 	if (_.get(config, 'argv.useDefaults')) {
-		config.package = defaults.package;
+		_.set(config, 'package', defaults.package);
 		return config;
 	}
 
@@ -98,7 +101,7 @@ function askQuestions(config) {
  * @param {object} config.selectedTemplate.configuration - The configuration for the selected template.
  * @param {object} config.selectedTemplate.configuration.file - The configuration file contents.
  * @param {object} config.selectedTemplate.configuration.file.package - The package properties.
- * @param {object} [config.selectedTemplate.configuration.extensions] - The extension.
+ * @param {object} [config.selectedTemplate.configuration.extensions] - The extensions for this template.
  * @param {object} [config.selectedTemplate.configuration.extensions.package] - The package properties.
  * @returns config - The __modified__ configuration object.
  */
@@ -118,13 +121,29 @@ function build(config) {
 }
 
 /**
+ * Log out the package.json.
+ * @instance
+ * @param {object} config - The configuration object passed through the process.
+ * @param config - The __unmodified__ configuration object.
+ */
+function debugPackageJson(config) {
+	debug.log(config.argv, 'package', `Wrote to ${config.path.package}:`);
+	debug.stringify(config.argv, 'package', config.package);
+	return config;
+}
+
+/**
  * Reads the package.json file from the file system.
  * @instance
  * @param {object} config - The configuration object passed through the process.<br/>_This is mutable_ and is modified with this command.
  * @returns config - The __modified__ configuration object.
  */
 function read(config) {
-	return fs.readJson(path.resolve(process.cwd(), 'package.json'))
+
+	const filePath = path.resolve(process.cwd(), 'package.json');
+	_.set(config, 'path.package', filePath);
+
+	return fs.readJson(filePath)
 		.then(result => _.merge(config, { 'package': result }));
 }
 
@@ -135,8 +154,13 @@ function read(config) {
  * @returns config - The __unmodified__ configuration object.
  */
 function write(config) {
-	return fs.writeJson(path.resolve(process.cwd(), 'package.json'), config.package, { spaces: 2 })
-		.then(() => config);
+
+	return Promise.resolve(config)
+		.then(logger.logEvent('Merging template data into package.json'))
+		.then(config => fs.writeJson(config.path.package, config.package, { spaces: 2 }))
+		.then(() => debugPackageJson(config))
+		.then(logger.logEvent('Merged template data into package.json'));
+
 }
 
 /**
@@ -154,8 +178,8 @@ function write(config) {
 function create(config) {
 
 	return Promise.resolve(config)
-		.then(askQuestions)
 		.then(read)
+		.then(askQuestions)
 		.then(build)
 		.then(write);
 

@@ -43,6 +43,23 @@ module.exports = {
 			.usage('\nUsage: orizuru deploy COMMAND')
 			.command(certificate)
 			.command(connectedApp)
+			.options('debug', {
+				alias: 'd',
+				describe: 'Turn on debug logging',
+				demandOption: false,
+				type: 'boolean'
+			})
+			.options('silent', {
+				alias: 's',
+				describe: 'Turn off all logging',
+				demandOption: false,
+				type: 'boolean'
+			})
+			.options('verbose', {
+				describe: 'Turn on all logging',
+				demandOption: false,
+				type: 'boolean'
+			})
 			.options('full', {
 				describe: 'Full deploy',
 				demandOption: false,

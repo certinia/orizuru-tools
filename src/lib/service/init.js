@@ -33,9 +33,9 @@
 'use strict';
 
 const
-	copyResources = require('./init/copyResources'),
-	deployGitIgnore = require('./init/deployGitIgnore'),
 	npm = require('./init/npm'),
+	packageJson = require('./init/packageJson'),
+	resource = require('./init/resource'),
 	template = require('./init/template'),
 
 	logger = require('../util/logger');
@@ -51,11 +51,9 @@ function init(argv) {
 		.then(logger.logStart('Building new project'))
 		.then(template.select)
 		.then(npm.init)
-		.then(npm.askQuestions)
-		.then(npm.readPackageJson)
-		.then(npm.buildPackageJson)
-		.then(copyResources)
-		.then(deployGitIgnore)
+		.then(packageJson.create)
+		.then(resource.copy)
+		.then(resource.renameGitIgnore)
 		.then(npm.install)
 		.then(npm.generateApexTransport)
 		.then(npm.test)

@@ -5,7 +5,6 @@
   "bin": {
     "orizuru": "src/lib/bin/cli.js"
   },
-  "main": "lib/src/index.js",
   "scripts": {
     "doc": "jsdoc -c config/jsdoc.json",
     "posttest": "node src/systemtests/templates.js",

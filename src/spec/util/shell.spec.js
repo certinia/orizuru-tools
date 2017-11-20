@@ -105,6 +105,24 @@ describe('util/shell.js', () => {
 
 	describe('executeCommand', () => {
 
+		it('should handle config', () => {
+
+			// given
+			const
+				expectedConfig = sandbox.stub(),
+				expectedCommand = 'command',
+				expectedArgs = ['args'],
+				expectedOptions = { exitOnError: true },
+				command = { cmd: expectedCommand, args: expectedArgs, opts: expectedOptions };
+
+			mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+
+			// when - then
+			return expect(shell.executeCommand(command, expectedConfig))
+				.to.eventually.eql(expectedConfig);
+
+		});
+
 		describe('should handle exit codes', () => {
 
 			afterEach(() => {
@@ -114,13 +132,13 @@ describe('util/shell.js', () => {
 				expect(mocks.childProcess.spawn.on).to.have.been.calledOnce;
 			});
 
-			it('an error code', () => {
+			it('if the exitOnError option is false', () => {
 
 				// given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
-					command = { cmd: expectedCommand, args: expectedArgs, opts: {} },
+					command = { cmd: expectedCommand, args: expectedArgs, opts: { exitOnError: false } },
 					expectedResult = {
 						exitCode: 1,
 						formattedCommand: 'command args',
@@ -139,7 +157,7 @@ describe('util/shell.js', () => {
 
 			});
 
-			it('an error code with the exitOnError option', () => {
+			it('if the exitOnError option is true', () => {
 
 				// given
 				const
@@ -188,6 +206,61 @@ describe('util/shell.js', () => {
 		});
 
 		describe('should handle logging', () => {
+
+			it('and log out everything in verbose mode', () => {
+
+				// given
+				const
+					expectedCommand = 'command',
+					expectedArgs = ['args'],
+					expectedOptions = { verbose: true },
+					command = { cmd: expectedCommand, args: expectedArgs, opts: expectedOptions },
+					expectedResult = {
+						exitCode: 0,
+						formattedCommand: 'command args',
+						stderr: '',
+						stdout: 'test'
+					};
+
+				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
+
+				// when - then
+				return expect(shell.executeCommand(command))
+					.to.eventually.eql(expectedResult)
+					.then(() => {
+						expect(mocks.debug.create.enable).to.have.been.calledOnce;
+						expect(mocks.debug.create.enable).to.have.been.calledWith('shell,shell:output');
+					});
+
+			});
+
+			it('and log out nothing in silent mode', () => {
+
+				// given
+				const
+					expectedCommand = 'command',
+					expectedArgs = ['args'],
+					expectedOptions = { silent: true },
+					command = { cmd: expectedCommand, args: expectedArgs, opts: expectedOptions },
+					expectedResult = {
+						exitCode: 0,
+						formattedCommand: 'command args',
+						stderr: '',
+						stdout: 'test'
+					};
+
+				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
+
+				// when - then
+				return expect(shell.executeCommand(command))
+					.to.eventually.eql(expectedResult)
+					.then(() => {
+						expect(mocks.debug.create.enable).to.not.have.been.called;
+					});
+
+			});
 
 			it('and capture stdout', () => {
 
@@ -278,7 +351,8 @@ describe('util/shell.js', () => {
 					cmd: 'ls',
 					args: ['-a']
 				}, {
-					cmd: 'ls'
+					cmd: 'ls',
+					opts: { exitOnError: false }
 				}],
 				expectedOptions = {},
 				expectedResults = {

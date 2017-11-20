@@ -45,14 +45,15 @@ function getTemplates(source) {
 function runTests() {
 
 	const source = path.resolve(__dirname, '..', '..', 'templates');
-	return getTemplates(source)
+	return shell.executeCommand({ cmd: 'npm', args: ['link'] })
+		.then(() => getTemplates(source))
 		.then(templates => {
 
 			const commands = _.map(templates, (template, index) => {
 				return ({ cmd: '/bin/bash', args: ['-c', 'mkdir test' + (index + 1) + ' && cd test' + (index + 1) + ' && orizuru setup init -t ' + template + ' -y && cd .. && rm -r test' + (index + 1)] });
 			});
 
-			return shell.executeCommands(commands, { exitOnError: true, namespace: 'system~tests' });
+			return shell.executeCommands(commands, { namespace: 'system~tests' });
 
 		})
 		.then(() => process.exit(0))

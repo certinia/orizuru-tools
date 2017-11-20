@@ -35,30 +35,33 @@
 const
 	_ = require('lodash'),
 	path = require('path'),
-	fs = require('fs-extra'),
-	logger = require('../../util/logger'),
 
 	Promise = require('bluebird'),
+
+	shell = require('../../util/shell'),
 
 	SELECTED_TEMPLATE_CONFIGURATION_FILE_EXTENSIONS = 'selectedTemplate.configuration.extensions',
 	SELECTED_TEMPLATE_PATH = 'selectedTemplate.fullPath',
 	TEMPLATE_FOLDER = 'templateFolder',
 
-	CWD = process.cwd(),
-	log = logger.logLn;
+	CWD = process.cwd();
 
 /**
  * Copy an individual resource folder.
  */
-function copySingleResource(results, resource) {
+function copySingleResource(config, resource) {
 
-	return Promise.resolve()
-		.then(() => log(`Copying ${resource}`))
-		.then(() => fs.copy(resource, CWD))
-		.then(result => {
-			results.push(resource);
-			return results;
-		});
+	const command = {
+		cmd: 'cp',
+		args: ['-r', resource + '/.', CWD],
+		opts: {
+			logging: {
+				finish: `Copied ${resource}/. to ${CWD}`
+			}
+		}
+	};
+
+	return shell.executeCommand(command, config);
 
 }
 
@@ -70,8 +73,6 @@ function copySingleResource(results, resource) {
  */
 function copy(config) {
 
-	log('Copying resources to ' + CWD);
-
 	const
 		templateFolder = _.get(config, TEMPLATE_FOLDER),
 		templateSelectedPath = _.get(config, SELECTED_TEMPLATE_PATH),
@@ -81,8 +82,9 @@ function copy(config) {
 			return path.resolve(templateFolder, extension, 'res');
 		});
 
-	return Promise.reduce(extensionResources, copySingleResource, [])
-		.then(() => copySingleResource([], resourcePath))
+	return Promise.reduce(extensionResources, copySingleResource, config)
+		.then(() => copySingleResource(config, resourcePath))
+		.then(() => shell.executeCommand({ cmd: 'ls', args: ['-a', CWD] }))
 		.then(() => config);
 }
 
@@ -98,14 +100,20 @@ function copy(config) {
  */
 function renameGitIgnore(config) {
 
-	log('Creating .gitignore in ' + CWD);
-
 	const
 		oldPath = path.resolve(CWD, 'gitignore'),
-		newPath = path.resolve(CWD, '.gitignore');
+		newPath = path.resolve(CWD, '.gitignore'),
+		command = {
+			cmd: 'mv',
+			args: [oldPath, newPath],
+			opts: {
+				logging: {
+					finish: `Renamed ${oldPath} to ${newPath}`
+				}
+			}
+		};
 
-	return fs.rename(oldPath, newPath)
-		.then(() => config);
+	return shell.executeCommand(command, config);
 
 }
 

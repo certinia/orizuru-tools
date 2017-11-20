@@ -54,8 +54,30 @@ function addBufferFormatter(debug) {
 
 }
 
+function enableLogging(config, namespace) {
+
+	const log = coreDebug(namespace);
+
+	if (!_.get(config, 'silent', false) && _.get(config, 'debug', false)) {
+		coreDebug.enable(namespace);
+	}
+
+	return log;
+
+}
+
+function log(config, namespace, message) {
+	enableLogging(config, namespace)(message);
+}
+
+function stringify(config, namespace, message) {
+	enableLogging(config, namespace)(JSON.stringify(message, undefined, 2));
+}
+
 module.exports = {
 	create: coreDebug,
+	log,
+	stringify,
 	debugStream,
 	addBufferFormatter
 };

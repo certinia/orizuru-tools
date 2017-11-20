@@ -25,6 +25,7 @@
  **/
 
 'use strict';
+
 const
 	_ = require('lodash'),
 	chai = require('chai'),
@@ -69,6 +70,19 @@ describe('util/logger.js', () => {
 			// then
 			expect(process.stdout.write).to.have.been.calledOnce;
 			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
+
+		});
+
+		it('should not log out the message if silent mode is enabled', () => {
+
+			// given
+			const message = 'test';
+
+			// when
+			logger.log(message, { silent: true });
+
+			// then
+			expect(process.stdout.write).to.not.have.been.called;
 
 		});
 
@@ -120,7 +134,7 @@ describe('util/logger.js', () => {
 			// given
 			const
 				message = 'test',
-				expectedMessage = message + '\n\n';
+				expectedMessage = message + '\n';
 
 			// when
 			logger.logEvent(message)();
@@ -134,6 +148,19 @@ describe('util/logger.js', () => {
 	});
 
 	describe('logFinish', () => {
+
+		it('should not log out undefined', () => {
+
+			// given
+			const message = undefined;
+
+			// when
+			logger.logFinish(message)();
+
+			// then
+			expect(process.stdout.write).to.not.have.been.called;
+
+		});
 
 		it('should log out the message provided', () => {
 
@@ -194,6 +221,19 @@ describe('util/logger.js', () => {
 	});
 
 	describe('logStart', () => {
+
+		it('should not log out undefined', () => {
+
+			// given
+			const message = undefined;
+
+			// when
+			logger.logStart(message)();
+
+			// then
+			expect(process.stdout.write).to.not.have.been.called;
+
+		});
 
 		it('should log out the message provided', () => {
 

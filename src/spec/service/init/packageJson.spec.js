@@ -47,6 +47,11 @@ describe('service/init/packageJson.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
+
+		mocks.debug = sandbox.stub();
+		mocks.debug.log = sandbox.stub();
+		mocks.debug.stringify = sandbox.stub();
+
 		mocks.fs = sandbox.stub();
 		mocks.fs.readJson = sandbox.stub();
 		mocks.fs.writeJson = sandbox.stub();
@@ -55,11 +60,14 @@ describe('service/init/packageJson.js', () => {
 		mocks.inquirer.prompt = sandbox.stub();
 
 		mocks.logger = sandbox.stub();
+		mocks.logger.logEvent = sandbox.stub();
+		mocks.logger.logFinish = sandbox.stub();
 		mocks.logger.logLn = sandbox.stub();
 
 		packageJson = proxyquire(root + '/src/lib/service/init/packageJson', {
 			'fs-extra': mocks.fs,
 			inquirer: mocks.inquirer,
+			'../../util/debug': mocks.debug,
 			'../../util/logger': mocks.logger
 		});
 
@@ -85,7 +93,7 @@ describe('service/init/packageJson.js', () => {
 					name: 'Orizuru',
 					version: '1.0.0',
 					description: '',
-					main: 'index.js',
+					main: 'src/node/lib/web.js',
 					author: 'FinancialForce',
 					license: 'BSD-3-Clause'
 				},
@@ -111,7 +119,7 @@ describe('service/init/packageJson.js', () => {
 					name: 'Orizuru',
 					version: '1.0.0',
 					description: '',
-					main: 'index.js',
+					main: 'src/node/lib/web.js',
 					author: 'FinancialForce',
 					license: 'BSD-3-Clause'
 				},
@@ -193,13 +201,16 @@ describe('service/init/packageJson.js', () => {
 					name: 'Orizuru',
 					version: '1.0.0',
 					description: '',
-					main: 'index.js',
+					main: 'src/node/lib/web.js',
 					author: 'FinancialForce',
 					license: 'BSD-3-Clause'
 				},
 				expectedOutput = {
 					argv,
-					'package': expectedPackageJson
+					'package': expectedPackageJson,
+					path: {
+						'package': `${process.cwd()}/package.json`
+					}
 				};
 
 			mocks.fs.readJson.resolves({});
@@ -229,7 +240,10 @@ describe('service/init/packageJson.js', () => {
 				},
 				expectedInput = {},
 				expectedOutput = {
-					'package': expectedPackageJson
+					'package': expectedPackageJson,
+					path: {
+						'package': `${process.cwd()}/package.json`
+					}
 				};
 
 			mocks.fs.readJson.resolves(expectedPackageJson);
@@ -259,7 +273,13 @@ describe('service/init/packageJson.js', () => {
 					description: 'Development tools for the Orizuru framework.'
 				},
 				expectedInput = {
-					'package': expectedPackageJson
+					argv: {
+						useDefaults: true
+					},
+					'package': expectedPackageJson,
+					path: {
+						'package': `${process.cwd()}/package.json`
+					}
 				},
 				expectedOutput = expectedInput;
 

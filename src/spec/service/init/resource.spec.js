@@ -47,16 +47,11 @@ describe('service/init/resource.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
-		mocks.fs = sandbox.stub();
-		mocks.fs.copy = sandbox.stub();
-		mocks.fs.rename = sandbox.stub();
-
-		mocks.logger = sandbox.stub();
-		mocks.logger.logLn = sandbox.stub();
+		mocks.shell = sandbox.stub();
+		mocks.shell.executeCommand = sandbox.stub();
 
 		resource = proxyquire(root + '/src/lib/service/init/resource', {
-			'fs-extra': mocks.fs,
-			'../../util/logger': mocks.logger
+			'../../util/shell': mocks.shell
 		});
 
 	});
@@ -73,6 +68,15 @@ describe('service/init/resource.js', () => {
 			const
 				templateFolder = root + '/templates',
 				folder = 'simple-example',
+				expectedCommand = {
+					args: ['-r', `${templateFolder}/${folder}/res/.`, `${root}`],
+					cmd: 'cp',
+					opts: {
+						logging: {
+							finish: `Copied ${templateFolder}/${folder}/res/. to ${root}`
+						}
+					}
+				},
 				expectedInput = {
 					selectedTemplate: {
 						fullPath: templateFolder + '/' + folder
@@ -81,17 +85,14 @@ describe('service/init/resource.js', () => {
 				},
 				expectedOutput = expectedInput;
 
-			mocks.fs.copy.resolves();
+			mocks.shell.executeCommand.resolves();
 
 			// when - then
 			return expect(resource.copy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.logger.logLn).to.have.been.calledTwice;
-					expect(mocks.fs.copy).to.have.been.calledOnce;
-					expect(mocks.logger.logLn).to.have.been.calledWith('Copying resources to ' + process.cwd());
-					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templateFolder + '/' + folder + '/res');
-					expect(mocks.fs.copy).to.have.been.calledWith(root + '/templates/simple-example/res', process.cwd());
+					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -114,22 +115,35 @@ describe('service/init/resource.js', () => {
 					},
 					templateFolder
 				},
+				expectedCommandExtendedTemplate = {
+					args: ['-r', `${templateFolder}/${extendedTemplate}/res/.`, `${root}`],
+					cmd: 'cp',
+					opts: {
+						logging: {
+							finish: `Copied ${templateFolder}/${extendedTemplate}/res/. to ${root}`
+						}
+					}
+				},
+				expectedCommandMainTemplate = {
+					args: ['-r', `${templateFolder}/${mainTemplate}/res/.`, `${root}`],
+					cmd: 'cp',
+					opts: {
+						logging: {
+							finish: `Copied ${templateFolder}/${mainTemplate}/res/. to ${root}`
+						}
+					}
+				},
 				expectedOutput = expectedInput;
 
-			mocks.fs.copy.resolves();
+			mocks.shell.executeCommand.resolves();
 
 			// when - then
 			return expect(resource.copy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.logger.logLn).to.have.been.calledThrice;
-					expect(mocks.fs.copy).to.have.been.calledTwice;
-					expect(mocks.logger.logLn).to.have.been.calledWith('Copying resources to ' + process.cwd());
-					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templateFolder + '/' + extendedTemplate + '/res');
-					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templateFolder + '/' + mainTemplate + '/res');
-					expect(mocks.logger.logLn).to.have.been.calledWith('Copying resources to ' + process.cwd());
-					expect(mocks.fs.copy).to.have.been.calledWith(templateFolder + '/' + extendedTemplate + '/res', process.cwd());
-					expect(mocks.fs.copy).to.have.been.calledWith(templateFolder + '/' + mainTemplate + '/res', process.cwd());
+					expect(mocks.shell.executeCommand).to.have.been.calledThrice;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommandExtendedTemplate, expectedInput);
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommandMainTemplate, expectedInput);
 				});
 
 		});
@@ -150,18 +164,25 @@ describe('service/init/resource.js', () => {
 					},
 					templateFolder
 				},
+				expectedCommand = {
+					args: [`${root}/gitignore`, `${root}/.gitignore`],
+					cmd: 'mv',
+					opts: {
+						logging: {
+							finish: `Renamed ${root}/gitignore to ${root}/.gitignore`
+						}
+					}
+				},
 				expectedOutput = expectedInput;
 
-			mocks.fs.rename.resolves();
+			mocks.shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(resource.renameGitIgnore(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.logger.logLn).to.have.been.calledOnce;
-					expect(mocks.fs.rename).to.have.been.calledOnce;
-					expect(mocks.logger.logLn).to.have.been.calledWith('Creating .gitignore in ' + process.cwd());
-					expect(mocks.fs.rename).to.have.been.calledWith(process.cwd() + '/gitignore', process.cwd() + '/.gitignore');
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
