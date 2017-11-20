@@ -43,7 +43,7 @@ const
  * 
  * @param {string} folder - The folder
  * @param {string} extension - The file extension
- * @returns {FileInfo[]]}
+ * @returns {FileInfo[]}
  */
 function walk(folder, extension) {
 
