@@ -7,15 +7,15 @@
   },
   "main": "lib/src/index.js",
   "scripts": {
-	"doc": "jsdoc -c config/jsdoc.json",
-	"posttest": "node src/systemtests/templates.js",
-	"pretest": "eslint src",
+    "doc": "jsdoc -c config/jsdoc.json",
+    "posttest": "node src/systemtests/templates.js",
+    "pretest": "eslint src",
     "single-test": "nyc --all=false mocha",
     "test": "nyc --include src mocha --recursive src/spec"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/financialforcedev/orizuru-tools"
+    "url": "git+https://github.com/financialforcedev/orizuru-tools.git"
   },
   "keywords": [
     "Orizuru",
@@ -64,10 +64,10 @@
     "lines": 100,
     "statements": 100,
     "functions": 100,
-	"branches": 100,
-	"exclude": [
-		"src/systemtests"
-	],
+    "branches": 100,
+    "exclude": [
+      "src/systemtests"
+    ],
     "reporter": [
       "lcov",
       "html",
@@ -76,5 +76,9 @@
     ],
     "cache": true,
     "all": true
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/financialforcedev/orizuru-tools/issues"
+  },
+  "homepage": "https://github.com/financialforcedev/orizuru-tools#readme"
 }

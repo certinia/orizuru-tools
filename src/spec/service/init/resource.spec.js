@@ -40,20 +40,21 @@ const
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('service/init/copyResources.js', () => {
+describe('service/init/resource.js', () => {
 
-	let copyResources, mocks;
+	let resource, mocks;
 
 	beforeEach(() => {
 
 		mocks = {};
 		mocks.fs = sandbox.stub();
 		mocks.fs.copy = sandbox.stub();
+		mocks.fs.rename = sandbox.stub();
 
 		mocks.logger = sandbox.stub();
 		mocks.logger.logLn = sandbox.stub();
 
-		copyResources = proxyquire(root + '/src/lib/service/init/copyResources', {
+		resource = proxyquire(root + '/src/lib/service/init/resource', {
 			'fs-extra': mocks.fs,
 			'../../util/logger': mocks.logger
 		});
@@ -64,33 +65,32 @@ describe('service/init/copyResources.js', () => {
 		sandbox.restore();
 	});
 
-	describe('copyResources', () => {
+	describe('resources', () => {
 
 		it('should copy a template that does not extend other templates', () => {
 
 			// given
 			const
-				templatesFolder = root + '/templates',
+				templateFolder = root + '/templates',
 				folder = 'simple-example',
 				expectedInput = {
-					template: {
-						selected: {
-							fullPath: templatesFolder + '/' + folder
-						}
-					}
+					selectedTemplate: {
+						fullPath: templateFolder + '/' + folder
+					},
+					templateFolder
 				},
 				expectedOutput = expectedInput;
 
 			mocks.fs.copy.resolves();
 
 			// when - then
-			return expect(copyResources(expectedInput))
+			return expect(resource.copy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.logger.logLn).to.have.been.calledTwice;
 					expect(mocks.fs.copy).to.have.been.calledOnce;
 					expect(mocks.logger.logLn).to.have.been.calledWith('Copying resources to ' + process.cwd());
-					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templatesFolder + '/' + folder + '/res');
+					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templateFolder + '/' + folder + '/res');
 					expect(mocks.fs.copy).to.have.been.calledWith(root + '/templates/simple-example/res', process.cwd());
 				});
 
@@ -100,38 +100,68 @@ describe('service/init/copyResources.js', () => {
 
 			// given
 			const
-				templatesFolder = root + '/templates',
+				templateFolder = root + '/templates',
 				mainTemplate = 'main-template',
 				extendedTemplate = 'other-template',
 				expectedInput = {
-					template: {
-						folder: templatesFolder,
-						selected: {
-							configuration: {
-								current: {
-									'extends': [extendedTemplate]
-								}
-							},
-							fullPath: templatesFolder + '/' + mainTemplate
-						}
-					}
+					selectedTemplate: {
+						configuration: {
+							extensions: {
+								[extendedTemplate]: {}
+							}
+						},
+						fullPath: templateFolder + '/' + mainTemplate
+					},
+					templateFolder
 				},
 				expectedOutput = expectedInput;
 
 			mocks.fs.copy.resolves();
 
 			// when - then
-			return expect(copyResources(expectedInput))
+			return expect(resource.copy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.logger.logLn).to.have.been.calledThrice;
 					expect(mocks.fs.copy).to.have.been.calledTwice;
 					expect(mocks.logger.logLn).to.have.been.calledWith('Copying resources to ' + process.cwd());
-					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templatesFolder + '/' + extendedTemplate + '/res');
-					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templatesFolder + '/' + mainTemplate + '/res');
+					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templateFolder + '/' + extendedTemplate + '/res');
+					expect(mocks.logger.logLn).to.have.been.calledWith('Copying ' + templateFolder + '/' + mainTemplate + '/res');
 					expect(mocks.logger.logLn).to.have.been.calledWith('Copying resources to ' + process.cwd());
-					expect(mocks.fs.copy).to.have.been.calledWith(templatesFolder + '/' + extendedTemplate + '/res', process.cwd());
-					expect(mocks.fs.copy).to.have.been.calledWith(templatesFolder + '/' + mainTemplate + '/res', process.cwd());
+					expect(mocks.fs.copy).to.have.been.calledWith(templateFolder + '/' + extendedTemplate + '/res', process.cwd());
+					expect(mocks.fs.copy).to.have.been.calledWith(templateFolder + '/' + mainTemplate + '/res', process.cwd());
+				});
+
+		});
+
+	});
+
+	describe('deployGitIgnore', () => {
+
+		it('should rename the gitignore file to .gitignore', () => {
+
+			// given
+			const
+				templateFolder = root + '/templates',
+				folder = 'simple-example',
+				expectedInput = {
+					selectedTemplate: {
+						fullPath: templateFolder + '/' + folder
+					},
+					templateFolder
+				},
+				expectedOutput = expectedInput;
+
+			mocks.fs.rename.resolves();
+
+			// when - then
+			return expect(resource.renameGitIgnore(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(mocks.logger.logLn).to.have.been.calledOnce;
+					expect(mocks.fs.rename).to.have.been.calledOnce;
+					expect(mocks.logger.logLn).to.have.been.calledWith('Creating .gitignore in ' + process.cwd());
+					expect(mocks.fs.rename).to.have.been.calledWith(process.cwd() + '/gitignore', process.cwd() + '/.gitignore');
 				});
 
 		});

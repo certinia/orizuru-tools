@@ -50,7 +50,7 @@ const
 /**
  * Copy an individual resource folder.
  */
-function copyResource(results, resource) {
+function copySingleResource(results, resource) {
 
 	return Promise.resolve()
 		.then(() => log(`Copying ${resource}`))
@@ -65,8 +65,10 @@ function copyResource(results, resource) {
 /**
  * Copy the resources required for this template.
  * @instance
+ * @param {object} config - The configuration object passed through the process.
+ * @returns config - The __unmodified__ configuration object.
  */
-function copyResources(config) {
+function copy(config) {
 
 	log('Copying resources to ' + CWD);
 
@@ -79,9 +81,35 @@ function copyResources(config) {
 			return path.resolve(templateFolder, extension, 'res');
 		});
 
-	return Promise.reduce(extensionResources, copyResource, [])
-		.then(() => copyResource([], resourcePath))
+	return Promise.reduce(extensionResources, copySingleResource, [])
+		.then(() => copySingleResource([], resourcePath))
 		.then(() => config);
 }
 
-module.exports = copyResources;
+/**
+ * Renames the gitignore resource file to .gitignore.
+ * 
+ * When publishing a node module all .git files are removed. 
+ * We need to be able to publish the .gitignore file as part of each template, 
+ * hence, we publish it as gitignore and then rename it as part of the init process.
+ * @instance
+ * @param {object} config - The configuration object passed through the process.
+ * @returns config - The __unmodified__ configuration object.
+ */
+function renameGitIgnore(config) {
+
+	log('Creating .gitignore in ' + CWD);
+
+	const
+		oldPath = path.resolve(CWD, 'gitignore'),
+		newPath = path.resolve(CWD, '.gitignore');
+
+	return fs.rename(oldPath, newPath)
+		.then(() => config);
+
+}
+
+module.exports = {
+	copy,
+	renameGitIgnore
+};
