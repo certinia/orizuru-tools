@@ -1,0 +1,12 @@
+{
+	"type": "record",
+	"namespace": "com.financialforce",
+	"name": "Account",
+	"fields": [{
+		"name": "ids",
+		"type": {
+			"type": "array",
+			"items": "string"
+		}
+	}]
+}
