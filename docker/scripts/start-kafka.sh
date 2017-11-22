@@ -2,23 +2,6 @@
 
 # Script from: https://github.com/spotify/docker-kafka/blob/master/kafka/scripts/start-kafka.sh
 
-# Helper function to create a topic
-createTopic() {
-	$KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 4 --topic $1
-	echo $1 >> createdTopics.txt;
-	sleep 2s;
-}
-
-# Create topics 
-# ***********************
-# ADD ANY NEW TOPICS HERE
-# ***********************
-createTopics() {
-	echo 'Creating topics';
-	createTopic COMPOSE_BILLING_DOCUMENTS;
-	createTopic CREATE_BILLING_SCHEDULES;
-}
-
 # Optional ENV variables:
 # * ADVERTISED_HOST: the external ip for the container, e.g. `docker-machine ip \`docker-machine active\``
 # * ADVERTISED_PORT: the external port for Kafka, e.g. 9092
@@ -101,7 +84,7 @@ else
 	sleep 2s;
 
 	# Create the topics
-	createTopics;
+	sh /usr/bin/create-topics.sh;
 
 	# Stop the server
 	$KAFKA_HOME/bin/kafka-server-stop.sh;
