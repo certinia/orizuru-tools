@@ -145,7 +145,7 @@ function executeCommand(command, config) {
 	if (config) {
 		return Promise.resolve(_.merge(command, { opts: config.argv }))
 			.then(executeInternal)
-			.then(() => config);
+			.then((result) => _.set(config, 'lastcommand.result', result));
 	}
 
 	return executeInternal(command);
@@ -160,13 +160,13 @@ function executeCommand(command, config) {
  * @param {boolean} [opts.exitOnError] - If true, the process exits if the command fails.<br/>Note that for the command to fail the process must return a non-zero exit code.
  * @param {string} [opts.namepace] - If set, any logging to stdout or stderr is printed with the given namespace.
  */
-function executeCommands(commands, opts) {
+function executeCommands(commands, opts, config) {
 
 	return Promise.reduce(commands, (results, command) => {
 
 		command.opts = command.opts || opts;
 
-		return executeCommand(command)
+		return executeCommand(command, config)
 			.then((result) => {
 				results[result.formattedCommand] = result;
 				return results;
