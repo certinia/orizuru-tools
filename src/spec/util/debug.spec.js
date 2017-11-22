@@ -28,19 +28,15 @@ describe('util/debug.js', () => {
 
 	beforeEach(() => {
 		delete require.cache[root + '/src/lib/util/debug.js'];
+
+		sandbox.stub(process.stderr, 'write');
 	});
 
-	afterEach(() => sandbox.restore());
+	afterEach(() => {
+		sandbox.restore();
+	});
 
 	describe('addBufferFormatter', () => {
-
-		beforeEach(() => {
-			sandbox.stub(process.stderr, 'write');
-		});
-
-		afterEach(() => {
-			sandbox.restore();
-		});
 
 		it('should log each line individually', () => {
 
@@ -69,7 +65,7 @@ describe('util/debug.js', () => {
 
 		});
 
-		it('should replace undefined with a blank string ', () => {
+		it('should replace undefined with a blank string', () => {
 
 			// given
 			const
@@ -87,8 +83,62 @@ describe('util/debug.js', () => {
 			debugInstance('%b', input);
 
 			// then
-			expect(process.stderr.write).to.have.callCount(1);
+			expect(process.stderr.write).to.have.been.calledOnce;
 			expect(process.stderr.write.args[0][0]).to.contain('');
+
+		});
+
+	});
+
+	describe('log', () => {
+
+		it('should log a message if debug is true', () => {
+
+			// given
+			const
+				input = 'test',
+				debug = require(root + '/src/lib/util/debug.js');
+
+			// when
+			debug.log({ debug: true }, 'test', input);
+
+			// then
+			expect(process.stderr.write).to.have.been.calledOnce;
+			expect(process.stderr.write.args[0][0]).to.contain(input);
+
+		});
+
+		it('should not log a message in silent mode', () => {
+
+			// given
+			const
+				input = 'test',
+				debug = require(root + '/src/lib/util/debug.js');
+
+			// when
+			debug.log({ silent: true, debug: false }, 'test', input);
+
+			// then
+			expect(process.stderr.write).to.not.have.been.calledWith(input);
+
+		});
+
+	});
+
+	describe('stringify', () => {
+
+		it('should log a message', () => {
+
+			// given
+			const
+				input = { test: 'test' },
+				debug = require(root + '/src/lib/util/debug.js');
+
+			// when
+			debug.stringify({ debug: true }, 'test', input);
+
+			// then
+			expect(process.stderr.write).to.have.been.calledOnce;
 
 		});
 

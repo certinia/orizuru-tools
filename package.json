@@ -5,8 +5,9 @@
   "bin": {
     "orizuru": "src/lib/bin/cli.js"
   },
-  "main": "lib/src/index.js",
   "scripts": {
+    "doc": "jsdoc -c config/jsdoc.json",
+    "posttest": "node src/systemtests/templates.js",
     "pretest": "eslint src",
     "single-test": "nyc --all=false mocha",
     "test": "nyc --include src mocha --recursive src/spec"
@@ -21,40 +22,6 @@
   ],
   "author": "FinancialForce",
   "license": "BSD-3-Clause",
-  "nyc": {
-    "check-coverage": true,
-    "per-file": true,
-    "lines": 100,
-    "statements": 100,
-    "functions": 100,
-    "branches": 100,
-    "reporter": [
-      "lcov",
-      "html",
-      "text",
-      "text-summary"
-    ],
-    "cache": true,
-    "all": true
-  },
-  "devDependencies": {
-    "@financialforcedev/eslint-config": "^3.0.1",
-    "@financialforcedev/orizuru": "^5.1.0",
-    "@financialforcedev/orizuru-auth": "^3.0.3",
-    "@financialforcedev/orizuru-openapi": "^2.0.2",
-    "@financialforcedev/orizuru-transport-rabbitmq": "^3.0.3",
-    "app-root-path": "2.0.1",
-    "chai": "4.1.2",
-    "chai-as-promised": "7.1.1",
-    "eslint": "4.9.0",
-    "mocha": "4.0.1",
-    "nyc": "11.2.1",
-    "pkginfo": "0.4.1",
-    "proxyquire": "1.8.0",
-    "sinon": "4.0.1",
-    "sinon-chai": "2.14.0",
-    "throng": "4.0.0"
-  },
   "dependencies": {
     "avsc": "5.0.6",
     "bluebird": "3.5.1",
@@ -70,5 +37,47 @@
     "klaw-sync": "3.0.2",
     "lodash": "4.17.4",
     "yargs": "9.0.1"
-  }
+  },
+  "devDependencies": {
+    "@financialforcedev/eslint-config": "^3.0.1",
+    "@financialforcedev/orizuru": "^5.1.0",
+    "@financialforcedev/orizuru-auth": "^3.0.3",
+    "@financialforcedev/orizuru-openapi": "^2.0.2",
+    "@financialforcedev/orizuru-transport-rabbitmq": "^3.0.3",
+    "app-root-path": "2.0.1",
+    "chai": "4.1.2",
+    "chai-as-promised": "7.1.1",
+    "eslint": "4.9.0",
+    "jsdoc": "3.5.5",
+    "mocha": "4.0.1",
+    "nyc": "11.2.1",
+    "pkginfo": "0.4.1",
+    "proxyquire": "1.8.0",
+    "sinon": "4.0.1",
+    "sinon-chai": "2.14.0",
+    "throng": "4.0.0"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+    "branches": 100,
+    "exclude": [
+      "src/systemtests"
+    ],
+    "reporter": [
+      "lcov",
+      "html",
+      "text",
+      "text-summary"
+    ],
+    "cache": true,
+    "all": true
+  },
+  "bugs": {
+    "url": "https://github.com/financialforcedev/orizuru-tools/issues"
+  },
+  "homepage": "https://github.com/financialforcedev/orizuru-tools#readme"
 }

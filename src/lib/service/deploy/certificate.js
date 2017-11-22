@@ -29,96 +29,100 @@
 const
 	_ = require('lodash'),
 	inquirer = require('inquirer'),
+
+	logger = require('../../util/logger'),
 	questions = require('../../util/questions'),
 	shell = require('../../util/shell'),
-	validators = require('../../util/validators'),
+	validators = require('../../util/validators');
 
-	{ logError, logEvent } = require('../../util/logger'),
+function askQuestions(config) {
 
-	askQuestions = (config) => {
-		return inquirer.prompt([
-			questions.inputField('Country Name (2 letter code)', 'country', validators.validateNotEmpty, 'GB'),
-			questions.inputField('State or Province Name (full name)', 'state', validators.validateNotEmpty, 'Some-State'),
-			questions.inputField('Locality Name (eg, city)', 'locality'),
-			questions.inputField('Organization Name (eg, company)', 'organization', validators.validateNotEmpty, 'FinancialForce'),
-			questions.inputField('Organizational Unit Name (eg, section)', 'organizationUnitName'),
-			questions.inputField('Common Name (e.g. server FQDN or YOUR name)', 'commonName', validators.validateNotEmpty, 'test@test.com')
-		]).then(answers => {
-			config.parameters = config.parameters || {};
-			config.parameters.certificate = answers;
+	return inquirer.prompt([
+		questions.inputField('Country Name (2 letter code)', 'country', validators.validateNotEmpty, 'GB'),
+		questions.inputField('State or Province Name (full name)', 'state', validators.validateNotEmpty, 'Some-State'),
+		questions.inputField('Locality Name (eg, city)', 'locality'),
+		questions.inputField('Organization Name (eg, company)', 'organization', validators.validateNotEmpty, 'FinancialForce'),
+		questions.inputField('Organizational Unit Name (eg, section)', 'organizationUnitName'),
+		questions.inputField('Common Name (e.g. server FQDN or YOUR name)', 'commonName', validators.validateNotEmpty, 'test@test.com')
+	]).then(answers => {
+		config.parameters = config.parameters || {};
+		config.parameters.certificate = answers;
+		return config;
+	});
+
+}
+
+function checkOpenSSLInstalled(config) {
+	return shell.executeCommand({ cmd: 'openssl', args: ['version'] }, { exitOnError: true })
+		.then(() => config);
+}
+
+function create(config) {
+
+	const
+		subject = `/C=${config.parameters.certificate.country}/ST=${config.parameters.certificate.state}/L=${config.parameters.certificate.locality}/O=${config.parameters.certificate.organization}/OU=${config.parameters.certificate.organizationUnitName}/CN=${config.parameters.certificate.commonName}`,
+		opensslCommands = (config) => [{
+			cmd: 'openssl',
+			args: ['req', '-newkey', 'rsa:2048', '-nodes', '-keyout', 'key.pem', '-x509', '-days', '365', '-out', 'certificate.pem', '-subj', subject]
+		}];
+
+	return shell.executeCommands(opensslCommands(config), { exitOnError: true })
+		.then(() => config);
+
+}
+
+function read(config) {
+
+	const readCertificateCommands = [
+		{ cmd: 'cat', args: ['certificate.pem'] },
+		{ cmd: 'cat', args: ['key.pem'] }
+	];
+
+	return shell.executeCommands(readCertificateCommands, { exitOnError: true })
+		.then(openSslResults => {
+
+			const certificate = _.map(_.values(openSslResults), value => value.stdout);
+
+			config.certificate = {};
+			config.certificate.publicKey = certificate[0];
+			config.certificate.privateKey = certificate[1];
+
+			return config;
+
+		}).catch(error => {
+			logger.logLn('Certificate files have not been found');
 			return config;
 		});
-	},
 
-	checkOpenSSLInstalled = (config) => {
-		return shell.executeCommand({ cmd: 'openssl', args: ['version'] }, { exitOnError: true })
-			.then(() => config);
-	},
+}
 
-	create = (config) => {
+function generate(config) {
 
-		const
-			subject = `/C=${config.parameters.certificate.country}/ST=${config.parameters.certificate.state}/L=${config.parameters.certificate.locality}/O=${config.parameters.certificate.organization}/OU=${config.parameters.certificate.organizationUnitName}/CN=${config.parameters.certificate.commonName}`,
-			opensslCommands = (config) => [{
-				cmd: 'openssl',
-				args: ['req', '-newkey', 'rsa:2048', '-nodes', '-keyout', 'key.pem', '-x509', '-days', '365', '-out', 'certificate.pem', '-subj', subject]
-			}];
+	return Promise.resolve(config)
+		.then(logger.logEvent('Generating certificates\nYou are about to be asked to enter information that will be incorporated into your certificate.'))
+		.then(askQuestions)
+		.then(create)
+		.then(read)
+		.then(logger.logEvent('\nGenerated certificates'))
+		.catch(logger.logError);
+}
 
-		return shell.executeCommands(opensslCommands(config), { exitOnError: true })
-			.then(() => config);
+function certsExist(config) {
+	return config.certificate && config.certificate.publicKey && config.certificate.privateKey;
+}
 
-	},
+function getCert(config) {
 
-	read = (config) => {
+	return read(config)
+		.then(result => {
+			if (certsExist(result)) {
+				return result;
+			} else {
+				return generate(config);
+			}
+		});
 
-		const readCertificateCommands = [
-			{ cmd: 'cat', args: ['certificate.pem'] },
-			{ cmd: 'cat', args: ['key.pem'] }
-		];
-
-		return shell.executeCommands(readCertificateCommands, { exitOnError: true })
-			.then(openSslResults => {
-
-				const certificate = _.map(_.values(openSslResults), value => value.stdout);
-
-				config.certificate = {};
-				config.certificate.publicKey = certificate[0];
-				config.certificate.privateKey = certificate[1];
-
-				return config;
-
-			}).catch(error => {
-				logEvent('Certificate files have not been found')(config);
-				return config;
-			});
-
-	},
-
-	generate = (config) => {
-
-		return Promise.resolve(config)
-			.then(logEvent('Generating certificates\nYou are about to be asked to enter information that will be incorporated into your certificate.'))
-			.then(askQuestions)
-			.then(create)
-			.then(read)
-			.then(logEvent('\nGenerated certificates'))
-			.catch(logError);
-	},
-
-	certsExist = (config) => {
-		return config.certificate && config.certificate.publicKey && config.certificate.privateKey;
-	},
-
-	getCert = (config) => {
-		return read(config)
-			.then(result => {
-				if (certsExist(result)) {
-					return result;
-				} else {
-					return generate(config);
-				}
-			});
-	};
+}
 
 module.exports = {
 	askQuestions,

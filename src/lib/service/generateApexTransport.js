@@ -24,61 +24,74 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
+/**
+ * Service for generating the Apex transport classes.
+ * @module service/generateApexTransport
+ * @see module:service/generateApexTransport
+ */
+
 'use strict';
 
 const
 	_ = require('lodash'),
-	{ resolve } = require('path'),
+	path = require('path'),
 
-	{ getAvscFilesOnPathRecursively } = require('./generateApexTransport/getAvscFilesOnPathRecursively'),
-	{ generate } = require('./generateApexTransport/generate'),
-	{ overwriteFile } = require('./generateApexTransport/overwriteFile'),
+	getAvscFilesOnPathRecursively = require('./generateApexTransport/getAvscFilesOnPathRecursively').getAvscFilesOnPathRecursively,
+	generate = require('./generateApexTransport/generate').generate,
+	overwriteFile = require('./generateApexTransport/overwriteFile'),
 
-	{ log, logStart, logError } = require('../util/logger');
+	logger = require('../util/logger');
 
-function validateArgs(options) {
-	if (!_.isString(options.inputUrl)) {
+function validateArgs(config) {
+	if (!_.isString(config.inputUrl)) {
 		throw new Error('Please set inputUrl as the first argument.');
 	}
-	if (!_.isString(options.outputUrl)) {
+	if (!_.isString(config.outputUrl)) {
 		throw new Error('Please set outputUrl as the second argument.');
 	}
-	return options;
+	return config;
 }
 
-function generateClasses(options) {
-	const
-		files = getAvscFilesOnPathRecursively(resolve(process.cwd(), options.inputUrl)),
-		parsedSchemas = [];
-	log(_.map(files, file => file.path));
-	_.each(files, file => {
+function parseSchemas(files) {
+
+	return _.map(files, file => {
 		try {
-			parsedSchemas.push(JSON.parse(file.file));
+			return JSON.parse(file.file);
 		} catch (err) {
 			throw new Error('Contents of .avsc files should be valid json.');
 		}
 	});
-	// eslint-disable-next-line one-var
+
+}
+
+function generateClasses(config) {
+
 	const
+		files = getAvscFilesOnPathRecursively(path.resolve(process.cwd(), config.inputUrl)),
+		parsedSchemas = parseSchemas(files),
 		result = generate(parsedSchemas),
-		outputPath = resolve(process.cwd(), options.outputUrl);
-	overwriteFile(resolve(outputPath, 'OrizuruTransport.cls'), result.cls);
-	overwriteFile(resolve(outputPath, 'OrizuruTransport.cls-meta.xml'), result.xml);
-	return options;
+		outputPath = path.resolve(process.cwd(), config.outputUrl);
+
+	return overwriteFile(outputPath, 'OrizuruTransport.cls', result.cls)
+		.then(() => overwriteFile(outputPath, 'OrizuruTransport.cls-meta.xml', result.xml))
+		.then(() => config);
 }
 
-class GenerateApexTransport {
+/**
+ * Generates the OrizuruTransport class file with the required Apex Transport classes.
+ * @instance
+ * @param {Object} argv - The command line arguments.
+ */
+function generateApexTransport(argv) {
 
-	static generateApexTransport(argv) {
-		return Promise
-			.resolve(argv)
-			.then(validateArgs)
-			.then(logStart('Generating apex transport classes'))
-			.then(generateClasses)
-			.then(options => log('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + resolve(process.cwd(), options.outputUrl)))
-			.catch(logError);
-	}
+	return Promise
+		.resolve(argv)
+		.then(validateArgs)
+		.then(logger.logStart('Generating apex transport classes'))
+		.then(generateClasses)
+		.then((config) => logger.log('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + path.resolve(process.cwd(), config.outputUrl)))
+		.catch(logger.logError);
 
 }
 
-module.exports = GenerateApexTransport;
+module.exports = generateApexTransport;

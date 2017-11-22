@@ -43,7 +43,7 @@ const
 				args: ['addons', '-a', config.parameters.heroku.app.name, '--json']
 			};
 
-		return shell.executeCommand(getAddons, { exitOnError: true })
+		return shell.executeCommand(getAddons)
 			.then(result => JSON.parse(result.stdout))
 			.then(result => {
 				const
@@ -52,7 +52,7 @@ const
 						cmd: 'heroku',
 						args: ['addons:create', `${addon.plan}`, '-a', config.parameters.heroku.app.name]
 					}));
-				return shell.executeCommands(addOnCommands, { exitOnError: true })
+				return shell.executeCommands(addOnCommands)
 					.then(() => config);
 			});
 	},
@@ -102,7 +102,7 @@ const
 	createNewApp = (config, args) => {
 
 		const commandArgs = args || ['create', '--json'];
-		return shell.executeCommand({ cmd: 'heroku', args: commandArgs }, { exitOnError: true })
+		return shell.executeCommand({ cmd: 'heroku', args: commandArgs })
 			.then(result => {
 				return ({ heroku: { app: JSON.parse(result.stdout) } });
 			});
@@ -114,7 +114,7 @@ const
 
 	createNewOrganizationApp = (config) => {
 
-		return shell.executeCommand({ cmd: 'heroku', args: ['orgs', '--json'], opts: { exitOnError: true } })
+		return shell.executeCommand({ cmd: 'heroku', args: ['orgs', '--json'] })
 			.then(result => {
 				const orgs = JSON.parse(result.stdout);
 				return _.map(orgs, org => org.name);
@@ -127,7 +127,7 @@ const
 	},
 
 	checkWorkingChanges = (config) => {
-		return shell.executeCommand({ cmd: 'git', args: ['diff-index', 'HEAD'], opts: { exitOnError: true } })
+		return shell.executeCommand({ cmd: 'git', args: ['diff-index', 'HEAD'] })
 			.then(output => {
 				if (output.stdout.length > 0) {
 					return inquirer.prompt([
@@ -156,9 +156,9 @@ const
 		const gitUrl = _.get(config, 'parameters.heroku.app.git_url');
 
 		return removeAutoDeploy()
-			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${gitUrl}`], opts: { exitOnError: true } }))
-			.then(() => shell.executeCommand({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } }))
-			.then(branch => shell.executeCommand({ cmd: 'git', args: ['push', 'autodeploy', `${branch.stdout}:master`, '-f'], opts: { exitOnError: true, namespace: 'deploy' } }))
+			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${gitUrl}`] }))
+			.then(() => shell.executeCommand({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] }))
+			.then(branch => shell.executeCommand({ cmd: 'git', args: ['push', 'autodeploy', `${branch.stdout}:master`, '-f'], opts: { namespace: 'deploy' } }))
 			.then(() => removeAutoDeploy())
 			.then(() => config);
 	},

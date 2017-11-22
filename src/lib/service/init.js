@@ -24,37 +24,46 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
+/**
+ * Service for initialising new Orizuru projects from templates.
+ * @module service/init
+ * @see module:service/init
+ */
+
 'use strict';
 
 const
-	path = require('path'),
-	createPackageJson = require('./init/createPackageJson'),
-	copyResources = require('./init/copyResources'),
-	deployGitIgnore = require('./init/deployGitIgnore'),
-	readAppTemplates = require('./init/readAppTemplates'),
-	askQuestions = require('./init/askQuestions'),
 	npm = require('./init/npm'),
+	packageJson = require('./init/packageJson'),
+	resource = require('./init/resource'),
+	template = require('./init/template'),
+
 	logger = require('../util/logger');
 
-function init(options) {
+/**
+ * Initialises a new Orizuru project in the current working directory.
+ * @instance
+ * @param {Object} argv - The command line arguments.
+ */
+function init(argv) {
 
-	const config = {
-		templatesFolder: path.resolve(__dirname, '..', '..', '..', 'templates')
-	};
-
-	return Promise.resolve(config)
+	return Promise.resolve({ argv })
 		.then(logger.logStart('Building new project'))
-		.then(readAppTemplates.readAppTemplates)
-		.then(askQuestions.askQuestions)
-		.then(createPackageJson.createPackageJson)
-		.then(copyResources.copyResources)
-		.then(deployGitIgnore.deployGitIgnore)
+		.then(template.select)
+		.then(npm.init)
+		.then(packageJson.create)
+		.then(resource.copy)
+		.then(resource.renameGitIgnore)
 		.then(npm.install)
 		.then(npm.generateApexTransport)
 		.then(npm.test)
+		.then(npm.generateDocumentation)
 		.then(npm.orizuruPostInit)
 		.then(logger.logFinish('Built project'))
-		.catch(logger.logError);
+		.catch(error => {
+			logger.logError(error);
+			process.exit(1);
+		});
 }
 
 module.exports = {

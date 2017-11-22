@@ -112,8 +112,8 @@ describe('service/deploy/heroku.js', () => {
 			return expect(heroku.addAddOns(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedQueryCommand, { exitOnError: true });
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCreateCommands, { exitOnError: true });
+					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedQueryCommand);
+					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCreateCommands);
 				});
 
 		});
@@ -290,7 +290,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}
 				},
-				expectedOrgCommand = { cmd: 'heroku', args: ['orgs', '--json'], opts: { exitOnError: true } },
+				expectedOrgCommand = { cmd: 'heroku', args: ['orgs', '--json'] },
 				expectedAppCommand = { cmd: 'heroku', args: ['create', '-t', expectedTeam, '--json'] },
 				expectedOutput = expectedInput;
 
@@ -322,7 +322,7 @@ describe('service/deploy/heroku.js', () => {
 				};
 
 			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'], opts: { exitOnError: true } }).resolves(shellOutput);
+			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 			mocks.inquirer.prompt = sandbox.stub().resolves({ ignoreChanges: true });
 
 			// when - then
@@ -343,7 +343,7 @@ describe('service/deploy/heroku.js', () => {
 				};
 
 			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'], opts: { exitOnError: true } }).resolves(shellOutput);
+			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 			mocks.inquirer.prompt = sandbox.stub().resolves({ ignoreChanges: false });
 
 			// when - then
@@ -364,7 +364,7 @@ describe('service/deploy/heroku.js', () => {
 				};
 
 			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'], opts: { exitOnError: true } }).resolves(shellOutput);
+			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 
 			// when - then
 			return expect(heroku.checkWorkingChanges({}))
@@ -406,7 +406,7 @@ describe('service/deploy/heroku.js', () => {
 				expectedOutput = expectedInput;
 
 			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } }).resolves({ stdout: 'master' });
+			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] }).resolves({ stdout: 'master' });
 
 			// when - then
 			return expect(heroku.deployCurrentBranch(expectedInput))
@@ -414,9 +414,9 @@ describe('service/deploy/heroku.js', () => {
 				.then(() => {
 					expect(mocks.shell.executeCommand).to.have.callCount(5);
 					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: false } });
-					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'add', 'autodeploy', 'https://git.heroku.com/rocky-shore-45862.git'], opts: { exitOnError: true } });
-					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'], opts: { exitOnError: true } });
-					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['push', 'autodeploy', 'master:master', '-f'], opts: { exitOnError: true, namespace: 'deploy' } });
+					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'add', 'autodeploy', 'https://git.heroku.com/rocky-shore-45862.git'] });
+					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] });
+					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['push', 'autodeploy', 'master:master', '-f'], opts: { namespace: 'deploy' } });
 				});
 		});
 	});

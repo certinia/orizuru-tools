@@ -24,6 +24,12 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
+/**
+ * Utility module to handle debugging.
+ * @module util/debug
+ * @see module:util/debug
+ */
+
 'use strict';
 
 const
@@ -31,20 +37,49 @@ const
 	coreDebug = require('debug'),
 	debugStream = require('debug-stream'),
 
-	addBufferFormatter = (debug) => {
+	JSON_SPACES = 2;
 
-		coreDebug.formatters.b = (buffer) => {
-			const lines = _.compact(_.split(buffer, '\n'));
-			_.each(_.initial(lines), (value) => {
-				debug(value);
-			});
-			return _.last(lines) || '';
-		};
+/**
+ * Adds the buffer formatter to the debugger.
+ * @instance
+ * @param {*} debug - The debug instance
+ */
+function addBufferFormatter(debug) {
 
+	coreDebug.formatters.b = (buffer) => {
+		const lines = _.compact(_.split(buffer, '\n'));
+		_.each(_.initial(lines), (value) => {
+			debug(value);
+		});
+		return _.last(lines) || '';
 	};
+
+}
+
+function enableLogging(config, namespace) {
+
+	const log = coreDebug(namespace);
+
+	if (config.debug && !config.silent) {
+		coreDebug.enable(namespace);
+	}
+
+	return log;
+
+}
+
+function log(config, namespace, message) {
+	enableLogging(config, namespace)(message);
+}
+
+function stringify(config, namespace, message) {
+	enableLogging(config, namespace)(JSON.stringify(message, undefined, JSON_SPACES));
+}
 
 module.exports = {
 	create: coreDebug,
+	log,
+	stringify,
 	debugStream,
 	addBufferFormatter
 };

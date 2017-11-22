@@ -23,59 +23,85 @@
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
+
+/**
+ * Utility module to handle logging.
+ * @module util/logger
+ * @see module:util/logger
+ */
+
 'use strict';
 
 const
+	_ = require('lodash'),
 	ui = require('cliui'),
 
 	EMPTY = '',
-	NEW_LINE = '\n',
+	NEW_LINE = '\n';
 
-	addOutput = (output, message) => {
+function addOutput(output, message) {
 
-		if (Array.isArray(message)) {
-			message.forEach((line) => {
-				addOutput(output, line);
-			});
-		} else {
-			output.div(message);
-		}
+	if (_.isArray(message)) {
+		message.forEach((line) => {
+			addOutput(output, line);
+		});
+	} else {
+		output.div(message);
+	}
 
-	},
+}
 
-	log = (message) => {
+function log(message, config) {
+
+	const silent = _.get(config, 'silent') || _.get(config, 'argv.silent') || false;
+	if (!silent && message) {
 		const output = ui({ width: 200 });
 		addOutput(output, message);
 		output.div(EMPTY);
 		process.stdout.write(output.toString());
-	},
+	}
 
-	logLn = (message) => {
-		log(message + NEW_LINE);
-	},
+	return config;
 
-	logLns = (message) => {
-		log(NEW_LINE + message);
-	},
+}
 
-	logStart = message => config => {
-		logLns(message);
-		return config;
-	},
+function logLn(message) {
+	return log(message + NEW_LINE);
+}
 
-	logEvent = message => config => {
-		logLn(message);
-		return config;
-	},
+function logLns(message) {
+	return log(NEW_LINE + message);
+}
 
-	logError = (error) => {
-		logLn(error.message);
-	},
+function logError(error) {
+	logLn(error.message);
+}
 
-	logFinish = message => config => {
-		logLn(message);
-		return config;
+function logEvent(message) {
+	return function (config) {
+		return log(message, config);
 	};
+}
+
+function logStart(message) {
+
+	message = message ? NEW_LINE + message : undefined;
+
+	return function (config) {
+		return log(message, config);
+	};
+
+}
+
+function logFinish(message) {
+
+	message = message ? message + NEW_LINE : undefined;
+
+	return function (config) {
+		return log(message, config);
+	};
+
+}
 
 module.exports = {
 	log,

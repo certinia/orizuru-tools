@@ -36,6 +36,36 @@ module.exports = {
 	description: 'Initialises a new project in your current folder',
 	builder: yargs => yargs
 		.usage('\nUsage: orizuru setup init')
+		.options('debug', {
+			alias: 'd',
+			describe: 'Turn on debug logging',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.options('silent', {
+			alias: 's',
+			describe: 'Turn off all logging',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.options('template', {
+			alias: 't',
+			describe: 'Orizuru template',
+			demandOption: false,
+			nargs: 1,
+			type: 'string'
+		})
+		.options('useDefaults', {
+			alias: 'y',
+			describe: 'Use defaults',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.options('verbose', {
+			describe: 'Turn on all logging',
+			demandOption: false,
+			type: 'boolean'
+		})
 		.epilogue(COPYRIGHT_NOTICE),
 	handler: (argv) => InitService.init(argv)
 };

@@ -27,18 +27,37 @@
 'use strict';
 
 const
-	path = require('path'),
+	_ = require('lodash'),
 	fs = require('fs-extra'),
-	{ log } = require('../../util/logger'),
+	path = require('path'),
 
-	CWD = process.cwd(),
+	shell = require('../lib/util/shell');
 
-	deployGitIgnore = config => {
-		log('Creating .gitignore in ' + CWD);
-		return fs.rename(path.resolve(CWD, 'gitignore'), path.resolve(CWD, '.gitignore'))
-			.then(() => config);
-	};
+function isDirectory(source) {
+	return fs.lstatSync(source).isDirectory();
+}
 
-module.exports = {
-	deployGitIgnore: config => deployGitIgnore(config)
-};
+function getTemplates(source) {
+	return fs.readdir(source)
+		.then(files => _.filter(files, file => isDirectory(path.resolve(source, file))));
+}
+
+function runTests() {
+
+	const source = path.resolve(__dirname, '..', '..', 'templates');
+	return shell.executeCommand({ cmd: 'npm', args: ['link'] })
+		.then(() => getTemplates(source))
+		.then(templates => {
+
+			const commands = _.map(templates, (template, index) => {
+				return ({ cmd: '/bin/bash', args: ['-c', 'mkdir test' + (index + 1) + ' && cd test' + (index + 1) + ' && orizuru setup init -t ' + template + ' -y && cd .. && rm -r test' + (index + 1)] });
+			});
+
+			return shell.executeCommands(commands, { namespace: 'system~tests', debug: true });
+
+		})
+		.then(() => process.exit(0))
+		.catch(() => process.exit(1));
+}
+
+runTests();

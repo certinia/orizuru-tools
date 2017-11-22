@@ -24,6 +24,12 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
+/**
+ * Utility module to handle building questions for the CLI.
+ * @module util/questions
+ * @see module:util/questions
+ */
+
 'use strict';
 
 const

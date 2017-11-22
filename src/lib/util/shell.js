@@ -24,11 +24,18 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
+/**
+ * Utility module to handle executing shell commands.
+ * @module util/shell
+ * @see module:util/shell
+ */
+
 'use strict';
 
 const
 	_ = require('lodash'),
 	debug = require('./debug'),
+	logger = require('./logger'),
 
 	childProcess = require('child_process'),
 	spawn = childProcess.spawn,
@@ -42,74 +49,132 @@ const
 		const formattedCommand = cmd + (args ? ' ' + args.join(' ') : '');
 		debug.create('Executing: ' + formattedCommand);
 		return formattedCommand;
-	},
+	};
 
-	executeCommand = ({ cmd, args, opts }) => {
+/**
+ * Executes a single shell command.
+ * @param {Command} command - The command to execute.
+ */
+function executeInternal({ cmd, args, opts }) {
 
-		return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject) => {
 
-			const
-				namespace = opts && opts.namespace || 'shell',
-				namespaceOutput = namespace + ':output',
-				formattedCommand = shellDebug(cmd, args),
-				log = debug.create(namespace),
-				logOutput = debug.create(namespaceOutput),
-				child = spawn(cmd, args);
+		const
+			debugMode = _.get(opts, 'debug', false),
+			silent = _.get(opts, 'silent', false),
+			namespace = _.get(opts, 'namespace', 'shell'),
+			namespaceOutput = namespace + ':output',
+			verbose = _.get(opts, 'verbose', false),
+			exitOnError = _.get(opts, 'exitOnError', true),
+			startLogging = _.get(opts, 'logging.start'),
+			finishLogging = _.get(opts, 'logging.finish'),
+			shouldDebug = _.get(opts, 'namespace'),
 
-			let stdout = '',
-				stderr = '';
+			log = debug.create(namespace),
+			logOutput = debug.create(namespaceOutput),
 
-			var stdoutStream,
-				stderrStream;
+			formattedCommand = shellDebug(cmd, args),
+			child = spawn(cmd, args);
 
-			if (opts && opts.namespace) {
-				debug.create.enable(opts.namespace);
+		let stdout = '',
+			stderr = '';
+
+		var stdoutStream,
+			stderrStream;
+
+		logger.logEvent(startLogging)(opts);
+
+		if (verbose === true) {
+			debug.create.enable(namespace + ',' + namespaceOutput);
+		} else if (!silent && debugMode && shouldDebug) {
+			debug.create.enable(namespace);
+		}
+
+		stdoutStream = debug.debugStream(log)('%b');
+		stderrStream = debug.debugStream(log)('%b');
+
+		debug.addBufferFormatter(log);
+
+		child.stdout.pipe(stdoutStream).resume();
+		child.stderr.pipe(stderrStream).resume();
+
+		child.stdout.on(EVENT_DATA, (data) => {
+			stdout += data;
+		});
+
+		child.stderr.on(EVENT_DATA, (data) => {
+			stderr += data;
+		});
+
+		child.on(EVENT_CLOSE, (exitCode) => {
+
+			if (exitCode !== 0 && exitOnError) {
+				return reject(new Error(`Command failed: ${formattedCommand}\n${stderr}`));
 			}
 
-			stdoutStream = debug.debugStream(log)('%b');
-			stderrStream = debug.debugStream(log)('%b');
-
-			debug.addBufferFormatter(log);
-
-			child.stdout.pipe(stdoutStream).resume();
-			child.stderr.pipe(stderrStream).resume();
-
-			child.stdout.on(EVENT_DATA, (data) => {
-				stdout += data;
-			});
-
-			child.stderr.on(EVENT_DATA, (data) => {
-				stderr += data;
-			});
-
-			child.on(EVENT_CLOSE, (exitCode) => {
-				if (exitCode !== 0 && opts && opts.exitOnError) {
-					return reject(new Error(`Command failed: ${formattedCommand}\n${stderr}`));
-				}
-				const retval = { formattedCommand, exitCode, stdout: _.trim(stdout), stderr: _.trim(stderr) };
-				logOutput(retval);
-				return resolve(retval);
-			});
+			const retval = { formattedCommand, exitCode, stdout: _.trim(stdout), stderr: _.trim(stderr) };
+			logOutput(retval);
+			logger.logEvent(finishLogging)(opts);
+			return resolve(retval);
 
 		});
 
-	},
+	});
 
-	executeCommands = (commands, opts) => {
+}
 
-		return Promise.reduce(commands, (results, command) => {
+/**
+ * Executes a single shell command.
+ * 
+ * Optionally, merge in the CLI command line arguments from a configuration object.
+ * @instance
+ * @param {Command} command - The command to execute.
+ * @param {string} command.cmd - The process to execute; the executable.
+ * @param {string[]} command.args - The arguments to pass to the executable.
+ * @param {object} [command.opts] - Options.
+ * @param {boolean} [command.opts.exitOnError=true] - If true, the process exits if the command fails.<br/>Note that for the command to fail the process must return a non-zero exit code.
+ * @param {string} [command.opts.logging.start] - If set, logs the given string before the command executes.
+ * @param {string} [command.opts.logging.finish] - If set, logs the given string after the command executes.
+ * @param {string} [command.opts.namepace] - If set, any logging to stdout or stderr is printed with the given namespace.
+ * @param {boolean} [command.opts.silent=false] - If true, no logging is produced.
+ * @param {boolean} [command.opts.verbose=false] - If true, all logging is produced.
+ * @param {Object} [config] - The configuration object passed through the process.
+ */
+function executeCommand(command, config) {
 
-			command.opts = command.opts || opts;
+	if (config) {
+		return Promise.resolve(_.merge(command, { opts: config.argv }))
+			.then(executeInternal)
+			.then(() => config);
+	}
 
-			return executeCommand(command)
-				.then((result) => {
-					results[result.formattedCommand] = result;
-					return results;
-				});
+	return executeInternal(command);
 
-		}, {});
+}
 
-	};
+/**
+ * Executes a list of shell commands serially.
+ * @instance
+ * @param {Command[]} commands - An array of commands to execute.
+ * @param opts - Options.
+ * @param {boolean} [opts.exitOnError] - If true, the process exits if the command fails.<br/>Note that for the command to fail the process must return a non-zero exit code.
+ * @param {string} [opts.namepace] - If set, any logging to stdout or stderr is printed with the given namespace.
+ */
+function executeCommands(commands, opts) {
+
+	return Promise.reduce(commands, (results, command) => {
+
+		command.opts = command.opts || opts;
+
+		return executeCommand(command)
+			.then((result) => {
+				results[result.formattedCommand] = result;
+				return results;
+			});
+
+	}, {});
+
+}
 
 module.exports = {
 	executeCommand,

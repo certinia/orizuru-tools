@@ -47,14 +47,12 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 
 	beforeEach(() => {
 
-		mocks = {
-			writeFileSync: sandbox.stub()
-		};
+		mocks = {};
+		mocks.fs = {};
+		mocks.fs.writeFile = sandbox.stub();
 
 		overwriteFile = proxyquire(root + '/src/lib/service/generateApexTransport/overwriteFile', {
-			fs: {
-				writeFileSync: mocks.writeFileSync
-			}
+			'fs-extra': mocks.fs
 		});
 
 	});
@@ -65,21 +63,24 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 
 	describe('overwriteFile', () => {
 
-		it('should call fs.writeFileSync with the correct params', () => {
+		it('should call fs.writeFile with the correct params', () => {
 
 			// given
 			const
 				path = 'a',
-				content = 'b',
-				expected = 'c';
+				file = 'b',
+				content = 'c',
+				expected = 'd';
 
-			mocks.writeFileSync.returns(expected);
+			mocks.fs.writeFile.resolves(expected);
 
 			// when - then
-			expect(overwriteFile.overwriteFile(path, content)).to.eql(expected);
-
-			expect(mocks.writeFileSync).to.have.been.calledOnce;
-			expect(mocks.writeFileSync).to.have.been.calledWith(path, content, { flag: 'w' });
+			return expect(overwriteFile(path, file, content))
+				.to.eventually.eql(expected)
+				.then(() => {
+					expect(mocks.fs.writeFile).to.have.been.calledOnce;
+					expect(mocks.fs.writeFile).to.have.been.calledWith(process.cwd() + '/' + path + '/' + file, content, { flag: 'w' });
+				});
 
 		});
 

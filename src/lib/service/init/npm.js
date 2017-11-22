@@ -26,41 +26,162 @@
 
 'use strict';
 
-const
-	logger = require('../../util/logger'),
-	shell = require('../../util/shell');
+/**
+ * Service for processing NPM commands.
+ * @module service/init/npm
+ * @see module:service/init/npm
+ */
 
+const shell = require('../../util/shell');
+
+/**
+ * Runs the NPM init command with yes set to true.
+ * @instance
+ * @param {object} config - The configuration object passed through the process.
+ * @returns config - The __unmodified__ configuration object.
+ */
+function init(config) {
+
+	const command = {
+		cmd: 'npm',
+		args: ['init', '-y'],
+		opts: {
+			logging: {
+				start: 'Generating default package.json',
+				finish: 'Generated default package.json'
+			},
+			namespace: 'npm~init'
+		}
+	};
+
+	return shell.executeCommand(command, config);
+}
+
+/**
+ * Runs the NPM install command.
+ * @instance
+ * @param {object} config - The configuration object passed through the process.
+ * @returns config - The __unmodified__ configuration object.
+ */
 function install(config) {
-	return Promise.resolve(config)
-		.then(logger.logStart('Installing NPM dependencies'))
-		.then(() => shell.executeCommand({ cmd: 'npm', args: ['install'], opts: { exitOnError: true, namespace: 'npm~install' } }))
-		.then(() => config);
+
+	const command = {
+		cmd: 'npm',
+		args: ['install'],
+		opts: {
+			logging: {
+				start: 'Installing NPM dependencies',
+				finish: 'Installed NPM dependencies'
+			},
+			namespace: 'npm~install'
+		}
+	};
+
+	return shell.executeCommand(command, config);
+
 }
 
+/**
+ * Runs the NPM script for the Orizuru generate-apex-transport step.
+ * @instance
+ * @param {object} config - The configuration object passed through the process.
+ * @returns config - The __unmodified__ configuration object.
+ */
 function generateApexTransport(config) {
-	return Promise.resolve(config)
-		.then(logger.logStart('Generating Apex transport classes'))
-		.then(() => shell.executeCommand({ cmd: 'npm', args: ['run', 'generate-apex-transport'], opts: { exitOnError: true, namespace: 'npm~generate~apex~transport' } }))
-		.then(() => config);
+
+	const command = {
+		cmd: 'npm',
+		args: ['run', 'generate-apex-transport'],
+		opts: {
+			logging: {
+				start: 'Generating Apex transport classes',
+				finish: 'Generated Apex transport classes'
+			},
+			namespace: 'npm~generate~apex~transport'
+		}
+	};
+
+	return shell.executeCommand(command, config);
+
 }
 
+/**
+ * Runs the NPM script to generate Javascript documentation.
+ * @instance
+ * @param {object} config - The configuration object passed through the process.
+ * @returns config - The __unmodified__ configuration object.
+ */
+function generateDocumentation(config) {
+
+	const command = {
+		cmd: 'npm',
+		args: ['run', 'doc'],
+		opts: {
+			logging: {
+				start: 'Generating documentation',
+				finish: 'Generated documentation'
+			},
+			namespace: 'npm~generate~documentation'
+		}
+	};
+
+	return shell.executeCommand(command, config);
+
+}
+
+/**
+ * Runs the NPM script for the Orizuru post-init step.
+ * @instance
+ * @param {object} config - The configuration object passed through the process.
+ * @returns config - The __unmodified__ configuration object.
+ */
 function orizuruPostInit(config) {
-	return Promise.resolve(config)
-		.then(logger.logStart('Running Orizuru post init'))
-		.then(() => shell.executeCommand({ cmd: 'npm', args: ['run', 'orizuru-post-init'], opts: { exitOnError: true, namespace: 'npm~orizuru~post~init' } }))
-		.then(() => config);
+
+	const command = {
+		cmd: 'npm',
+		args: ['run', 'orizuru-post-init'],
+		opts: {
+			logging: {
+				start: 'Started Orizuru post init',
+				finish: 'Finished Orizuru post init'
+			},
+			namespace: 'npm~orizuru~post~init'
+		}
+	};
+
+	return shell.executeCommand(command, config);
+
 }
 
+/**
+ * Runs the NPM test command.
+ * @instance
+ * @param {object} config - The configuration object passed through the process.
+ * @returns config - The __unmodified__ configuration object.
+ */
 function test(config) {
-	return Promise.resolve(config)
-		.then(logger.logStart('Running tests'))
-		.then(() => shell.executeCommand({ cmd: 'npm', args: ['test'], opts: { exitOnError: true, namespace: 'npm~test' } }))
-		.then(() => config);
+
+	const command = {
+		cmd: 'npm',
+		args: ['test'],
+		opts: {
+			logging: {
+				start: 'Started tests',
+				finish: 'Finished tests'
+			},
+			namespace: 'npm~test'
+		}
+	};
+
+	return shell.executeCommand(command, config);
+
 }
 
 module.exports = {
+	init,
 	install,
 	generateApexTransport,
+	generateDocumentation,
 	orizuruPostInit,
 	test
 };

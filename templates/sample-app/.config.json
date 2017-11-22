@@ -1,0 +1,12 @@
+{
+	"extends": [
+		"web",
+		"web-node-worker"
+	],
+	"package": {
+		"scripts": {
+			"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schema/api src/apex/app/main/default/classes",
+			"orizuru-post-init": "mvn clean install"
+		}
+	}
+}

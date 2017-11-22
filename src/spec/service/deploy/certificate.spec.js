@@ -52,9 +52,14 @@ describe('service/deploy/certificate.js', () => {
 		mocks.inquirer = sandbox.stub();
 		mocks.inquirer.prompt = sandbox.stub();
 
+		mocks.logger = {};
+		mocks.logger.logEvent = sandbox.stub();
+		mocks.logger.logLn = sandbox.stub();
+
 		certificate = proxyquire(root + '/src/lib/service/deploy/certificate.js', {
-			'../../util/shell': mocks.shell,
-			inquirer: mocks.inquirer
+			inquirer: mocks.inquirer,
+			'../../util/logger': mocks.logger,
+			'../../util/shell': mocks.shell
 		});
 
 	});

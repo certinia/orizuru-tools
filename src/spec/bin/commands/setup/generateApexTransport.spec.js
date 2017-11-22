@@ -37,9 +37,7 @@ const
 
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	GenerateApexTransportService = require(root + '/src/lib/service/generateApexTransport'),
 	generateApexTransportCommandPath = root + '/src/lib/bin/commands/setup/generateApexTransport',
-	generateApexTransportCommand = require(generateApexTransportCommandPath),
 
 	sandbox = sinon.sandbox.create();
 
@@ -50,8 +48,15 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 	let mocks;
 
 	beforeEach(() => {
+
 		mocks = {};
-		mocks.generateApexTransport = sandbox.stub(GenerateApexTransportService, 'generateApexTransport');
+
+		mocks.generateApexTransport = sandbox.stub();
+
+		mocks.yargs = {};
+		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+
 	});
 
 	afterEach(() => sandbox.restore());
@@ -59,11 +64,8 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 	it('should create the cli', () => {
 
 		// given
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
-
 		const cli = proxyquire(generateApexTransportCommandPath, {
+			'../../../service/generateApexTransport': mocks.generateApexTransport,
 			yargs: mocks.yargs
 		});
 
@@ -80,7 +82,12 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 
 	it('should return the correct config', () => {
 
-		// given - when - then
+		// given
+		const generateApexTransportCommand = proxyquire(generateApexTransportCommandPath, {
+			'../../../service/generateApexTransport': mocks.generateApexTransport
+		});
+
+		// when - then
 		expect(generateApexTransportCommand).to.deep.contain({
 			command: ['generate-apex-transport [inputUrl] [outputUrl]', 'gat [inputUrl] [outputUrl]'],
 			description: 'Generates apex transport classes for .avsc files in a folder'
@@ -91,7 +98,9 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 	it('should have a handler that calls the generateApexTransport service', () => {
 
 		// given
-		const { handler } = generateApexTransportCommand;
+		const handler = proxyquire(generateApexTransportCommandPath, {
+			'../../../service/generateApexTransport': mocks.generateApexTransport
+		}).handler;
 
 		// when
 		handler('test');
