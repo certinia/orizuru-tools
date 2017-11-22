@@ -36,6 +36,7 @@
     "jsforce": "1.8.0",
     "klaw-sync": "3.0.2",
     "lodash": "4.17.4",
+    "yaml-js": "0.2.0",
     "yargs": "9.0.1"
   },
   "devDependencies": {
