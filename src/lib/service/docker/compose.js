@@ -31,7 +31,7 @@ const
 	fs = require('fs'),
 	klaw = require('klaw'),
 	path = require('path'),
-	yaml = require('yaml-js'),
+	yaml = require('js-yaml'),
 
 	shell = require('../../util/shell'),
 
@@ -55,7 +55,7 @@ function findComposeFiles(config) {
 			.on('end', () => {
 				resolve(_.set(config, 'docker.compose.files', composeFiles));
 			});
-	});
+	}).then(() => config);
 
 }
 
