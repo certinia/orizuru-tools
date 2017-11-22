@@ -27,15 +27,16 @@
 'use strict';
 
 const
-	generateApexTransport = require('../../../service/generateApexTransport'),
+	service = require('../../../service/generateApexTransport'),
 
 	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
 
 module.exports = {
-	command: ['generate-apex-transport [inputUrl] [outputUrl]', 'gat [inputUrl] [outputUrl]'],
-	description: 'Generates apex transport classes for .avsc files in a folder',
-	builder: yargs => yargs
+	command: 'generate-apex-transport',
+	aliases: ['gat'],
+	desc: 'Generates apex transport classes for .avsc files in a folder',
+	builder: (yargs) => yargs
 		.usage('\nUsage: orizuru setup generateapextransport [.avsc folder path] [apex class output path]')
 		.epilogue(COPYRIGHT_NOTICE),
-	handler: (argv) => generateApexTransport(argv)
+	handler: (argv) => service.generateApexTransport({ argv })
 };

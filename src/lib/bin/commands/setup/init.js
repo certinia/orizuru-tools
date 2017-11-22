@@ -27,45 +27,46 @@
 'use strict';
 
 const
-	InitService = require('../../../service/init'),
+	service = require('../../../service/init'),
 
 	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
 
 module.exports = {
-	command: ['init', 'i'],
-	description: 'Initialises a new project in your current folder',
+	command: 'init',
+	aliases: ['i'],
+	desc: 'Initialises a new project in your current folder',
 	builder: yargs => yargs
-		.usage('\nUsage: orizuru setup init')
-		.options('debug', {
-			alias: 'd',
+		.usage('\nUsage: orizuru setup init [OPTIONS]')
+		.option('d', {
+			alias: 'debug',
 			describe: 'Turn on debug logging',
 			demandOption: false,
 			type: 'boolean'
 		})
-		.options('silent', {
-			alias: 's',
+		.option('s', {
+			alias: 'silent',
 			describe: 'Turn off all logging',
 			demandOption: false,
 			type: 'boolean'
 		})
-		.options('template', {
-			alias: 't',
+		.option('t', {
+			alias: 'template',
 			describe: 'Orizuru template',
 			demandOption: false,
 			nargs: 1,
 			type: 'string'
 		})
-		.options('useDefaults', {
-			alias: 'y',
+		.option('y', {
+			alias: 'useDefaults',
 			describe: 'Use defaults',
 			demandOption: false,
 			type: 'boolean'
 		})
-		.options('verbose', {
+		.option('verbose', {
 			describe: 'Turn on all logging',
 			demandOption: false,
 			type: 'boolean'
 		})
 		.epilogue(COPYRIGHT_NOTICE),
-	handler: (argv) => InitService.init(argv)
+	handler: (argv) => service.init({ argv })
 };

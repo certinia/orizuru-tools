@@ -36,8 +36,8 @@ const
 
 module.exports = {
 	command: 'deploy',
-	desc: 'Executes Deployment commands',
 	aliases: ['d'],
+	desc: 'Executes Deployment commands',
 	builder: (yargs) => {
 		return yargs
 			.usage('\nUsage: orizuru deploy COMMAND')
