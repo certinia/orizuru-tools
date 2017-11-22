@@ -35,7 +35,9 @@
 const
 	_ = require('lodash'),
 	coreDebug = require('debug'),
-	debugStream = require('debug-stream');
+	debugStream = require('debug-stream'),
+
+	JSON_SPACES = 2;
 
 /**
  * Adds the buffer formatter to the debugger.
@@ -58,7 +60,7 @@ function enableLogging(config, namespace) {
 
 	const log = coreDebug(namespace);
 
-	if (!_.get(config, 'silent', false) && _.get(config, 'debug', false)) {
+	if (config.debug && !config.silent) {
 		coreDebug.enable(namespace);
 	}
 
@@ -71,7 +73,7 @@ function log(config, namespace, message) {
 }
 
 function stringify(config, namespace, message) {
-	enableLogging(config, namespace)(JSON.stringify(message, undefined, 2));
+	enableLogging(config, namespace)(JSON.stringify(message, undefined, JSON_SPACES));
 }
 
 module.exports = {
