@@ -27,9 +27,9 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
 	proxyquire = require('proxyquire'),
+	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -37,8 +37,7 @@ const
 
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	InitService = require(root + '/src/lib/service/init'),
-	initCommand = require(root + '/src/lib/bin/commands/setup/init'),
+	service = require(root + '/src/lib/service/init'),
 
 	sandbox = sinon.sandbox.create();
 
@@ -46,61 +45,70 @@ chai.use(sinonChai);
 
 describe('bin/commands/setup/init.js', () => {
 
-	let mocks;
+	let cli, mocks;
 
 	beforeEach(() => {
+
 		mocks = {};
-		mocks.initServiceInit = sandbox.stub(InitService, 'init');
-	});
-
-	afterEach(() => sandbox.restore());
-
-	it('should create the cli', () => {
-
-		// given
 		mocks.yargs = {};
 		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.options = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.option = sandbox.stub().returns(mocks.yargs);
 		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
 
-		const
-			cli = proxyquire(root + '/src/lib/bin/commands/setup/init', {
-				yargs: mocks.yargs
-			});
-
-		// when
-		cli.builder(mocks.yargs);
-
-		//then
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-		expect(mocks.yargs.options).to.have.callCount(5);
-
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup init');
-
-	});
-
-	it('should return the correct config', () => {
-
-		// given/when/then
-		expect(initCommand).to.deep.contain({
-			command: ['init', 'i'],
-			description: 'Initialises a new project in your current folder'
+		cli = proxyquire(root + '/src/lib/bin/commands/setup/init', {
+			yargs: mocks.yargs
 		});
 
 	});
 
-	it('should have a handler that calls the init service', () => {
+	afterEach(() => {
+		sandbox.restore();
+	});
 
-		// given
-		const { handler } = initCommand;
-
-		// when
-		handler('test');
+	it('should have the correct command, description and alias', () => {
 
 		// then
-		expect(mocks.initServiceInit).to.have.been.calledOnce;
-		expect(mocks.initServiceInit).to.have.been.calledWith('test');
+		expect(cli.command).to.eql('init');
+		expect(cli.aliases).to.eql(['i']);
+		expect(cli.desc).to.eql('Initialises a new project in your current folder');
+
+	});
+
+	it('should create the cli', () => {
+
+		// when
+		cli.builder(mocks.yargs);
+
+		// then
+		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+		expect(mocks.yargs.option).to.have.callCount(5);
+		expect(mocks.yargs.usage).to.have.been.calledOnce;
+
+		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(mocks.yargs.option).to.have.been.calledWith('d', sinon.match.object);
+		expect(mocks.yargs.option).to.have.been.calledWith('s', sinon.match.object);
+		expect(mocks.yargs.option).to.have.been.calledWith('t', sinon.match.object);
+		expect(mocks.yargs.option).to.have.been.calledWith('y', sinon.match.object);
+		expect(mocks.yargs.option).to.have.been.calledWith('verbose', sinon.match.object);
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup init [OPTIONS]');
+
+	});
+
+	it('should call the handler', () => {
+
+		// given
+		const
+			expectedInput = { debug: true },
+			expectedOutput = { argv: expectedInput };
+
+		sandbox.stub(service, 'init');
+
+		// when
+		cli.handler(expectedInput);
+
+		// then
+		expect(service.init).to.have.been.calledOnce;
+		expect(service.init).to.have.been.calledWith(expectedOutput);
 
 	});
 

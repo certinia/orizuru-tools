@@ -72,7 +72,7 @@ describe('bin/commands/setup.js', () => {
 		// when
 		cli.builder(mocks.yargs);
 
-		//then
+		// then
 		expect(mocks.yargs.command).to.have.been.calledTwice;
 		expect(mocks.yargs.demandCommand).to.have.been.calledOnce;
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;

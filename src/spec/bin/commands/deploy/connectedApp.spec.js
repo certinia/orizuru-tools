@@ -27,9 +27,9 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
 	proxyquire = require('proxyquire'),
+	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -69,7 +69,7 @@ describe('bin/commands/deploy/connectedApp.js', () => {
 		// when
 		cli.builder(mocks.yargs);
 
-		//then
+		// then
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
 
 		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
