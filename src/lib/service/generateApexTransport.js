@@ -80,12 +80,11 @@ function generateClasses(config) {
 /**
  * Generates the OrizuruTransport class file with the required Apex Transport classes.
  * @instance
- * @param {Object} argv - The command line arguments.
+ * @param {Object} config - The command line arguments.
  */
-function generateApexTransport(argv) {
+function generateApexTransport(config) {
 
-	return Promise
-		.resolve(argv)
+	return Promise.resolve(config)
 		.then(validateArgs)
 		.then(logger.logStart('Generating apex transport classes'))
 		.then(generateClasses)
@@ -94,4 +93,6 @@ function generateApexTransport(argv) {
 
 }
 
-module.exports = generateApexTransport;
+module.exports = {
+	generateApexTransport
+};
