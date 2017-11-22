@@ -36,6 +36,7 @@ const
 	ENCODING = 'utf8';
 
 function getAvscFilesOnPathRecursively(path) {
+
 	const
 		DIR = path,
 		FILTER = ({ path }) => path.endsWith(EXT);

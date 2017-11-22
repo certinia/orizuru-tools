@@ -32,7 +32,7 @@ const
 	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
 
 module.exports = {
-	command: 'generate-apex-transport',
+	command: 'generate-apex-transport [inputUrl] [outputUrl]',
 	aliases: ['gat'],
 	desc: 'Generates apex transport classes for .avsc files in a folder',
 	builder: (yargs) => yargs

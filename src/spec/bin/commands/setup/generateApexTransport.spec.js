@@ -67,7 +67,7 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 	it('should have the correct command, description and alias', () => {
 
 		// then
-		expect(cli.command).to.eql('generate-apex-transport');
+		expect(cli.command).to.eql('generate-apex-transport [inputUrl] [outputUrl]');
 		expect(cli.aliases).to.eql(['gat']);
 		expect(cli.desc).to.eql('Generates apex transport classes for .avsc files in a folder');
 
