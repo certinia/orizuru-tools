@@ -27,7 +27,7 @@
 version: '3'
 
 services:
- heroku-nodejs:
+  heroku-nodejs:
     build:
       context: .
       dockerfile: heroku-nodejs.dockerfile
