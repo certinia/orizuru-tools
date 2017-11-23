@@ -42,6 +42,8 @@ const
 	properties = require('../../lib/service/deploy/properties'),
 	sfdx = require('../../lib/service/deploy/sfdx'),
 
+	logger = require('../../lib/util/logger'),
+
 	service = require(root + '/src/lib/service/deploy'),
 
 	expect = chai.expect,
@@ -74,6 +76,10 @@ describe('service/deploy.js', () => {
 		sandbox.stub(heroku, 'getAllApps');
 		sandbox.stub(heroku, 'select');
 		sandbox.stub(heroku, 'readAppJson');
+
+		sandbox.stub(logger, 'logStart').returns(sandbox.stub());
+		sandbox.stub(logger, 'logEvent').returns(sandbox.stub());
+		sandbox.stub(logger, 'logFinish').returns(sandbox.stub());
 
 		sandbox.stub(namedCredential, 'askQuestions');
 		sandbox.stub(namedCredential, 'create');
@@ -130,6 +136,10 @@ describe('service/deploy.js', () => {
 					expect(certificate.getOrCreate).to.have.been.calledOnce;
 
 					expect(configFile.readSettings).to.have.been.calledOnce;
+
+					expect(logger.logStart).to.have.been.calledOnce;
+					expect(logger.logEvent).to.have.callCount(5);
+					expect(logger.logFinish).to.have.been.calledOnce;
 
 					expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
 					expect(sfdx.deploy).to.have.been.calledOnce;
@@ -218,6 +228,10 @@ describe('service/deploy.js', () => {
 					expect(heroku.addAddOns).to.have.been.calledOnce;
 					expect(heroku.checkWorkingChanges).to.have.been.calledOnce;
 					expect(heroku.deployCurrentBranch).to.have.been.calledOnce;
+
+					expect(logger.logStart).to.have.been.calledOnce;
+					expect(logger.logEvent).to.have.callCount(17);
+					expect(logger.logFinish).to.have.been.calledOnce;
 
 					expect(namedCredential.askQuestions).to.have.been.calledOnce;
 					expect(namedCredential.create).to.have.been.calledOnce;

@@ -35,10 +35,12 @@ const
 	proxyquire = require('proxyquire'),
 
 	fs = require('fs-extra'),
+	inquirer = require('inquirer'),
 
 	expect = chai.expect,
 
 	logger = require(root + '/src/lib/util/logger'),
+	shell = require(root + '/src/lib/util/shell'),
 
 	sandbox = sinon.sandbox.create();
 
@@ -56,22 +58,24 @@ describe('service/deploy/sfdx.js', () => {
 		mocks.config = sandbox.stub();
 		mocks.config.writeSetting = sandbox.stub();
 
-		mocks.inquirer = {};
-		mocks.inquirer.prompt = sandbox.stub();
-
 		mocks.jsforce = {};
 		mocks.jsforce.Connection = sandbox.stub();
 
-		mocks.shell = {};
-		mocks.shell.executeCommand = sandbox.stub();
-		mocks.shell.executeCommands = sandbox.stub();
+		sandbox.stub(inquirer, 'prompt');
+
+		sandbox.stub(shell, 'executeCommand');
+		sandbox.stub(shell, 'executeCommands');
+
+		sandbox.stub(fs, 'outputFile');
+		sandbox.stub(fs, 'outputJsonSync');
+		sandbox.stub(fs, 'readFile');
+		sandbox.stub(fs, 'readFileSync');
+		sandbox.stub(fs, 'writeJson');
 
 		sandbox.stub(logger, 'logEvent').resolves();
 
 		sfdx = proxyquire(root + '/src/lib/service/deploy/sfdx.js', {
-			inquirer: mocks.inquirer,
-			'./shared/config': mocks.config,
-			'../../util/shell': mocks.shell
+			'./shared/config': mocks.config
 		});
 
 	});
@@ -87,14 +91,14 @@ describe('service/deploy/sfdx.js', () => {
 			// given
 			const expectedCommand = { cmd: 'sfdx', args: ['version'] };
 
-			mocks.shell.executeCommand.resolves('sfdx-cli/6.0.13-a52f73c (darwin-x64) node-v8.6.0');
+			shell.executeCommand.resolves('sfdx-cli/6.0.13-a52f73c (darwin-x64) node-v8.6.0');
 
 			// when - then
 			return expect(sfdx.checkSfdxInstalled({}))
 				.to.eventually.eql({})
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 				});
 
 		});
@@ -110,14 +114,14 @@ describe('service/deploy/sfdx.js', () => {
 				expectedInput = 'test',
 				expectedCommand = { cmd: 'cd', args: ['.sfdx'] };
 
-			mocks.shell.executeCommand.resolves();
+			shell.executeCommand.resolves();
 
 			// when - then
 			return expect(sfdx.checkSfdxFolderExists(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 				});
 
 		});
@@ -139,18 +143,18 @@ describe('service/deploy/sfdx.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.onCall(0).rejects();
-			mocks.shell.executeCommand.onCall(1).resolves(expectedLoginResult);
+			shell.executeCommand.onCall(0).rejects();
+			shell.executeCommand.onCall(1).resolves(expectedLoginResult);
 			mocks.config.writeSetting.resolves(expectedOutput);
 
 			// when - then
 			return expect(sfdx.checkSfdxFolderExists(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
+					expect(shell.executeCommand).to.have.been.calledTwice;
 					expect(mocks.config.writeSetting).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand1);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand2);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand1);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand2);
 					expect(mocks.config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.hub.username', expectedUsername);
 				});
 
@@ -158,7 +162,112 @@ describe('service/deploy/sfdx.js', () => {
 
 	});
 
+	describe('checkSfdxProjectFileExists', () => {
+
+		it('should return the config if the folder exists', () => {
+
+			// given
+			const
+				expectedInput = 'test',
+				expectedCommand = { cmd: 'cat', args: ['sfdx-project.json'] };
+
+			shell.executeCommand.resolves();
+
+			// when - then
+			return expect(sfdx.checkSfdxProjectFileExists(expectedInput))
+				.to.eventually.eql(expectedInput)
+				.then(() => {
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+		it('should ask the user if they want to create the default file if it doesn\'t exist (user confirms)', () => {
+
+			// given
+			const
+				expectedInput = {},
+				expectedCommand = { cmd: 'cat', args: ['sfdx-project.json'] };
+
+			inquirer.prompt.resolves({ create: true });
+			shell.executeCommand.rejects();
+			fs.writeJson.resolves();
+
+			// when - then
+			return expect(sfdx.checkSfdxProjectFileExists(expectedInput))
+				.to.eventually.eql(expectedInput)
+				.then(() => {
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+		it('should ask the user if they want to create the default file if it doesn\'t exist (user rejects)', () => {
+
+			// given
+			const
+				expectedInput = {},
+				expectedCommand = { cmd: 'cat', args: ['sfdx-project.json'] };
+
+			inquirer.prompt.resolves({ create: false });
+			shell.executeCommand.rejects();
+			fs.writeJson.resolves();
+
+			// when - then
+			return expect(sfdx.checkSfdxProjectFileExists(expectedInput))
+				.to.eventually.be.rejected
+				.then(() => {
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
+
+	});
+
 	describe('createNewScratchOrg', () => {
+
+		it('should create the default scratch org definition file if it does nto exist', () => {
+
+			// given
+			const
+				expectedUsername = 'test-ki9yknei6emv@orizuru.net',
+				expectedHubUsername = 'dev-hub@orizuru.net',
+				expectedOrgDef = './src/apex/config/project-scratch-def.json',
+				expectedInput = {
+					orizuru: {
+						sfdx: {
+							hub: {
+								username: expectedHubUsername
+							}
+						}
+					}
+				},
+				expectedCommand = { cmd: 'sfdx', args: ['force:org:create', '-f', expectedOrgDef, '-v', expectedHubUsername, '-s', '--json'] },
+				expectedOutput = {
+					sfdx: {
+						org: {
+							username: expectedUsername
+						}
+					}
+				};
+
+			shell.executeCommand.resolves({
+				stdout: `{"result":{"username":"${expectedUsername}"}}`
+			});
+
+			// when - then
+			return expect(sfdx.createNewScratchOrg(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(fs.outputJsonSync).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
+				});
+
+		});
 
 		it('should create a new scratch org', () => {
 
@@ -190,7 +299,7 @@ describe('service/deploy/sfdx.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves({
+			shell.executeCommand.resolves({
 				stdout: `{"result":{"username":"${expectedUsername}"}}`
 			});
 
@@ -198,8 +307,8 @@ describe('service/deploy/sfdx.js', () => {
 			return expect(sfdx.createNewScratchOrg(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 				});
 
 		});
@@ -211,15 +320,15 @@ describe('service/deploy/sfdx.js', () => {
 		it('should execute the correct commands', () => {
 
 			// given
-			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
-			mocks.shell.executeCommands = sandbox.stub().resolves({});
+			shell.executeCommand = sandbox.stub().resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
+			shell.executeCommands = sandbox.stub().resolves({});
 
 			// when - then
 			return expect(sfdx.deleteAllScratchOrgs({}))
 				.to.eventually.eql({})
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommands).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommands).to.have.been.calledOnce;
 				});
 
 		});
@@ -273,7 +382,7 @@ describe('service/deploy/sfdx.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommands.resolves({
+			shell.executeCommands.resolves({
 				command0: { stdout: '{"command0Out":"testing"}' },
 				command1: { stdout: '{"command1Out":"testing"}' },
 				command2: { stdout: '{"command2Out":"testing"}' },
@@ -284,7 +393,7 @@ describe('service/deploy/sfdx.js', () => {
 			return expect(sfdx.deploy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands, { exitOnError: true });
+					expect(shell.executeCommands).to.have.been.calledWith(expectedCommands, { exitOnError: true });
 				});
 
 		});
@@ -322,13 +431,13 @@ describe('service/deploy/sfdx.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves({ stdout: '{"result":{"accessToken":"00Dd0000004aIWe!ARoAQMU1KjrCMZVbSxrPd8xQe5vxktUdTWllFWKM5C05KsVT817.uKkVQZdVm4xC22rknAb5G0SdBp4GsKfWBXcZsUFv_PFa","instanceUrl":"https://random-velocity-3672-dev-ed.cs16.my.salesforce.com"}}' });
+			shell.executeCommand.resolves({ stdout: '{"result":{"accessToken":"00Dd0000004aIWe!ARoAQMU1KjrCMZVbSxrPd8xQe5vxktUdTWllFWKM5C05KsVT817.uKkVQZdVm4xC22rknAb5G0SdBp4GsKfWBXcZsUFv_PFa","instanceUrl":"https://random-velocity-3672-dev-ed.cs16.my.salesforce.com"}}' });
 
 			// when - then
 			return expect(sfdx.display(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 				});
 
 		});
@@ -350,13 +459,13 @@ describe('service/deploy/sfdx.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
+			shell.executeCommand.resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
 
 			// when - then
 			return expect(sfdx.getAllScratchOrgs({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 				});
 
 		});
@@ -381,15 +490,15 @@ describe('service/deploy/sfdx.js', () => {
 				};
 
 			mocks.config.writeSetting.resolves(expectedOutput);
-			mocks.shell.executeCommand.resolves(expectedLoginResult);
+			shell.executeCommand.resolves(expectedLoginResult);
 
 			// when - then
 			return expect(sfdx.login({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledOnce;
 					expect(mocks.config.writeSetting).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 					expect(mocks.config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.hub.username', expectedUsername);
 				});
 
@@ -421,13 +530,13 @@ describe('service/deploy/sfdx.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand = sandbox.stub();
+			shell.executeCommand = sandbox.stub();
 
 			// when - then
 			return expect(sfdx.login(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.not.have.been.called;
+					expect(shell.executeCommand).to.not.have.been.called;
 				});
 
 		});
@@ -452,13 +561,13 @@ describe('service/deploy/sfdx.js', () => {
 				expectedCommand = { cmd: 'sfdx', args: ['force:org:open', '-u', 'test@financialforce.com'] },
 				expectedOutput = {};
 
-			mocks.shell.executeCommand.resolves({});
+			shell.executeCommand.resolves({});
 
 			// when - then
 			return expect(sfdx.openOrg(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 				});
 
 		});
@@ -466,6 +575,31 @@ describe('service/deploy/sfdx.js', () => {
 	});
 
 	describe('readSfdxYaml', () => {
+
+		it('should create the default yaml file if it is not found', () => {
+
+			// given
+			const expectedOutput = {
+				sfdx: {
+					yaml: {
+						'scratch-org-def': 'src/apex/config/project-scratch-def.json',
+						'assign-permset': true,
+						'permset-name': 'OrizuruAdmin',
+						'run-apex-tests': true,
+						'delete-scratch-org': false,
+						'show-scratch-org-url': true
+					}
+				}
+			};
+
+			fs.readFile.rejects();
+			fs.outputFile.resolves();
+
+			// when - then
+			return expect(sfdx.readSfdxYaml({}))
+				.to.eventually.eql(expectedOutput);
+
+		});
 
 		it('should execute the correct commands', () => {
 
@@ -483,7 +617,7 @@ describe('service/deploy/sfdx.js', () => {
 				}
 			};
 
-			sandbox.stub(fs, 'readFileSync').returns('scratch-org-def: src/apex/config/project-scratch-def.json\nassign-permset: true\npermset-name: OrizuruAdmin\nrun-apex-tests: true\ndelete-scratch-org: false\nshow-scratch-org-url: true\n');
+			fs.readFile.resolves('scratch-org-def: src/apex/config/project-scratch-def.json\nassign-permset: true\npermset-name: OrizuruAdmin\nrun-apex-tests: true\ndelete-scratch-org: false\nshow-scratch-org-url: true\n');
 
 			// when - then
 			return expect(sfdx.readSfdxYaml({}))
@@ -522,14 +656,14 @@ describe('service/deploy/sfdx.js', () => {
 				},
 				expectedOutput = expectedInput;
 
-			mocks.inquirer.prompt.resolves(expectedAnswer);
+			inquirer.prompt.resolves(expectedAnswer);
 			mocks.config.writeSetting.resolves(expectedOutput);
 
 			// when - then
 			return expect(sfdx.select(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
+					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 				});
 
 		});
@@ -572,13 +706,13 @@ describe('service/deploy/sfdx.js', () => {
 				expectedOutput = expectedInput;
 
 			mocks.config.writeSetting.resolves(expectedOutput);
-			mocks.inquirer.prompt.resolves(expectedAnswer);
+			inquirer.prompt.resolves(expectedAnswer);
 
 			// when - then
 			return expect(sfdx.select(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
+					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 					expect(mocks.config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.org.username', expectedScratchOrgUsername);
 				});
 
@@ -638,16 +772,16 @@ describe('service/deploy/sfdx.js', () => {
 				},
 				expectedOutput = expectedInput;
 
-			mocks.inquirer.prompt.resolves(expectedAnswer);
-			mocks.shell.executeCommand.resolves({ stdout: '{"result": {"username": "test" }}' });
+			inquirer.prompt.resolves(expectedAnswer);
+			shell.executeCommand.resolves({ stdout: '{"result": {"username": "test" }}' });
 			mocks.config.writeSetting.resolves(expectedOutput);
 
 			// when - then
 			return expect(sfdx.select(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
+					expect(shell.executeCommand).to.have.been.calledOnce;
 				});
 
 		});
@@ -717,14 +851,14 @@ describe('service/deploy/sfdx.js', () => {
 				},
 				expectedOutput = expectedInput;
 
-			mocks.inquirer.prompt.resolves(expectedAnswer);
+			inquirer.prompt.resolves(expectedAnswer);
 			mocks.config.writeSetting.resolves(expectedOutput);
 
 			// when - then
 			return expect(sfdx.select(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
+					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 				});
 
 		});

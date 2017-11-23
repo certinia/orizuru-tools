@@ -29,6 +29,7 @@
 const
 	_ = require('lodash'),
 	inquirer = require('inquirer'),
+	openUrl = require('openurl'),
 	request = require('request-promise'),
 
 	configFile = require('./shared/config'),
@@ -80,6 +81,17 @@ function create(config) {
 		});
 }
 
+function install(config) {
+
+	const
+		installLink = _.get(config, 'connected.app.install.link'),
+		instanceUrl = _.get(config, 'parameters.sfdx.org.credentials.instanceUrl');
+
+	openUrl.open(`${instanceUrl}${installLink}`);
+	return config;
+
+}
+
 function list(config) {
 
 	const conn = config.conn;
@@ -126,7 +138,8 @@ function generateInstallUrl(config) {
 		.then(html => {
 
 			const
-				applicationId = htmlParser.parseScripts({ html })[0].split('applicationId=')[1].split('\'')[0],
+				scripts = htmlParser.parseScripts({ html }),
+				applicationId = scripts[0].split('applicationId=')[1].split('\'')[0],
 				uri = instanceUrl + '/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=' + applicationId,
 
 				options = {
@@ -136,13 +149,18 @@ function generateInstallUrl(config) {
 					}
 				};
 
-			return request.get(options)
-				.then(html => {
-					const installAppId = htmlParser.parseScripts({ html })[0].split('&id=')[1].split('\'')[0];
-					configFile.writeSetting(config, 'connected.app.installLink', '/identity/app/AppInstallApprovalPage.apexp?app_id=' + installAppId);
-					_.set(config, 'connected.app.install.link', '/identity/app/AppInstallApprovalPage.apexp?app_id=' + installAppId);
-					return config;
-				});
+			return request.get(options);
+
+		})
+		.then(html => {
+
+			const
+				scripts = htmlParser.parseScripts({ html }),
+				installAppId = scripts[0].split('&id=')[1].split('\'')[0];
+
+			configFile.writeSetting(config, 'connected.app.installLink', '/identity/app/AppInstallApprovalPage.apexp?app_id=' + installAppId);
+			_.set(config, 'connected.app.install.link', '/identity/app/AppInstallApprovalPage.apexp?app_id=' + installAppId);
+			return config;
 
 		});
 
@@ -177,6 +195,7 @@ module.exports = {
 	askQuestions,
 	create,
 	generateInstallUrl,
+	install,
 	list,
 	select,
 	updateHerokuConfigVariables

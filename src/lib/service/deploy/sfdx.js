@@ -90,9 +90,7 @@ function createDefaultSfdxProjectFile(config) {
 		.then(answers => {
 			if (answers.create === true) {
 				return fs.writeJson('./sfdx-project.json', defaultSfdxProjectFile, { spaces: 4 })
-					.then(() => {
-						return _.set(config, 'sfdx.project.file.exists', true);
-					});
+					.then(() => _.set(config, 'sfdx.project.file.exists', true));
 			}
 			return config;
 		});
@@ -200,7 +198,7 @@ function deploy(config) {
 
 function openOrg(config) {
 	const orgOpenCommands = { cmd: 'sfdx', args: ['force:org:open', '-u', `${config.parameters.sfdx.org.username}`] };
-	return shell.executeCommand(orgOpenCommands);
+	return shell.executeCommand(orgOpenCommands, config);
 }
 
 function readSfdxYaml(config) {
@@ -212,7 +210,7 @@ function readSfdxYaml(config) {
 		})
 		.catch(error => {
 			return fs.outputFile('./.salesforcedx.yaml', defaultSfdxYamlFile, { spaces: 4 })
-				.then(() => config);
+				.then(() => _.set(config, 'sfdx.yaml', yaml.safeLoad(defaultSfdxYamlFile)));
 		});
 
 }

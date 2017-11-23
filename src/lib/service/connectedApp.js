@@ -29,7 +29,6 @@
 const
 	_ = require('lodash'),
 	inquirer = require('inquirer'),
-	openUrl = require('openurl'),
 
 	configFile = require('./deploy/shared/config'),
 	connection = require('./deploy/shared/connection'),
@@ -96,23 +95,8 @@ function handleExistingConnectedAppInScratchOrg(config) {
 		.then(config => _.set(config, 'options.includeNew.sfdx', true))
 		.then(sfdx.select)
 		.then(sfdx.display)
-		.then((config) => {
-			const
-				instanceUrl = _.get(config, 'parameters.sfdx.org.credentials.instanceUrl'),
-				accessToken = _.get(config, 'parameters.sfdx.org.credentials.accessToken');
-
-			return openUrl.open(instanceUrl + '/secur/frontdoor.jsp?sid=' + accessToken);
-		})
-		.then(() => {
-
-			const
-				installLink = _.get(config, 'connected.app.install.link'),
-				instanceUrl = _.get(config, 'parameters.sfdx.org.credentials.instanceUrl'),
-				accessToken = _.get(config, 'parameters.sfdx.org.credentials.accessToken');
-
-			openUrl.open(instanceUrl + installLink + '&sid=' + accessToken);
-			return config;
-		});
+		.then(sfdx.openOrg)
+		.then(connectedApp.install);
 
 }
 
