@@ -27,9 +27,9 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
 	proxyquire = require('proxyquire'),
+	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -38,7 +38,6 @@ const
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
 	service = require(root + '/src/lib/service/deploy/certificate'),
-	certificateCommands = require(root + '/src/lib/bin/commands/deploy/certificate'),
 
 	sandbox = sinon.sandbox.create();
 
@@ -46,50 +45,67 @@ chai.use(sinonChai);
 
 describe('bin/commands/deploy/certificate.js', () => {
 
-	let mocks;
+	let cli, mocks;
+
+	beforeEach(() => {
+
+		mocks = {};
+		mocks.yargs = {};
+		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.option = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+
+		cli = proxyquire(root + '/src/lib/bin/commands/deploy/certificate', {
+			yargs: mocks.yargs
+		});
+
+	});
 
 	afterEach(() => {
 		sandbox.restore();
 	});
 
+	it('should have the correct command, description and alias', () => {
+
+		// then
+		expect(cli.command).to.eql('certificate');
+		expect(cli.aliases).to.eql(['c']);
+		expect(cli.desc).to.eql('Generates certificates');
+
+	});
+
 	it('should create the cli', () => {
-
-		// given
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
-
-		sandbox.stub(service, 'generate');
-
-		const cli = proxyquire(root + '/src/lib/bin/commands/deploy/certificate', {
-			yargs: mocks.yargs
-		});
 
 		// when
 		cli.builder(mocks.yargs);
 
-		//then
+		// then
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+		expect(mocks.yargs.option).to.have.been.calledTwice;
+		expect(mocks.yargs.usage).to.have.been.calledOnce;
 
 		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy certificate');
+		expect(mocks.yargs.option).to.have.been.calledWith('d', sinon.match.object);
+		expect(mocks.yargs.option).to.have.been.calledWith('verbose', sinon.match.object);
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy certificate [OPTIONS]');
 
 	});
 
-	it('should have a handler that calls the certificate service', () => {
+	it('should call the handler', () => {
 
 		// given
-		const { handler } = certificateCommands;
+		const
+			expectedInput = { debug: true },
+			expectedOutput = { argv: expectedInput };
 
 		sandbox.stub(service, 'generate');
 
 		// when
-		handler('test');
+		cli.handler(expectedInput);
 
 		// then
 		expect(service.generate).to.have.been.calledOnce;
-		expect(service.generate).to.have.been.calledWith({ argv: 'test' });
+		expect(service.generate).to.have.been.calledWith(expectedOutput);
 
 	});
 

@@ -76,7 +76,7 @@ describe('bin/commands/deploy.js', () => {
 		// when
 		cli.builder(mocks.yargs);
 
-		//then
+		// then
 		expect(mocks.yargs.command).to.have.been.calledTwice;
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
 		expect(mocks.yargs.updateStrings).to.have.been.calledOnce;

@@ -27,70 +27,19 @@
 'use strict';
 
 const
-	chai = require('chai'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
-	sinon = require('sinon'),
-	sinonChai = require('sinon-chai'),
+	deleteAll = require('./sfdx/deleteAll'),
 
-	expect = chai.expect,
+	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
-
-	service = require(root + '/src/lib/service/connectedApp'),
-	connectedAppCommands = require(root + '/src/lib/bin/commands/deploy/connectedApp'),
-
-	sandbox = sinon.sandbox.create();
-
-chai.use(sinonChai);
-
-describe('bin/commands/deploy/connectedApp.js', () => {
-
-	let mocks;
-
-	afterEach(() => {
-		sandbox.restore();
-	});
-
-	it('should create the cli', () => {
-
-		// given
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
-
-		sandbox.stub(service, 'create');
-
-		const cli = proxyquire(root + '/src/lib/bin/commands/deploy/connectedApp', {
-			yargs: mocks.yargs
-		});
-
-		// when
-		cli.builder(mocks.yargs);
-
-		// then
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy connected-app');
-
-	});
-
-	it('should have a handler that calls the connectedApp service', () => {
-
-		// given
-		const { handler } = connectedAppCommands;
-
-		sandbox.stub(service, 'create');
-
-		// when
-		handler('test');
-
-		// then
-		expect(service.create).to.have.been.calledOnce;
-		expect(service.create).to.have.been.calledWith({ argv: 'test' });
-
-	});
-
-});
+module.exports = {
+	command: 'sfdx',
+	desc: 'Executes SFDX commands',
+	builder: (yargs) => yargs
+		.usage('\nUsage: orizuru sfdx COMMAND')
+		.demandCommand(3, 'Run \'orizuru sfdx --help\' for more information on a command.\n')
+		.command(deleteAll)
+		.updateStrings({
+			'Commands:': 'SFDX:'
+		})
+		.epilogue(COPYRIGHT_NOTICE)
+};

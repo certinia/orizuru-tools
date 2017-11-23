@@ -27,7 +27,6 @@
 'use strict';
 
 const
-	_ = require('lodash'),
 	chai = require('chai'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
@@ -53,14 +52,6 @@ describe('bin/cli.js', () => {
 		const
 			terminalWidth = 200,
 			mockConstants = { VERSION: '1.0.0', COPYRIGHT_NOTICE: '(c) test' },
-			mockPublish = {
-				command: 'my-command'
-			},
-			mockInit = {
-				command: 'test-init',
-				description: 'test desc',
-				handler: _.noop
-			},
 			mockYargs = yargs('my-command');
 
 		sandbox.stub(mockYargs, 'alias').returnsThis();
@@ -78,22 +69,20 @@ describe('bin/cli.js', () => {
 		// when
 		proxyquire('../../lib/bin/cli', {
 			'./constants/constants': mockConstants,
-			'./commands/publish': mockPublish,
-			'./commands/init': mockInit,
 			yargs: mockYargs
 		});
 
 		// then
-		expect(mockYargs.alias).to.have.been.called;
-		expect(mockYargs.command).to.have.been.called;
-		expect(mockYargs.demandCommand).to.have.been.called;
-		expect(mockYargs.epilogue).to.have.been.called;
-		expect(mockYargs.help).to.have.been.called;
-		expect(mockYargs.showHelpOnFail).to.have.been.called;
-		expect(mockYargs.strict).to.have.been.called;
-		expect(mockYargs.usage).to.have.been.called;
-		expect(mockYargs.version).to.have.been.called;
-		expect(mockYargs.wrap).to.have.been.called;
+		expect(mockYargs.alias).to.have.been.calledTwice;
+		expect(mockYargs.command).to.have.been.calledThrice;
+		expect(mockYargs.demandCommand).to.have.been.calledOnce;
+		expect(mockYargs.epilogue).to.have.been.calledOnce;
+		expect(mockYargs.help).to.have.been.calledOnce;
+		expect(mockYargs.showHelpOnFail).to.have.been.calledOnce;
+		expect(mockYargs.strict).to.have.been.calledOnce;
+		expect(mockYargs.usage).to.have.been.calledOnce;
+		expect(mockYargs.version).to.have.been.calledOnce;
+		expect(mockYargs.wrap).to.have.been.calledOnce;
 
 		expect(mockYargs.usage).to.have.been.calledWith('\nUsage: orizuru COMMAND');
 		expect(mockYargs.demandCommand).to.have.been.calledWith(2, 'Run \'orizuru --help\' for more information on a command.\n');

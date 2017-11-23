@@ -153,6 +153,26 @@ describe('service/deploy/sfdx.js', () => {
 
 	});
 
+	describe('deleteAllScratchOrgs', () => {
+
+		it('should execute the correct commands', () => {
+
+			// given
+			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
+			mocks.shell.executeCommands = sandbox.stub().resolves({});
+
+			// when - then
+			return expect(sfdx.deleteAllScratchOrgs({}))
+				.to.eventually.eql({})
+				.then(() => {
+					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(mocks.shell.executeCommands).to.have.been.calledOnce;
+				});
+
+		});
+
+	});
+
 	describe('deploy', () => {
 
 		it('should execute the correct commands', () => {

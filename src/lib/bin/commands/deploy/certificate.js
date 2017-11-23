@@ -32,11 +32,23 @@ const
 	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
 
 module.exports = {
-	command: ['certificate', 'c'],
-	description: 'Generates certificates',
+	command: 'certificate',
+	aliases: ['c'],
+	desc: 'Generates certificates',
 	builder: yargs => {
 		return yargs
-			.usage('\nUsage: orizuru deploy certificate')
+			.usage('\nUsage: orizuru deploy certificate [OPTIONS]')
+			.option('d', {
+				alias: 'debug',
+				describe: 'Turn on debug logging',
+				demandOption: false,
+				type: 'boolean'
+			})
+			.option('verbose', {
+				describe: 'Turn on all logging',
+				demandOption: false,
+				type: 'boolean'
+			})
 			.epilogue(COPYRIGHT_NOTICE);
 	},
 	handler: (argv) => service.generate({ argv })

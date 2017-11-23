@@ -90,9 +90,22 @@ const
 		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:list', '--json'] })
 			.then(result => {
 				const scratchOrgs = JSON.parse(result.stdout).result.scratchOrgs;
-				config.sfdx = config.sfdx || {};
-				config.sfdx.scratchOrgs = scratchOrgs;
+				_.set(config, 'sfdx.scratchOrgs', scratchOrgs);
 				return config;
+			});
+
+	},
+
+	deleteAllScratchOrgs = (config) => {
+
+		return getAllScratchOrgs(config)
+			.then(config => {
+				const
+					scratchOrgs = _.get(config, 'sfdx.scratchOrgs'),
+					commands = _.map(scratchOrgs, scratchOrg => {
+						return { cmd: 'sfdx', args: ['force:org:delete', '-u', scratchOrg.username, '-p'] };
+					});
+				return shell.executeCommands(commands);
 			});
 
 	},
@@ -160,6 +173,7 @@ const
 module.exports = {
 	checkSfdxInstalled,
 	createNewScratchOrg,
+	deleteAllScratchOrgs,
 	deploy,
 	getConnectionDetails,
 	getAllScratchOrgs,

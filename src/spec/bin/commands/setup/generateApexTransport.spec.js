@@ -37,7 +37,7 @@ const
 
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	generateApexTransportCommandPath = root + '/src/lib/bin/commands/setup/generateApexTransport',
+	service = require('../../../../lib/service/generateApexTransport'),
 
 	sandbox = sinon.sandbox.create();
 
@@ -45,69 +45,63 @@ chai.use(sinonChai);
 
 describe('bin/commands/setup/generateApexTransport.js', () => {
 
-	let mocks;
+	let cli, mocks;
 
 	beforeEach(() => {
 
 		mocks = {};
-
-		mocks.generateApexTransport = sandbox.stub();
-
 		mocks.yargs = {};
 		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
 		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
 
-	});
-
-	afterEach(() => sandbox.restore());
-
-	it('should create the cli', () => {
-
-		// given
-		const cli = proxyquire(generateApexTransportCommandPath, {
-			'../../../service/generateApexTransport': mocks.generateApexTransport,
+		cli = proxyquire(root + '/src/lib/bin/commands/setup/generateApexTransport', {
 			yargs: mocks.yargs
 		});
+
+	});
+
+	afterEach(() => {
+		sandbox.restore();
+	});
+
+	it('should have the correct command, description and alias', () => {
+
+		// then
+		expect(cli.command).to.eql('generate-apex-transport [inputUrl] [outputUrl]');
+		expect(cli.aliases).to.eql(['gat']);
+		expect(cli.desc).to.eql('Generates apex transport classes for .avsc files in a folder');
+
+	});
+
+	it('should create the cli', () => {
 
 		// when
 		cli.builder(mocks.yargs);
 
-		//then
+		// then
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+		expect(mocks.yargs.usage).to.have.been.calledOnce;
 
 		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
 		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup generateapextransport [.avsc folder path] [apex class output path]');
 
 	});
 
-	it('should return the correct config', () => {
+	it('should call the handler', () => {
 
 		// given
-		const generateApexTransportCommand = proxyquire(generateApexTransportCommandPath, {
-			'../../../service/generateApexTransport': mocks.generateApexTransport
-		});
+		const
+			expectedInput = { debug: true },
+			expectedOutput = { argv: expectedInput };
 
-		// when - then
-		expect(generateApexTransportCommand).to.deep.contain({
-			command: ['generate-apex-transport [inputUrl] [outputUrl]', 'gat [inputUrl] [outputUrl]'],
-			description: 'Generates apex transport classes for .avsc files in a folder'
-		});
-
-	});
-
-	it('should have a handler that calls the generateApexTransport service', () => {
-
-		// given
-		const handler = proxyquire(generateApexTransportCommandPath, {
-			'../../../service/generateApexTransport': mocks.generateApexTransport
-		}).handler;
+		sandbox.stub(service, 'generateApexTransport');
 
 		// when
-		handler('test');
+		cli.handler(expectedInput);
 
 		// then
-		expect(mocks.generateApexTransport).to.have.been.calledOnce;
-		expect(mocks.generateApexTransport).to.have.been.calledWith('test');
+		expect(service.generateApexTransport).to.have.been.calledOnce;
+		expect(service.generateApexTransport).to.have.been.calledWith(expectedOutput);
 
 	});
 

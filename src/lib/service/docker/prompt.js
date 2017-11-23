@@ -27,70 +27,59 @@
 'use strict';
 
 const
-	chai = require('chai'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
-	sinon = require('sinon'),
-	sinonChai = require('sinon-chai'),
+	_ = require('lodash'),
+	inquirer = require('inquirer'),
+	questions = require('../../util/questions'),
+	{ validateNotEmpty } = require('../../util/validators'),
 
-	expect = chai.expect,
+	ERROR_NO_SERVICES_FOUND = 'No services found',
+	ERROR_SERVICES_NOT_FOUND = 'Service not found: ';
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
+function getServicesForProcess(message) {
 
-	service = require(root + '/src/lib/service/connectedApp'),
-	connectedAppCommands = require(root + '/src/lib/bin/commands/deploy/connectedApp'),
+	return function (config) {
 
-	sandbox = sinon.sandbox.create();
+		let services = _.get(config, 'docker.services');
+		if (_.isEmpty(services)) {
+			throw new Error(ERROR_NO_SERVICES_FOUND);
+		}
 
-chai.use(sinonChai);
+		// If we have an array of services then convert to an object
+		if (_.isArray(services)) {
+			services = _.reduce(services, (results, service) => {
+				results[service] = service;
+				return results;
+			}, {});
+		}
 
-describe('bin/commands/deploy/connectedApp.js', () => {
+		const
+			all = _.get(config, 'argv.a'),
+			serviceName = config.argv._[2],
+			choices = _.map(services, (value, key) => {
+				return { name: key };
+			});
 
-	let mocks;
+		if (all) {
+			return _.set(config, 'docker.selected.services', services);
+		}
 
-	afterEach(() => {
-		sandbox.restore();
-	});
+		if (serviceName && !services[serviceName]) {
+			throw new Error(ERROR_SERVICES_NOT_FOUND + serviceName);
+		}
 
-	it('should create the cli', () => {
+		if (serviceName) {
+			const service = _.pick(services, serviceName);
+			return _.set(config, 'docker.selected.services', service);
+		}
 
-		// given
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+		return inquirer.prompt([questions.checkboxField(message, 'services', validateNotEmpty, choices)])
+			.then(answers => _.pick(services, answers.services))
+			.then(services => _.set(config, 'docker.selected.services', services));
 
-		sandbox.stub(service, 'create');
+	};
 
-		const cli = proxyquire(root + '/src/lib/bin/commands/deploy/connectedApp', {
-			yargs: mocks.yargs
-		});
+}
 
-		// when
-		cli.builder(mocks.yargs);
-
-		// then
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy connected-app');
-
-	});
-
-	it('should have a handler that calls the connectedApp service', () => {
-
-		// given
-		const { handler } = connectedAppCommands;
-
-		sandbox.stub(service, 'create');
-
-		// when
-		handler('test');
-
-		// then
-		expect(service.create).to.have.been.calledOnce;
-		expect(service.create).to.have.been.calledWith({ argv: 'test' });
-
-	});
-
-});
+module.exports = {
+	getServicesForProcess
+};

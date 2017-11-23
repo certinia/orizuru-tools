@@ -34,8 +34,8 @@ const
 
 module.exports = {
 	command: 'setup',
-	desc: 'Executes Setup commands',
 	aliases: ['s'],
+	desc: 'Executes Setup commands',
 	builder: (yargs) => yargs
 		.usage('\nUsage: orizuru setup COMMAND')
 		.demandCommand(3, 'Run \'orizuru setup --help\' for more information on a command.\n')

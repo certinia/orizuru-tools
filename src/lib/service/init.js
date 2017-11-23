@@ -43,11 +43,11 @@ const
 /**
  * Initialises a new Orizuru project in the current working directory.
  * @instance
- * @param {Object} argv - The command line arguments.
+ * @param {object} config - The configuration object passed through the process.
  */
-function init(argv) {
+function init(config) {
 
-	return Promise.resolve({ argv })
+	return Promise.resolve(config)
 		.then(logger.logStart('Building new project'))
 		.then(template.select)
 		.then(npm.init)

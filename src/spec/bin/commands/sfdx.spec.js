@@ -37,16 +37,31 @@ const
 
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	service = require(root + '/src/lib/service/connectedApp'),
-	connectedAppCommands = require(root + '/src/lib/bin/commands/deploy/connectedApp'),
-
 	sandbox = sinon.sandbox.create();
 
 chai.use(sinonChai);
 
-describe('bin/commands/deploy/connectedApp.js', () => {
+describe('bin/commands/sfdx.js', () => {
 
-	let mocks;
+	let cli, mocks;
+
+	beforeEach(() => {
+
+		mocks = {
+			yargs: {
+				command: sandbox.stub().returnsThis(),
+				demandCommand: sandbox.stub().returnsThis(),
+				epilogue: sandbox.stub().returnsThis(),
+				updateStrings: sandbox.stub().returnsThis(),
+				usage: sandbox.stub().returnsThis()
+			}
+		};
+
+		cli = proxyquire(root + '/src/lib/bin/commands/sfdx', {
+			yargs: mocks.yargs
+		});
+
+	});
 
 	afterEach(() => {
 		sandbox.restore();
@@ -54,42 +69,27 @@ describe('bin/commands/deploy/connectedApp.js', () => {
 
 	it('should create the cli', () => {
 
-		// given
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
-
-		sandbox.stub(service, 'create');
-
-		const cli = proxyquire(root + '/src/lib/bin/commands/deploy/connectedApp', {
-			yargs: mocks.yargs
-		});
-
 		// when
 		cli.builder(mocks.yargs);
 
 		// then
+		expect(mocks.yargs.command).to.have.been.calledOnce;
+		expect(mocks.yargs.demandCommand).to.have.been.calledOnce;
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+		expect(mocks.yargs.updateStrings).to.have.been.calledOnce;
 
+		expect(mocks.yargs.demandCommand).to.have.been.calledWith(3, 'Run \'orizuru sfdx --help\' for more information on a command.\n');
 		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy connected-app');
+		expect(mocks.yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'SFDX:' });
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru sfdx COMMAND');
 
 	});
 
-	it('should have a handler that calls the connectedApp service', () => {
-
-		// given
-		const { handler } = connectedAppCommands;
-
-		sandbox.stub(service, 'create');
-
-		// when
-		handler('test');
+	it('should have the correct command, description and alias', () => {
 
 		// then
-		expect(service.create).to.have.been.calledOnce;
-		expect(service.create).to.have.been.calledWith({ argv: 'test' });
+		expect(cli.command).to.eql('sfdx');
+		expect(cli.desc).to.eql('Executes SFDX commands');
 
 	});
 

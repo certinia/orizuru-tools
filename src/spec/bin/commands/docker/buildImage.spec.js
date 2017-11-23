@@ -37,59 +37,76 @@ const
 
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	service = require(root + '/src/lib/service/connectedApp'),
-	connectedAppCommands = require(root + '/src/lib/bin/commands/deploy/connectedApp'),
+	service = require(root + '/src/lib/service/docker'),
 
 	sandbox = sinon.sandbox.create();
 
 chai.use(sinonChai);
 
-describe('bin/commands/deploy/connectedApp.js', () => {
+describe('bin/commands/docker/buildImage.js', () => {
 
-	let mocks;
+	let cli, mocks;
+
+	beforeEach(() => {
+
+		mocks = {};
+		mocks.yargs = {};
+		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.option = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+
+		cli = proxyquire(root + '/src/lib/bin/commands/docker/buildImage', {
+			yargs: mocks.yargs
+		});
+
+	});
 
 	afterEach(() => {
 		sandbox.restore();
 	});
 
+	it('should have the correct command, description and alias', () => {
+
+		// then
+		expect(cli.command).to.eql('build-image');
+		expect(cli.aliases).to.eql(['build', 'b', 'bi']);
+		expect(cli.desc).to.eql('Builds the selected Docker images');
+
+	});
+
 	it('should create the cli', () => {
-
-		// given
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
-
-		sandbox.stub(service, 'create');
-
-		const cli = proxyquire(root + '/src/lib/bin/commands/deploy/connectedApp', {
-			yargs: mocks.yargs
-		});
 
 		// when
 		cli.builder(mocks.yargs);
 
 		// then
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
+		expect(mocks.yargs.option).to.have.been.calledThrice;
+		expect(mocks.yargs.usage).to.have.been.calledOnce;
 
 		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy connected-app');
+		expect(mocks.yargs.option).to.have.been.calledWith('a', sinon.match.object);
+		expect(mocks.yargs.option).to.have.been.calledWith('d', sinon.match.object);
+		expect(mocks.yargs.option).to.have.been.calledWith('verbose', sinon.match.object);
+		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru docker build-image [SERVICE] [OPTIONS]');
 
 	});
 
-	it('should have a handler that calls the connectedApp service', () => {
+	it('should call the handler', () => {
 
 		// given
-		const { handler } = connectedAppCommands;
+		const
+			expectedInput = { debug: true },
+			expectedOutput = { argv: expectedInput };
 
-		sandbox.stub(service, 'create');
+		sandbox.stub(service, 'buildImage');
 
 		// when
-		handler('test');
+		cli.handler(expectedInput);
 
 		// then
-		expect(service.create).to.have.been.calledOnce;
-		expect(service.create).to.have.been.calledWith({ argv: 'test' });
+		expect(service.buildImage).to.have.been.calledOnce;
+		expect(service.buildImage).to.have.been.calledWith(expectedOutput);
 
 	});
 

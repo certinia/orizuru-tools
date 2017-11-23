@@ -43,10 +43,10 @@ const
 	logger = require('../util/logger');
 
 function validateArgs(config) {
-	if (!_.isString(config.inputUrl)) {
+	if (!_.isString(_.get(config, 'argv.inputUrl'))) {
 		throw new Error('Please set inputUrl as the first argument.');
 	}
-	if (!_.isString(config.outputUrl)) {
+	if (!_.isString(_.get(config, 'argv.outputUrl'))) {
 		throw new Error('Please set outputUrl as the second argument.');
 	}
 	return config;
@@ -67,10 +67,11 @@ function parseSchemas(files) {
 function generateClasses(config) {
 
 	const
-		files = getAvscFilesOnPathRecursively(path.resolve(process.cwd(), config.inputUrl)),
+		avscFilesPath = path.resolve(process.cwd(), config.argv.inputUrl),
+		files = getAvscFilesOnPathRecursively(avscFilesPath),
 		parsedSchemas = parseSchemas(files),
 		result = generate(parsedSchemas),
-		outputPath = path.resolve(process.cwd(), config.outputUrl);
+		outputPath = path.resolve(process.cwd(), config.argv.outputUrl);
 
 	return overwriteFile(outputPath, 'OrizuruTransport.cls', result.cls)
 		.then(() => overwriteFile(outputPath, 'OrizuruTransport.cls-meta.xml', result.xml))
@@ -80,18 +81,20 @@ function generateClasses(config) {
 /**
  * Generates the OrizuruTransport class file with the required Apex Transport classes.
  * @instance
- * @param {Object} argv - The command line arguments.
+ * @param {Object} config - The command line arguments.
  */
-function generateApexTransport(argv) {
+function generateApexTransport(config) {
 
-	return Promise
-		.resolve(argv)
+	return Promise.resolve(config)
 		.then(validateArgs)
 		.then(logger.logStart('Generating apex transport classes'))
 		.then(generateClasses)
-		.then((config) => logger.log('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + path.resolve(process.cwd(), config.outputUrl)))
+		.then(config => logger.log('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + path.resolve(process.cwd(), config.argv.outputUrl)))
+		.then(() => config)
 		.catch(logger.logError);
 
 }
 
-module.exports = generateApexTransport;
+module.exports = {
+	generateApexTransport
+};
