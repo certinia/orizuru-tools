@@ -34,8 +34,6 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	logger = require(root + '/src/lib/util/logger'),
-
 	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create();
@@ -50,6 +48,10 @@ describe('service/deploy/connectedApp.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
+
+		mocks.conn = {};
+		mocks.conn.query = sandbox.stub();
+
 		mocks.shell = {};
 
 		mocks.inquirer = sandbox.stub();
@@ -57,9 +59,6 @@ describe('service/deploy/connectedApp.js', () => {
 
 		mocks.jsforce = {};
 		mocks.jsforce.Connection = sandbox.stub();
-
-		sandbox.stub(logger, 'logStart');
-		sandbox.stub(logger, 'logFinish');
 
 		connectedApp = proxyquire(root + '/src/lib/service/deploy/connectedApp.js', {
 			inquirer: mocks.inquirer,
@@ -136,6 +135,35 @@ describe('service/deploy/connectedApp.js', () => {
 					expect(expectedInput.conn.metadata.upsert).to.have.been.calledOnce;
 					expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
 				});
+
+		});
+
+	});
+
+	describe('list', () => {
+
+		it('should query the Salesforce org for the ConnectedApplications', () => {
+
+			// given
+			const
+				expectedRecords = {
+					records: [{
+						name: 'test',
+						email: 'test@test.com'
+					}]
+				},
+				expectedResults = {
+					conn: mocks.conn,
+					connected: {
+						apps: expectedRecords.records
+					}
+				};
+
+			mocks.conn.query.resolves(expectedRecords);
+
+			// when - then
+			return expect(connectedApp.list({ conn: mocks.conn }))
+				.to.eventually.eql(expectedResults);
 
 		});
 

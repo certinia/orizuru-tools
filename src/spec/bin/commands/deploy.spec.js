@@ -80,7 +80,7 @@ describe('bin/commands/deploy.js', () => {
 		expect(mocks.yargs.command).to.have.been.calledTwice;
 		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
 		expect(mocks.yargs.updateStrings).to.have.been.calledOnce;
-		expect(mocks.yargs.options).to.have.callCount(4);
+		expect(mocks.yargs.options).to.have.callCount(6);
 
 		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
 		expect(mocks.yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'Deployment:' });

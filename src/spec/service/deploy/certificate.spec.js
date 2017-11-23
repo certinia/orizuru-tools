@@ -141,7 +141,7 @@ describe('service/deploy/certificate.js', () => {
 
 	});
 
-	describe('getCert', () => {
+	describe('getOrCreate', () => {
 
 		it('should generate certificate', () => {
 
@@ -184,7 +184,7 @@ describe('service/deploy/certificate.js', () => {
 			});
 
 			// when - then
-			return expect(certificate.getCert({}))
+			return expect(certificate.getOrCreate({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.shell.executeCommands).to.have.been.calledThrice;
@@ -217,7 +217,7 @@ describe('service/deploy/certificate.js', () => {
 			});
 
 			// when - then
-			return expect(certificate.getCert({}))
+			return expect(certificate.getOrCreate({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.shell.executeCommands).to.have.been.calledOnce;

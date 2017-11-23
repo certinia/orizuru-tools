@@ -27,19 +27,21 @@
 'use strict';
 
 const
-	jsforce = require('jsforce'),
+	_ = require('lodash'),
 
-	create = (config) => {
+	jsforce = require('jsforce');
 
-		const conn = new jsforce.Connection({
-			instanceUrl: config.parameters.sfdx.org.credentials.instanceUrl,
-			accessToken: config.parameters.sfdx.org.credentials.accessToken
-		});
+function create(config) {
 
-		config.conn = conn;
-		return config;
+	const conn = new jsforce.Connection({
+		instanceUrl: _.get(config, 'parameters.sfdx.org.credentials.instanceUrl'),
+		accessToken: _.get(config, 'parameters.sfdx.org.credentials.accessToken')
+	});
 
-	};
+	config.conn = conn;
+	return config;
+
+}
 
 module.exports = {
 	create

@@ -34,13 +34,15 @@ const
 	constants = require('./constants/constants'),
 	deploy = require('./commands/deploy'),
 	docker = require('./commands/docker'),
-	setup = require('./commands/setup');
+	setup = require('./commands/setup'),
+	sfdx = require('./commands/sfdx');
 
 return yargs
 	.usage('\nUsage: orizuru COMMAND')
 	.command(deploy)
 	.command(docker)
 	.command(setup)
+	.command(sfdx)
 	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
 	.showHelpOnFail(true)
 	.help('h')

@@ -29,10 +29,10 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
+	proxyquire = require('proxyquire'),
 	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
 
 	expect = chai.expect,
 
@@ -48,15 +48,22 @@ describe('service/deploy/heroku.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
+
+		mocks.config = {};
+		mocks.config.writeSetting = sandbox.stub();
+
 		mocks.fs = sandbox.stub();
 		mocks.fs.readJSON = sandbox.stub();
+
 		mocks.inquirer = {};
 		mocks.inquirer.prompt = sandbox.stub();
+
 		mocks.shell = {};
 
 		heroku = proxyquire(root + '/src/lib/service/deploy/heroku.js', {
 			'fs-extra': mocks.fs,
 			inquirer: mocks.inquirer,
+			'./shared/config': mocks.config,
 			'../../util/shell': mocks.shell
 		});
 
@@ -216,7 +223,7 @@ describe('service/deploy/heroku.js', () => {
 			return expect(heroku.addFormation(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: true });
+					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand);
 				});
 
 		});
@@ -296,7 +303,7 @@ describe('service/deploy/heroku.js', () => {
 
 			mocks.shell.executeCommand = sandbox.stub().withArgs(expectedOrgCommand).resolves({ stdout: `[{"name":"${expectedTeam}"}]` });
 			mocks.inquirer.prompt = sandbox.stub().resolves({ heroku: { organization: expectedTeam } });
-			mocks.shell.executeCommand = sandbox.stub().withArgs(expectedAppCommand, { exitOnError: true }).resolves({ stdout: `{"name":"${expectedAppName}"}` });
+			mocks.shell.executeCommand = sandbox.stub().withArgs(expectedAppCommand).resolves({ stdout: `{"name":"${expectedAppName}"}` });
 
 			// when - then
 			return expect(heroku.createNewOrganizationApp(expectedInput))
@@ -418,7 +425,9 @@ describe('service/deploy/heroku.js', () => {
 					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] });
 					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['push', 'autodeploy', 'master:master', '-f'], opts: { namespace: 'deploy' } });
 				});
+
 		});
+
 	});
 
 	describe('getAllApps', () => {
@@ -518,7 +527,7 @@ describe('service/deploy/heroku.js', () => {
 
 	});
 
-	describe('selectApp', () => {
+	describe('select', () => {
 
 		it('should prompt the user to select the Heroku application without a new app option', () => {
 
@@ -540,24 +549,27 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}],
 					message: 'Heroku App',
-					name: 'heroku.app',
+					name: 'heroku.app.name',
 					type: 'list',
 					validate: undefined,
 					['default']: 0
 				}],
 				expectedAnswer = {
 					heroku: {
-						apps: expectedAppName
+						app: {
+							name: expectedAppName
+						}
 					}
-				},
-				expectedOutput = expectedInput;
+				};
 
 			mocks.inquirer.prompt.resolves(expectedAnswer);
+			mocks.config.writeSetting.resolves();
 
 			// when - then
-			return expect(heroku.selectApp(expectedInput))
-				.to.eventually.eql(expectedOutput)
+			return expect(heroku.select(expectedInput))
+				.to.eventually.be.fulfilled
 				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
 					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 				});
 
@@ -570,7 +582,9 @@ describe('service/deploy/heroku.js', () => {
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
 					heroku: {
-						app: expectedAppName
+						app: {
+							name: expectedAppName
+						}
 					}
 				},
 				expectedInput = {
@@ -593,19 +607,20 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
-					name: 'heroku.app',
+					name: 'heroku.app.name',
 					type: 'list',
 					validate: undefined,
 					['default']: '<<Create new Heroku App>>'
-				}],
-				expectedOutput = expectedInput;
+				}];
 
 			mocks.inquirer.prompt.resolves(expectedAnswer);
+			mocks.config.writeSetting.resolves();
 
 			// when - then
-			return expect(heroku.selectApp(expectedInput))
-				.to.eventually.eql(expectedOutput)
+			return expect(heroku.select(expectedInput))
+				.to.eventually.be.fulfilled
 				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
 					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 				});
 
@@ -618,7 +633,9 @@ describe('service/deploy/heroku.js', () => {
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
 					heroku: {
-						app: '<<Create new Heroku App>>'
+						app: {
+							name: '<<Create new Heroku App>>'
+						}
 					}
 				},
 				expectedInput = {
@@ -641,34 +658,37 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
-					name: 'heroku.app',
+					name: 'heroku.app.name',
 					type: 'list',
 					validate: undefined,
 					['default']: '<<Create new Heroku App>>'
-				}],
-				expectedOutput = expectedInput;
+				}];
 
 			mocks.inquirer.prompt.resolves(expectedAnswer);
 			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+			mocks.config.writeSetting.resolves();
 
 			// when - then
-			return expect(heroku.selectApp(expectedInput))
-				.to.eventually.eql(expectedOutput)
+			return expect(heroku.select(expectedInput))
+				.to.eventually.be.fulfilled
 				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
 					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
 				});
 
 		});
 
-		it('should prompt the user to select the Heroku application with a new app option and create a new tean app if that option is chosen', () => {
+		it('should prompt the user to select the Heroku application with a new app option and create a new team app if that option is chosen', () => {
 
 			// given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
 					heroku: {
-						app: '<<Create new Heroku Organization App>>'
+						app: {
+							name: '<<Create new Heroku Organization App>>'
+						}
 					}
 				},
 				expectedInput = {
@@ -691,20 +711,21 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
-					name: 'heroku.app',
+					name: 'heroku.app.name',
 					type: 'list',
 					validate: undefined,
 					['default']: '<<Create new Heroku App>>'
-				}],
-				expectedOutput = expectedInput;
+				}];
 
 			mocks.inquirer.prompt.resolves(expectedAnswer);
 			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+			mocks.config.writeSetting.resolves();
 
 			// when - then
-			return expect(heroku.selectApp(expectedInput))
-				.to.eventually.eql(expectedOutput)
+			return expect(heroku.select(expectedInput))
+				.to.eventually.be.fulfilled
 				.then(() => {
+					expect(mocks.inquirer.prompt).to.have.been.calledTwice;
 					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
 				});
@@ -746,23 +767,24 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}],
 					message: 'Heroku App',
-					name: 'heroku.app',
+					name: 'heroku.app.name',
 					type: 'list',
 					validate: undefined,
 					['default']: 1
 				}],
 				expectedAnswer = {
 					heroku: {
-						apps: expectedAppName
+						app: {
+							name: expectedAppName
+						}
 					}
-				},
-				expectedOutput = expectedInput;
+				};
 
 			mocks.inquirer.prompt.resolves(expectedAnswer);
 
 			// when - then
-			return expect(heroku.selectApp(expectedInput))
-				.to.eventually.eql(expectedOutput)
+			return expect(heroku.select(expectedInput))
+				.to.eventually.be.fulfilled
 				.then(() => {
 					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
 				});

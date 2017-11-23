@@ -74,7 +74,7 @@ describe('bin/cli.js', () => {
 
 		// then
 		expect(mockYargs.alias).to.have.been.calledTwice;
-		expect(mockYargs.command).to.have.been.calledThrice;
+		expect(mockYargs.command).to.have.callCount(4);
 		expect(mockYargs.demandCommand).to.have.been.calledOnce;
 		expect(mockYargs.epilogue).to.have.been.calledOnce;
 		expect(mockYargs.help).to.have.been.calledOnce;

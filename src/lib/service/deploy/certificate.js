@@ -111,7 +111,7 @@ function certsExist(config) {
 	return config.certificate && config.certificate.publicKey && config.certificate.privateKey;
 }
 
-function getCert(config) {
+function getOrCreate(config) {
 
 	return read(config)
 		.then(result => {
@@ -130,5 +130,5 @@ module.exports = {
 	create,
 	generate,
 	read,
-	getCert
+	getOrCreate
 };
