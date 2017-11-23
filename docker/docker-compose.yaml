@@ -31,7 +31,7 @@ services:
     build:
       context: .
       dockerfile: heroku-nodejs.dockerfile
-    image: ffxb/heroku/nodejs
+    image: ffdc/heroku/nodejs
 
   heroku-java-nodejs:
     build:
@@ -57,5 +57,5 @@ services:
       - "0.0.0.0:9092:9092"
     container_name: ffdc-kafka
     environment: 
-      - ADVERTISED_HOST=ffxb-kafka
+      - ADVERTISED_HOST=ffdc-kafka
       - ADVERTISED_PORT=9092
