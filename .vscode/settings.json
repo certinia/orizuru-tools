@@ -27,6 +27,7 @@
 	"files.associations": {
 		"*.avsc": "json"
 	},
+	"files.insertFinalNewline": true,
 	"editor.detectIndentation": false,
 	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,
