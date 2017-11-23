@@ -35,6 +35,8 @@ const
 
 	expect = chai.expect,
 
+	logger = require(root + '/src/lib/util/logger'),
+
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
@@ -59,16 +61,14 @@ describe('service/init/packageJson.js', () => {
 		mocks.inquirer = sandbox.stub();
 		mocks.inquirer.prompt = sandbox.stub();
 
-		mocks.logger = sandbox.stub();
-		mocks.logger.logEvent = sandbox.stub();
-		mocks.logger.logFinish = sandbox.stub();
-		mocks.logger.logLn = sandbox.stub();
+		sandbox.stub(logger, 'logEvent');
+		sandbox.stub(logger, 'logFinish');
+		sandbox.stub(logger, 'logLn');
 
 		packageJson = proxyquire(root + '/src/lib/service/init/packageJson', {
 			'fs-extra': mocks.fs,
 			inquirer: mocks.inquirer,
-			'../../util/debug': mocks.debug,
-			'../../util/logger': mocks.logger
+			'../../util/debug': mocks.debug
 		});
 
 	});
@@ -252,7 +252,7 @@ describe('service/init/packageJson.js', () => {
 			return expect(packageJson.read(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.logger.logLn).to.not.have.been.called;
+					expect(logger.logLn).to.not.have.been.called;
 					expect(mocks.fs.readJson).to.have.been.calledOnce;
 					expect(mocks.fs.readJson).to.have.been.calledWith(root + '/package.json');
 				});
@@ -289,7 +289,7 @@ describe('service/init/packageJson.js', () => {
 			return expect(packageJson.write(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.logger.logLn).to.not.have.been.called;
+					expect(logger.logLn).to.not.have.been.called;
 					expect(mocks.fs.writeJson).to.have.been.calledOnce;
 					expect(mocks.fs.writeJson).to.have.been.calledWith(root + '/package.json', expectedPackageJson, { spaces: 2 });
 				});

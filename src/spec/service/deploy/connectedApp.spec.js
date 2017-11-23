@@ -60,9 +60,13 @@ describe('service/deploy/connectedApp.js', () => {
 		mocks.jsforce = {};
 		mocks.jsforce.Connection = sandbox.stub();
 
+		mocks.openUrl = {};
+		mocks.openUrl.openUrl = sandbox.stub();
+
 		connectedApp = proxyquire(root + '/src/lib/service/deploy/connectedApp.js', {
 			inquirer: mocks.inquirer,
 			jsforce: mocks.jsforce,
+			openUrl: mocks.openUrl,
 			'../../util/shell': mocks.shell
 		});
 
