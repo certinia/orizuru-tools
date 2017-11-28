@@ -71,7 +71,7 @@ const
 	deploy = (config) => {
 
 		const deployCommands = [
-			{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`], opts: { namespace: 'deploy' } },
+			{ cmd: 'sfdx', args: ['force:source:push', '-f', '-u', `${config.parameters.sfdx.org.username}`], opts: { namespace: 'deploy' } },
 			{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', `${config.sfdx.yaml['permset-name']}`, '-u', `${config.parameters.sfdx.org.username}`] },
 			{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
 		];
