@@ -31,204 +31,210 @@ const
 	fs = require('fs-extra'),
 	inquirer = require('inquirer'),
 	path = require('path'),
+
+	configFile = require('./shared/config'),
+
 	questions = require('../../util/questions'),
 	shell = require('../../util/shell'),
-	validators = require('../../util/validators'),
+	validators = require('../../util/validators');
 
-	addAddOns = (config) => {
+function addAddOns(config) {
 
-		const
-			getAddons = {
+	const
+		getAddons = {
+			cmd: 'heroku',
+			args: ['addons', '-a', config.parameters.heroku.app.name, '--json']
+		};
+
+	return shell.executeCommand(getAddons)
+		.then(result => JSON.parse(result.stdout))
+		.then(result => {
+			const
+				filter = appJsonAddon => !_.reduce(result, (bool, addon) => bool || addon.plan.name === appJsonAddon.plan, false),
+				addOnCommands = _.map(_.filter(_.get(config, 'heroku.app.json.addons'), filter), addon => ({
+					cmd: 'heroku',
+					args: ['addons:create', `${addon.plan}`, '-a', config.parameters.heroku.app.name]
+				}));
+			return shell.executeCommands(addOnCommands)
+				.then(() => config);
+		});
+
+}
+
+function addBuildpacks(config) {
+
+	let buildpackIndex = 0;
+
+	const
+		buildpacks = _.get(config, 'heroku.app.json.buildpacks'),
+		buildpackCommands = _.map(buildpacks, buildpack => {
+
+			buildpackIndex++;
+			return {
 				cmd: 'heroku',
-				args: ['addons', '-a', config.parameters.heroku.app.name, '--json']
+				args: ['buildpacks:add', '--index', buildpackIndex, `${buildpack.url}`, '-a', config.parameters.heroku.app.name]
 			};
 
-		return shell.executeCommand(getAddons)
-			.then(result => JSON.parse(result.stdout))
-			.then(result => {
-				const
-					filter = appJsonAddon => !_.reduce(result, (bool, addon) => bool || addon.plan.name === appJsonAddon.plan, false),
-					addOnCommands = _.map(_.filter(_.get(config, 'heroku.app.json.addons'), filter), addon => ({
-						cmd: 'heroku',
-						args: ['addons:create', `${addon.plan}`, '-a', config.parameters.heroku.app.name]
-					}));
-				return shell.executeCommands(addOnCommands)
-					.then(() => config);
-			});
-	},
+		});
 
-	addBuildpacks = (config) => {
+	return shell.executeCommands(buildpackCommands, { exitOnError: false })
+		.then(() => config);
 
-		let buildpackIndex = 0;
+}
 
-		const
-			buildpacks = _.get(config, 'heroku.app.json.buildpacks'),
-			buildpackCommands = _.map(buildpacks, buildpack => {
+function checkHerokuCliInstalled(config) {
+	return shell.executeCommand({ cmd: 'heroku', args: ['version'] })
+		.then(() => config);
+}
 
-				buildpackIndex++;
-				return {
-					cmd: 'heroku',
-					args: ['buildpacks:add', '--index', buildpackIndex, `${buildpack.url}`, '-a', config.parameters.heroku.app.name]
-				};
+function addFormation(config) {
 
-			});
+	const
+		herokuFormation = _.get(config, 'heroku.app.json.formation'),
+		formationCommands = _.map(herokuFormation, (formation, key) => {
+			return {
+				cmd: 'heroku',
+				args: ['ps:scale', `${key}=${formation.quantity}:${formation.size}`, '-a', config.parameters.heroku.app.name]
+			};
+		});
 
-		return shell.executeCommands(buildpackCommands, { exitOnError: false })
-			.then(() => config);
+	return shell.executeCommands(formationCommands)
+		.then(() => config);
 
-	},
+}
 
-	checkHerokuCliInstalled = (config) => {
-		return shell.executeCommand({ cmd: 'heroku', args: ['version'] }, { exitOnError: true })
-			.then(() => config);
-	},
+function createNewApp(config, args) {
 
-	addFormation = (config) => {
+	const commandArgs = args || ['create', '--json'];
+	return shell.executeCommand({ cmd: 'heroku', args: commandArgs })
+		.then(result => {
+			return ({ heroku: { app: JSON.parse(result.stdout) } });
+		});
+}
 
-		const
-			herokuFormation = _.get(config, 'heroku.app.json.formation'),
-			formationCommands = _.map(herokuFormation, (formation, key) => {
-				return {
-					cmd: 'heroku',
-					args: ['ps:scale', `${key}=${formation.quantity}:${formation.size}`, '-a', config.parameters.heroku.app.name]
-				};
-			});
+function removeAutoDeploy() {
+	return shell.executeCommand({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: false } });
+}
 
-		return shell.executeCommands(formationCommands, { exitOnError: true })
-			.then(() => config);
+function createNewOrganizationApp(config) {
 
-	},
+	return shell.executeCommand({ cmd: 'heroku', args: ['orgs', '--json'] })
+		.then(result => {
+			const orgs = JSON.parse(result.stdout);
+			return _.map(orgs, org => org.name);
+		})
+		.then(orgNames => inquirer.prompt([
+			questions.listField('Organization', 'heroku.organization', undefined, orgNames)
+		]))
+		.then(answers => createNewApp(config, ['create', '-t', answers.heroku.organization, '--json']))
+		.then(config => config);
+}
 
-	createNewApp = (config, args) => {
+function checkWorkingChanges(config) {
 
-		const commandArgs = args || ['create', '--json'];
-		return shell.executeCommand({ cmd: 'heroku', args: commandArgs })
-			.then(result => {
-				return ({ heroku: { app: JSON.parse(result.stdout) } });
-			});
-	},
-
-	removeAutoDeploy = () => {
-		return shell.executeCommand({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: false } });
-	},
-
-	createNewOrganizationApp = (config) => {
-
-		return shell.executeCommand({ cmd: 'heroku', args: ['orgs', '--json'] })
-			.then(result => {
-				const orgs = JSON.parse(result.stdout);
-				return _.map(orgs, org => org.name);
-			})
-			.then(orgNames => inquirer.prompt([
-				questions.listField('Organization', 'heroku.organization', undefined, orgNames)
-			]))
-			.then(answers => createNewApp(config, ['create', '-t', answers.heroku.organization, '--json']))
-			.then(config => config);
-	},
-
-	checkWorkingChanges = (config) => {
-		return shell.executeCommand({ cmd: 'git', args: ['diff-index', 'HEAD'] })
-			.then(output => {
-				if (output.stdout.length > 0) {
-					return inquirer.prompt([
-						questions.confirmField(
-							'You have uncommitted changes in your current branch, would you like to continue?',
-							'ignoreChanges',
-							validators.validateNotEmpty,
-							false
-						)
-					]);
-				}
-
-				return { ignoreChanges: true };
-			})
-			.then(answer => {
-				if (!answer.ignoreChanges) {
-					throw new Error('Aborting deploy due to uncomitted changes');
-				}
-
-				return config;
-			});
-	},
-
-	deployCurrentBranch = (config) => {
-
-		const gitUrl = _.get(config, 'parameters.heroku.app.git_url');
-
-		return removeAutoDeploy()
-			.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${gitUrl}`] }))
-			.then(() => shell.executeCommand({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] }))
-			.then(branch => shell.executeCommand({ cmd: 'git', args: ['push', 'autodeploy', `${branch.stdout}:master`, '-f'], opts: { namespace: 'deploy' } }))
-			.then(() => removeAutoDeploy())
-			.then(() => config);
-	},
-
-	getAllApps = (config) => {
-
-		return shell.executeCommand({ cmd: 'heroku', args: ['apps', '--all', '--json'] })
-			.then(result => {
-				const apps = JSON.parse(result.stdout);
-				config.heroku = config.heroku || {};
-				config.heroku.apps = apps;
-				return config;
-			});
-
-	},
-
-	readAppJson = (config) => {
-
-		return Promise.resolve()
-			.then(() => path.resolve(process.cwd(), 'app.json'))
-			.then(filePath => {
-				return fs.readJSON(filePath);
-			})
-			.then(appJson => {
-				config.heroku = config.heroku || {};
-				config.heroku.app = config.heroku.app || {};
-				config.heroku.app.json = appJson;
-				return config;
-			})
-			.catch(() => {
-				throw new Error('app.json is required in the root of your project when deploying to heroku.');
-			});
-
-	},
-
-	selectApp = (config) => {
-
-		const
-			newApp = '<<Create new Heroku App>>',
-			newOrgApp = '<<Create new Heroku Organization App>>',
-			apps = _.map(config.heroku.apps, app => ({ name: app.name, value: app }));
-
-		let defaultValue = 0;
-
-		if (_.get(config, 'options.includeNew.heroku') === true) {
-			apps.push(newApp);
-			apps.push(newOrgApp);
-			defaultValue = newApp;
-		}
-
-		if (_.get(config, 'orizuru.heroku.app.name')) {
-			defaultValue = _.indexOf(_.map(apps, app => app.name), config.orizuru.heroku.app.name);
-		}
-
-		return inquirer.prompt([
-			questions.listField('Heroku App', 'heroku.app', undefined, apps, defaultValue)
-		]).then(answers => {
-			if (answers.heroku.app === newApp) {
-				return createNewApp(config);
-			} else if (answers.heroku.app === newOrgApp) {
-				return createNewOrganizationApp(config);
+	return shell.executeCommand({ cmd: 'git', args: ['diff-index', 'HEAD'] })
+		.then(output => {
+			if (output.stdout.length > 0) {
+				return inquirer.prompt([
+					questions.confirmField(
+						'You have uncommitted changes in your current branch, would you like to continue?',
+						'ignoreChanges',
+						validators.validateNotEmpty,
+						false
+					)
+				]);
 			}
-			return answers;
-		}).then(answers => {
-			config.parameters = config.parameters || {};
-			config.parameters.heroku = answers.heroku;
+
+			return { ignoreChanges: true };
+		})
+		.then(answer => {
+			if (!answer.ignoreChanges) {
+				throw new Error('Aborting deploy due to uncomitted changes');
+			}
+
 			return config;
 		});
 
-	};
+}
+
+function deployCurrentBranch(config) {
+
+	const gitUrl = _.get(config, 'parameters.heroku.app.git_url');
+
+	return removeAutoDeploy()
+		.then(() => shell.executeCommand({ cmd: 'git', args: ['remote', 'add', 'autodeploy', `${gitUrl}`] }))
+		.then(() => shell.executeCommand({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] }))
+		.then(branch => shell.executeCommand({ cmd: 'git', args: ['push', 'autodeploy', `${branch.stdout}:master`, '-f'], opts: { namespace: 'deploy' } }))
+		.then(() => removeAutoDeploy())
+		.then(() => config);
+
+}
+
+function getAllApps(config) {
+
+	return shell.executeCommand({ cmd: 'heroku', args: ['apps', '--all', '--json'] })
+		.then(result => {
+			const apps = JSON.parse(result.stdout);
+			config.heroku = config.heroku || {};
+			config.heroku.apps = apps;
+			return config;
+		});
+
+}
+
+function readAppJson(config) {
+
+	return Promise.resolve()
+		.then(() => path.resolve(process.cwd(), 'app.json'))
+		.then(filePath => {
+			return fs.readJSON(filePath);
+		})
+		.then(appJson => {
+			config.heroku = config.heroku || {};
+			config.heroku.app = config.heroku.app || {};
+			config.heroku.app.json = appJson;
+			return config;
+		})
+		.catch(() => {
+			throw new Error('app.json is required in the root of your project when deploying to heroku.');
+		});
+
+}
+
+function select(config) {
+
+	const
+		newApp = '<<Create new Heroku App>>',
+		newOrgApp = '<<Create new Heroku Organization App>>',
+		apps = _.map(config.heroku.apps, app => ({ name: app.name, value: app }));
+
+	let defaultValue = 0;
+
+	if (_.get(config, 'options.includeNew.heroku') === true) {
+		apps.push(newApp);
+		apps.push(newOrgApp);
+		defaultValue = newApp;
+	}
+
+	if (_.get(config, 'orizuru.heroku.app.name')) {
+		defaultValue = _.indexOf(_.map(apps, app => app.name), config.orizuru.heroku.app.name);
+	}
+
+	return inquirer.prompt([
+		questions.listField('Heroku App', 'heroku.app.name', undefined, apps, defaultValue)
+	]).then(answers => {
+		if (answers.heroku.app.name === newApp) {
+			return createNewApp(config);
+		} else if (answers.heroku.app.name === newOrgApp) {
+			return createNewOrganizationApp(config);
+		}
+		return answers;
+	}).then(answers => {
+		_.set(config, 'parameters.heroku', answers.heroku);
+		return configFile.writeSetting(config, 'heroku.app.name', answers.heroku.app.name);
+	});
+
+}
 
 module.exports = {
 	addAddOns,
@@ -241,6 +247,6 @@ module.exports = {
 	deployCurrentBranch,
 	getAllApps,
 	readAppJson,
-	selectApp,
+	select,
 	removeAutoDeploy
 };

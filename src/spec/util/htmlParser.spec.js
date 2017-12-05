@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (c) 2017, FinancialForce.com, inc
  * All rights reserved.
@@ -29,27 +27,39 @@
 'use strict';
 
 const
-	yargs = require('yargs'),
+	chai = require('chai'),
+	root = require('app-root-path'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
-	constants = require('./constants/constants'),
-	deploy = require('./commands/deploy'),
-	docker = require('./commands/docker'),
-	setup = require('./commands/setup'),
-	sfdx = require('./commands/sfdx');
+	expect = chai.expect,
 
-return yargs
-	.usage('\nUsage: orizuru COMMAND')
-	.command(deploy)
-	.command(docker)
-	.command(setup)
-	.command(sfdx)
-	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
-	.showHelpOnFail(true)
-	.help('h')
-	.alias('h', 'help')
-	.version(constants.VERSION)
-	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
-	.strict(true)
-	.wrap(yargs.terminalWidth())
-	.argv;
+	htmlParser = require(root + '/src/lib/util/htmlParser'),
+
+	sandbox = sinon.sandbox.create();
+
+chai.use(sinonChai);
+
+describe('util/htmlParser.js', () => {
+
+	afterEach(() => sandbox.restore());
+
+	describe('parseScripts', () => {
+
+		it('should parse the scripts from a html page ', () => {
+
+			// given
+			const
+				html = '<html><body><p>test</p><script>test script</script></body></html>',
+
+				// when
+				scripts = htmlParser.parseScripts({ html });
+
+			// then
+			expect(scripts).to.eql(['test script']);
+
+		});
+
+	});
+
+});

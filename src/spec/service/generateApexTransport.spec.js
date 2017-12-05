@@ -55,7 +55,7 @@ describe('service/generateApexTransport.js', () => {
 		mocks.logger.log = sandbox.stub();
 		mocks.logger.logError = sandbox.stub();
 		mocks.logger.logFinish = sandbox.stub();
-		mocks.logger.logStart = sandbox.stub();
+		mocks.logger.logEvent = sandbox.stub();
 
 		mocks.generate = sandbox.stub();
 		mocks.generate.generate = sandbox.stub();

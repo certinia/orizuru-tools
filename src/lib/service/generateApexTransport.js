@@ -87,7 +87,7 @@ function generateApexTransport(config) {
 
 	return Promise.resolve(config)
 		.then(validateArgs)
-		.then(logger.logStart('Generating apex transport classes'))
+		.then(logger.logEvent('Generating apex transport classes'))
 		.then(generateClasses)
 		.then(config => logger.log('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + path.resolve(process.cwd(), config.argv.outputUrl)))
 		.then(() => config)

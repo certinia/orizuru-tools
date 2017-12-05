@@ -34,7 +34,12 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	logger = require(root + '/src/lib/util/logger'),
+	inquirer = require('inquirer'),
+	openUrl = require('openurl'),
+	request = require('request-promise'),
+
+	configFile = require('../../../lib/service/deploy/shared/config'),
+	htmlParser = require('../../../lib/util/htmlParser'),
 
 	expect = chai.expect,
 
@@ -50,19 +55,23 @@ describe('service/deploy/connectedApp.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
-		mocks.shell = {};
 
-		mocks.inquirer = sandbox.stub();
-		mocks.inquirer.prompt = sandbox.stub();
+		mocks.conn = {};
+		mocks.conn.query = sandbox.stub();
+
+		mocks.shell = {};
 
 		mocks.jsforce = {};
 		mocks.jsforce.Connection = sandbox.stub();
 
-		sandbox.stub(logger, 'logStart');
-		sandbox.stub(logger, 'logFinish');
+		sandbox.stub(openUrl, 'open');
+
+		sandbox.stub(configFile, 'writeSetting');
+		sandbox.stub(inquirer, 'prompt');
+		sandbox.stub(htmlParser, 'parseScripts');
+		sandbox.stub(request, 'get');
 
 		connectedApp = proxyquire(root + '/src/lib/service/deploy/connectedApp.js', {
-			inquirer: mocks.inquirer,
 			jsforce: mocks.jsforce,
 			'../../util/shell': mocks.shell
 		});
@@ -89,7 +98,7 @@ describe('service/deploy/connectedApp.js', () => {
 					}
 				};
 
-			mocks.inquirer.prompt.resolves(expectedAnswers);
+			inquirer.prompt.resolves(expectedAnswers);
 
 			// when - then
 			return expect(connectedApp.askQuestions({})).to.eventually.eql(expectedResults);
@@ -135,6 +144,169 @@ describe('service/deploy/connectedApp.js', () => {
 				.then(() => {
 					expect(expectedInput.conn.metadata.upsert).to.have.been.calledOnce;
 					expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
+				});
+
+		});
+
+	});
+
+	describe('install', () => {
+
+		it('should navigate to the correct url', () => {
+
+			// given
+			const
+				expectedInstanceUrl = 'testInstance',
+				expectedInstallLink = '/testLink',
+				expectedInput = {
+					connected: {
+						app: {
+							install: {
+								link: expectedInstallLink
+							}
+						}
+					},
+					parameters: {
+						sfdx: {
+							org: {
+								credentials: {
+									instanceUrl: expectedInstanceUrl
+								}
+							}
+						}
+					}
+				};
+
+			// when - then
+			expect(connectedApp.install(expectedInput)).to.eql(expectedInput);
+
+		});
+
+	});
+
+	describe('list', () => {
+
+		it('should query the Salesforce org for the ConnectedApplications', () => {
+
+			// given
+			const
+				expectedRecords = {
+					records: [{
+						name: 'test',
+						email: 'test@test.com'
+					}]
+				},
+				expectedResults = {
+					conn: mocks.conn,
+					connected: {
+						apps: expectedRecords.records
+					}
+				};
+
+			mocks.conn.query.resolves(expectedRecords);
+
+			// when - then
+			return expect(connectedApp.list({ conn: mocks.conn }))
+				.to.eventually.eql(expectedResults);
+
+		});
+
+	});
+
+	describe('generateInstallUrl', () => {
+
+		it('should create the installUrl for the connected app', () => {
+
+			// given
+			const
+				expectedConnectedAppId = 'testConnectedAppId',
+				expectedOutput = {
+					connected: {
+						app: {
+							install: {
+								link: `/identity/app/AppInstallApprovalPage.apexp?app_id=${expectedConnectedAppId}`
+							}
+						}
+					}
+				};
+
+			request.get.resolves();
+			htmlParser.parseScripts
+				.onFirstCall().returns([
+					'\nif (this.SfdcApp && this.SfdcApp.projectOneNavigator) { SfdcApp.projectOneNavigator.handleRedirect(\'/_ui/core/application/force/connectedapp/ForceConnectedApplicationPage/d?applicationId=06P1D00000000Er\'); }  else \nif (window.location.replace){ \nwindow.location.replace(\'/_ui/core/application/force/connectedapp/ForceConnectedApplicationPage/d?applicationId=06P1D00000000Er\');\n} else {;\nwindow.location.href =\'/_ui/core/application/force/connectedapp/ForceConnectedApplicationPage/d?applicationId=06P1D00000000Er\';\n} \n'
+				])
+				.onSecondCall().returns([
+					`\nif (this.SfdcApp && this.SfdcApp.projectOneNavigator) { SfdcApp.projectOneNavigator.handleRedirect('/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=06P1D00000000Er&id=${expectedConnectedAppId}'); }  else \nif (window.location.replace){ \nwindow.location.replace('/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=06P1D00000000Er&id=${expectedConnectedAppId}');\n} else {;\nwindow.location.href ='/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=06P1D00000000Er&id=${expectedConnectedAppId}';\n} \n`
+				]);
+
+			// when then
+			return expect(connectedApp.generateInstallUrl({}))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(request.get).to.have.been.calledTwice;
+					expect(htmlParser.parseScripts).to.have.been.calledTwice;
+				});
+
+		});
+
+	});
+
+	describe('select', () => {
+
+		it('should prompt the user to select a connecte app', () => {
+
+			// given
+			const
+				expectedConnectedAppId = 'testId',
+				expectedConnectedApp = {
+					attributes: {
+						type: 'ConnectedApplication',
+						url: '/services/data/v39.0/sobjects/ConnectedApplication/testId'
+					},
+					Id: expectedConnectedAppId,
+					Name: 'Orizuru'
+				},
+				expectedInput = {
+					connected: {
+						apps: [expectedConnectedApp]
+					}
+				},
+				expectedAnswers = {
+					connected: {
+						app: expectedConnectedApp
+					}
+				},
+				expectedOutput = {
+					connected: {
+						app: {
+							selected: {
+								Id: expectedConnectedAppId,
+								Name: 'Orizuru',
+								attributes: {
+									type: 'ConnectedApplication',
+									url: '/services/data/v39.0/sobjects/ConnectedApplication/testId'
+								}
+							}
+						},
+						apps: [{
+							Id: expectedConnectedAppId,
+							Name: 'Orizuru',
+							attributes: {
+								type: 'ConnectedApplication',
+								url: '/services/data/v39.0/sobjects/ConnectedApplication/testId'
+							}
+						}]
+					}
+				};
+
+			configFile.writeSetting.resolves(expectedOutput);
+			inquirer.prompt.resolves(expectedAnswers);
+
+			// when - then
+			return expect(connectedApp.select(expectedInput))
+				.to.eventually.eql(expectedOutput)
+				.then(() => {
+					expect(configFile.writeSetting).to.have.been.calledWith(expectedOutput, 'connected.app.id', expectedConnectedAppId);
 				});
 
 		});

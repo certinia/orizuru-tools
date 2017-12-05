@@ -28,157 +28,235 @@
 
 const
 	_ = require('lodash'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	inquirer = require('inquirer'),
 	path = require('path'),
 	yaml = require('js-yaml'),
+
+	configFile = require('./shared/config'),
+
 	logger = require('../../util/logger'),
 	questions = require('../../util/questions'),
 	shell = require('../../util/shell'),
 
-	checkSfdxInstalled = (config) => {
-		return shell.executeCommand({ cmd: 'sfdx', args: ['version'] }, config)
-			.then(() => config);
-	},
+	defaultSfdxYamlFile = 'scratch-org-def: src/apex/config/project-scratch-def.json\nassign-permset: true\npermset-name: OrizuruAdmin\nrun-apex-tests: true\ndelete-scratch-org: false\nshow-scratch-org-url: true',
 
-	login = (config) => {
-
-		// Check the Orizuru config file for the hub username
-		if (_.get(config, 'orizuru.sfdx.hub.username')) {
-			config.sfdx = config.sfdx || {};
-			config.sfdx.hub = config.orizuru.sfdx.hub.username;
-			return Promise.resolve(config);
+	defaultSfdxProjectScratchDefinitionFile = {
+		orgName: 'Orizuru Inc',
+		edition: 'Developer',
+		orgPreferences: {
+			enabled: ['S1DesktopEnabled']
 		}
-
-		// Prompt the user to log into their SFDX dev hub
-		return Promise.resolve(config)
-			.then(logger.logEvent('You are about to be asked to log into your SFDX Dev hub'))
-			.then(() => shell.executeCommand({ cmd: 'sfdx', args: ['force:auth:web:login', '-s', '--json'] }))
-			.then(result => {
-				const hub = JSON.parse(result.stdout).result;
-				config.sfdx = config.sfdx || {};
-				config.sfdx.hub = hub;
-				return config;
-			});
-
 	},
 
-	createNewScratchOrg = (config) => {
-		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', config.sfdx.yaml['scratch-org-def'], '-v', config.orizuru.sfdx.hub.username, '-a', config.orizuru.heroku.app.name, '-s', '--json'] })
-			.then(result => ({ sfdx: { org: JSON.parse(result.stdout).result } }));
-	},
+	defaultSfdxProjectFile = {
+		packageDirectories: [{
+			path: 'src/apex/app',
+			'default': true
+		}],
+		namespace: '',
+		sfdcLoginUrl: 'https://login.salesforce.com',
+		sourceApiVersion: '41.0'
+	};
 
-	deploy = (config) => {
+function login(config) {
 
-		const deployCommands = [
-			{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`], opts: { namespace: 'deploy' } },
-			{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', `${config.sfdx.yaml['permset-name']}`, '-u', `${config.parameters.sfdx.org.username}`] },
-			{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
-		];
-
-		return shell.executeCommands(deployCommands, { exitOnError: true })
-			.then(results => {
-				config.sfdxResults = results;
-				config.connectionInfo = JSON.parse(_.values(config.sfdxResults)[2].stdout).result;
-				return config;
-			});
-
-	},
-
-	getAllScratchOrgs = (config) => {
-
-		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:list', '--json'] })
-			.then(result => {
-				const scratchOrgs = JSON.parse(result.stdout).result.scratchOrgs;
-				_.set(config, 'sfdx.scratchOrgs', scratchOrgs);
-				return config;
-			});
-
-	},
-
-	deleteAllScratchOrgs = (config) => {
-
-		return getAllScratchOrgs(config)
-			.then(config => {
-				const
-					scratchOrgs = _.get(config, 'sfdx.scratchOrgs'),
-					commands = _.map(scratchOrgs, scratchOrg => {
-						return { cmd: 'sfdx', args: ['force:org:delete', '-u', scratchOrg.username, '-p'] };
-					});
-				return shell.executeCommands(commands);
-			});
-
-	},
-
-	getConnectionDetails = (config) => {
-
-		return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] })
-			.then(results => {
-				const credentials = JSON.parse(results.stdout);
-				config.parameters.sfdx.org.credentials = credentials.result;
-				return config;
-			});
-
-	},
-
-	openOrg = (config) => {
-
-		const orgOpenCommands = [
-			{ cmd: 'sfdx', args: ['force:org:open', '-u', `${config.parameters.sfdx.org.username}`] }
-		];
-
-		return shell.executeCommands(orgOpenCommands, { exitOnError: true });
-
-	},
-
-	readSfdxYaml = (config) => {
-		const dxYaml = yaml.safeLoad(fs.readFileSync(path.resolve(process.cwd(), '.salesforcedx.yaml')));
+	// Check the Orizuru config file for the hub username
+	if (_.get(config, 'orizuru.sfdx.hub.username')) {
 		config.sfdx = config.sfdx || {};
-		config.sfdx.yaml = dxYaml;
-		return config;
-	},
+		config.sfdx.hub = config.orizuru.sfdx.hub.username;
+		return Promise.resolve(config);
+	}
 
-	selectApp = (config) => {
+	// Prompt the user to log into their SFDX dev hub
+	return Promise.resolve(config)
+		.then(logger.logEvent('You are about to be asked to log into your SFDX Dev hub'))
+		.then(() => shell.executeCommand({ cmd: 'sfdx', args: ['force:auth:web:login', '-s', '--json'] }))
+		.then(result => {
+			const hub = JSON.parse(result.stdout).result;
+			_.set(config, 'sfdx.hub.username', hub.username);
+			return configFile.writeSetting(config, 'sfdx.hub.username', config.sfdx.hub.username);
+		});
 
-		const
-			newOrg = '<<Create new SFDX scratch org>>',
-			allScratchOrgs = _.get(config, 'sfdx.scratchOrgs'),
-			scratchOrgs = _.map(allScratchOrgs, org => ({ name: org.username, value: org }));
+}
 
-		let defaultValue = 0;
+function createDefaultSfdxProjectFile(config) {
 
-		if (config.options && config.options.includeNew && config.options.includeNew.sfdx === true) {
-			scratchOrgs.push(newOrg);
-		}
-
-		if (_.get(config, 'orizuru.sfdx.org.username')) {
-			defaultValue = _.indexOf(_.map(allScratchOrgs, org => org.username), config.orizuru.sfdx.org.username);
-		}
-
-		return inquirer.prompt([
-			questions.listField('SFDX Scratch Org', 'sfdx.org', undefined, scratchOrgs, defaultValue)
-		]).then(answers => {
-			if (answers.sfdx.org === newOrg) {
-				return createNewScratchOrg(config);
+	return Promise.resolve(config)
+		.then(logger.logEvent('The sfdx-project.json file does not exist.'))
+		.then(() => inquirer.prompt([
+			questions.confirmField('Create default SFDX project configuration?', 'create', undefined, true)
+		]))
+		.then(answers => {
+			if (answers.create === true) {
+				return fs.writeJson('./sfdx-project.json', defaultSfdxProjectFile, { spaces: 4 })
+					.then(() => _.set(config, 'sfdx.project.file.exists', true));
 			}
-			return answers;
-		}).then(answers => {
-			config.parameters = config.parameters || {};
-			config.parameters.sfdx = answers.sfdx;
 			return config;
 		});
 
-	};
+}
+
+function checkSfdxProjectFileExists(config) {
+
+	return shell.executeCommand({ cmd: 'cat', args: ['sfdx-project.json'] })
+		.then(() => config)
+		.catch(error => {
+			return createDefaultSfdxProjectFile(config)
+				.then(config => {
+					if (!_.get(config, 'sfdx.project.file.exists')) {
+						throw error;
+					}
+					return config;
+				});
+		});
+
+}
+
+function checkSfdxFolderExists(config) {
+
+	return shell.executeCommand({ cmd: 'cd', args: ['.sfdx'] })
+		.then(() => config)
+		.catch(() => login(config));
+
+}
+
+function checkSfdxInstalled(config) {
+
+	return Promise.resolve(config)
+		.then(logger.logEvent('Check SFDX installed'))
+		.then(() => shell.executeCommand({ cmd: 'sfdx', args: ['version'] }))
+		.then(() => config);
+}
+
+function createNewScratchOrg(config) {
+
+	let scratchOrgDefinitionFile = _.get(config, 'sfdx.yaml[scratch-org-def]');
+	if (!scratchOrgDefinitionFile) {
+		scratchOrgDefinitionFile = './src/apex/config/project-scratch-def.json';
+		_.set(config, 'sfdx.yaml[scratch-org-def]', defaultSfdxProjectScratchDefinitionFile);
+		fs.outputJsonSync(scratchOrgDefinitionFile, defaultSfdxProjectScratchDefinitionFile);
+	}
+
+	return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:create', '-f', scratchOrgDefinitionFile, '-v', config.orizuru.sfdx.hub.username, '-s', '--json'] })
+		.then(result => ({ sfdx: { org: JSON.parse(result.stdout).result } }));
+}
+
+function display(config) {
+
+	return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] })
+		.then(results => {
+			const credentials = JSON.parse(results.stdout);
+			_.set(config, 'parameters.sfdx.org.credentials', credentials.result);
+			return config;
+		});
+
+}
+
+function getAllScratchOrgs(config) {
+
+	return shell.executeCommand({ cmd: 'sfdx', args: ['force:org:list', '--json'] })
+		.then(result => {
+			const scratchOrgs = JSON.parse(result.stdout).result.scratchOrgs;
+			return _.set(config, 'sfdx.scratchOrgs', scratchOrgs);
+		});
+
+}
+
+function deleteAllScratchOrgs(config) {
+
+	return getAllScratchOrgs(config)
+		.then(config => {
+			const
+				scratchOrgs = _.get(config, 'sfdx.scratchOrgs'),
+				commands = _.map(scratchOrgs, scratchOrg => {
+					return { cmd: 'sfdx', args: ['force:org:delete', '-u', scratchOrg.username, '-p'] };
+				});
+			return shell.executeCommands(commands);
+		});
+
+}
+
+function deploy(config) {
+
+	const deployCommands = [
+		{ cmd: 'sfdx', args: ['force:source:push', '-u', `${config.parameters.sfdx.org.username}`], opts: { namespace: 'deploy' } },
+		{ cmd: 'sfdx', args: ['force:user:permset:assign', '-n', `${config.sfdx.yaml['permset-name']}`, '-u', `${config.parameters.sfdx.org.username}`] },
+		{ cmd: 'sfdx', args: ['force:org:display', '-u', `${config.parameters.sfdx.org.username}`, '--json'] }
+	];
+
+	return Promise.resolve(config)
+		.then(logger.logEvent('\nDeploy SFDX code'))
+		.then(() => shell.executeCommands(deployCommands, { exitOnError: true }))
+		.then(results => {
+			config.sfdxResults = results;
+			config.connectionInfo = JSON.parse(_.values(config.sfdxResults)[2].stdout).result;
+			return config;
+		});
+
+}
+
+function openOrg(config) {
+	const orgOpenCommands = { cmd: 'sfdx', args: ['force:org:open', '-u', `${config.parameters.sfdx.org.username}`] };
+	return shell.executeCommand(orgOpenCommands, config);
+}
+
+function readSfdxYaml(config) {
+
+	return fs.readFile(path.resolve(process.cwd(), '.salesforcedx.yaml'))
+		.then(result => {
+			const dxYaml = yaml.safeLoad(result);
+			return _.set(config, 'sfdx.yaml', dxYaml);
+		})
+		.catch(error => {
+			return fs.outputFile('./.salesforcedx.yaml', defaultSfdxYamlFile, { spaces: 4 })
+				.then(() => _.set(config, 'sfdx.yaml', yaml.safeLoad(defaultSfdxYamlFile)));
+		});
+
+}
+
+function select(config) {
+
+	const
+		newOrg = '<<Create new SFDX scratch org>>',
+		allScratchOrgs = _.get(config, 'sfdx.scratchOrgs'),
+		scratchOrgs = _.map(allScratchOrgs, org => ({ name: org.username, value: org }));
+
+	let defaultValue = 0;
+
+	if (config.options && config.options.includeNew && config.options.includeNew.sfdx === true) {
+		scratchOrgs.push(newOrg);
+	}
+
+	if (_.get(config, 'orizuru.sfdx.org.username')) {
+		defaultValue = _.indexOf(_.map(allScratchOrgs, org => org.username), config.orizuru.sfdx.org.username);
+	}
+
+	return inquirer.prompt([
+		questions.listField('Select SFDX Scratch Org', 'sfdx.org', undefined, scratchOrgs, defaultValue)
+	]).then(answers => {
+		if (answers.sfdx.org === newOrg) {
+			return createNewScratchOrg(config);
+		}
+		return answers;
+	}).then(answers => {
+		_.set(config, 'parameters.sfdx', answers.sfdx);
+		return configFile.writeSetting(config, 'sfdx.org.username', config.parameters.sfdx.org.username);
+	});
+
+}
 
 module.exports = {
+	checkSfdxFolderExists,
 	checkSfdxInstalled,
+	checkSfdxProjectFileExists,
 	createNewScratchOrg,
 	deleteAllScratchOrgs,
 	deploy,
-	getConnectionDetails,
+	display,
 	getAllScratchOrgs,
 	login,
 	openOrg,
 	readSfdxYaml,
-	selectApp
+	select
 };

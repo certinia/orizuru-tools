@@ -43,9 +43,27 @@ module.exports = {
 			.usage('\nUsage: orizuru deploy COMMAND')
 			.command(certificate)
 			.command(connectedApp)
+			.options('apex', {
+				alias: 'a',
+				describe: 'Apex deploy',
+				demandOption: false,
+				type: 'boolean'
+			})
 			.options('debug', {
 				alias: 'd',
 				describe: 'Turn on debug logging',
+				demandOption: false,
+				type: 'boolean'
+			})
+			.options('full', {
+				alias: 'f',
+				describe: 'Full deploy',
+				demandOption: false,
+				type: 'boolean'
+			})
+			.options('heroku', {
+				alias: 'h',
+				describe: 'Heroku deploy',
 				demandOption: false,
 				type: 'boolean'
 			})
@@ -57,11 +75,6 @@ module.exports = {
 			})
 			.options('verbose', {
 				describe: 'Turn on all logging',
-				demandOption: false,
-				type: 'boolean'
-			})
-			.options('full', {
-				describe: 'Full deploy',
 				demandOption: false,
 				type: 'boolean'
 			})
