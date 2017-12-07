@@ -210,7 +210,7 @@ function select(config) {
 
 	let defaultValue = 0;
 
-	if (_.get(config, 'options.includeNew.heroku') === true) {
+	if (_.get(config, 'options.includeNew.heroku')) {
 		apps.push(newApp);
 		apps.push(newOrgApp);
 		defaultValue = newApp;
@@ -223,9 +223,9 @@ function select(config) {
 	return inquirer.prompt([
 		questions.listField('Heroku App', 'heroku.app', undefined, apps, defaultValue)
 	]).then(answers => {
-		if (answers.heroku.app.name === newApp) {
+		if (answers.heroku.app === newApp) {
 			return createNewApp(config);
-		} else if (answers.heroku.app.name === newOrgApp) {
+		} else if (answers.heroku.app === newOrgApp) {
 			return createNewOrganizationApp(config);
 		}
 		return answers;
