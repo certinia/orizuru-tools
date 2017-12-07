@@ -549,7 +549,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}],
 					message: 'Heroku App',
-					name: 'heroku.app.name',
+					name: 'heroku.app',
 					type: 'list',
 					validate: undefined,
 					['default']: 0
@@ -607,7 +607,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
-					name: 'heroku.app.name',
+					name: 'heroku.app',
 					type: 'list',
 					validate: undefined,
 					['default']: '<<Create new Heroku App>>'
@@ -658,7 +658,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
-					name: 'heroku.app.name',
+					name: 'heroku.app',
 					type: 'list',
 					validate: undefined,
 					['default']: '<<Create new Heroku App>>'
@@ -711,7 +711,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
-					name: 'heroku.app.name',
+					name: 'heroku.app',
 					type: 'list',
 					validate: undefined,
 					['default']: '<<Create new Heroku App>>'
@@ -767,7 +767,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}],
 					message: 'Heroku App',
-					name: 'heroku.app.name',
+					name: 'heroku.app',
 					type: 'list',
 					validate: undefined,
 					['default']: 1
