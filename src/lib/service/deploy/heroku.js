@@ -221,7 +221,7 @@ function select(config) {
 	}
 
 	return inquirer.prompt([
-		questions.listField('Heroku App', 'heroku.app.name', undefined, apps, defaultValue)
+		questions.listField('Heroku App', 'heroku.app', undefined, apps, defaultValue)
 	]).then(answers => {
 		if (answers.heroku.app.name === newApp) {
 			return createNewApp(config);
