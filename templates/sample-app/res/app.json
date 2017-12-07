@@ -4,15 +4,15 @@
 	"formation": {
 		"web": {
 			"quantity": 1,
-			"size": "standard-1x"
+			"size": "free"
 		},
 		"worker": {
 			"quantity": 1,
-			"size": "standard-1x"
+			"size": "free"
 		},
 		"route-solver": {
 			"quantity": 1,
-			"size": "standard-1x"
+			"size": "free"
 		}
 	},
 	"addons": [{
