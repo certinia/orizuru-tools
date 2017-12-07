@@ -633,9 +633,7 @@ describe('service/deploy/heroku.js', () => {
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
 					heroku: {
-						app: {
-							name: '<<Create new Heroku App>>'
-						}
+						app: '<<Create new Heroku App>>'
 					}
 				},
 				expectedInput = {
@@ -686,9 +684,7 @@ describe('service/deploy/heroku.js', () => {
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
 					heroku: {
-						app: {
-							name: '<<Create new Heroku Organization App>>'
-						}
+						app: '<<Create new Heroku Organization App>>'
 					}
 				},
 				expectedInput = {
