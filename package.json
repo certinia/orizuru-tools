@@ -12,6 +12,10 @@
     "single-test": "nyc --all=false mocha",
     "test": "nyc --include src mocha --recursive src/spec"
   },
+  "bugs": {
+    "url": "https://github.com/financialforcedev/orizuru-tools/issues"
+  },
+  "homepage": "https://github.com/financialforcedev/orizuru-tools#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/financialforcedev/orizuru-tools"
@@ -49,7 +53,11 @@
     "chai-as-promised": "7.1.1",
     "eslint": "4.9.0",
     "jsdoc": "3.5.5",
+    "htmlparser2": "3.9.2",
     "mocha": "4.0.1",
+    "openurl": "1.1.1",
+    "request": "2.83.0",
+    "request-promise": "4.2.2",
     "nyc": "11.2.1",
     "pkginfo": "0.4.1",
     "proxyquire": "1.8.0",
@@ -75,9 +83,5 @@
     ],
     "cache": true,
     "all": true
-  },
-  "bugs": {
-    "url": "https://github.com/financialforcedev/orizuru-tools/issues"
-  },
-  "homepage": "https://github.com/financialforcedev/orizuru-tools#readme"
+  }
 }

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (c) 2017, FinancialForce.com, inc
  * All rights reserved.
@@ -28,28 +26,43 @@
 
 'use strict';
 
-const
-	yargs = require('yargs'),
+const htmlparser = require('htmlparser2');
 
-	constants = require('./constants/constants'),
-	deploy = require('./commands/deploy'),
-	docker = require('./commands/docker'),
-	setup = require('./commands/setup'),
-	sfdx = require('./commands/sfdx');
+function parseScripts({ html }) {
 
-return yargs
-	.usage('\nUsage: orizuru COMMAND')
-	.command(deploy)
-	.command(docker)
-	.command(setup)
-	.command(sfdx)
-	.demandCommand(2, 'Run \'orizuru --help\' for more information on a command.\n')
-	.showHelpOnFail(true)
-	.help('h')
-	.alias('h', 'help')
-	.version(constants.VERSION)
-	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
-	.strict(true)
-	.wrap(yargs.terminalWidth())
-	.argv;
+	const
+		scripts = [],
+		parser = new htmlparser.Parser({
+
+			capture: false,
+
+			onopentag: function (name, attribs) {
+				if (name === 'script') {
+					this.capture = true;
+				}
+			},
+
+			ontext: function (script) {
+				if (this.capture === true) {
+					scripts.push(script);
+				}
+			},
+
+			onclosetag: function (tagname) {
+				if (tagname === 'script') {
+					this.capture = false;
+				}
+			}
+
+		}, { decodeEntities: false });
+
+	parser.write(html);
+	parser.end();
+
+	return scripts;
+
+}
+
+module.exports = {
+	parseScripts
+};

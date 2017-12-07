@@ -27,7 +27,14 @@
 'use strict';
 
 const
+	_ = require('lodash'),
 	inquirer = require('inquirer'),
+	openUrl = require('openurl'),
+	request = require('request-promise'),
+
+	configFile = require('./shared/config'),
+
+	htmlParser = require('../../util/htmlParser'),
 	questions = require('../../util/questions'),
 	shell = require('../../util/shell'),
 	validators = require('../../util/validators');
@@ -43,7 +50,6 @@ function askQuestions(config) {
 		config.parameters.connectedApp.name = answers.name;
 		config.parameters.connectedApp.email = answers.email;
 		return config;
-
 	});
 
 }
@@ -73,24 +79,112 @@ function create(config) {
 			config.connectedApp = connectedApp;
 			return config;
 		});
+}
+
+function install(config) {
+
+	const
+		installLink = _.get(config, 'connected.app.install.link'),
+		instanceUrl = _.get(config, 'parameters.sfdx.org.credentials.instanceUrl');
+
+	openUrl.open(`${instanceUrl}${installLink}`);
+	return config;
+
+}
+
+function list(config) {
+
+	const conn = config.conn;
+	return conn.query('SELECT Id, Name FROM ConnectedApplication')
+		.then(result => {
+			_.set(config, 'connected.apps', result.records);
+			return config;
+		});
+
+}
+
+function select(config) {
+
+	const
+		appList = _.get(config, 'connected.apps'),
+		apps = _.map(appList, app => ({ name: app.Name, value: app }));
+
+	return inquirer.prompt([
+		questions.listField('Connected App', 'connected.app', undefined, apps)
+	]).then(answers => {
+		_.set(config, 'connected.app.selected', answers.connected.app);
+		return configFile.writeSetting(config, 'connected.app.id', config.connected.app.selected.Id);
+	});
+
+}
+
+function generateInstallUrl(config) {
+
+	const
+		connectedAppId = _.get(config, 'connected.app.selected.Id'),
+		instanceUrl = _.get(config, 'parameters.sfdx.org.credentials.instanceUrl'),
+		accessToken = _.get(config, 'parameters.sfdx.org.credentials.accessToken'),
+
+		uri = instanceUrl + '/' + connectedAppId,
+
+		options = {
+			uri,
+			headers: {
+				Cookie: 'sid=' + accessToken
+			}
+		};
+
+	return request.get(options)
+		.then(html => {
+
+			const
+				scripts = htmlParser.parseScripts({ html }),
+				applicationId = scripts[0].split('applicationId=')[1].split('\'')[0],
+				uri = instanceUrl + '/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=' + applicationId,
+
+				options = {
+					uri,
+					headers: {
+						Cookie: 'sid=' + accessToken
+					}
+				};
+
+			return request.get(options);
+
+		})
+		.then(html => {
+
+			const
+				scripts = htmlParser.parseScripts({ html }),
+				installAppId = scripts[0].split('&id=')[1].split('\'')[0];
+
+			configFile.writeSetting(config, 'connected.app.installLink', '/identity/app/AppInstallApprovalPage.apexp?app_id=' + installAppId);
+			_.set(config, 'connected.app.install.link', '/identity/app/AppInstallApprovalPage.apexp?app_id=' + installAppId);
+			return config;
+
+		});
 
 }
 
 function updateHerokuConfigVariables(config) {
 
-	const commands = [{
-		cmd: 'heroku',
-		args: ['config:set', `OPENID_CLIENT_ID=${config.connectedApp.oauthConfig.consumerKey}`, '-a', config.parameters.heroku.app.name]
-	}, {
-		cmd: 'heroku',
-		args: ['config:set', 'OPENID_HTTP_TIMEOUT=4000', '-a', config.parameters.heroku.app.name]
-	}, {
-		cmd: 'heroku',
-		args: ['config:set', 'OPENID_ISSUER_URI=https://test.salesforce.com/', '-a', config.parameters.heroku.app.name]
-	}, {
-		cmd: 'heroku',
-		args: ['config:set', `JWT_SIGNING_KEY=${config.certificate.privateKey}`, '-a', config.parameters.heroku.app.name]
-	}];
+	const
+		consumerKey = _.get(config, 'connectedApp.oauthConfig.consumerKey'),
+		herokuAppName = _.get(config, 'parameters.heroku.app.name'),
+		privateKey = _.get(config, 'certificate.privateKey'),
+		commands = [{
+			cmd: 'heroku',
+			args: ['config:set', `OPENID_CLIENT_ID=${consumerKey}`, '-a', herokuAppName]
+		}, {
+			cmd: 'heroku',
+			args: ['config:set', 'OPENID_HTTP_TIMEOUT=4000', '-a', herokuAppName]
+		}, {
+			cmd: 'heroku',
+			args: ['config:set', 'OPENID_ISSUER_URI=https://test.salesforce.com/', '-a', herokuAppName]
+		}, {
+			cmd: 'heroku',
+			args: ['config:set', `JWT_SIGNING_KEY=${privateKey}`, '-a', herokuAppName]
+		}];
 
 	return shell.executeCommands(commands, { exitOnError: true })
 		.then(() => config);
@@ -100,5 +194,9 @@ function updateHerokuConfigVariables(config) {
 module.exports = {
 	askQuestions,
 	create,
+	generateInstallUrl,
+	install,
+	list,
+	select,
 	updateHerokuConfigVariables
 };

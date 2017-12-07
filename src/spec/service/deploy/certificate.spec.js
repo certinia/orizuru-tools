@@ -36,6 +36,8 @@ const
 
 	expect = chai.expect,
 
+	logger = require(root + '/src/lib/util/logger'),
+
 	sandbox = sinon.sandbox.create();
 
 chai.use(chaiAsPromised);
@@ -52,13 +54,13 @@ describe('service/deploy/certificate.js', () => {
 		mocks.inquirer = sandbox.stub();
 		mocks.inquirer.prompt = sandbox.stub();
 
-		mocks.logger = {};
-		mocks.logger.logEvent = sandbox.stub();
-		mocks.logger.logLn = sandbox.stub();
+		sandbox.stub(logger, 'logStart');
+		sandbox.stub(logger, 'logEvent');
+		sandbox.stub(logger, 'logLn');
+		sandbox.stub(logger, 'logFinish');
 
 		certificate = proxyquire(root + '/src/lib/service/deploy/certificate.js', {
 			inquirer: mocks.inquirer,
-			'../../util/logger': mocks.logger,
 			'../../util/shell': mocks.shell
 		});
 
@@ -141,7 +143,7 @@ describe('service/deploy/certificate.js', () => {
 
 	});
 
-	describe('getCert', () => {
+	describe('getOrCreate', () => {
 
 		it('should generate certificate', () => {
 
@@ -184,7 +186,7 @@ describe('service/deploy/certificate.js', () => {
 			});
 
 			// when - then
-			return expect(certificate.getCert({}))
+			return expect(certificate.getOrCreate({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.shell.executeCommands).to.have.been.calledThrice;
@@ -217,7 +219,7 @@ describe('service/deploy/certificate.js', () => {
 			});
 
 			// when - then
-			return expect(certificate.getCert({}))
+			return expect(certificate.getOrCreate({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(mocks.shell.executeCommands).to.have.been.calledOnce;
