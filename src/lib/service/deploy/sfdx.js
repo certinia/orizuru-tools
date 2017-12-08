@@ -94,7 +94,6 @@ function createDefaultSfdxProjectFile(config) {
 			}
 			return config;
 		});
-
 }
 
 function checkSfdxProjectFileExists(config) {

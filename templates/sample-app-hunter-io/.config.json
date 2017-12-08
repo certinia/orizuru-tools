@@ -1,0 +1,21 @@
+{
+	"extends": [
+		"web",
+		"web-node-worker"
+	],
+	"package": {
+		"dependencies": {
+			"hunterio": "1.0.0",
+			"tldjs": "2.2.0"
+		},
+		"devDependencies": {
+			"app-root-path": "2.0.1"
+		},
+		"nyc": {
+			"lines": 0,
+			"statements": 0,
+			"functions": 0,
+			"branches": 0
+		}
+	}
+}
