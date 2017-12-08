@@ -52,62 +52,87 @@ const
 	// get all files in our 'schemas' directory
 	schemas = require('./boilerplate/schema').getWebSchemas(),
 
+	// get server middleware
 	auth = require('./boilerplate/auth'),
-
 	id = require('./boilerplate/id'),
 
 	middlewares = auth.middleware.concat(id.middleware),
 
-	// function to add a route input object to an object if needed
-	addRouteInputObjectToResultIfRequired = (sharedPathToAddRouteInput, path) => {
-		if (!sharedPathToAddRouteInput[path]) {
-			sharedPathToAddRouteInput[path] = {
-				schemaNameToDefinition: {},
-				apiEndpoint: path,
+	// prepare routeInfo so we can define a server route for each unique sharedPath
+	getRouteInfos = () => {
+		// group the schemas by sharedPath
+		const schemasBySharedPath = _.groupBy(schemas, 'sharedPath');
+
+		return _.map(schemasBySharedPath, (schemasForPath, sharedPath) => {
+			// store each Avro schema's contents against its filename
+			const schemaNameToDefinition = _.reduce(schemasForPath, (result, schema) => {
+				const
+					fileName = schema.fileName,
+					path = schema.path;
+
+				debug.log('Found schema \'%s\' at \'%s\'', fileName, sharedPath);
+				result[fileName] = readSchema(path);
+
+				return result;
+			}, {});
+
+			return {
+				schemaNameToDefinition,
+				apiEndpoint: sharedPath,
 				middlewares,
 				responseWriter: id.responseWriter
 			};
-		}
+		});
 	},
 
-	serve = () => {
-		const serverInstance = new Server(transport);
-
+	// read package.json properties
+	getPackageInfo = () => {
 		require('pkginfo')(module, 'version', 'name', 'description');
 
-		// add routes for each shared path to the server
-		_.each(_.reduce(schemas, (sharedPathToAddRouteInput, schema) => {
-			addRouteInputObjectToResultIfRequired(sharedPathToAddRouteInput, schema.sharedPath);
-			debug.log('Found schema \'%s\' at \'%s\'', schema.fileName, schema.sharedPath);
-			sharedPathToAddRouteInput[schema.sharedPath].schemaNameToDefinition[schema.fileName] = readSchema(schema.path);
-			return sharedPathToAddRouteInput;
+		return {
+			version: module.exports.version,
+			title: module.exports.name,
+			description: module.exports.description
+		};
+	},
 
-		}, {}), routeInfo => {
+	// add server routes
+	addRoutes = (serverInstance, routeInfos) => {
+		// read package.json properties
+		const info = getPackageInfo();
+
+		_.each(routeInfos, routeInfo => {
 			debug.log('Adding route(s) for \'%s\'', routeInfo.apiEndpoint);
-			_.each(routeInfo.schemaNameToDefinition, (value, key) => {
-				debug.log('Adding route \'%s\'', key);
+			_.each(routeInfo.schemaNameToDefinition, (schemaContent, schemaName) => {
+				debug.log('Adding route \'%s\'', schemaName);
 			});
+
+			// add the route
 			serverInstance.addRoute(routeInfo);
+
+			// add the Open API handler
 			serverInstance.addGet({
 				path: routeInfo.apiEndpoint + OPEN_API_EXT,
 				requestHandler: openapiGenerator.generateV2({
-					info: {
-						version: module.exports.version,
-						title: module.exports.name,
-						description: module.exports.description
-					},
+					info,
 					host: ADVERTISE_HOST,
 					basePath: routeInfo.apiEndpoint,
 					schemes: [ADVERTISE_SCHEME]
 				}, routeInfo.schemaNameToDefinition)
 			});
-
 		});
+	},
+
+	// start the web server and start listening for connections
+	serve = () => {
+		const
+			routeInfos = getRouteInfos(),
+			serverInstance = new Server(transport);
+
+		addRoutes(serverInstance, routeInfos);
 
 		// get the express server and listen to a port
-		serverInstance
-			.getServer()
-			.listen(PORT);
+		serverInstance.getServer().listen(PORT);
 	};
 
 // debug out errors and info
@@ -115,7 +140,9 @@ Server.emitter.on(Server.emitter.ERROR, debug.error);
 Server.emitter.on(Server.emitter.INFO, debug.log);
 
 if (CONCURRENCY > 1) {
+	// start multiple web servers
 	throng(CONCURRENCY, serve);
 } else {
+	// start a web server
 	serve();
 }
