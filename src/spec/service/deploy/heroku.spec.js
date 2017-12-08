@@ -549,7 +549,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}],
 					message: 'Heroku App',
-					name: 'heroku.app.name',
+					name: 'heroku.app',
 					type: 'list',
 					validate: undefined,
 					['default']: 0
@@ -607,7 +607,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
-					name: 'heroku.app.name',
+					name: 'heroku.app',
 					type: 'list',
 					validate: undefined,
 					['default']: '<<Create new Heroku App>>'
@@ -633,9 +633,7 @@ describe('service/deploy/heroku.js', () => {
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
 					heroku: {
-						app: {
-							name: '<<Create new Heroku App>>'
-						}
+						app: '<<Create new Heroku App>>'
 					}
 				},
 				expectedInput = {
@@ -658,7 +656,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
-					name: 'heroku.app.name',
+					name: 'heroku.app',
 					type: 'list',
 					validate: undefined,
 					['default']: '<<Create new Heroku App>>'
@@ -686,9 +684,7 @@ describe('service/deploy/heroku.js', () => {
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
 					heroku: {
-						app: {
-							name: '<<Create new Heroku Organization App>>'
-						}
+						app: '<<Create new Heroku Organization App>>'
 					}
 				},
 				expectedInput = {
@@ -711,7 +707,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}, '<<Create new Heroku App>>', '<<Create new Heroku Organization App>>'],
 					message: 'Heroku App',
-					name: 'heroku.app.name',
+					name: 'heroku.app',
 					type: 'list',
 					validate: undefined,
 					['default']: '<<Create new Heroku App>>'
@@ -767,7 +763,7 @@ describe('service/deploy/heroku.js', () => {
 						}
 					}],
 					message: 'Heroku App',
-					name: 'heroku.app.name',
+					name: 'heroku.app',
 					type: 'list',
 					validate: undefined,
 					['default']: 1
