@@ -39,6 +39,7 @@
     "inquirer": "3.3.0",
     "js-yaml": "3.10.0",
     "jsforce": "1.8.0",
+    "klaw": "2.1.1",
     "klaw-sync": "3.0.2",
     "lodash": "4.17.4",
     "openurl": "1.1.1",
