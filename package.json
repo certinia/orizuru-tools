@@ -1,6 +1,6 @@
 {
   "name": "@financialforcedev/orizuru-tools",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Development tools for the Orizuru framework.",
   "bin": {
     "orizuru": "src/lib/bin/cli.js"
