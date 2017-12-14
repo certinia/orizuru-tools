@@ -65,7 +65,7 @@ async function handle({ message, context }) {
 						.map(x => ({
 							firstName: x.first_name,
 							lastName: x.last_name,
-							accountId: account.id,
+							accountId: account.Id,
 							email: x.value,
 							title: x.position
 						}));
