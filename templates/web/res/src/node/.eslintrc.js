@@ -1,5 +1,8 @@
 'use strict';
 
 module.exports = {
-	'extends': '@financialforcedev'
+	'extends': '@financialforcedev',
+	'parserOptions': {
+		"ecmaVersion": 8
+	}
 };
