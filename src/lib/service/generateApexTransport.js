@@ -82,6 +82,7 @@ function generateClasses(config) {
  * Generates the OrizuruTransport class file with the required Apex Transport classes.
  * @instance
  * @param {Object} config - The command line arguments.
+ * @returns {Promise<Object>} - The passed in config.
  */
 function generateApexTransport(config) {
 

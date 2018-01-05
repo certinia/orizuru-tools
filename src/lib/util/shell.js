@@ -52,8 +52,17 @@ const
 	};
 
 /**
+ * @typedef {Object} Outcome
+ * @property {string} formattedCommand The command as executed.
+ * @property {number} exitCode The exit code form the process.
+ * @property {string} stdout Standard output.
+ * @property {string} stderr Standard error.
+ */
+
+/**
  * Executes a single shell command.
  * @param {Command} command - The command to execute.
+ * @returns {Promise<Outcome>} - The outcome of running the command.
  */
 function executeInternal({ cmd, args, opts }) {
 
@@ -131,7 +140,7 @@ function executeInternal({ cmd, args, opts }) {
  * @param {Command} command - The command to execute.
  * @param {string} command.cmd - The process to execute; the executable.
  * @param {string[]} command.args - The arguments to pass to the executable.
- * @param {object} [command.opts] - Options.
+ * @param {Object} [command.opts] - Options.
  * @param {boolean} [command.opts.exitOnError=true] - If true, the process exits if the command fails.<br/>Note that for the command to fail the process must return a non-zero exit code.
  * @param {string} [command.opts.logging.start] - If set, logs the given string before the command executes.
  * @param {string} [command.opts.logging.finish] - If set, logs the given string after the command executes.
@@ -139,6 +148,7 @@ function executeInternal({ cmd, args, opts }) {
  * @param {boolean} [command.opts.silent=false] - If true, no logging is produced.
  * @param {boolean} [command.opts.verbose=false] - If true, all logging is produced.
  * @param {Object} [config] - The configuration object passed through the process.
+ * @returns {Promise<Outcome>} - The outcome of running the command.
  */
 function executeCommand(command, config) {
 
@@ -156,9 +166,11 @@ function executeCommand(command, config) {
  * Executes a list of shell commands serially.
  * @instance
  * @param {Command[]} commands - An array of commands to execute.
- * @param opts - Options.
+ * @param {Object} opts - Options.
  * @param {boolean} [opts.exitOnError] - If true, the process exits if the command fails.<br/>Note that for the command to fail the process must return a non-zero exit code.
  * @param {string} [opts.namepace] - If set, any logging to stdout or stderr is printed with the given namespace.
+ * @param {Object} [config] - The configuration object passed through the process.
+ * @returns {Promise<Outcome[]>} - An array of outcomes.
  */
 function executeCommands(commands, opts, config) {
 

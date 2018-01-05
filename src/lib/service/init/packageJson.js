@@ -60,10 +60,10 @@ const
 /**
  * Replicates the questions asked by the `npm init` command to initialise a project.
  * @instance
- * @param {object} config - The configuration object passed through the process.<br/>_This is mutable_ and should contain the following properties for this part of the process:
- * @param {object} config.argv - The arguments passed in on the command line.
- * @param {object} config.package - The package.json file contents.
- * @returns config - The __modified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.<br/>_This is mutable_ and should contain the following properties for this part of the process:
+ * @param {Object} config.argv - The arguments passed in on the command line.
+ * @param {Object} config.package - The package.json file contents.
+ * @returns {Promise<Object>} config - The __modified__ configuration object.
  */
 function askQuestions(config) {
 
@@ -84,9 +84,9 @@ function askQuestions(config) {
 }
 
 /**
- * @description Builds the package.json file.
+ * Builds the package.json file.
  * 
- * This uses the process:
+ * This uses the process.
  * 
  * 1. Check for the templates that this template extends; i.e. check for the `extends` property within the template `.config.json` file.
  * 1. For each of the extension templates:
@@ -95,15 +95,15 @@ function askQuestions(config) {
  * 	- merge the `package` property into the configuration `package` property.
  * 1. Merge in the `package` property from the current template configuration file.
  * @instance
- * @param {object} config - The configuration object passed through the process.<br/>_This is mutable_ and should contain the following properties for this part of the process:
- * @param {object} config.package - The existing package.json file.
- * @param {object} config.selectedTemplate - The selected template.
- * @param {object} config.selectedTemplate.configuration - The configuration for the selected template.
- * @param {object} config.selectedTemplate.configuration.file - The configuration file contents.
- * @param {object} config.selectedTemplate.configuration.file.package - The package properties.
- * @param {object} [config.selectedTemplate.configuration.extensions] - The extensions for this template.
- * @param {object} [config.selectedTemplate.configuration.extensions.package] - The package properties.
- * @returns config - The __modified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.<br/>_This is mutable_ and should contain the following properties for this part of the process.
+ * @param {Object} config.package - The existing package.json file.
+ * @param {Object} config.selectedTemplate - The selected template.
+ * @param {Object} config.selectedTemplate.configuration - The configuration for the selected template.
+ * @param {Object} config.selectedTemplate.configuration.file - The configuration file contents.
+ * @param {Object} config.selectedTemplate.configuration.file.package - The package properties.
+ * @param {Object} [config.selectedTemplate.configuration.extensions] - The extensions for this template.
+ * @param {Object} [config.selectedTemplate.configuration.extensions.package] - The package properties.
+ * @returns {Object} config - The __modified__ configuration object.
  */
 function build(config) {
 
@@ -123,8 +123,8 @@ function build(config) {
 /**
  * Log out the package.json.
  * @instance
- * @param {object} config - The configuration object passed through the process.
- * @param config - The __unmodified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Object} config - The __unmodified__ configuration object.
  */
 function debugPackageJson(config) {
 	debug.log(config.argv, 'package', `Wrote to ${config.path.package}:`);
@@ -135,8 +135,8 @@ function debugPackageJson(config) {
 /**
  * Reads the package.json file from the file system.
  * @instance
- * @param {object} config - The configuration object passed through the process.<br/>_This is mutable_ and is modified with this command.
- * @returns config - The __modified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.<br/>_This is mutable_ and is modified with this command.
+ * @returns {Promise<Object>} config - The __modified__ configuration object.
  */
 function read(config) {
 
@@ -150,8 +150,8 @@ function read(config) {
 /**
  * Writes the package.json file to the file system. 
  * @instance
- * @param {object} config - The configuration object passed through the process.
- * @returns config - The __unmodified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Promise<Object>} config - The __unmodified__ configuration object.
  */
 function write(config) {
 
@@ -172,8 +172,8 @@ function write(config) {
  * 1. Merge the package.json information from the selected template and its extensions into the existing paclagae.json file.
  * 1. Write the package.json file to the file system.
  * @instance
- * @param {object} config - The configuration object passed through the process.<br/>_This is mutable_ and is modified with this command.
- * @returns config - The __modified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.<br/>_This is mutable_ and is modified with this command.
+ * @returns {Promise<Object>} config - The __modified__ configuration object.
  */
 function create(config) {
 

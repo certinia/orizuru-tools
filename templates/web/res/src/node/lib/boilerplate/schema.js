@@ -38,6 +38,7 @@ const
  * Gets all the schemas for a web dyno.
  * 
  * Web dyno schemas are identified as any file without the suffixes `_incoming` and `_outgoing`.
+ * @returns {Object} - Map of schema name to schema object.
  */
 function getWebSchemas() {
 
@@ -83,7 +84,7 @@ function getWebSchemas() {
  * 
  * An `_outgoing` schema is optional. It is used for publishing onward messages to other worker dynos.
  * 
- * @returns {WorkerSchema}
+ * @returns {WorkerSchema} - The map of names to schemas.
  */
 function getWorkerSchemas() {
 

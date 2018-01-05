@@ -42,6 +42,7 @@ const
  * @param {string} folder - The folder path.
  * @param {string} file - The file name and extension.
  * @param {string} content - The new file contents.
+ * @returns {Promise<void>} - Resolves when the file is written.
  */
 function overwriteFile(folder, file, content) {
 	const filePath = path.resolve(folder, file);
