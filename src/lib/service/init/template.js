@@ -59,9 +59,9 @@ function isDirectory(source) {
 /**
  * Finds all the templates in the default Orizuru templates folder.
  * @instance
- * @param {object} config - The configuration object passed through the process.<br/>This is mutable and should contain the following properties for this part of the process:
+ * @param {Object} config - The configuration object passed through the process.<br/>This is mutable and should contain the following properties for this part of the process:
  * @param {string} config.templateFolder - The folder to search for templates.
- * @returns {object} config - The modified configuration object.
+ * @returns {Promise<Object>} config - The modified configuration object.
  */
 function findTemplates(config) {
 
@@ -72,7 +72,7 @@ function findTemplates(config) {
 
 }
 
-/**
+/*
  * Reads the template configuration file.
  */
 function readTemplateConfigurationFile(config, template) {
@@ -86,7 +86,7 @@ function readTemplateConfigurationFile(config, template) {
 
 }
 
-/**
+/*
  * Reads the selected template configuration file.
  */
 function readSelectedTemplateConfigurationFile(config) {
@@ -94,7 +94,7 @@ function readSelectedTemplateConfigurationFile(config) {
 	return readTemplateConfigurationFile(config, selectedTemplate);
 }
 
-/**
+/*
  * Read extension configuration files for the selected template.
  */
 function readExtensionConfigurationFiles(config) {
@@ -112,7 +112,7 @@ function readExtensionConfigurationFiles(config) {
 
 }
 
-/**
+/*
  * Reads all the configuration files for the selected template.
  */
 function readAllConfigurationFiles(config) {
@@ -133,11 +133,11 @@ function readAllConfigurationFiles(config) {
  * Uses the template provided from the command line arguments or prompts the user to select a template
  * from the available list of templates.
  * @instance
- * @param {object} config - The configuration object passed through the process.<br/>This is mutable and should contain the following properties for this part of the process:
+ * @param {Object} config - The configuration object passed through the process.<br/>This is mutable and should contain the following properties for this part of the process:
  * @param {string} [config.argv.template] - The selected template from the command line arguments.<br/>The user is prompted to select a template when this property is not present.
  * @param {string} config.templateFolder - The folder containing all the templates.
  * @param {string} config.availableTemplates - The templates that are available from the template folder.
- * @returns config - The modified configuration object.
+ * @returns {Promise<Object>} config - The modified configuration object.
  */
 function askQuestions(config) {
 
@@ -161,7 +161,8 @@ function askQuestions(config) {
 /**
  * Allows the selection of an Orizuru template.
  * @instance
- * @param {object} config - The configuration object passed through the process.<br/>This is mutable and is modified during this process.
+ * @param {Object} config - The configuration object passed through the process.<br/>This is mutable and is modified during this process.
+ * @returns {Promise<Object>} - The passed config.
  */
 function select(config) {
 	return Promise.resolve(_.set(config, TEMPLATE_FOLDER, path.resolve(__dirname, '..', '..', '..', '..', 'templates')))

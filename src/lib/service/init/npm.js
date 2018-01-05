@@ -37,8 +37,8 @@ const shell = require('../../util/shell');
 /**
  * Runs the NPM init command with yes set to true.
  * @instance
- * @param {object} config - The configuration object passed through the process.
- * @returns config - The __unmodified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Promise<Object>} config - The __unmodified__ configuration object.
  */
 function init(config) {
 
@@ -60,8 +60,8 @@ function init(config) {
 /**
  * Runs the NPM install command.
  * @instance
- * @param {object} config - The configuration object passed through the process.
- * @returns config - The __unmodified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Promise<Object>} config - The __unmodified__ configuration object.
  */
 function install(config) {
 
@@ -84,8 +84,8 @@ function install(config) {
 /**
  * Runs the NPM script for the Orizuru generate-apex-transport step.
  * @instance
- * @param {object} config - The configuration object passed through the process.
- * @returns config - The __unmodified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Promise<Object>} config - The __unmodified__ configuration object.
  */
 function generateApexTransport(config) {
 
@@ -108,8 +108,8 @@ function generateApexTransport(config) {
 /**
  * Runs the NPM script to generate Javascript documentation.
  * @instance
- * @param {object} config - The configuration object passed through the process.
- * @returns config - The __unmodified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Promise<Object>} config - The __unmodified__ configuration object.
  */
 function generateDocumentation(config) {
 
@@ -132,8 +132,8 @@ function generateDocumentation(config) {
 /**
  * Runs the NPM script for the Orizuru post-init step.
  * @instance
- * @param {object} config - The configuration object passed through the process.
- * @returns config - The __unmodified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Promise<Object>} config - The __unmodified__ configuration object.
  */
 function orizuruPostInit(config) {
 
@@ -156,8 +156,8 @@ function orizuruPostInit(config) {
 /**
  * Runs the NPM test command.
  * @instance
- * @param {object} config - The configuration object passed through the process.
- * @returns config - The __unmodified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Promise<Object>} config - The __unmodified__ configuration object.
  */
 function test(config) {
 

@@ -37,7 +37,7 @@ const
 
 	CONTACT_SOBJECT_NAME = 'Contact';
 
-/**
+/*
  * Logs information from the event
  */
 function logEvent(event) {
@@ -52,14 +52,14 @@ function logEvent(event) {
 
 }
 
-/**
+/*
  * Creates a new connection for the given credentials
  */
 function newConnection(credentials) {
 	return new Connection(credentials);
 }
 
-/**
+/*
  * Get an authenticated connection using the credentials from the event
  */
 function getConnection(event) {
@@ -68,7 +68,7 @@ function getConnection(event) {
 		.then(conn => ({ conn, event }));
 }
 
-/**
+/*
  * Creates a contact for each of the account IDs found in the event
  */
 function createContacts(config) {

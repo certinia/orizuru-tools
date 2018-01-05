@@ -29,16 +29,18 @@
 const fs = require('fs-extra');
 
 /**
- * Reads a schema from a given path
- * @param {string} path - The file path
+ * Reads a schema from a given path.
+ * @param {string} path - The file path.
+ * @returns {Object} - The schema object.
  */
 function readSchema(path) {
 	return fs.readJsonSync(path);
 }
 
 /**
- * Reads a handler from a given path
- * @param {string} path - The file path
+ * Reads a handler from a given path.
+ * @param {string} path - The file path.
+ * @returns {Function} - The Handler function.
  */
 function readHandler(path) {
 	return require(path);

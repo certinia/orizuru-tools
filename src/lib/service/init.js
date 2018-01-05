@@ -43,7 +43,8 @@ const
 /**
  * Initialises a new Orizuru project in the current working directory.
  * @instance
- * @param {object} config - The configuration object passed through the process.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Promise<Object>} - Resolves to the passed config.
  */
 function init(config) {
 

@@ -46,9 +46,6 @@ const
 
 	CWD = process.cwd();
 
-/**
- * Copy an individual resource folder.
- */
 function copySingleResource(config, resource) {
 
 	const command = {
@@ -68,8 +65,8 @@ function copySingleResource(config, resource) {
 /**
  * Copy the resources required for this template.
  * @instance
- * @param {object} config - The configuration object passed through the process.
- * @returns config - The __unmodified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Promise<Object>} config - The __unmodified__ configuration object.
  */
 function copy(config) {
 
@@ -95,8 +92,8 @@ function copy(config) {
  * We need to be able to publish the .gitignore file as part of each template, 
  * hence, we publish it as gitignore and then rename it as part of the init process.
  * @instance
- * @param {object} config - The configuration object passed through the process.
- * @returns config - The __unmodified__ configuration object.
+ * @param {Object} config - The configuration object passed through the process.
+ * @returns {Promise<Object>} config - The __unmodified__ configuration object.
  */
 function renameGitIgnore(config) {
 
