@@ -29,7 +29,7 @@
 const
 	version = require('../../../../package').version,
 
-	COPYRIGHT_NOTICE = 'Copyright (c) 2017 FinancialForce.com, inc.  All rights reserved.',
+	COPYRIGHT_NOTICE = 'Copyright (c) 2017-2018 FinancialForce.com, inc.  All rights reserved.',
 	VERSION = '\nFinancialForceDev Orizuru\n\nVersion: ' + version + '\n\n' + COPYRIGHT_NOTICE + '\n';
 
 module.exports = {
