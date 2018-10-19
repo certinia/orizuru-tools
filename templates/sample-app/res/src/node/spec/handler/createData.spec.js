@@ -34,8 +34,6 @@ const
 
 	expect = chai.expect,
 
-	sandbox = sinon.sandbox.create(),
-
 	connection = require('../../lib/service/salesforce/connection'),
 	writer = require('../../lib/service/salesforce/writer');
 
@@ -46,20 +44,20 @@ describe('dataCreator/service.js', () => {
 	let mocks, fakeReturnedSobjects, service;
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('createData', () => {
 		beforeEach(() => {
 			mocks = {};
-			mocks.conn = sandbox.stub();
+			mocks.conn = sinon.stub();
 			mocks.mockId = 'testId';
-			fakeReturnedSobjects = [sandbox.stub()];
+			fakeReturnedSobjects = [sinon.stub()];
 			fakeReturnedSobjects[0].id = mocks.mockId;
 
-			sandbox.stub(connection, 'fromContext').resolves(mocks.conn);
-			sandbox.stub(writer, 'bulkCreateObject').resolves(fakeReturnedSobjects);
-			sandbox.stub(writer, 'sendPlatformEvent').resolves();
+			sinon.stub(connection, 'fromContext').resolves(mocks.conn);
+			sinon.stub(writer, 'bulkCreateObject').resolves(fakeReturnedSobjects);
+			sinon.stub(writer, 'sendPlatformEvent').resolves();
 
 			service = proxyquire('../../lib/handler/createData', {
 				'./createData/sampleData/Account.json': {

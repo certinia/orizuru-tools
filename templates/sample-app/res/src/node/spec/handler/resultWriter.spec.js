@@ -37,9 +37,7 @@ const
 	connection = require('../../lib/service/salesforce/connection'),
 	writer = require('../../lib/service/salesforce/writer'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -47,14 +45,14 @@ chai.use(chaiAsPromised);
 describe('resultWriter/service.js', () => {
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should call the appropriate methods when writing a successful response', () => {
 
 		// given
 		const
-			conn = sandbox.stub(),
+			conn = sinon.stub(),
 			expectedInput = {
 				conn,
 				message: {
@@ -123,11 +121,11 @@ describe('resultWriter/service.js', () => {
 				status: 'COMPLETED'
 			};
 
-		conn.apex = sandbox.stub();
-		conn.apex.post = sandbox.stub().resolves([{ Id: 'myFakeId' }, { Id: 'anotherFakeId' }]);
+		conn.apex = sinon.stub();
+		conn.apex.post = sinon.stub().resolves([{ Id: 'myFakeId' }, { Id: 'anotherFakeId' }]);
 
-		sandbox.stub(connection, 'fromContext').resolves(conn);
-		sandbox.stub(writer, 'sendPlatformEvent').resolves();
+		sinon.stub(connection, 'fromContext').resolves(conn);
+		sinon.stub(writer, 'sendPlatformEvent').resolves();
 
 		// when / then
 		return expect(service(expectedInput))

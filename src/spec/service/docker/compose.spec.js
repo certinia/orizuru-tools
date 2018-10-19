@@ -34,9 +34,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -48,17 +46,17 @@ describe('service/docker/compose', () => {
 	beforeEach(() => {
 
 		mocks = {};
-		mocks.fs = sandbox.stub();
-		mocks.fs.readFileSync = sandbox.stub();
+		mocks.fs = sinon.stub();
+		mocks.fs.readFileSync = sinon.stub();
 
-		mocks.klaw = sandbox.stub();
+		mocks.klaw = sinon.stub();
 
 		mocks.path = {};
-		mocks.path.dirname = sandbox.stub().returns('');
-		mocks.path.resolve = sandbox.stub();
+		mocks.path.dirname = sinon.stub().returns('');
+		mocks.path.resolve = sinon.stub();
 
-		mocks.shell = sandbox.stub();
-		mocks.shell.executeCommands = sandbox.stub();
+		mocks.shell = sinon.stub();
+		mocks.shell.executeCommands = sinon.stub();
 
 		compose = proxyquire(root + '/src/lib/service/docker/compose', {
 			klaw: mocks.klaw,
@@ -70,7 +68,7 @@ describe('service/docker/compose', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('getServices', () => {

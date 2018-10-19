@@ -33,9 +33,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
@@ -46,12 +44,12 @@ describe('util/logger.js', () => {
 	beforeEach(() => {
 		delete require.cache[root + '/src/lib/util/logger.js'];
 		logger = require(root + '/src/lib/util/logger.js');
-		sandbox.stub(process.stdout, 'write');
+		sinon.stub(process.stdout, 'write');
 	});
 
 	afterEach(() => {
 		const data = _.last(process.stdout.write.args);
-		sandbox.restore();
+		sinon.restore();
 		process.stdout.write(data[0]);
 	});
 

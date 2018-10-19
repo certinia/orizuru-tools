@@ -38,9 +38,7 @@ const
 
 	dockerService = require(root + '/src/lib/service/docker/docker'),
 	composeService = require(root + '/src/lib/service/docker/compose'),
-	promptService = require(root + '/src/lib/service/docker/prompt'),
-
-	sandbox = sinon.sandbox.create();
+	promptService = require(root + '/src/lib/service/docker/prompt');
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -53,22 +51,22 @@ describe('service/docker', () => {
 
 		mocks = {};
 		mocks.logger = {};
-		mocks.logger.logStart = sandbox.stub();
-		mocks.logger.logError = sandbox.stub();
-		mocks.logger.logFinish = sandbox.stub();
+		mocks.logger.logStart = sinon.stub();
+		mocks.logger.logError = sinon.stub();
+		mocks.logger.logFinish = sinon.stub();
 
-		mocks.listContainers = sandbox.stub();
+		mocks.listContainers = sinon.stub();
 
-		sandbox.stub(composeService, 'getAllServices');
-		sandbox.stub(composeService, 'buildImages');
-		sandbox.stub(composeService, 'up');
+		sinon.stub(composeService, 'getAllServices');
+		sinon.stub(composeService, 'buildImages');
+		sinon.stub(composeService, 'up');
 
-		sandbox.stub(promptService, 'getServicesForProcess');
+		sinon.stub(promptService, 'getServicesForProcess');
 
-		sandbox.stub(dockerService, 'displayLogs');
-		sandbox.stub(dockerService, 'listContainers').returns(mocks.listContainers);
-		sandbox.stub(dockerService, 'removeDanglingImages');
-		sandbox.stub(dockerService, 'stopContainers');
+		sinon.stub(dockerService, 'displayLogs');
+		sinon.stub(dockerService, 'listContainers').returns(mocks.listContainers);
+		sinon.stub(dockerService, 'removeDanglingImages');
+		sinon.stub(dockerService, 'stopContainers');
 
 		docker = proxyquire(root + '/src/lib/service/docker', {
 			'../util/logger': mocks.logger
@@ -77,7 +75,7 @@ describe('service/docker', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('buildImage', () => {
@@ -251,8 +249,8 @@ describe('service/docker', () => {
 				}
 			};
 
-			mocks.logger.logStart.returns(sandbox.stub());
-			mocks.logger.logFinish.returns(sandbox.stub());
+			mocks.logger.logStart.returns(sinon.stub());
+			mocks.logger.logFinish.returns(sinon.stub());
 
 			composeService.getAllServices.resolves(expectedServices);
 

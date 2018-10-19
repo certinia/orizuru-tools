@@ -41,9 +41,7 @@ const
 	configFile = require('../../../lib/service/deploy/shared/config'),
 	htmlParser = require('../../../lib/util/htmlParser'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -57,19 +55,19 @@ describe('service/deploy/connectedApp.js', () => {
 		mocks = {};
 
 		mocks.conn = {};
-		mocks.conn.query = sandbox.stub();
+		mocks.conn.query = sinon.stub();
 
 		mocks.shell = {};
 
 		mocks.jsforce = {};
-		mocks.jsforce.Connection = sandbox.stub();
+		mocks.jsforce.Connection = sinon.stub();
 
-		sandbox.stub(openUrl, 'open');
+		sinon.stub(openUrl, 'open');
 
-		sandbox.stub(configFile, 'writeSetting');
-		sandbox.stub(inquirer, 'prompt');
-		sandbox.stub(htmlParser, 'parseScripts');
-		sandbox.stub(request, 'get');
+		sinon.stub(configFile, 'writeSetting');
+		sinon.stub(inquirer, 'prompt');
+		sinon.stub(htmlParser, 'parseScripts');
+		sinon.stub(request, 'get');
 
 		connectedApp = proxyquire(root + '/src/lib/service/deploy/connectedApp.js', {
 			jsforce: mocks.jsforce,
@@ -79,7 +77,7 @@ describe('service/deploy/connectedApp.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('askQuestions', () => {
@@ -114,7 +112,7 @@ describe('service/deploy/connectedApp.js', () => {
 			// given
 			const
 				expectedInput = {
-					conn: sandbox.stub(),
+					conn: sinon.stub(),
 					parameters: {
 						connectedApp: {
 							name: 'TestApp',
@@ -135,8 +133,8 @@ describe('service/deploy/connectedApp.js', () => {
 				};
 
 			expectedInput.conn.metadata = {};
-			expectedInput.conn.metadata.upsert = sandbox.stub().resolves();
-			expectedInput.conn.metadata.read = sandbox.stub().resolves();
+			expectedInput.conn.metadata.upsert = sinon.stub().resolves();
+			expectedInput.conn.metadata.read = sinon.stub().resolves();
 
 			// when - then
 			return expect(connectedApp.create(expectedInput))
@@ -352,7 +350,7 @@ describe('service/deploy/connectedApp.js', () => {
 				}],
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommands = sandbox.stub().resolves({});
+			mocks.shell.executeCommands = sinon.stub().resolves({});
 
 			// when - then
 			return expect(connectedApp.updateHerokuConfigVariables(expectedInput))

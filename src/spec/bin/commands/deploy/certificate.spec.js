@@ -37,9 +37,7 @@ const
 
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	service = require(root + '/src/lib/service/deploy/certificate'),
-
-	sandbox = sinon.sandbox.create();
+	service = require(root + '/src/lib/service/deploy/certificate');
 
 chai.use(sinonChai);
 
@@ -51,9 +49,9 @@ describe('bin/commands/deploy/certificate.js', () => {
 
 		mocks = {};
 		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.option = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.epilogue = sinon.stub().returns(mocks.yargs);
+		mocks.yargs.option = sinon.stub().returns(mocks.yargs);
+		mocks.yargs.usage = sinon.stub().returns(mocks.yargs);
 
 		cli = proxyquire(root + '/src/lib/bin/commands/deploy/certificate', {
 			yargs: mocks.yargs
@@ -62,7 +60,7 @@ describe('bin/commands/deploy/certificate.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should have the correct command, description and alias', () => {
@@ -98,7 +96,7 @@ describe('bin/commands/deploy/certificate.js', () => {
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
-		sandbox.stub(service, 'generate');
+		sinon.stub(service, 'generate');
 
 		// when
 		cli.handler(expectedInput);

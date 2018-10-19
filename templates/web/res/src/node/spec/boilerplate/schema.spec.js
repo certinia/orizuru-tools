@@ -57,10 +57,7 @@ const
 		path: '/Users/Guest/GIT/test/src/node/lib/schema/resultWriter_incoming.avsc',
 		sharedPath: '',
 		fileName: 'resultWriter_incoming'
-	}],
-
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	}];
 
 describe('boilerplate/schema.js', () => {
 
@@ -69,8 +66,8 @@ describe('boilerplate/schema.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
-		mocks.walk = sandbox.stub();
-		mocks.walk.walk = sandbox.stub().returns(testSchemas);
+		mocks.walk = sinon.stub();
+		mocks.walk.walk = sinon.stub().returns(testSchemas);
 
 		schemas = proxyquire('../../lib/boilerplate/schema', {
 			'./walk': mocks.walk
@@ -79,7 +76,7 @@ describe('boilerplate/schema.js', () => {
 	});
 
 	afterEach(() => {
-		restore();
+		sinon.estore();
 	});
 
 	describe('getWebSchemas', () => {

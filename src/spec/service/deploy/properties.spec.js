@@ -34,9 +34,7 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -50,8 +48,8 @@ describe('service/deploy/properties.js', () => {
 		mocks = {};
 
 		mocks.fsextra = {};
-		mocks.fsextra.readFile = sandbox.stub();
-		mocks.fsextra.writeFile = sandbox.stub();
+		mocks.fsextra.readFile = sinon.stub();
+		mocks.fsextra.writeFile = sinon.stub();
 
 		properties = proxyquire(root + '/src/lib/service/deploy/properties.js', {
 			'fs-extra': mocks.fsextra
@@ -59,7 +57,7 @@ describe('service/deploy/properties.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('updateProperties', () => {
@@ -97,7 +95,7 @@ describe('service/deploy/properties.js', () => {
 					}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 			mocks.fsextra.readFile.resolves();
 			mocks.fsextra.writeFile.resolves();
 
@@ -148,7 +146,7 @@ describe('service/deploy/properties.js', () => {
 					}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 			mocks.fsextra.readFile.resolves(readOutput);
 			mocks.fsextra.writeFile.resolves();
 

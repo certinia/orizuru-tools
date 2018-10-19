@@ -34,9 +34,7 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -50,10 +48,10 @@ describe('service/deploy/shared/config.js', () => {
 		mocks = {};
 
 		mocks.fsextra = {};
-		mocks.fsextra.mkdirp = sandbox.stub();
-		mocks.fsextra.writeJSON = sandbox.stub();
+		mocks.fsextra.mkdirp = sinon.stub();
+		mocks.fsextra.writeJSON = sinon.stub();
 
-		mocks.fsextra.readJSON = sandbox.stub();
+		mocks.fsextra.readJSON = sinon.stub();
 
 		configFile = proxyquire(root + '/src/lib/service/deploy/shared/config.js', {
 			'fs-extra': mocks.fsextra
@@ -62,7 +60,7 @@ describe('service/deploy/shared/config.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('createFile', () => {
@@ -76,7 +74,7 @@ describe('service/deploy/shared/config.js', () => {
 					file: expectedCwd + '/.orizuru/config.json'
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 			mocks.fsextra.mkdirp.resolves();
 			mocks.fsextra.writeJSON.resolves();
 
@@ -104,7 +102,7 @@ describe('service/deploy/shared/config.js', () => {
 					orizuru: {}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 
 			mocks.fsextra.mkdirp.resolves();
 			mocks.fsextra.writeJSON.resolves();
@@ -131,7 +129,7 @@ describe('service/deploy/shared/config.js', () => {
 					orizuru: {}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 
 			mocks.fsextra.mkdirp.resolves();
 			mocks.fsextra.readJSON.resolves({});
@@ -162,7 +160,7 @@ describe('service/deploy/shared/config.js', () => {
 					}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 
 			mocks.fsextra.mkdirp.resolves();
 			mocks.fsextra.writeJSON.resolves();
@@ -197,7 +195,7 @@ describe('service/deploy/shared/config.js', () => {
 					}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 
 			mocks.fsextra.mkdirp.resolves();
 			mocks.fsextra.writeJSON.resolves();

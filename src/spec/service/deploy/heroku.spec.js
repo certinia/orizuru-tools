@@ -34,9 +34,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -50,13 +48,13 @@ describe('service/deploy/heroku.js', () => {
 		mocks = {};
 
 		mocks.config = {};
-		mocks.config.writeSetting = sandbox.stub();
+		mocks.config.writeSetting = sinon.stub();
 
-		mocks.fs = sandbox.stub();
-		mocks.fs.readJSON = sandbox.stub();
+		mocks.fs = sinon.stub();
+		mocks.fs.readJSON = sinon.stub();
 
 		mocks.inquirer = {};
-		mocks.inquirer.prompt = sandbox.stub();
+		mocks.inquirer.prompt = sinon.stub();
 
 		mocks.shell = {};
 
@@ -70,7 +68,7 @@ describe('service/deploy/heroku.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('addAddOns', () => {
@@ -110,10 +108,10 @@ describe('service/deploy/heroku.js', () => {
 					cmd: 'heroku'
 				}];
 
-			mocks.shell.executeCommand = sandbox.stub().resolves({
+			mocks.shell.executeCommand = sinon.stub().resolves({
 				stdout: '[{ "plan": { "name": "test:filter" } }]'
 			});
-			mocks.shell.executeCommands = sandbox.stub().resolves();
+			mocks.shell.executeCommands = sinon.stub().resolves();
 
 			// when - then
 			return expect(heroku.addAddOns(expectedInput))
@@ -163,7 +161,7 @@ describe('service/deploy/heroku.js', () => {
 					cmd: 'heroku'
 				}];
 
-			mocks.shell.executeCommands = sandbox.stub().resolves();
+			mocks.shell.executeCommands = sinon.stub().resolves();
 
 			// when - then
 			return expect(heroku.addBuildpacks(expectedInput))
@@ -217,7 +215,7 @@ describe('service/deploy/heroku.js', () => {
 					args: ['ps:scale', 'worker=2:standard-2x', '-a', expectedAppName]
 				}];
 
-			mocks.shell.executeCommands = sandbox.stub().resolves();
+			mocks.shell.executeCommands = sinon.stub().resolves();
 
 			// when - then
 			return expect(heroku.addFormation(expectedInput))
@@ -237,7 +235,7 @@ describe('service/deploy/heroku.js', () => {
 			// given
 			const expectedCommand = { cmd: 'heroku', args: ['version'] };
 
-			mocks.shell.executeCommand = sandbox.stub().resolves('heroku-toolbelt/3.43.9999 (x86_64-darwin10.8.0) ruby/1.9.3\nheroku-cli/6.14.36-15f8a25 (darwin-x64) node-v8.7.0');
+			mocks.shell.executeCommand = sinon.stub().resolves('heroku-toolbelt/3.43.9999 (x86_64-darwin10.8.0) ruby/1.9.3\nheroku-cli/6.14.36-15f8a25 (darwin-x64) node-v8.7.0');
 
 			// when - then
 			return expect(heroku.checkHerokuCliInstalled({}))
@@ -268,7 +266,7 @@ describe('service/deploy/heroku.js', () => {
 				expectedCommand = { cmd: 'heroku', args: ['create', '--json'] },
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });
+			mocks.shell.executeCommand = sinon.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });
 
 			// when - then
 			return expect(heroku.createNewApp(expectedInput))
@@ -301,9 +299,9 @@ describe('service/deploy/heroku.js', () => {
 				expectedAppCommand = { cmd: 'heroku', args: ['create', '-t', expectedTeam, '--json'] },
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand = sandbox.stub().withArgs(expectedOrgCommand).resolves({ stdout: `[{"name":"${expectedTeam}"}]` });
-			mocks.inquirer.prompt = sandbox.stub().resolves({ heroku: { organization: expectedTeam } });
-			mocks.shell.executeCommand = sandbox.stub().withArgs(expectedAppCommand).resolves({ stdout: `{"name":"${expectedAppName}"}` });
+			mocks.shell.executeCommand = sinon.stub().withArgs(expectedOrgCommand).resolves({ stdout: `[{"name":"${expectedTeam}"}]` });
+			mocks.inquirer.prompt = sinon.stub().resolves({ heroku: { organization: expectedTeam } });
+			mocks.shell.executeCommand = sinon.stub().withArgs(expectedAppCommand).resolves({ stdout: `{"name":"${expectedAppName}"}` });
 
 			// when - then
 			return expect(heroku.createNewOrganizationApp(expectedInput))
@@ -328,9 +326,9 @@ describe('service/deploy/heroku.js', () => {
 					stdout: ':100644 100644 a65538bf48cb14f8cb616072be2a7ecbd0d30a9e 0000000000000000000000000000000000000000 M\tpath/to/file/file.js'
 				};
 
-			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
-			mocks.inquirer.prompt = sandbox.stub().resolves({ ignoreChanges: true });
+			mocks.shell.executeCommand = sinon.stub().resolves();
+			mocks.shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
+			mocks.inquirer.prompt = sinon.stub().resolves({ ignoreChanges: true });
 
 			// when - then
 			return expect(heroku.checkWorkingChanges({}))
@@ -349,9 +347,9 @@ describe('service/deploy/heroku.js', () => {
 					stdout: ':100644 100644 a65538bf48cb14f8cb616072be2a7ecbd0d30a9e 0000000000000000000000000000000000000000 M\tpath/to/file/file.js'
 				};
 
-			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
-			mocks.inquirer.prompt = sandbox.stub().resolves({ ignoreChanges: false });
+			mocks.shell.executeCommand = sinon.stub().resolves();
+			mocks.shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
+			mocks.inquirer.prompt = sinon.stub().resolves({ ignoreChanges: false });
 
 			// when - then
 			return expect(heroku.checkWorkingChanges({}))
@@ -370,8 +368,8 @@ describe('service/deploy/heroku.js', () => {
 					stdout: ''
 				};
 
-			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
+			mocks.shell.executeCommand = sinon.stub().resolves();
+			mocks.shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 
 			// when - then
 			return expect(heroku.checkWorkingChanges({}))
@@ -412,8 +410,8 @@ describe('service/deploy/heroku.js', () => {
 				},
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] }).resolves({ stdout: 'master' });
+			mocks.shell.executeCommand = sinon.stub().resolves();
+			mocks.shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] }).resolves({ stdout: 'master' });
 
 			// when - then
 			return expect(heroku.deployCurrentBranch(expectedInput))
@@ -449,7 +447,7 @@ describe('service/deploy/heroku.js', () => {
 				expectedCommand = { cmd: 'heroku', args: ['apps', '--all', '--json'] },
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+			mocks.shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
 
 			// when - then
 			return expect(heroku.getAllApps(expectedInput))
@@ -663,7 +661,7 @@ describe('service/deploy/heroku.js', () => {
 				}];
 
 			mocks.inquirer.prompt.resolves(expectedAnswer);
-			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+			mocks.shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
 			mocks.config.writeSetting.resolves();
 
 			// when - then
@@ -714,7 +712,7 @@ describe('service/deploy/heroku.js', () => {
 				}];
 
 			mocks.inquirer.prompt.resolves(expectedAnswer);
-			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+			mocks.shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
 			mocks.config.writeSetting.resolves();
 
 			// when - then

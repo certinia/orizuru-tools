@@ -35,9 +35,7 @@ const
 
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
@@ -49,11 +47,11 @@ describe('bin/commands/setup.js', () => {
 
 		mocks = {
 			yargs: {
-				command: sandbox.stub().returnsThis(),
-				demandCommand: sandbox.stub().returnsThis(),
-				epilogue: sandbox.stub().returnsThis(),
-				updateStrings: sandbox.stub().returnsThis(),
-				usage: sandbox.stub().returnsThis()
+				command: sinon.stub().returnsThis(),
+				demandCommand: sinon.stub().returnsThis(),
+				epilogue: sinon.stub().returnsThis(),
+				updateStrings: sinon.stub().returnsThis(),
+				usage: sinon.stub().returnsThis()
 			}
 		};
 
@@ -64,7 +62,7 @@ describe('bin/commands/setup.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should create the cli', () => {

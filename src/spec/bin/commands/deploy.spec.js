@@ -38,9 +38,7 @@ const
 	service = require(root + '/src/lib/service/deploy'),
 	deployCommand = require(root + '/src/lib/bin/commands/deploy'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
@@ -52,12 +50,12 @@ describe('bin/commands/deploy.js', () => {
 
 		mocks = {
 			yargs: {
-				command: sandbox.stub().returnsThis(),
-				epilogue: sandbox.stub().returnsThis(),
-				help: sandbox.stub().returnsThis(),
-				options: sandbox.stub().returnsThis(),
-				updateStrings: sandbox.stub().returnsThis(),
-				usage: sandbox.stub().returnsThis()
+				command: sinon.stub().returnsThis(),
+				epilogue: sinon.stub().returnsThis(),
+				help: sinon.stub().returnsThis(),
+				options: sinon.stub().returnsThis(),
+				updateStrings: sinon.stub().returnsThis(),
+				usage: sinon.stub().returnsThis()
 			}
 		};
 
@@ -68,7 +66,7 @@ describe('bin/commands/deploy.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should create the cli', () => {
@@ -102,7 +100,7 @@ describe('bin/commands/deploy.js', () => {
 		// given
 		const { handler } = deployCommand;
 
-		sandbox.stub(service, 'run');
+		sinon.stub(service, 'run');
 
 		// when
 		handler('test');

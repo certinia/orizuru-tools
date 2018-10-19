@@ -32,9 +32,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
@@ -43,11 +41,11 @@ describe('util/debug.js', () => {
 	beforeEach(() => {
 		delete require.cache[root + '/src/lib/util/debug.js'];
 
-		sandbox.stub(process.stderr, 'write');
+		sinon.stub(process.stderr, 'write');
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('addBufferFormatter', () => {

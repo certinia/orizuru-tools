@@ -34,15 +34,13 @@ const
 
 	expect = chai.expect,
 
-	htmlParser = require(root + '/src/lib/util/htmlParser'),
-
-	sandbox = sinon.sandbox.create();
+	htmlParser = require(root + '/src/lib/util/htmlParser');
 
 chai.use(sinonChai);
 
 describe('util/htmlParser.js', () => {
 
-	afterEach(() => sandbox.restore());
+	afterEach(() => sinon.restore());
 
 	describe('parseScripts', () => {
 

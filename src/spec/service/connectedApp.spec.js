@@ -43,9 +43,7 @@ const
 	sfdx = require('../../lib/service/deploy/sfdx'),
 	logger = require('../../lib/util/logger'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -57,44 +55,44 @@ describe('service/connectedApp.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
-		mocks.shell = sandbox.stub();
-		mocks.shell.executeCommand = sandbox.stub();
+		mocks.shell = sinon.stub();
+		mocks.shell.executeCommand = sinon.stub();
 
-		sandbox.stub(configFile, 'createFile');
-		sandbox.stub(configFile, 'readSettings');
-		sandbox.stub(configFile, 'writeSetting');
+		sinon.stub(configFile, 'createFile');
+		sinon.stub(configFile, 'readSettings');
+		sinon.stub(configFile, 'writeSetting');
 
-		sandbox.stub(certificate, 'getOrCreate');
+		sinon.stub(certificate, 'getOrCreate');
 
-		sandbox.stub(connection, 'create');
+		sinon.stub(connection, 'create');
 
-		sandbox.stub(connectedApp, 'askQuestions');
-		sandbox.stub(connectedApp, 'create');
-		sandbox.stub(connectedApp, 'generateInstallUrl');
-		sandbox.stub(connectedApp, 'list');
-		sandbox.stub(connectedApp, 'select');
-		sandbox.stub(connectedApp, 'updateHerokuConfigVariables');
+		sinon.stub(connectedApp, 'askQuestions');
+		sinon.stub(connectedApp, 'create');
+		sinon.stub(connectedApp, 'generateInstallUrl');
+		sinon.stub(connectedApp, 'list');
+		sinon.stub(connectedApp, 'select');
+		sinon.stub(connectedApp, 'updateHerokuConfigVariables');
 
-		sandbox.stub(heroku, 'getAllApps');
-		sandbox.stub(heroku, 'select');
+		sinon.stub(heroku, 'getAllApps');
+		sinon.stub(heroku, 'select');
 
-		sandbox.stub(inquirer, 'prompt');
+		sinon.stub(inquirer, 'prompt');
 
-		sandbox.stub(logger, 'logEvent');
-		sandbox.stub(logger, 'logError');
+		sinon.stub(logger, 'logEvent');
+		sinon.stub(logger, 'logError');
 
-		sandbox.stub(sfdx, 'checkSfdxInstalled');
-		sandbox.stub(sfdx, 'checkSfdxProjectFileExists');
-		sandbox.stub(sfdx, 'checkSfdxFolderExists');
-		sandbox.stub(sfdx, 'display');
-		sandbox.stub(sfdx, 'getAllScratchOrgs');
-		sandbox.stub(sfdx, 'login').resolves({});
-		sandbox.stub(sfdx, 'select');
+		sinon.stub(sfdx, 'checkSfdxInstalled');
+		sinon.stub(sfdx, 'checkSfdxProjectFileExists');
+		sinon.stub(sfdx, 'checkSfdxFolderExists');
+		sinon.stub(sfdx, 'display');
+		sinon.stub(sfdx, 'getAllScratchOrgs');
+		sinon.stub(sfdx, 'login').resolves({});
+		sinon.stub(sfdx, 'select');
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('create', () => {

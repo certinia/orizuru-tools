@@ -32,10 +32,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
@@ -47,12 +44,12 @@ describe('boilerplate/auth.js', () => {
 
 	beforeEach(() => {
 
-		tokenValidatorStub = sandbox.stub();
-		tokenValidatorResult = sandbox.stub();
+		tokenValidatorStub = sinon.stub();
+		tokenValidatorResult = sinon.stub();
 
-		grantCheckerStub = sandbox.stub();
-		grantCheckerResult = sandbox.stub();
-		getTokenStub = sandbox.stub();
+		grantCheckerStub = sinon.stub();
+		grantCheckerResult = sinon.stub();
+		getTokenStub = sinon.stub();
 
 		tokenValidatorStub.returns(tokenValidatorResult);
 		grantCheckerStub.returns(grantCheckerResult);
@@ -81,7 +78,7 @@ describe('boilerplate/auth.js', () => {
 		delete process.env.OPENID_CLIENT_ID;
 		delete process.env.OPENID_HTTP_TIMEOUT;
 		delete process.env.OPENID_ISSUER_URI;
-		restore();
+		sinon.restore();
 	});
 
 	describe('middleware', () => {

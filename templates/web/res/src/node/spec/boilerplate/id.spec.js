@@ -32,10 +32,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
@@ -44,7 +41,7 @@ describe('boilerplate/id.js', () => {
 	let id, uuidStub;
 
 	beforeEach(() => {
-		uuidStub = sandbox.stub();
+		uuidStub = sinon.stub();
 		uuidStub.returns('aaa123');
 		id = proxyquire('../../lib/boilerplate/id', {
 			uuid: uuidStub
@@ -52,7 +49,7 @@ describe('boilerplate/id.js', () => {
 	});
 
 	afterEach(() => {
-		restore();
+		sinon.restore();
 	});
 
 	describe('middleware', () => {
@@ -72,7 +69,7 @@ describe('boilerplate/id.js', () => {
 			// given
 			const
 				middleware = id.middleware,
-				next = sandbox.stub(),
+				next = sinon.stub(),
 				req = {},
 				res = {};
 
@@ -90,7 +87,7 @@ describe('boilerplate/id.js', () => {
 			// given
 			const
 				middleware = id.middleware,
-				next = sandbox.stub(),
+				next = sinon.stub(),
 				req = { orizuru: {} },
 				res = {};
 
@@ -111,7 +108,7 @@ describe('boilerplate/id.js', () => {
 
 			// given
 			const
-				jsonStub = sandbox.stub(),
+				jsonStub = sinon.stub(),
 				responseWriter = id.responseWriter,
 				res = {
 					json: jsonStub
@@ -133,8 +130,8 @@ describe('boilerplate/id.js', () => {
 
 			// given
 			const
-				statusStub = sandbox.stub(),
-				sendStub = sandbox.stub(),
+				statusStub = sinon.stub(),
+				sendStub = sinon.stub(),
 				responseWriter = id.responseWriter,
 				res = {
 					status: statusStub,

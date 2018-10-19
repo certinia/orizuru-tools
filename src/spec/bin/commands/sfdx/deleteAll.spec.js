@@ -37,9 +37,7 @@ const
 
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	service = require(root + '/src/lib/service/deploy/sfdx'),
-
-	sandbox = sinon.sandbox.create();
+	service = require(root + '/src/lib/service/deploy/sfdx');
 
 chai.use(sinonChai);
 
@@ -51,9 +49,9 @@ describe('bin/commands/sfdx/deleteAll.js', () => {
 
 		mocks = {};
 		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.option = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.epilogue = sinon.stub().returns(mocks.yargs);
+		mocks.yargs.option = sinon.stub().returns(mocks.yargs);
+		mocks.yargs.usage = sinon.stub().returns(mocks.yargs);
 
 		cli = proxyquire(root + '/src/lib/bin/commands/sfdx/deleteAll', {
 			yargs: mocks.yargs
@@ -62,7 +60,7 @@ describe('bin/commands/sfdx/deleteAll.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should have the correct command, description and alias', () => {
@@ -98,7 +96,7 @@ describe('bin/commands/sfdx/deleteAll.js', () => {
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
-		sandbox.stub(service, 'deleteAllScratchOrgs');
+		sinon.stub(service, 'deleteAllScratchOrgs');
 
 		// when
 		cli.handler(expectedInput);

@@ -38,9 +38,7 @@ const
 	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
 	service = require(root + '/src/lib/service/connectedApp'),
-	connectedAppCommands = require(root + '/src/lib/bin/commands/deploy/connectedApp'),
-
-	sandbox = sinon.sandbox.create();
+	connectedAppCommands = require(root + '/src/lib/bin/commands/deploy/connectedApp');
 
 chai.use(sinonChai);
 
@@ -49,7 +47,7 @@ describe('bin/commands/deploy/connectedApp.js', () => {
 	let mocks;
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should create the cli', () => {
@@ -57,10 +55,10 @@ describe('bin/commands/deploy/connectedApp.js', () => {
 		// given
 		mocks = {};
 		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.epilogue = sinon.stub().returns(mocks.yargs);
+		mocks.yargs.usage = sinon.stub().returns(mocks.yargs);
 
-		sandbox.stub(service, 'create');
+		sinon.stub(service, 'create');
 
 		const cli = proxyquire(root + '/src/lib/bin/commands/deploy/connectedApp', {
 			yargs: mocks.yargs
@@ -82,7 +80,7 @@ describe('bin/commands/deploy/connectedApp.js', () => {
 		// given
 		const { handler } = connectedAppCommands;
 
-		sandbox.stub(service, 'create');
+		sinon.stub(service, 'create');
 
 		// when
 		handler('test');

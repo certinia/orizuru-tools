@@ -34,16 +34,14 @@ const
 
 	yargs = require('yargs'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('bin/cli.js', () => {
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should create the base cli', () => {
@@ -54,17 +52,17 @@ describe('bin/cli.js', () => {
 			mockConstants = { VERSION: '1.0.0', COPYRIGHT_NOTICE: '(c) test' },
 			mockYargs = yargs('my-command');
 
-		sandbox.stub(mockYargs, 'alias').returnsThis();
-		sandbox.stub(mockYargs, 'command').returnsThis();
-		sandbox.stub(mockYargs, 'demandCommand').returnsThis();
-		sandbox.stub(mockYargs, 'epilogue').returnsThis();
-		sandbox.stub(mockYargs, 'help').returnsThis();
-		sandbox.stub(mockYargs, 'showHelpOnFail').returnsThis();
-		sandbox.stub(mockYargs, 'strict').returnsThis();
-		sandbox.stub(mockYargs, 'terminalWidth').returns(terminalWidth);
-		sandbox.stub(mockYargs, 'usage').returnsThis();
-		sandbox.stub(mockYargs, 'version').returnsThis();
-		sandbox.stub(mockYargs, 'wrap').returnsThis();
+		sinon.stub(mockYargs, 'alias').returnsThis();
+		sinon.stub(mockYargs, 'command').returnsThis();
+		sinon.stub(mockYargs, 'demandCommand').returnsThis();
+		sinon.stub(mockYargs, 'epilogue').returnsThis();
+		sinon.stub(mockYargs, 'help').returnsThis();
+		sinon.stub(mockYargs, 'showHelpOnFail').returnsThis();
+		sinon.stub(mockYargs, 'strict').returnsThis();
+		sinon.stub(mockYargs, 'terminalWidth').returns(terminalWidth);
+		sinon.stub(mockYargs, 'usage').returnsThis();
+		sinon.stub(mockYargs, 'version').returnsThis();
+		sinon.stub(mockYargs, 'wrap').returnsThis();
 
 		// when
 		proxyquire('../../lib/bin/cli', {
@@ -106,11 +104,11 @@ describe('bin/cli.js', () => {
 			},
 			mockYargs = yargs('my-not-command --my-arg=my-value');
 
-		sandbox.stub(mockYargs, 'exit').returns(mockYargs);
-		sandbox.stub(mockYargs, 'showHelp');
+		sinon.stub(mockYargs, 'exit').returns(mockYargs);
+		sinon.stub(mockYargs, 'showHelp');
 
 		// stub the internal _getLoggerInstance method so that no logging is output
-		sandbox.stub(mockYargs, '_getLoggerInstance').returns({ error: sandbox.stub() });
+		sinon.stub(mockYargs, '_getLoggerInstance').returns({ error: sinon.stub() });
 
 		// when
 		proxyquire('../../lib/bin/cli', {

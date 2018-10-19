@@ -33,10 +33,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -52,20 +49,20 @@ describe('handler/account.js', () => {
 		process.env.OPENID_HTTP_TIMEOUT = '5333';
 		process.env.OPENID_ISSUER_URI = 'http://test';
 
-		class Connection {}
+		class Connection { }
 
 		mocks = {};
 
-		mocks.auth = sandbox.stub();
-		mocks.auth.grant = sandbox.stub();
+		mocks.auth = sinon.stub();
+		mocks.auth.grant = sinon.stub();
 
-		mocks.jsforce = sandbox.stub();
+		mocks.jsforce = sinon.stub();
 		mocks.jsforce.Connection = Connection;
 
-		mocks.sobject = sandbox.stub();
-		mocks.sobject.create = sandbox.stub();
+		mocks.sobject = sinon.stub();
+		mocks.sobject.create = sinon.stub();
 
-		mocks.jsforce.Connection.prototype.sobject = sandbox.stub().returns(mocks.sobject);
+		mocks.jsforce.Connection.prototype.sobject = sinon.stub().returns(mocks.sobject);
 
 		handler = proxyquire('../../lib/handler/account', {
 			jsforce: mocks.jsforce,
@@ -81,7 +78,7 @@ describe('handler/account.js', () => {
 		delete process.env.OPENID_HTTP_TIMEOUT;
 		delete process.env.OPENID_ISSUER_URI;
 
-		restore();
+		sinon.restore();
 
 	});
 

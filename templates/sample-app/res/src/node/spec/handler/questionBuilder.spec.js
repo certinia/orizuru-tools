@@ -33,8 +33,6 @@ const
 
 	expect = chai.expect,
 
-	sandbox = sinon.sandbox.create(),
-
 	buildQuestion = require('../../lib/handler/questionBuilder'),
 
 	connection = require('../../lib/service/salesforce/connection'),
@@ -54,7 +52,7 @@ describe('questionBuilder/service.js', () => {
 	let mocks;
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('executeQuery', () => {
@@ -76,12 +74,12 @@ describe('questionBuilder/service.js', () => {
 				}
 			};
 
-			mocks.conn = sandbox.stub();
+			mocks.conn = sinon.stub();
 
-			sandbox.stub(connection, 'fromContext').resolves(mocks.conn);
-			sandbox.stub(reader, 'query').resolves();
-			sandbox.stub(writer, 'createObject').resolves();
-			sandbox.stub(writer, 'sendPlatformEvent').resolves();
+			sinon.stub(connection, 'fromContext').resolves(mocks.conn);
+			sinon.stub(reader, 'query').resolves();
+			sinon.stub(writer, 'createObject').resolves();
+			sinon.stub(writer, 'sendPlatformEvent').resolves();
 
 		});
 

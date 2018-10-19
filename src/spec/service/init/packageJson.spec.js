@@ -35,9 +35,7 @@ const
 
 	expect = chai.expect,
 
-	logger = require(root + '/src/lib/util/logger'),
-
-	sandbox = sinon.sandbox.create();
+	logger = require(root + '/src/lib/util/logger');
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -50,20 +48,20 @@ describe('service/init/packageJson.js', () => {
 
 		mocks = {};
 
-		mocks.debug = sandbox.stub();
-		mocks.debug.log = sandbox.stub();
-		mocks.debug.stringify = sandbox.stub();
+		mocks.debug = sinon.stub();
+		mocks.debug.log = sinon.stub();
+		mocks.debug.stringify = sinon.stub();
 
-		mocks.fs = sandbox.stub();
-		mocks.fs.readJson = sandbox.stub();
-		mocks.fs.writeJson = sandbox.stub();
+		mocks.fs = sinon.stub();
+		mocks.fs.readJson = sinon.stub();
+		mocks.fs.writeJson = sinon.stub();
 
-		mocks.inquirer = sandbox.stub();
-		mocks.inquirer.prompt = sandbox.stub();
+		mocks.inquirer = sinon.stub();
+		mocks.inquirer.prompt = sinon.stub();
 
-		sandbox.stub(logger, 'logEvent');
-		sandbox.stub(logger, 'logFinish');
-		sandbox.stub(logger, 'logLn');
+		sinon.stub(logger, 'logEvent');
+		sinon.stub(logger, 'logFinish');
+		sinon.stub(logger, 'logLn');
 
 		packageJson = proxyquire(root + '/src/lib/service/init/packageJson', {
 			'fs-extra': mocks.fs,
@@ -74,7 +72,7 @@ describe('service/init/packageJson.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('askQuestions', () => {

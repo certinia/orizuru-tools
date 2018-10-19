@@ -35,9 +35,7 @@ const
 
 	expect = chai.expect,
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
-
-	sandbox = sinon.sandbox.create();
+	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE;
 
 chai.use(sinonChai);
 
@@ -49,11 +47,11 @@ describe('bin/commands/docker.js', () => {
 
 		mocks = {};
 		mocks.yargs = {};
-		mocks.yargs.command = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.demandCommand = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.updateStrings = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+		mocks.yargs.command = sinon.stub().returns(mocks.yargs);
+		mocks.yargs.demandCommand = sinon.stub().returns(mocks.yargs);
+		mocks.yargs.epilogue = sinon.stub().returns(mocks.yargs);
+		mocks.yargs.updateStrings = sinon.stub().returns(mocks.yargs);
+		mocks.yargs.usage = sinon.stub().returns(mocks.yargs);
 
 		cli = proxyquire(root + '/src/lib/bin/commands/docker', {
 			yargs: mocks.yargs
@@ -62,7 +60,7 @@ describe('bin/commands/docker.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should have the correct command, description and alias', () => {

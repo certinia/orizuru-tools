@@ -34,9 +34,7 @@ const
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -44,21 +42,21 @@ chai.use(sinonChai);
 function createMocks() {
 
 	const
-		execa = sandbox.stub(),
+		execa = sinon.stub(),
 		childProcess = {
-			spawn: sandbox.stub()
+			spawn: sinon.stub()
 		},
 		execaStdout = {
 			stdout: {
-				pipe: sandbox.stub()
+				pipe: sinon.stub()
 			},
-			on: sandbox.stub()
+			on: sinon.stub()
 		},
-		onComplete = sandbox.stub(),
-		onFailure = sandbox.stub(),
-		logging = sandbox.stub();
+		onComplete = sinon.stub(),
+		onFailure = sinon.stub(),
+		logging = sinon.stub();
 
-	execaStdout.stdout.pipe.resume = sandbox.stub();
+	execaStdout.stdout.pipe.resume = sinon.stub();
 	execaStdout.stdout.pipe.returns(execaStdout.stdout.pipe);
 
 	return { childProcess, execa, execaStdout, logging, onComplete, onFailure };
@@ -73,24 +71,24 @@ describe('util/shell.js', () => {
 
 		mocks = createMocks();
 
-		mocks.debug = sandbox.stub().returns(sandbox.stub());
-		mocks.debug.create = sandbox.stub().returnsThis();
-		mocks.debug.create.enable = sandbox.stub();
+		mocks.debug = sinon.stub().returns(sinon.stub());
+		mocks.debug.create = sinon.stub().returnsThis();
+		mocks.debug.create.enable = sinon.stub();
 
 		const spawn = mocks.childProcess.spawn;
 		spawn.returns(spawn);
 
-		spawn.stdout = sandbox.stub();
-		spawn.stdout.pipe = sandbox.stub();
+		spawn.stdout = sinon.stub();
+		spawn.stdout.pipe = sinon.stub();
 		spawn.stdout.pipe.returns(spawn.stdout.pipe);
-		spawn.stdout.pipe.resume = sandbox.stub();
-		spawn.stdout.on = sandbox.stub();
+		spawn.stdout.pipe.resume = sinon.stub();
+		spawn.stdout.on = sinon.stub();
 
-		spawn.stderr = sandbox.stub();
-		spawn.stderr.pipe = sandbox.stub();
+		spawn.stderr = sinon.stub();
+		spawn.stderr.pipe = sinon.stub();
 		spawn.stderr.pipe.returns(spawn.stderr.pipe);
-		spawn.stderr.pipe.resume = sandbox.stub();
-		spawn.stderr.on = sandbox.stub();
+		spawn.stderr.pipe.resume = sinon.stub();
+		spawn.stderr.on = sinon.stub();
 
 		shell = proxyquire(root + '/src/lib/util/shell.js', {
 			['child_process']: mocks.childProcess,
@@ -100,7 +98,7 @@ describe('util/shell.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('executeCommand', () => {
@@ -109,13 +107,13 @@ describe('util/shell.js', () => {
 
 			// given
 			const
-				expectedConfig = sandbox.stub(),
+				expectedConfig = sinon.stub(),
 				expectedCommand = 'command',
 				expectedArgs = ['args'],
 				expectedOptions = { exitOnError: true },
 				command = { cmd: expectedCommand, args: expectedArgs, opts: expectedOptions };
 
-			mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+			mocks.childProcess.spawn.on = sinon.stub().yields(0);
 
 			// when - then
 			return expect(shell.executeCommand(command, expectedConfig))
@@ -146,7 +144,7 @@ describe('util/shell.js', () => {
 						stdout: ''
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(1);
+				mocks.childProcess.spawn.on = sinon.stub().yields(1);
 
 				// when - then
 				return expect(shell.executeCommand(command))
@@ -166,7 +164,7 @@ describe('util/shell.js', () => {
 					expectedOptions = { exitOnError: true },
 					command = { cmd: expectedCommand, args: expectedArgs, opts: expectedOptions };
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(1);
+				mocks.childProcess.spawn.on = sinon.stub().yields(1);
 
 				// when - then
 				return expect(shell.executeCommand(command))
@@ -192,7 +190,7 @@ describe('util/shell.js', () => {
 						stdout: ''
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 
 				// when - then
 				return expect(shell.executeCommand(command))
@@ -222,7 +220,7 @@ describe('util/shell.js', () => {
 						stdout: 'test'
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
 
 				// when - then
@@ -250,7 +248,7 @@ describe('util/shell.js', () => {
 						stdout: 'test'
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
 
 				// when - then
@@ -277,7 +275,7 @@ describe('util/shell.js', () => {
 						stdout: 'test'
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
 
 				// when - then
@@ -301,7 +299,7 @@ describe('util/shell.js', () => {
 						stdout: ''
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stderr.on.withArgs('data').yields('test');
 
 				// when - then
@@ -325,7 +323,7 @@ describe('util/shell.js', () => {
 						stdout: ''
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stderr.on.withArgs('data').yields('test');
 
 				// when - then
@@ -370,7 +368,7 @@ describe('util/shell.js', () => {
 					}
 				};
 
-			mocks.childProcess.spawn.on = sandbox.stub()
+			mocks.childProcess.spawn.on = sinon.stub()
 				.onFirstCall().yields(0)
 				.onSecondCall().yields(1);
 

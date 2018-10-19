@@ -37,10 +37,7 @@ const
 	schemas = require('../lib/boilerplate/schema'),
 	read = require('../lib/boilerplate/read'),
 	defaultTransport = require('../lib/boilerplate/transport'),
-	orizuru = require('@financialforcedev/orizuru'),
-
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	orizuru = require('@financialforcedev/orizuru');
 
 chai.use(sinonChai);
 
@@ -52,22 +49,22 @@ describe('web.js', () => {
 		responseWriterStub, throngStub;
 
 	beforeEach(() => {
-		responseWriterStub = sandbox.stub();
+		responseWriterStub = sinon.stub();
 		authMiddleware = [];
 		middleware = authMiddleware.concat(idMiddleware);
-		serverListenSpy = sandbox.spy();
-		getServerStub = sandbox.stub().returns({
+		serverListenSpy = sinon.spy();
+		getServerStub = sinon.stub().returns({
 			listen: serverListenSpy
 		});
-		addRouteSpy = sandbox.spy();
-		addGetSpy = sandbox.spy();
-		sandbox.stub(orizuru, 'Server').callsFake(function () {
+		addRouteSpy = sinon.spy();
+		addGetSpy = sinon.spy();
+		sinon.stub(orizuru, 'Server').callsFake(function () {
 			this.addGet = addGetSpy;
 			this.addRoute = addRouteSpy;
 			this.getServer = getServerStub;
 		});
-		sandbox.stub(read, 'readSchema').returns({ mock: true });
-		sandbox.stub(schemas, 'getWebSchemas').returns([{
+		sinon.stub(read, 'readSchema').returns({ mock: true });
+		sinon.stub(schemas, 'getWebSchemas').returns([{
 			path: 'api/test1.avsc',
 			sharedPath: '/api',
 			fileName: 'test1'
@@ -77,12 +74,12 @@ describe('web.js', () => {
 			fileName: 'test2'
 		}]);
 		orizuru.Server.emitter = {
-			on: sandbox.stub()
+			on: sinon.stub()
 		};
 	});
 
 	afterEach(() => {
-		restore();
+		sinon.restore();
 		delete process.env.WEB_CONCURRENCY;
 	});
 
@@ -125,7 +122,7 @@ describe('web.js', () => {
 	it('should create an orizuru server cluster', () => {
 
 		// given
-		throngStub = sandbox.stub();
+		throngStub = sinon.stub();
 		throngStub.yields();
 		process.env.WEB_CONCURRENCY = 2;
 

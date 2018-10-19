@@ -33,10 +33,7 @@ const
 
 	expect = chai.expect,
 
-	writer = require('../../../lib/service/salesforce/writer'),
-
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	writer = require('../../../lib/service/salesforce/writer');
 
 chai.use(sinonChai);
 
@@ -45,18 +42,20 @@ describe('service/salesforce/writer.js', () => {
 	let conn, connSobjectCreate;
 
 	beforeEach(() => {
-		connSobjectCreate = sandbox.stub().returns('conn.sobject');
+		connSobjectCreate = sinon.stub().returns('conn.sobject');
 		conn = {
-			sobject: sandbox.stub().returns({
+			sobject: sinon.stub().returns({
 				create: connSobjectCreate
 			}),
 			bulk: {
-				load: sandbox.stub().returns('conn.bulk.load')
+				load: sinon.stub().returns('conn.bulk.load')
 			}
 		};
 	});
 
-	afterEach(restore);
+	afterEach(() => {
+		sinon.restore();
+	});
 
 	describe('createObject', () => {
 

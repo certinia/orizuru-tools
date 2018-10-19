@@ -31,10 +31,7 @@ const
 	proxyquire = require('proxyquire').noCallThru(),
 	sinon = require('sinon'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	expect = chai.expect;
 
 describe('boilerplate/read.js', () => {
 
@@ -44,7 +41,7 @@ describe('boilerplate/read.js', () => {
 
 		mocks = {};
 		mocks.fsextra = {};
-		mocks.fsextra.readJsonSync = sandbox.stub();
+		mocks.fsextra.readJsonSync = sinon.stub();
 
 		mocks.requiredFile = {};
 
@@ -55,7 +52,7 @@ describe('boilerplate/read.js', () => {
 	});
 
 	afterEach(() => {
-		restore();
+		sinon.restore();
 	});
 
 	describe('readSchema', () => {

@@ -34,9 +34,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -48,8 +46,8 @@ describe('service/docker/docker', () => {
 	beforeEach(() => {
 
 		mocks = {};
-		mocks.shell = sandbox.stub();
-		mocks.shell.executeCommand = sandbox.stub();
+		mocks.shell = sinon.stub();
+		mocks.shell.executeCommand = sinon.stub();
 
 		docker = proxyquire(root + '/src/lib/service/docker/docker', {
 			'../../util/shell': mocks.shell
@@ -58,7 +56,7 @@ describe('service/docker/docker', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('displayLogs', () => {

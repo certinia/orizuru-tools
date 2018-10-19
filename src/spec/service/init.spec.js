@@ -40,9 +40,7 @@ const
 	template = require('../../lib/service/init/template'),
 	logger = require('../../lib/util/logger'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -51,24 +49,24 @@ describe('service/init.js', () => {
 
 	beforeEach(() => {
 
-		sandbox.stub(logger, 'logStart');
-		sandbox.stub(logger, 'logFinish');
-		sandbox.stub(logger, 'logError');
-		sandbox.stub(npm, 'init');
-		sandbox.stub(npm, 'install');
-		sandbox.stub(npm, 'generateApexTransport');
-		sandbox.stub(npm, 'generateDocumentation');
-		sandbox.stub(npm, 'test');
-		sandbox.stub(npm, 'orizuruPostInit');
-		sandbox.stub(packageJson, 'create');
-		sandbox.stub(resource, 'copy');
-		sandbox.stub(resource, 'renameGitIgnore');
-		sandbox.stub(template, 'select');
-		sandbox.stub(process, 'exit');
+		sinon.stub(logger, 'logStart');
+		sinon.stub(logger, 'logFinish');
+		sinon.stub(logger, 'logError');
+		sinon.stub(npm, 'init');
+		sinon.stub(npm, 'install');
+		sinon.stub(npm, 'generateApexTransport');
+		sinon.stub(npm, 'generateDocumentation');
+		sinon.stub(npm, 'test');
+		sinon.stub(npm, 'orizuruPostInit');
+		sinon.stub(packageJson, 'create');
+		sinon.stub(resource, 'copy');
+		sinon.stub(resource, 'renameGitIgnore');
+		sinon.stub(template, 'select');
+		sinon.stub(process, 'exit');
 
 	});
 
-	afterEach(() => sandbox.restore());
+	afterEach(() => sinon.restore());
 
 	describe('init', () => {
 

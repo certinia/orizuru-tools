@@ -36,9 +36,7 @@ const
 
 	{ resolve } = require('path'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -51,19 +49,19 @@ describe('service/generateApexTransport.js', () => {
 
 		mocks = {};
 
-		mocks.logger = sandbox.stub();
-		mocks.logger.log = sandbox.stub();
-		mocks.logger.logError = sandbox.stub();
-		mocks.logger.logFinish = sandbox.stub();
-		mocks.logger.logEvent = sandbox.stub();
+		mocks.logger = sinon.stub();
+		mocks.logger.log = sinon.stub();
+		mocks.logger.logError = sinon.stub();
+		mocks.logger.logFinish = sinon.stub();
+		mocks.logger.logEvent = sinon.stub();
 
-		mocks.generate = sandbox.stub();
-		mocks.generate.generate = sandbox.stub();
+		mocks.generate = sinon.stub();
+		mocks.generate.generate = sinon.stub();
 
-		mocks.getAvscFilesOnPathRecursively = sandbox.stub();
-		mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively = sandbox.stub();
+		mocks.getAvscFilesOnPathRecursively = sinon.stub();
+		mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively = sinon.stub();
 
-		mocks.overwriteFile = sandbox.stub();
+		mocks.overwriteFile = sinon.stub();
 
 		service = proxyquire(root + '/src/lib/service/generateApexTransport', {
 			'./generateApexTransport/getAvscFilesOnPathRecursively': mocks.getAvscFilesOnPathRecursively,
@@ -75,7 +73,7 @@ describe('service/generateApexTransport.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('generateApexTransport', () => {

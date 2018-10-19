@@ -32,10 +32,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
@@ -44,14 +41,14 @@ describe('boilerplate/walk.js', () => {
 	let walk, klawSyncStub;
 
 	beforeEach(() => {
-		klawSyncStub = sandbox.stub();
+		klawSyncStub = sinon.stub();
 		walk = proxyquire('../../lib/boilerplate/walk', {
 			'klaw-sync': klawSyncStub
 		});
 	});
 
 	afterEach(() => {
-		restore();
+		sinon.restore();
 	});
 
 	describe('walk', () => {

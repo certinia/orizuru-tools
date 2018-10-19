@@ -34,9 +34,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -49,7 +47,7 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 
 		mocks = {};
 		mocks.fs = {};
-		mocks.fs.writeFile = sandbox.stub();
+		mocks.fs.writeFile = sinon.stub();
 
 		overwriteFile = proxyquire(root + '/src/lib/service/generateApexTransport/overwriteFile', {
 			'fs-extra': mocks.fs
@@ -58,7 +56,7 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('overwriteFile', () => {

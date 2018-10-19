@@ -33,16 +33,14 @@ const
 	root = require('app-root-path'),
 	sinon = require('sinon'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 
 function createMocks() {
 	return {
 		inquirer: {
-			prompt: sandbox.stub()
+			prompt: sinon.stub()
 		}
 	};
 }
@@ -62,7 +60,7 @@ describe('service/docker/prompt.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('getServicesForProcess', () => {

@@ -33,9 +33,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -48,16 +46,16 @@ describe('service/init/template.js', () => {
 
 		mocks = {};
 
-		mocks.lstatSync = sandbox.stub();
-		mocks.lstatSync.isDirectory = sandbox.stub();
+		mocks.lstatSync = sinon.stub();
+		mocks.lstatSync.isDirectory = sinon.stub();
 
-		mocks.fs = sandbox.stub();
-		mocks.fs.lstatSync = sandbox.stub();
-		mocks.fs.readdir = sandbox.stub();
-		mocks.fs.readJson = sandbox.stub();
+		mocks.fs = sinon.stub();
+		mocks.fs.lstatSync = sinon.stub();
+		mocks.fs.readdir = sinon.stub();
+		mocks.fs.readJson = sinon.stub();
 
-		mocks.inquirer = sandbox.stub();
-		mocks.inquirer.prompt = sandbox.stub();
+		mocks.inquirer = sinon.stub();
+		mocks.inquirer.prompt = sinon.stub();
 
 		template = proxyquire(root + '/src/lib/service/init/template', {
 			'fs-extra': mocks.fs,
@@ -67,7 +65,7 @@ describe('service/init/template.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should use the template from the command line argument if the provided template exists', () => {

@@ -34,9 +34,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -50,10 +48,10 @@ describe('service/deploy/namedCredential.js', () => {
 		mocks = {};
 
 		mocks.jsforce = {};
-		mocks.jsforce.Connection = sandbox.stub();
+		mocks.jsforce.Connection = sinon.stub();
 
-		mocks.inquirer = sandbox.stub();
-		mocks.inquirer.prompt = sandbox.stub();
+		mocks.inquirer = sinon.stub();
+		mocks.inquirer.prompt = sinon.stub();
 
 		namedCredential = proxyquire(root + '/src/lib/service/deploy/namedCredential.js', {
 			inquirer: mocks.inquirer,
@@ -63,7 +61,7 @@ describe('service/deploy/namedCredential.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('askQuestions', () => {
@@ -97,7 +95,7 @@ describe('service/deploy/namedCredential.js', () => {
 			// given
 			const
 				expectedInput = {
-					conn: sandbox.stub(),
+					conn: sinon.stub(),
 					connectedApp: {
 						name: 'testConnectedAppName'
 					},
@@ -115,8 +113,8 @@ describe('service/deploy/namedCredential.js', () => {
 				expectedOutput = expectedInput;
 
 			expectedInput.conn.metadata = {};
-			expectedInput.conn.metadata.upsert = sandbox.stub().resolves();
-			expectedInput.conn.metadata.read = sandbox.stub().resolves();
+			expectedInput.conn.metadata.upsert = sinon.stub().resolves();
+			expectedInput.conn.metadata.read = sinon.stub().resolves();
 
 			// when - then
 			return expect(namedCredential.create(expectedInput))

@@ -34,9 +34,7 @@ const
 
 	expect = chai.expect,
 
-	reader = require('../../../lib/service/salesforce/reader'),
-
-	sandbox = sinon.sandbox.create();
+	reader = require('../../../lib/service/salesforce/reader');
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -48,15 +46,15 @@ describe('service/salesforce/reader.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
-		mocks.conn = sandbox.stub();
-		mocks.conn.query = sandbox.stub();
-		mocks.conn.on = sandbox.stub();
-		mocks.conn.run = sandbox.stub();
+		mocks.conn = sinon.stub();
+		mocks.conn.query = sinon.stub();
+		mocks.conn.on = sinon.stub();
+		mocks.conn.run = sinon.stub();
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('query', () => {
@@ -68,10 +66,10 @@ describe('service/salesforce/reader.js', () => {
 				expectedError = 'error',
 				expectedQuery = 'SELECT Id FROM Account';
 
-			mocks.conn = sandbox.stub().returnsThis();
-			mocks.conn.query = sandbox.stub().returnsThis();
-			mocks.conn.on = sandbox.stub();
-			mocks.conn.run = sandbox.stub().returnsThis();
+			mocks.conn = sinon.stub().returnsThis();
+			mocks.conn.query = sinon.stub().returnsThis();
+			mocks.conn.on = sinon.stub();
+			mocks.conn.run = sinon.stub().returnsThis();
 
 			// In this case, only mock out the error event
 			mocks.conn.on.callsFake((event, fn) => {
@@ -96,10 +94,10 @@ describe('service/salesforce/reader.js', () => {
 			// given
 			const expectedQuery = 'SELECT Id FROM Account';
 
-			mocks.conn = sandbox.stub().returnsThis();
-			mocks.conn.query = sandbox.stub().returnsThis();
-			mocks.conn.on = sandbox.stub();
-			mocks.conn.run = sandbox.stub().returnsThis();
+			mocks.conn = sinon.stub().returnsThis();
+			mocks.conn.query = sinon.stub().returnsThis();
+			mocks.conn.on = sinon.stub();
+			mocks.conn.run = sinon.stub().returnsThis();
 
 			// In this case, only mock out the end event to simulate no records
 			mocks.conn.on.callsFake((event, fn) => {
@@ -126,10 +124,10 @@ describe('service/salesforce/reader.js', () => {
 				expectedQuery = 'SELECT Id FROM Account',
 				expectedRecord = { name: 'Account 1' };
 
-			mocks.conn = sandbox.stub().returnsThis();
-			mocks.conn.query = sandbox.stub().returnsThis();
-			mocks.conn.on = sandbox.stub();
-			mocks.conn.run = sandbox.stub().returnsThis();
+			mocks.conn = sinon.stub().returnsThis();
+			mocks.conn.query = sinon.stub().returnsThis();
+			mocks.conn.on = sinon.stub();
+			mocks.conn.run = sinon.stub().returnsThis();
 
 			// In this case, mock out the end event and the record event
 			mocks.conn.on.callsFake((event, fn) => {

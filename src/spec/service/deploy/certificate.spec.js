@@ -36,9 +36,7 @@ const
 
 	expect = chai.expect,
 
-	logger = require(root + '/src/lib/util/logger'),
-
-	sandbox = sinon.sandbox.create();
+	logger = require(root + '/src/lib/util/logger');
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -51,13 +49,13 @@ describe('service/deploy/certificate.js', () => {
 
 		mocks = {};
 		mocks.shell = {};
-		mocks.inquirer = sandbox.stub();
-		mocks.inquirer.prompt = sandbox.stub();
+		mocks.inquirer = sinon.stub();
+		mocks.inquirer.prompt = sinon.stub();
 
-		sandbox.stub(logger, 'logStart');
-		sandbox.stub(logger, 'logEvent');
-		sandbox.stub(logger, 'logLn');
-		sandbox.stub(logger, 'logFinish');
+		sinon.stub(logger, 'logStart');
+		sinon.stub(logger, 'logEvent');
+		sinon.stub(logger, 'logLn');
+		sinon.stub(logger, 'logFinish');
 
 		certificate = proxyquire(root + '/src/lib/service/deploy/certificate.js', {
 			inquirer: mocks.inquirer,
@@ -67,7 +65,7 @@ describe('service/deploy/certificate.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('checkOpenSSLInstalled', () => {
@@ -77,7 +75,7 @@ describe('service/deploy/certificate.js', () => {
 			// given
 			const expectedCommand = { cmd: 'openssl', args: ['version'] };
 
-			mocks.shell.executeCommand = sandbox.stub().resolves('OpenSSL 0.9.8zh 14 Jan 2016');
+			mocks.shell.executeCommand = sinon.stub().resolves('OpenSSL 0.9.8zh 14 Jan 2016');
 
 			// when - then
 			return expect(certificate.checkOpenSSLInstalled({}))
@@ -125,7 +123,7 @@ describe('service/deploy/certificate.js', () => {
 
 			mocks.inquirer.prompt.resolves(expectedCertificateDetails);
 
-			mocks.shell.executeCommands = sandbox.stub().resolves({
+			mocks.shell.executeCommands = sinon.stub().resolves({
 				command0: { stdout: 'publicKey' },
 				command1: { stdout: 'privateKey' }
 			});
@@ -177,7 +175,7 @@ describe('service/deploy/certificate.js', () => {
 
 			mocks.inquirer.prompt.resolves(expectedCertificateDetails);
 
-			mocks.shell.executeCommands = sandbox.stub().resolves();
+			mocks.shell.executeCommands = sinon.stub().resolves();
 			mocks.shell.executeCommands.onCall(0).rejects();
 
 			mocks.shell.executeCommands.onCall(2).resolves({
@@ -213,7 +211,7 @@ describe('service/deploy/certificate.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommands = sandbox.stub().resolves({
+			mocks.shell.executeCommands = sinon.stub().resolves({
 				command0: { stdout: 'publicKey' },
 				command1: { stdout: 'privateKey' }
 			});

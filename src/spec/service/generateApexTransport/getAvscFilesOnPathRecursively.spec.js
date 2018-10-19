@@ -34,9 +34,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -48,12 +46,12 @@ describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () =>
 	beforeEach(() => {
 		startPath = 'startPath/';
 		mocks = {
-			klawSync: sandbox.stub().returns([{
+			klawSync: sinon.stub().returns([{
 				path: startPath + 'a/b/c.avsc'
 			}, {
 				path: startPath + 'd/e/f.avsc'
 			}]),
-			readFileSync: sandbox.stub().returns(new Buffer('potato'))
+			readFileSync: sinon.stub().returns(new Buffer('potato'))
 		};
 		getAvscFilesOnPathRecursively = proxyquire(root + '/src/lib/service/generateApexTransport/getAvscFilesOnPathRecursively', {
 			'klaw-sync': mocks.klawSync,
@@ -63,7 +61,7 @@ describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () =>
 		});
 	});
 
-	afterEach(() => sandbox.restore());
+	afterEach(() => sinon.restore());
 
 	describe('getAvscFilesOnPathRecursively', () => {
 

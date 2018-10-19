@@ -40,9 +40,7 @@ const
 	expect = chai.expect,
 
 	logger = require(root + '/src/lib/util/logger'),
-	shell = require(root + '/src/lib/util/shell'),
-
-	sandbox = sinon.sandbox.create();
+	shell = require(root + '/src/lib/util/shell');
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -55,24 +53,24 @@ describe('service/deploy/sfdx.js', () => {
 
 		mocks = {};
 
-		mocks.config = sandbox.stub();
-		mocks.config.writeSetting = sandbox.stub();
+		mocks.config = sinon.stub();
+		mocks.config.writeSetting = sinon.stub();
 
 		mocks.jsforce = {};
-		mocks.jsforce.Connection = sandbox.stub();
+		mocks.jsforce.Connection = sinon.stub();
 
-		sandbox.stub(inquirer, 'prompt');
+		sinon.stub(inquirer, 'prompt');
 
-		sandbox.stub(shell, 'executeCommand');
-		sandbox.stub(shell, 'executeCommands');
+		sinon.stub(shell, 'executeCommand');
+		sinon.stub(shell, 'executeCommands');
 
-		sandbox.stub(fs, 'outputFile');
-		sandbox.stub(fs, 'outputJsonSync');
-		sandbox.stub(fs, 'readFile');
-		sandbox.stub(fs, 'readFileSync');
-		sandbox.stub(fs, 'writeJson');
+		sinon.stub(fs, 'outputFile');
+		sinon.stub(fs, 'outputJsonSync');
+		sinon.stub(fs, 'readFile');
+		sinon.stub(fs, 'readFileSync');
+		sinon.stub(fs, 'writeJson');
 
-		sandbox.stub(logger, 'logEvent').resolves();
+		sinon.stub(logger, 'logEvent').resolves();
 
 		sfdx = proxyquire(root + '/src/lib/service/deploy/sfdx.js', {
 			'./shared/config': mocks.config
@@ -81,7 +79,7 @@ describe('service/deploy/sfdx.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('checkSfdxInstalled', () => {
@@ -320,8 +318,8 @@ describe('service/deploy/sfdx.js', () => {
 		it('should execute the correct commands', () => {
 
 			// given
-			shell.executeCommand = sandbox.stub().resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
-			shell.executeCommands = sandbox.stub().resolves({});
+			shell.executeCommand = sinon.stub().resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
+			shell.executeCommands = sinon.stub().resolves({});
 
 			// when - then
 			return expect(sfdx.deleteAllScratchOrgs({}))
@@ -530,7 +528,7 @@ describe('service/deploy/sfdx.js', () => {
 					}
 				};
 
-			shell.executeCommand = sandbox.stub();
+			shell.executeCommand = sinon.stub();
 
 			// when - then
 			return expect(sfdx.login(expectedInput))

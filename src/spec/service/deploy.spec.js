@@ -46,9 +46,7 @@ const
 
 	service = require(root + '/src/lib/service/deploy'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -57,48 +55,48 @@ describe('service/deploy.js', () => {
 
 	beforeEach(() => {
 
-		sandbox.stub(certificate, 'getOrCreate');
+		sinon.stub(certificate, 'getOrCreate');
 
-		sandbox.stub(configFile, 'readSettings');
+		sinon.stub(configFile, 'readSettings');
 
-		sandbox.stub(conn, 'create');
+		sinon.stub(conn, 'create');
 
-		sandbox.stub(connectedApp, 'askQuestions');
-		sandbox.stub(connectedApp, 'create');
-		sandbox.stub(connectedApp, 'updateHerokuConfigVariables');
+		sinon.stub(connectedApp, 'askQuestions');
+		sinon.stub(connectedApp, 'create');
+		sinon.stub(connectedApp, 'updateHerokuConfigVariables');
 
-		sandbox.stub(heroku, 'addBuildpacks');
-		sandbox.stub(heroku, 'addFormation');
-		sandbox.stub(heroku, 'addAddOns');
-		sandbox.stub(heroku, 'checkHerokuCliInstalled');
-		sandbox.stub(heroku, 'checkWorkingChanges');
-		sandbox.stub(heroku, 'deployCurrentBranch');
-		sandbox.stub(heroku, 'getAllApps');
-		sandbox.stub(heroku, 'select');
-		sandbox.stub(heroku, 'readAppJson');
+		sinon.stub(heroku, 'addBuildpacks');
+		sinon.stub(heroku, 'addFormation');
+		sinon.stub(heroku, 'addAddOns');
+		sinon.stub(heroku, 'checkHerokuCliInstalled');
+		sinon.stub(heroku, 'checkWorkingChanges');
+		sinon.stub(heroku, 'deployCurrentBranch');
+		sinon.stub(heroku, 'getAllApps');
+		sinon.stub(heroku, 'select');
+		sinon.stub(heroku, 'readAppJson');
 
-		sandbox.stub(logger, 'logStart').returns(sandbox.stub());
-		sandbox.stub(logger, 'logEvent').returns(sandbox.stub());
-		sandbox.stub(logger, 'logFinish').returns(sandbox.stub());
+		sinon.stub(logger, 'logStart').returns(sinon.stub());
+		sinon.stub(logger, 'logEvent').returns(sinon.stub());
+		sinon.stub(logger, 'logFinish').returns(sinon.stub());
 
-		sandbox.stub(namedCredential, 'askQuestions');
-		sandbox.stub(namedCredential, 'create');
+		sinon.stub(namedCredential, 'askQuestions');
+		sinon.stub(namedCredential, 'create');
 
-		sandbox.stub(properties, 'updateProperties');
+		sinon.stub(properties, 'updateProperties');
 
-		sandbox.stub(sfdx, 'checkSfdxInstalled');
-		sandbox.stub(sfdx, 'deploy');
-		sandbox.stub(sfdx, 'display');
-		sandbox.stub(sfdx, 'getAllScratchOrgs');
-		sandbox.stub(sfdx, 'login');
-		sandbox.stub(sfdx, 'openOrg');
-		sandbox.stub(sfdx, 'readSfdxYaml');
-		sandbox.stub(sfdx, 'select');
+		sinon.stub(sfdx, 'checkSfdxInstalled');
+		sinon.stub(sfdx, 'deploy');
+		sinon.stub(sfdx, 'display');
+		sinon.stub(sfdx, 'getAllScratchOrgs');
+		sinon.stub(sfdx, 'login');
+		sinon.stub(sfdx, 'openOrg');
+		sinon.stub(sfdx, 'readSfdxYaml');
+		sinon.stub(sfdx, 'select');
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('apex', () => {

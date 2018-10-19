@@ -33,9 +33,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
@@ -47,7 +45,7 @@ describe('service/deploy/shared/connection.js', () => {
 
 		mocks = {};
 		mocks.jsforce = {};
-		mocks.jsforce.Connection = sandbox.stub();
+		mocks.jsforce.Connection = sinon.stub();
 
 		connection = proxyquire(root + '/src/lib/service/deploy/shared/connection.js', {
 			jsforce: mocks.jsforce
@@ -56,7 +54,7 @@ describe('service/deploy/shared/connection.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('create', () => {

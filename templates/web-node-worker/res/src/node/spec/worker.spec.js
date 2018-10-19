@@ -38,10 +38,7 @@ const
 	handlers = require('../lib/boilerplate/handler'),
 	read = require('../lib/boilerplate/read'),
 	defaultTransport = require('../lib/boilerplate/transport'),
-	orizuru = require('@financialforcedev/orizuru'),
-
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	orizuru = require('@financialforcedev/orizuru');
 
 chai.use(sinonChai);
 
@@ -50,17 +47,17 @@ describe('worker.js', () => {
 	let handleSpy, throngStub;
 
 	beforeEach(() => {
-		handleSpy = sandbox.spy();
-		throngStub = sandbox.stub();
-		sandbox.stub(orizuru, 'Handler').callsFake(function () {
+		handleSpy = sinon.spy();
+		throngStub = sinon.stub();
+		sinon.stub(orizuru, 'Handler').callsFake(function () {
 			this.handle = handleSpy;
 		});
-		sandbox.stub(read, 'readSchema').returns({ mock: true });
-		sandbox.stub(read, 'readHandler').returns({ mockHandler: true });
-		sandbox.stub(schemas, 'getWorkerSchemas');
-		sandbox.stub(handlers, 'get');
+		sinon.stub(read, 'readSchema').returns({ mock: true });
+		sinon.stub(read, 'readHandler').returns({ mockHandler: true });
+		sinon.stub(schemas, 'getWorkerSchemas');
+		sinon.stub(handlers, 'get');
 		orizuru.Handler.emitter = {
-			on: sandbox.stub()
+			on: sinon.stub()
 		};
 	});
 
@@ -68,7 +65,7 @@ describe('worker.js', () => {
 		delete require.cache[require.resolve('../lib/worker')];
 		delete process.env.WEB_CONCURRENCY;
 
-		restore();
+		sinon.restore();
 	});
 
 	it('should create an orizuru handler', () => {
@@ -130,7 +127,7 @@ describe('worker.js', () => {
 
 		// given
 
-		throngStub = sandbox.stub();
+		throngStub = sinon.stub();
 		throngStub.yields();
 		process.env.WEB_CONCURRENCY = 2;
 

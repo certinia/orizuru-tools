@@ -33,10 +33,7 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -48,8 +45,8 @@ describe('boilerplate/handler.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
-		mocks.walk = sandbox.stub();
-		mocks.walk.walk = sandbox.stub().returns([]);
+		mocks.walk = sinon.stub();
+		mocks.walk.walk = sinon.stub().returns([]);
 
 		handlers = proxyquire('../../lib/boilerplate/handler', {
 			'./walk': mocks.walk
@@ -58,7 +55,7 @@ describe('boilerplate/handler.js', () => {
 	});
 
 	afterEach(() => {
-		restore();
+		sinon.restore();
 	});
 
 	describe('get', () => {
@@ -78,8 +75,8 @@ describe('boilerplate/handler.js', () => {
 
 			// given
 			const
-				schemasAndHandler = sandbox.stub(),
-				publisherInstance = sandbox.stub();
+				schemasAndHandler = sinon.stub(),
+				publisherInstance = sinon.stub();
 
 			// when - then
 			expect(handlers.publishHandler({
@@ -94,17 +91,17 @@ describe('boilerplate/handler.js', () => {
 			// given
 			const
 				expectedEvent = {
-					context: sandbox.stub()
+					context: sinon.stub()
 				},
-				expectedResult = sandbox.stub(),
+				expectedResult = sinon.stub(),
 				schemasAndHandler = {
-					handler: sandbox.stub().resolves(expectedResult),
+					handler: sinon.stub().resolves(expectedResult),
 					schema: {
-						outgoing: sandbox.stub()
+						outgoing: sinon.stub()
 					}
 				},
 				publisherInstance = {
-					publish: sandbox.stub()
+					publish: sinon.stub()
 				},
 				config = {
 					schemasAndHandler,
