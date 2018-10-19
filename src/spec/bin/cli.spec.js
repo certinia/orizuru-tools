@@ -99,7 +99,7 @@ describe('bin/cli.js', () => {
 
 		// given
 		const
-			mockPublish = {
+			mockDeploy = {
 				command: 'my-command'
 			},
 			mockYargs = yargs('my-not-command --my-arg=my-value');
@@ -112,7 +112,7 @@ describe('bin/cli.js', () => {
 
 		// when
 		proxyquire('../../lib/bin/cli', {
-			'./commands/publish': mockPublish,
+			'./commands/deploy': mockDeploy,
 			yargs: mockYargs
 		});
 

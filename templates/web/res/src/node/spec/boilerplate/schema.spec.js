@@ -76,7 +76,7 @@ describe('boilerplate/schema.js', () => {
 	});
 
 	afterEach(() => {
-		sinon.estore();
+		sinon.restore();
 	});
 
 	describe('getWebSchemas', () => {

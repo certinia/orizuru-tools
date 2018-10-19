@@ -29,7 +29,6 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -42,6 +41,8 @@ const
 	heroku = require('../../lib/service/deploy/heroku'),
 	sfdx = require('../../lib/service/deploy/sfdx'),
 	logger = require('../../lib/util/logger'),
+
+	service = require('../../lib/service/connectedApp'),
 
 	expect = chai.expect;
 
@@ -100,10 +101,6 @@ describe('service/connectedApp.js', () => {
 		it('should throw an error if the type is not found', () => {
 
 			// given
-			const service = proxyquire('../../lib/service/connectedApp.js', {
-				'../../util/shell': mocks.shell
-			});
-
 			inquirer.prompt.resolves({
 				type: 'New Connected App 2'
 			});
@@ -120,10 +117,6 @@ describe('service/connectedApp.js', () => {
 		it('should call the correct functions when creating a new connected app', () => {
 
 			// given
-			const service = proxyquire('../../lib/service/connectedApp.js', {
-				'../../util/shell': mocks.shell
-			});
-
 			inquirer.prompt.resolves({
 				type: 'New Connected App'
 			});
@@ -169,10 +162,6 @@ describe('service/connectedApp.js', () => {
 		it('should call the correct functions when creating a new connected app', () => {
 
 			// given
-			const service = proxyquire('../../lib/service/connectedApp.js', {
-				'../../util/shell': mocks.shell
-			});
-
 			inquirer.prompt.resolves({
 				type: 'Existing Connected App In Scratch Org'
 			});
