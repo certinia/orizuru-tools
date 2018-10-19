@@ -68,68 +68,67 @@ describe('service/salesforce/connection.js', () => {
 
 	describe('fromContext', () => {
 
-		it('should return a correctly configured connection from context', () => {
+		it('should return a correctly configured connection from context', async () => {
 
-			// given
-			const context = {
-				user: 'userTest'
-			};
+			// Given
+			const
+				context = {
+					user: 'userTest'
+				},
 
-			// when - then
-			return expect(connection.fromContext(context))
-				.to.eventually.eql({ test: 'test' })
-				.then(() => {
-					expect(orizuruAuth.grant.getToken).to.have.been.calledOnce;
-					expect(orizuruAuth.grant.getToken).to.have.been.calledWith({
-						jwtSigningKey: 'jwtSigningKeyTest',
-						openidClientId: 'openidClientIdTest',
-						openidHTTPTimeout: 4001,
-						openidIssuerURI: 'openidIssuerURITest'
-					});
-					expect(jsForce.Connection).to.have.been.calledOnce;
-					expect(jsForce.Connection).to.have.been.calledWithNew;
-					expect(jsForce.Connection).to.have.been.calledWith('credentialsTest');
+				// When
+				result = await connection.fromContext(context);
 
-				});
+			// Then
+			expect(result).to.eql({ test: 'test' });
+			expect(orizuruAuth.grant.getToken).to.have.been.calledOnce;
+			expect(orizuruAuth.grant.getToken).to.have.been.calledWithExactly({
+				jwtSigningKey: 'jwtSigningKeyTest',
+				openidClientId: 'openidClientIdTest',
+				openidHTTPTimeout: 4001,
+				openidIssuerURI: 'openidIssuerURITest'
+			});
+			expect(jsForce.Connection).to.have.been.calledOnce;
+			expect(jsForce.Connection).to.have.been.calledWithNew;
+			expect(jsForce.Connection).to.have.been.calledWithExactly('credentialsTest');
 
 		});
 
-		it('should cache validated tokenGranter for future use', () => {
+		it('should cache validated tokenGranter for future use', async () => {
 
-			// given
+			// Given
 			delete require.cache[require.resolve('../../../lib/service/salesforce/connection')];
+
 			const
 				context = {
 					user: 'userTest'
 				},
 				connectionAfterCacheClear = require('../../../lib/service/salesforce/connection');
 
-			// when - then
-			return expect(connectionAfterCacheClear.fromContext(context))
-				.to.eventually.eql({ test: 'test' })
-				.then(() => {
-					expect(orizuruAuth.grant.getToken).to.have.been.calledOnce;
-					expect(orizuruAuth.grant.getToken).to.have.been.calledWith({
-						jwtSigningKey: 'jwtSigningKeyTest',
-						openidClientId: 'openidClientIdTest',
-						openidHTTPTimeout: 4001,
-						openidIssuerURI: 'openidIssuerURITest'
-					});
-					expect(jsForce.Connection).to.have.been.calledOnce;
-					expect(jsForce.Connection).to.have.been.calledWithNew;
-					expect(jsForce.Connection).to.have.been.calledWith('credentialsTest');
+			// When
+			let result = await connectionAfterCacheClear.fromContext(context);
 
-				})
-				.then(() => {
-					return expect(connectionAfterCacheClear.fromContext(context)).to.eventually.eql({ test: 'test' })
-						.then(() => {
-							expect(orizuruAuth.grant.getToken).to.have.been.calledOnce; // check not called again
-							expect(jsForce.Connection).to.have.been.calledTwice;
-							expect(jsForce.Connection).to.have.been.calledWithNew;
-							expect(jsForce.Connection).to.have.been.calledWith('credentialsTest');
-							expect(jsForce.Connection).to.have.been.calledWith('credentialsTest');
-						});
-				});
+			// Then
+			expect(result).to.eql({ test: 'test' });
+			expect(orizuruAuth.grant.getToken).to.have.been.calledOnce;
+			expect(orizuruAuth.grant.getToken).to.have.been.calledWithExactly({
+				jwtSigningKey: 'jwtSigningKeyTest',
+				openidClientId: 'openidClientIdTest',
+				openidHTTPTimeout: 4001,
+				openidIssuerURI: 'openidIssuerURITest'
+			});
+			expect(jsForce.Connection).to.have.been.calledOnce;
+			expect(jsForce.Connection).to.have.been.calledWithNew;
+			expect(jsForce.Connection).to.have.been.calledWithExactly('credentialsTest');
+
+			result = await connectionAfterCacheClear.fromContext(context);
+
+			expect(result).to.eql({ test: 'test' });
+			expect(orizuruAuth.grant.getToken).to.have.been.calledOnce; // check not called again
+			expect(jsForce.Connection).to.have.been.calledTwice;
+			expect(jsForce.Connection).to.have.been.calledWithNew;
+			expect(jsForce.Connection).to.have.been.calledWithExactly('credentialsTest');
+			expect(jsForce.Connection).to.have.been.calledWithExactly('credentialsTest');
 
 		});
 

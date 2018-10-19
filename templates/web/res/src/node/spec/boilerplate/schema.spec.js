@@ -28,51 +28,30 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
+
+	path = require('path'),
+
+	walk = require('../../lib/boilerplate/walk'),
+
+	schemas = require('../../lib/boilerplate/schema'),
 
 	expect = chai.expect,
 
-	testSchemas = [{
-		path: '/Users/Guest/GIT/test/src/node/lib/schema/api/calculateRoutesForPlan.avsc',
-		sharedPath: '/api',
-		fileName: 'calculateRoutesForPlan'
-	}, {
-		path: '/Users/Guest/GIT/test/src/node/lib/schema/api/createData.avsc',
-		sharedPath: '/api',
-		fileName: 'createData'
-	}, {
-		path: '/Users/Guest/GIT/test/src/node/lib/schema/createData_incoming.avsc',
-		sharedPath: '',
-		fileName: 'createData_incoming'
-	}, {
-		path: '/Users/Guest/GIT/test/src/node/lib/schema/questionBuilder_incoming.avsc',
-		sharedPath: '',
-		fileName: 'questionBuilder_incoming'
-	}, {
-		path: '/Users/Guest/GIT/test/src/node/lib/schema/questionBuilder_outgoing.avsc',
-		sharedPath: '',
-		fileName: 'questionBuilder_outgoing'
-	}, {
-		path: '/Users/Guest/GIT/test/src/node/lib/schema/resultWriter_incoming.avsc',
-		sharedPath: '',
-		fileName: 'resultWriter_incoming'
-	}];
+	testSchemas = {
+		calculateRoutesForPlan: '/Users/Guest/GIT/test/src/node/lib/schema/api/calculateRoutesForPlan.avsc',
+		createData: '/Users/Guest/GIT/test/src/node/lib/schema/api/createData.avsc',
+		createData_incoming: '/Users/Guest/GIT/test/src/node/lib/schema/createData_incoming.avsc',
+		questionBuilder_incoming: '/Users/Guest/GIT/test/src/node/lib/schema/questionBuilder_incoming.avsc',
+		questionBuilder_outgoing: '/Users/Guest/GIT/test/src/node/lib/schema/questionBuilder_outgoing.avsc',
+		resultWriter_incoming: '/Users/Guest/GIT/test/src/node/lib/schema/resultWriter_incoming.avsc'
+	};
 
 describe('boilerplate/schema.js', () => {
 
-	let mocks, schemas;
-
 	beforeEach(() => {
-
-		mocks = {};
-		mocks.walk = sinon.stub();
-		mocks.walk.walk = sinon.stub().returns(testSchemas);
-
-		schemas = proxyquire('../../lib/boilerplate/schema', {
-			'./walk': mocks.walk
-		});
-
+		sinon.stub(path, 'resolve');
+		sinon.stub(walk, 'walk').returns(testSchemas);
 	});
 
 	afterEach(() => {
@@ -85,19 +64,12 @@ describe('boilerplate/schema.js', () => {
 
 			// Given
 			const expectedOutput = {
-				calculateRoutesForPlan: {
-					fileName: 'calculateRoutesForPlan',
-					path: '/Users/Guest/GIT/test/src/node/lib/schema/api/calculateRoutesForPlan.avsc',
-					sharedPath: '/api'
-				},
-				createData: {
-					fileName: 'createData',
-					path: '/Users/Guest/GIT/test/src/node/lib/schema/api/createData.avsc',
-					sharedPath: '/api'
-				}
+				calculateRoutesForPlan: '/Users/Guest/GIT/test/src/node/lib/schema/api/calculateRoutesForPlan.avsc',
+				createData: '/Users/Guest/GIT/test/src/node/lib/schema/api/createData.avsc'
 			};
 
-			// When - then
+			// When
+			// Then
 			expect(schemas.getWebSchemas()).to.eql(expectedOutput);
 
 		});
@@ -111,34 +83,19 @@ describe('boilerplate/schema.js', () => {
 			// Given
 			const expectedOutput = {
 				createData: {
-					incoming: {
-						fileName: 'createData_incoming',
-						path: '/Users/Guest/GIT/test/src/node/lib/schema/createData_incoming.avsc',
-						sharedPath: ''
-					}
+					incoming: '/Users/Guest/GIT/test/src/node/lib/schema/createData_incoming.avsc'
 				},
 				questionBuilder: {
-					incoming: {
-						fileName: 'questionBuilder_incoming',
-						path: '/Users/Guest/GIT/test/src/node/lib/schema/questionBuilder_incoming.avsc',
-						sharedPath: ''
-					},
-					outgoing: {
-						fileName: 'questionBuilder_outgoing',
-						path: '/Users/Guest/GIT/test/src/node/lib/schema/questionBuilder_outgoing.avsc',
-						sharedPath: ''
-					}
+					incoming: '/Users/Guest/GIT/test/src/node/lib/schema/questionBuilder_incoming.avsc',
+					outgoing: '/Users/Guest/GIT/test/src/node/lib/schema/questionBuilder_outgoing.avsc'
 				},
 				resultWriter: {
-					incoming: {
-						fileName: 'resultWriter_incoming',
-						path: '/Users/Guest/GIT/test/src/node/lib/schema/resultWriter_incoming.avsc',
-						sharedPath: ''
-					}
+					incoming: '/Users/Guest/GIT/test/src/node/lib/schema/resultWriter_incoming.avsc'
 				}
 			};
 
-			// When - then
+			// When
+			// Then
 			expect(schemas.getWorkerSchemas()).to.eql(expectedOutput);
 
 		});

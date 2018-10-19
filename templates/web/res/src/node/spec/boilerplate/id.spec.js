@@ -28,9 +28,12 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire').noCallThru(),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
+
+	uuid = require('uuid'),
+
+	id = require('../../lib/boilerplate/id'),
 
 	expect = chai.expect;
 
@@ -38,14 +41,8 @@ chai.use(sinonChai);
 
 describe('boilerplate/id.js', () => {
 
-	let id, uuidStub;
-
 	beforeEach(() => {
-		uuidStub = sinon.stub();
-		uuidStub.returns('aaa123');
-		id = proxyquire('../../lib/boilerplate/id', {
-			uuid: uuidStub
-		});
+		sinon.stub(uuid, 'v4').returns('aaa123');
 	});
 
 	afterEach(() => {
@@ -56,47 +53,48 @@ describe('boilerplate/id.js', () => {
 
 		it('should return single function that sets id on the orizuru object', () => {
 
-			// given
+			// Given
 			const middleware = id.middleware;
 
-			// when - then
-			expect(middleware.length).to.eql(1);
+			// When
+			// Then
+			expect(middleware).to.be.a('function');
 
 		});
 
 		it('function should set orizuru object and set id on it', () => {
 
-			// given
+			// Given
 			const
 				middleware = id.middleware,
 				next = sinon.stub(),
 				req = {},
 				res = {};
 
-			// when
-			middleware[0](req, res, next);
+			// When
+			middleware(req, res, next);
 
-			// then
+			// Then
 			expect(req.orizuru.id).to.eql('aaa123');
-			expect(uuidStub).to.have.been.calledOnce;
+			expect(uuid.v4).to.have.been.calledOnce;
 
 		});
 
 		it('function should set id on it', () => {
 
-			// given
+			// Given
 			const
 				middleware = id.middleware,
 				next = sinon.stub(),
 				req = { orizuru: {} },
 				res = {};
 
-			// when
-			middleware[0](req, res, next);
+			// When
+			middleware(req, res, next);
 
-			// then
+			// Then
 			expect(req.orizuru.id).to.eql('aaa123');
-			expect(uuidStub).to.have.been.calledOnce;
+			expect(uuid.v4).to.have.been.calledOnce;
 
 		});
 
@@ -106,7 +104,7 @@ describe('boilerplate/id.js', () => {
 
 		it('should write a happy result to the response', () => {
 
-			// given
+			// Given
 			const
 				jsonStub = sinon.stub(),
 				responseWriter = id.responseWriter,
@@ -115,12 +113,12 @@ describe('boilerplate/id.js', () => {
 				},
 				orizuru = { id: '123' };
 
-			// when
+			// When
 			responseWriter(null, res, orizuru);
 
-			// then
+			// Then
 			expect(jsonStub).to.have.been.calledOnce;
-			expect(jsonStub).to.have.been.calledWith({
+			expect(jsonStub).to.have.been.calledWithExactly({
 				id: '123'
 			});
 
@@ -128,7 +126,7 @@ describe('boilerplate/id.js', () => {
 
 		it('should write an error result to the response', () => {
 
-			// given
+			// Given
 			const
 				statusStub = sinon.stub(),
 				sendStub = sinon.stub(),
@@ -141,14 +139,14 @@ describe('boilerplate/id.js', () => {
 
 			statusStub.returns(res);
 
-			// when
+			// When
 			responseWriter(new Error('Test error.'), res, orizuru);
 
-			// then
+			// Then
 			expect(statusStub).to.have.been.calledOnce;
 			expect(sendStub).to.have.been.calledOnce;
-			expect(statusStub).to.have.been.calledWith(400);
-			expect(sendStub).to.have.been.calledWith('Test error.');
+			expect(statusStub).to.have.been.calledWithExactly(400);
+			expect(sendStub).to.have.been.calledWithExactly('Test error.');
 
 		});
 

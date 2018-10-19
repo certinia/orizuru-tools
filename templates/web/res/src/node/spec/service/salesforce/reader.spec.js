@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -36,7 +35,6 @@ const
 
 	reader = require('../../../lib/service/salesforce/reader');
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/salesforce/reader.js', () => {
@@ -59,9 +57,9 @@ describe('service/salesforce/reader.js', () => {
 
 	describe('query', () => {
 
-		it('should handle errors', () => {
+		it('should handle errors', async () => {
 
-			// given
+			// Given
 			const
 				expectedError = 'error',
 				expectedQuery = 'SELECT Id FROM Account';
@@ -79,21 +77,25 @@ describe('service/salesforce/reader.js', () => {
 				return mocks.conn;
 			});
 
-			// when - then
-			return expect(reader.query({ conn: mocks.conn, query: expectedQuery }))
-				.to.eventually.be.rejectedWith(expectedError)
-				.then(() => {
-					expect(mocks.conn.query).to.have.been.calledOnce;
-					expect(mocks.conn.query).to.have.been.calledWith(expectedQuery);
-				});
+			// When
+			let errorResult;
+
+			try {
+				await reader.query({ conn: mocks.conn, query: expectedQuery });
+			} catch (error) {
+				errorResult = error;
+			}
+
+			// Then
+			expect(errorResult).to.eql(expectedError);
+			expect(mocks.conn.query).to.have.been.calledOnce;
+			expect(mocks.conn.query).to.have.been.calledWithExactly(expectedQuery);
 
 		});
 
-		it('should execute the query and return no records', () => {
+		it('should execute the query and return no records', async () => {
 
-			// given
-			const expectedQuery = 'SELECT Id FROM Account';
-
+			// Given
 			mocks.conn = sinon.stub().returnsThis();
 			mocks.conn.query = sinon.stub().returnsThis();
 			mocks.conn.on = sinon.stub();
@@ -107,19 +109,24 @@ describe('service/salesforce/reader.js', () => {
 				return mocks.conn;
 			});
 
-			// when - then
-			return expect(reader.query({ conn: mocks.conn, query: expectedQuery }))
-				.to.eventually.eql([])
-				.then(() => {
-					expect(mocks.conn.query).to.have.been.calledOnce;
-					expect(mocks.conn.query).to.have.been.calledWith(expectedQuery);
-				});
+			const
+				expectedQuery = 'SELECT Id FROM Account',
+
+				// When
+				result = await reader.query({ conn: mocks.conn, query: expectedQuery });
+
+			// Then
+			expect(result).to.eql([]);
+			expect(mocks.conn.query).to.have.been.calledOnce;
+			expect(mocks.conn.query).to.have.been.calledWithExactly(expectedQuery);
 
 		});
 
-		it('should execute the query and return records', () => {
+		it('should execute the query and return records', async () => {
 
-			// given
+			// Given
+			var result;
+
 			const
 				expectedQuery = 'SELECT Id FROM Account',
 				expectedRecord = { name: 'Account 1' };
@@ -142,13 +149,13 @@ describe('service/salesforce/reader.js', () => {
 
 			});
 
-			// when - then
-			return expect(reader.query({ conn: mocks.conn, query: expectedQuery }))
-				.to.eventually.eql([expectedRecord])
-				.then(() => {
-					expect(mocks.conn.query).to.have.been.calledOnce;
-					expect(mocks.conn.query).to.have.been.calledWith(expectedQuery);
-				});
+			// When
+			result = await reader.query({ conn: mocks.conn, query: expectedQuery });
+
+			// Then
+			expect(result).to.eql([expectedRecord]);
+			expect(mocks.conn.query).to.have.been.calledOnce;
+			expect(mocks.conn.query).to.have.been.calledWithExactly(expectedQuery);
 
 		});
 

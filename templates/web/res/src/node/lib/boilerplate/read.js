@@ -26,7 +26,7 @@
 
 'use strict';
 
-const fs = require('fs-extra');
+const fs = require('fs');
 
 /**
  * Reads a schema from a given path.
@@ -34,7 +34,10 @@ const fs = require('fs-extra');
  * @returns {Object} - The schema object.
  */
 function readSchema(path) {
-	return fs.readJsonSync(path);
+	const
+		buffer = fs.readFileSync(path),
+		contents = buffer.toString();
+	return JSON.parse(contents);
 }
 
 /**

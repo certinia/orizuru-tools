@@ -61,7 +61,9 @@ describe('service/salesforce/writer.js', () => {
 
 		it('should return the result of conn.sobject called with the correct arguments', () => {
 
-			// given - when - then
+			// Given
+			// When
+			// Then
 			expect(writer.createObject(conn, 'a', 'b')).to.eql('conn.sobject');
 
 		});
@@ -72,10 +74,12 @@ describe('service/salesforce/writer.js', () => {
 
 		it('should return the result of conn.bulk.load called with the correct arguments', () => {
 
-			// given - when - then
+			// Given
+			// When
+			// Then
 			expect(writer.bulkCreateObject(conn, 'a', 'b')).to.eql('conn.bulk.load');
 			expect(conn.bulk.load).to.have.been.calledOnce;
-			expect(conn.bulk.load).to.have.been.calledWith('a', 'insert', 'b');
+			expect(conn.bulk.load).to.have.been.calledWithExactly('a', 'insert', 'b');
 
 		});
 
@@ -85,7 +89,7 @@ describe('service/salesforce/writer.js', () => {
 
 		it('should return the result of conn.sobject called with the correct arguments', () => {
 
-			// given
+			// Given
 			const expectedEvent = {
 				eventType: 'RouteCalculationStep__e',
 				message: 'messageTest',
@@ -93,12 +97,13 @@ describe('service/salesforce/writer.js', () => {
 				id: 'testId'
 			};
 
-			// when - then
+			// When
+			// Then
 			expect(writer.sendPlatformEvent(conn, expectedEvent)).to.eql('conn.sobject');
 			expect(conn.sobject).to.have.been.calledOnce;
-			expect(conn.sobject).to.have.been.calledWith('RouteCalculationStep__e');
+			expect(conn.sobject).to.have.been.calledWithExactly('RouteCalculationStep__e');
 			expect(connSobjectCreate).to.have.been.calledOnce;
-			expect(connSobjectCreate).to.have.been.calledWith({
+			expect(connSobjectCreate).to.have.been.calledWithExactly({
 				['Severity__c']: 'Info',
 				['Messages__c']: 'messageTest',
 				['Status__c']: 'statusTest',

@@ -31,7 +31,7 @@ const
 	uuid = require('uuid');
 
 function middleware(req, res, next) {
-	_.set(req, 'orizuru.id', uuid());
+	_.set(req, 'orizuru.id', uuid.v4());
 	next();
 }
 
@@ -46,6 +46,6 @@ function responseWriter(err, response, orizuru) {
 }
 
 module.exports = {
-	middleware: [middleware],
+	middleware,
 	responseWriter
 };

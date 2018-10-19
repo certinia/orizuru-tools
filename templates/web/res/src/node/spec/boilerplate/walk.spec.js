@@ -28,9 +28,12 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire').noCallThru(),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
+
+	fs = require('fs'),
+
+	{ walk } = require('../../lib/boilerplate/walk'),
 
 	expect = chai.expect;
 
@@ -38,13 +41,52 @@ chai.use(sinonChai);
 
 describe('boilerplate/walk.js', () => {
 
-	let walk, klawSyncStub;
-
 	beforeEach(() => {
-		klawSyncStub = sinon.stub();
-		walk = proxyquire('../../lib/boilerplate/walk', {
-			'klaw-sync': klawSyncStub
-		});
+
+		sinon.stub(fs, 'readdirSync')
+			.withArgs('src/node/lib/boilerplate').returns([
+				'.DS_Store',
+				'handler.js',
+				'id.js'
+			])
+			.withArgs('src/node/lib/handler').returns([])
+			.withArgs('src/node/lib').returns([
+				'.DS_Store',
+				'web.js',
+				'boilerplate',
+				'handler'
+			]);
+
+		sinon.stub(fs, 'lstatSync')
+			.withArgs('src/node/lib/boilerplate/.DS_Store').returns({
+				isDirectory: () => false,
+				isFile: () => true
+			})
+			.withArgs('src/node/lib/boilerplate/handler.js').returns({
+				isDirectory: () => false,
+				isFile: () => true
+			})
+			.withArgs('src/node/lib/boilerplate/id.js').returns({
+				isDirectory: () => false,
+				isFile: () => true
+			})
+			.withArgs('src/node/lib/.DS_Store').returns({
+				isDirectory: () => false,
+				isFile: () => true
+			})
+			.withArgs('src/node/lib/web.js').returns({
+				isDirectory: () => false,
+				isFile: () => true
+			})
+			.withArgs('src/node/lib/boilerplate').returns({
+				isDirectory: () => true,
+				isFile: () => false
+			})
+			.withArgs('src/node/lib/handler').returns({
+				isDirectory: () => true,
+				isFile: () => false
+			});
+
 	});
 
 	afterEach(() => {
@@ -53,27 +95,43 @@ describe('boilerplate/walk.js', () => {
 
 	describe('walk', () => {
 
-		it('should walk the file tree', () => {
+		it('should return an empty object is no files of the given type are found', () => {
 
-			// given
-			klawSyncStub.returns([{
-				path: 'a/b'
-			}]);
+			// Given
+			// When
+			const results = walk('src/node/lib/boilerplate', '.txt');
 
-			// when - then
-			expect(walk.walk('/test', '.blah')).to.eql([{
-				fileName: 'b',
-				path: 'a/b',
-				sharedPath: ''
-			}]);
+			// Then
+			expect(results).to.eql({});
 
-			expect(klawSyncStub).to.have.been.calledOnce;
-			expect(klawSyncStub).to.have.been.calledWith('/test', { filter: sinon.match.any, nodir: true });
+		});
 
-			const filter = klawSyncStub.getCall(0).args[1].filter;
+		it('should return only files of the given type', () => {
 
-			expect(filter({ path: 'bob.blah' })).to.eql(true);
-			expect(filter({ path: 'bob.avsc' })).to.eql(false);
+			// Given
+			// When
+			const results = walk('src/node/lib/boilerplate', '.js');
+
+			// Then
+			expect(results).to.eql({
+				handler: 'src/node/lib/boilerplate/handler.js',
+				id: 'src/node/lib/boilerplate/id.js'
+			});
+
+		});
+
+		it('should return only files of the given type and recurse', () => {
+
+			// Given
+			// When
+			const results = walk('src/node/lib', '.js');
+
+			// Then
+			expect(results).to.eql({
+				handler: 'src/node/lib/boilerplate/handler.js',
+				id: 'src/node/lib/boilerplate/id.js',
+				web: 'src/node/lib/web.js'
+			});
 
 		});
 

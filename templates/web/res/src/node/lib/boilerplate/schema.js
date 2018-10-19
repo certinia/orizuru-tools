@@ -28,6 +28,7 @@
 
 const
 	_ = require('lodash'),
+	path = require('path'),
 	walk = require('./walk'),
 
 	EMPTY = '',
@@ -42,14 +43,14 @@ const
  */
 function getWebSchemas() {
 
-	const schemas = walk.walk('schema', '.avsc');
+	const
+		schemaDirectory = path.resolve(__dirname, '../schema'),
+		schemas = walk.walk(schemaDirectory, '.avsc');
 
-	return _.reduce(schemas, (results, schema) => {
+	return _.reduce(schemas, (results, filePath, schemaName) => {
 
-		const fileName = schema.fileName;
-
-		if (!fileName.endsWith(INCOMING) && !fileName.endsWith(OUTGOING)) {
-			results[fileName] = schema;
+		if (!schemaName.endsWith(INCOMING) && !schemaName.endsWith(OUTGOING)) {
+			results[schemaName] = filePath;
 		}
 
 		return results;
@@ -59,16 +60,9 @@ function getWebSchemas() {
 }
 
 /**
- * @typedef FileInfo
- * @property {string} path - The full path to the file.
- * @property {string} sharedPath - The relative path to the file.
- * @property {string} fileName - The last portion of the file path without the extension.
- */
-
-/**
  * @typedef Schema
- * @property {FileInfo} incoming
- * @property {FileInfo} outgoing
+ * @property {string} incoming
+ * @property {string} outgoing
  */
 
 /**
@@ -88,24 +82,24 @@ function getWebSchemas() {
  */
 function getWorkerSchemas() {
 
-	const schemas = walk.walk('schema', '.avsc');
+	const
+		schemaDirectory = path.resolve(__dirname, '../schema'),
+		schemas = walk.walk(schemaDirectory, '.avsc');
 
-	return _.reduce(schemas, (results, schema) => {
-
-		const fileName = schema.fileName;
+	return _.reduce(schemas, (results, filePath, schemaName) => {
 
 		let property;
 
-		if (fileName.endsWith(INCOMING)) {
-			const incomingFileName = fileName.replace(INCOMING, EMPTY);
+		if (schemaName.endsWith(INCOMING)) {
+			const incomingFileName = schemaName.replace(INCOMING, EMPTY);
 			property = incomingFileName + '.incoming';
-		} else if (fileName.endsWith(OUTGOING)) {
-			const outgoingFileName = fileName.replace(OUTGOING, EMPTY);
+		} else if (schemaName.endsWith(OUTGOING)) {
+			const outgoingFileName = schemaName.replace(OUTGOING, EMPTY);
 			property = outgoingFileName + '.outgoing';
 		}
 
 		if (property) {
-			_.set(results, property, schema);
+			_.set(results, property, filePath);
 		}
 
 		return results;

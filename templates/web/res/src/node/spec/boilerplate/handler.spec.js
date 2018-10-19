@@ -28,30 +28,21 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
+	walk = require('../../lib/boilerplate/walk'),
+
+	handlers = require('../../lib/boilerplate/handler'),
+
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('boilerplate/handler.js', () => {
 
-	let handlers, mocks;
-
 	beforeEach(() => {
-
-		mocks = {};
-		mocks.walk = sinon.stub();
-		mocks.walk.walk = sinon.stub().returns([]);
-
-		handlers = proxyquire('../../lib/boilerplate/handler', {
-			'./walk': mocks.walk
-		});
-
+		sinon.stub(walk, 'walk').returns([]);
 	});
 
 	afterEach(() => {
@@ -62,7 +53,9 @@ describe('boilerplate/handler.js', () => {
 
 		it('should return all handlers in the handler folder', () => {
 
-			// when - then
+			// Given
+			// When
+			// Then
 			expect(handlers.get()).to.eql([]);
 
 		});
@@ -73,12 +66,13 @@ describe('boilerplate/handler.js', () => {
 
 		it('should return a function', () => {
 
-			// given
+			// Given
 			const
 				schemasAndHandler = sinon.stub(),
 				publisherInstance = sinon.stub();
 
-			// when - then
+			// When
+			// then
 			expect(handlers.publishHandler({
 				schemasAndHandler,
 				publisherInstance
@@ -86,9 +80,9 @@ describe('boilerplate/handler.js', () => {
 
 		});
 
-		it('should publish an ongoing message', () => {
+		it('should publish an ongoing message', async () => {
 
-			// given
+			// Given
 			const
 				expectedEvent = {
 					context: sinon.stub()
@@ -108,15 +102,14 @@ describe('boilerplate/handler.js', () => {
 					publisherInstance
 				};
 
-			// when - then
-			return expect(handlers.publishHandler(config)(expectedEvent))
-				.to.eventually.fulfilled
-				.then(() => {
-					expect(schemasAndHandler.handler).to.have.been.calledOnce;
-					expect(publisherInstance.publish).to.have.been.calledOnce;
-					expect(schemasAndHandler.handler).to.have.been.calledWith(expectedEvent);
-					expect(publisherInstance.publish).to.have.been.calledWith({ context: expectedEvent.context, message: expectedResult, schema: schemasAndHandler.schema.outgoing });
-				});
+			// When
+			await handlers.publishHandler(config)(expectedEvent);
+
+			// Then
+			expect(schemasAndHandler.handler).to.have.been.calledOnce;
+			expect(publisherInstance.publish).to.have.been.calledOnce;
+			expect(schemasAndHandler.handler).to.have.been.calledWithExactly(expectedEvent);
+			expect(publisherInstance.publish).to.have.been.calledWithExactly({ context: expectedEvent.context, message: expectedResult, schema: schemasAndHandler.schema.outgoing });
 
 		});
 
