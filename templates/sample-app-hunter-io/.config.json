@@ -5,11 +5,8 @@
 	],
 	"package": {
 		"dependencies": {
-			"hunterio": "1.0.0",
-			"tldjs": "2.2.0"
-		},
-		"devDependencies": {
-			"app-root-path": "2.0.1"
+			"hunterio": "^1.0.0",
+			"tldjs": "^2.2.0"
 		},
 		"nyc": {
 			"lines": 0,
