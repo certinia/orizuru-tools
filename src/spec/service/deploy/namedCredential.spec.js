@@ -29,9 +29,13 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
+
+	inquirer = require('inquirer'),
+	jsforce = require('jsforce'),
+
+	namedCredential = require('../../../lib/service/deploy/namedCredential'),
 
 	expect = chai.expect;
 
@@ -40,22 +44,14 @@ chai.use(sinonChai);
 
 describe('service/deploy/namedCredential.js', () => {
 
-	let mocks, namedCredential;
+	let connectionStub;
 
 	beforeEach(() => {
 
-		mocks = {};
+		connectionStub = sinon.createStubInstance(jsforce.Connection);
+		sinon.stub(jsforce, 'Connection').returns(connectionStub);
 
-		mocks.jsforce = {};
-		mocks.jsforce.Connection = sinon.stub();
-
-		mocks.inquirer = sinon.stub();
-		mocks.inquirer.prompt = sinon.stub();
-
-		namedCredential = proxyquire('../../../lib/service/deploy/namedCredential', {
-			inquirer: mocks.inquirer,
-			jsforce: mocks.jsforce
-		});
+		sinon.stub(inquirer, 'prompt');
 
 	});
 
@@ -78,7 +74,7 @@ describe('service/deploy/namedCredential.js', () => {
 					}
 				};
 
-			mocks.inquirer.prompt.resolves(expectedAnswers);
+			inquirer.prompt.resolves(expectedAnswers);
 
 			// when - then
 			return expect(namedCredential.askQuestions({})).to.eventually.eql(expectedResults);

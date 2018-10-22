@@ -29,9 +29,12 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
+
+	fs = require('fs-extra'),
+
+	overwriteFile = require('../../../lib/service/generateApexTransport/overwriteFile'),
 
 	expect = chai.expect;
 
@@ -40,18 +43,8 @@ chai.use(sinonChai);
 
 describe('service/generateApexTransport/overwriteFile.js', () => {
 
-	let mocks, overwriteFile;
-
 	beforeEach(() => {
-
-		mocks = {};
-		mocks.fs = {};
-		mocks.fs.writeFile = sinon.stub();
-
-		overwriteFile = proxyquire('../../../lib/service/generateApexTransport/overwriteFile', {
-			'fs-extra': mocks.fs
-		});
-
+		sinon.stub(fs, 'writeFile');
 	});
 
 	afterEach(() => {
@@ -69,14 +62,14 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 				content = 'c',
 				expected = 'd';
 
-			mocks.fs.writeFile.resolves(expected);
+			fs.writeFile.resolves(expected);
 
 			// when - then
 			return expect(overwriteFile(path, file, content))
 				.to.eventually.eql(expected)
 				.then(() => {
-					expect(mocks.fs.writeFile).to.have.been.calledOnce;
-					expect(mocks.fs.writeFile).to.have.been.calledWith(process.cwd() + '/' + path + '/' + file, content, { flag: 'w' });
+					expect(fs.writeFile).to.have.been.calledOnce;
+					expect(fs.writeFile).to.have.been.calledWith(process.cwd() + '/' + path + '/' + file, content, { flag: 'w' });
 				});
 
 		});

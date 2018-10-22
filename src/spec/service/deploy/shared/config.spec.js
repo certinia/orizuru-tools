@@ -31,7 +31,10 @@ const
 	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
+
+	fs = require('fs-extra'),
+
+	configFile = require('../../../../lib/service/deploy/shared/config'),
 
 	expect = chai.expect;
 
@@ -40,22 +43,10 @@ chai.use(sinonChai);
 
 describe('service/deploy/shared/config.js', () => {
 
-	let mocks, configFile;
-
 	beforeEach(() => {
-
-		mocks = {};
-
-		mocks.fsextra = {};
-		mocks.fsextra.mkdirp = sinon.stub();
-		mocks.fsextra.writeJSON = sinon.stub();
-
-		mocks.fsextra.readJSON = sinon.stub();
-
-		configFile = proxyquire('../../../../lib/service/deploy/shared/config', {
-			'fs-extra': mocks.fsextra
-		});
-
+		sinon.stub(fs, 'mkdirp');
+		sinon.stub(fs, 'readJson');
+		sinon.stub(fs, 'writeJson');
 	});
 
 	afterEach(() => {
@@ -74,15 +65,15 @@ describe('service/deploy/shared/config.js', () => {
 				};
 
 			sinon.stub(process, 'cwd').returns(expectedCwd);
-			mocks.fsextra.mkdirp.resolves();
-			mocks.fsextra.writeJSON.resolves();
+			fs.mkdirp.resolves();
+			fs.writeJson.resolves();
 
 			// when - then
 			return expect(configFile.createFile())
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.fsextra.mkdirp).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeJSON).to.have.been.calledOnce;
+					expect(fs.mkdirp).to.have.been.calledOnce;
+					expect(fs.writeJson).to.have.been.calledOnce;
 				});
 
 		});
@@ -103,17 +94,17 @@ describe('service/deploy/shared/config.js', () => {
 
 			sinon.stub(process, 'cwd').returns(expectedCwd);
 
-			mocks.fsextra.mkdirp.resolves();
-			mocks.fsextra.writeJSON.resolves();
-			mocks.fsextra.readJSON.rejects();
+			fs.mkdirp.resolves();
+			fs.writeJson.resolves();
+			fs.readJson.rejects();
 
 			// when - then
 			return expect(configFile.readSettings())
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.fsextra.mkdirp).to.have.been.calledOnce;
-					expect(mocks.fsextra.readJSON).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeJSON).to.have.been.calledOnce;
+					expect(fs.mkdirp).to.have.been.calledOnce;
+					expect(fs.readJson).to.have.been.calledOnce;
+					expect(fs.writeJson).to.have.been.calledOnce;
 				});
 
 		});
@@ -130,15 +121,15 @@ describe('service/deploy/shared/config.js', () => {
 
 			sinon.stub(process, 'cwd').returns(expectedCwd);
 
-			mocks.fsextra.mkdirp.resolves();
-			mocks.fsextra.readJSON.resolves({});
+			fs.mkdirp.resolves();
+			fs.readJson.resolves({});
 
 			// when - then
 			return expect(configFile.readSettings())
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.fsextra.mkdirp).to.not.have.been.called;
-					expect(mocks.fsextra.readJSON).to.have.been.calledOnce;
+					expect(fs.mkdirp).to.not.have.been.called;
+					expect(fs.readJson).to.have.been.calledOnce;
 				});
 
 		});
@@ -161,17 +152,17 @@ describe('service/deploy/shared/config.js', () => {
 
 			sinon.stub(process, 'cwd').returns(expectedCwd);
 
-			mocks.fsextra.mkdirp.resolves();
-			mocks.fsextra.writeJSON.resolves();
-			mocks.fsextra.readJSON.rejects();
+			fs.mkdirp.resolves();
+			fs.writeJson.resolves();
+			fs.readJson.rejects();
 
 			// when - then
 			return expect(configFile.writeSetting({}, 'test', 'test'))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.fsextra.mkdirp).to.have.been.calledOnce;
-					expect(mocks.fsextra.readJSON).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeJSON).to.have.been.calledTwice;
+					expect(fs.mkdirp).to.have.been.calledOnce;
+					expect(fs.readJson).to.have.been.calledOnce;
+					expect(fs.writeJson).to.have.been.calledTwice;
 				});
 
 		});
@@ -181,7 +172,7 @@ describe('service/deploy/shared/config.js', () => {
 			// given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
-				expectedReadJsonOutput = {
+				expectedreadJsonOutput = {
 					test: 'test'
 				},
 				expectedOutput = {
@@ -196,17 +187,17 @@ describe('service/deploy/shared/config.js', () => {
 
 			sinon.stub(process, 'cwd').returns(expectedCwd);
 
-			mocks.fsextra.mkdirp.resolves();
-			mocks.fsextra.writeJSON.resolves();
-			mocks.fsextra.readJSON.resolves(expectedReadJsonOutput);
+			fs.mkdirp.resolves();
+			fs.writeJson.resolves();
+			fs.readJson.resolves(expectedreadJsonOutput);
 
 			// when - then
 			return expect(configFile.writeSetting({}, 'test2.test3', 'test'))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.fsextra.mkdirp).to.not.have.been.called;
-					expect(mocks.fsextra.readJSON).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeJSON).to.have.been.calledOnce;
+					expect(fs.mkdirp).to.not.have.been.called;
+					expect(fs.readJson).to.have.been.calledOnce;
+					expect(fs.writeJson).to.have.been.calledOnce;
 				});
 
 		});

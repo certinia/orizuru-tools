@@ -28,9 +28,13 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
+
+	fs = require('fs-extra'),
+	inquirer = require('inquirer'),
+
+	template = require('../../../lib/service/init/template'),
 
 	expect = chai.expect;
 
@@ -39,27 +43,19 @@ chai.use(sinonChai);
 
 describe('service/init/template.js', () => {
 
-	let mocks, template;
+	let lstatStub;
 
 	beforeEach(() => {
 
-		mocks = {};
+		lstatStub = {
+			isDirectory: sinon.stub()
+		};
 
-		mocks.lstatSync = sinon.stub();
-		mocks.lstatSync.isDirectory = sinon.stub();
+		sinon.stub(fs, 'lstatSync').returns(lstatStub);
+		sinon.stub(fs, 'readdir');
+		sinon.stub(fs, 'readJson');
 
-		mocks.fs = sinon.stub();
-		mocks.fs.lstatSync = sinon.stub();
-		mocks.fs.readdir = sinon.stub();
-		mocks.fs.readJson = sinon.stub();
-
-		mocks.inquirer = sinon.stub();
-		mocks.inquirer.prompt = sinon.stub();
-
-		template = proxyquire('../../../lib/service/init/template', {
-			'fs-extra': mocks.fs,
-			inquirer: mocks.inquirer
-		});
+		sinon.stub(inquirer, 'prompt');
 
 	});
 
@@ -102,17 +98,17 @@ describe('service/init/template.js', () => {
 				templateFolder: `${process.cwd()}/templates`
 			};
 
-		mocks.lstatSync.isDirectory.returns(true);
-		mocks.fs.lstatSync.returns(mocks.lstatSync);
-		mocks.fs.readdir.resolves([
+		lstatStub.isDirectory.returns(true);
+
+		fs.readdir.resolves([
 			expectedTemplate
 		]);
-		mocks.fs.readJson.resolves(expectedPackageJson);
+		fs.readJson.resolves(expectedPackageJson);
 
 		return expect(template.select(config))
 			.to.eventually.eql(expectedOutput)
 			.then(() => {
-				expect(mocks.inquirer.prompt).to.not.have.been.called;
+				expect(inquirer.prompt).to.not.have.been.called;
 			});
 
 	});
@@ -157,18 +153,18 @@ describe('service/init/template.js', () => {
 				templateFolder: `${process.cwd()}/templates`
 			};
 
-		mocks.lstatSync.isDirectory.returns(true);
-		mocks.fs.lstatSync.returns(mocks.lstatSync);
-		mocks.fs.readdir.resolves([
+		lstatStub.isDirectory.returns(true);
+
+		fs.readdir.resolves([
 			expectedTemplate
 		]);
-		mocks.fs.readJson.resolves(expectedPackageJson);
-		mocks.inquirer.prompt.resolves(expectedAnswer);
+		fs.readJson.resolves(expectedPackageJson);
+		inquirer.prompt.resolves(expectedAnswer);
 
 		return expect(template.select(config))
 			.to.eventually.eql(expectedOutput)
 			.then(() => {
-				expect(mocks.inquirer.prompt).to.have.been.calledOnce;
+				expect(inquirer.prompt).to.have.been.calledOnce;
 			});
 
 	});
@@ -218,19 +214,19 @@ describe('service/init/template.js', () => {
 				templateFolder: `${process.cwd()}/templates`
 			};
 
-		mocks.lstatSync.isDirectory.returns(true);
-		mocks.fs.lstatSync.returns(mocks.lstatSync);
-		mocks.fs.readdir.resolves([
+		lstatStub.isDirectory.returns(true);
+
+		fs.readdir.resolves([
 			expectedTemplate
 		]);
-		mocks.fs.readJson.onCall(0).resolves(expectedPackageJson);
-		mocks.fs.readJson.onCall(1).resolves(expectedExtensionPackageJson);
-		mocks.inquirer.prompt.resolves(expectedAnswer);
+		fs.readJson.onCall(0).resolves(expectedPackageJson);
+		fs.readJson.onCall(1).resolves(expectedExtensionPackageJson);
+		inquirer.prompt.resolves(expectedAnswer);
 
 		return expect(template.select(config))
 			.to.eventually.eql(expectedOutput)
 			.then(() => {
-				expect(mocks.inquirer.prompt).to.have.been.calledOnce;
+				expect(inquirer.prompt).to.have.been.calledOnce;
 			});
 
 	});

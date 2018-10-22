@@ -31,7 +31,10 @@ const
 	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
+
+	fs = require('fs-extra'),
+
+	properties = require('../../../lib/service/deploy/properties'),
 
 	expect = chai.expect;
 
@@ -40,19 +43,9 @@ chai.use(sinonChai);
 
 describe('service/deploy/properties.js', () => {
 
-	let mocks, properties;
-
 	beforeEach(() => {
-
-		mocks = {};
-
-		mocks.fsextra = {};
-		mocks.fsextra.readFile = sinon.stub();
-		mocks.fsextra.writeFile = sinon.stub();
-
-		properties = proxyquire('../../../lib/service/deploy/properties', {
-			'fs-extra': mocks.fsextra
-		});
+		sinon.stub(fs, 'readFile');
+		sinon.stub(fs, 'writeFile');
 	});
 
 	afterEach(() => {
@@ -95,15 +88,15 @@ describe('service/deploy/properties.js', () => {
 				};
 
 			sinon.stub(process, 'cwd').returns(expectedCwd);
-			mocks.fsextra.readFile.resolves();
-			mocks.fsextra.writeFile.resolves();
+			fs.readFile.resolves();
+			fs.writeFile.resolves();
 
 			// when - then
 			return expect(properties.updateProperties(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.fsextra.readFile).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeFile).to.have.been.calledOnce;
+					expect(fs.readFile).to.have.been.calledOnce;
+					expect(fs.writeFile).to.have.been.calledOnce;
 				});
 		});
 
@@ -146,15 +139,15 @@ describe('service/deploy/properties.js', () => {
 				};
 
 			sinon.stub(process, 'cwd').returns(expectedCwd);
-			mocks.fsextra.readFile.resolves(readOutput);
-			mocks.fsextra.writeFile.resolves();
+			fs.readFile.resolves(readOutput);
+			fs.writeFile.resolves();
 
 			// when - then
 			return expect(properties.updateProperties(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.fsextra.readFile).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeFile).to.have.been.calledOnce;
+					expect(fs.readFile).to.have.been.calledOnce;
+					expect(fs.writeFile).to.have.been.calledOnce;
 				});
 		});
 	});

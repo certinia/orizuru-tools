@@ -187,7 +187,7 @@ function readAppJson(config) {
 	return Promise.resolve()
 		.then(() => path.resolve(process.cwd(), 'app.json'))
 		.then(filePath => {
-			return fs.readJSON(filePath);
+			return fs.readJson(filePath);
 		})
 		.then(appJson => {
 			config.heroku = config.heroku || {};

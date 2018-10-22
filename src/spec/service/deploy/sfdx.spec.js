@@ -31,32 +31,33 @@ const
 	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
 
 	fs = require('fs-extra'),
 	inquirer = require('inquirer'),
+	jsforce = require('jsforce'),
 
-	expect = chai.expect,
+	config = require('../../../lib/service/deploy/shared/config'),
 
 	logger = require('../../../lib/util/logger'),
-	shell = require('../../../lib/util/shell');
+	shell = require('../../../lib/util/shell'),
+
+	sfdx = require('../../../lib/service/deploy/sfdx.js'),
+
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/deploy/sfdx.js', () => {
 
-	let mocks, sfdx;
+	let connectionStub;
 
 	beforeEach(() => {
 
-		mocks = {};
+		sinon.stub(config, 'writeSetting');
 
-		mocks.config = sinon.stub();
-		mocks.config.writeSetting = sinon.stub();
-
-		mocks.jsforce = {};
-		mocks.jsforce.Connection = sinon.stub();
+		connectionStub = sinon.createStubInstance(jsforce.Connection);
+		sinon.stub(jsforce, 'Connection').returns(connectionStub);
 
 		sinon.stub(inquirer, 'prompt');
 
@@ -70,10 +71,6 @@ describe('service/deploy/sfdx.js', () => {
 		sinon.stub(fs, 'writeJson');
 
 		sinon.stub(logger, 'logEvent').resolves();
-
-		sfdx = proxyquire('../../../lib/service/deploy/sfdx.js', {
-			'./shared/config': mocks.config
-		});
 
 	});
 
@@ -142,17 +139,17 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand.onCall(0).rejects();
 			shell.executeCommand.onCall(1).resolves(expectedLoginResult);
-			mocks.config.writeSetting.resolves(expectedOutput);
+			config.writeSetting.resolves(expectedOutput);
 
 			// when - then
 			return expect(sfdx.checkSfdxFolderExists(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.config.writeSetting).to.have.been.calledOnce;
+					expect(config.writeSetting).to.have.been.calledOnce;
 					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand1);
 					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand2);
-					expect(mocks.config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.hub.username', expectedUsername);
+					expect(config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.hub.username', expectedUsername);
 				});
 
 		});
@@ -486,7 +483,7 @@ describe('service/deploy/sfdx.js', () => {
 					}
 				};
 
-			mocks.config.writeSetting.resolves(expectedOutput);
+			config.writeSetting.resolves(expectedOutput);
 			shell.executeCommand.resolves(expectedLoginResult);
 
 			// when - then
@@ -494,9 +491,9 @@ describe('service/deploy/sfdx.js', () => {
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.config.writeSetting).to.have.been.calledOnce;
+					expect(config.writeSetting).to.have.been.calledOnce;
 					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-					expect(mocks.config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.hub.username', expectedUsername);
+					expect(config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.hub.username', expectedUsername);
 				});
 
 		});
@@ -654,7 +651,7 @@ describe('service/deploy/sfdx.js', () => {
 				expectedOutput = expectedInput;
 
 			inquirer.prompt.resolves(expectedAnswer);
-			mocks.config.writeSetting.resolves(expectedOutput);
+			config.writeSetting.resolves(expectedOutput);
 
 			// when - then
 			return expect(sfdx.select(expectedInput))
@@ -702,7 +699,7 @@ describe('service/deploy/sfdx.js', () => {
 				},
 				expectedOutput = expectedInput;
 
-			mocks.config.writeSetting.resolves(expectedOutput);
+			config.writeSetting.resolves(expectedOutput);
 			inquirer.prompt.resolves(expectedAnswer);
 
 			// when - then
@@ -710,7 +707,7 @@ describe('service/deploy/sfdx.js', () => {
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
-					expect(mocks.config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.org.username', expectedScratchOrgUsername);
+					expect(config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.org.username', expectedScratchOrgUsername);
 				});
 
 		});
@@ -771,7 +768,7 @@ describe('service/deploy/sfdx.js', () => {
 
 			inquirer.prompt.resolves(expectedAnswer);
 			shell.executeCommand.resolves({ stdout: '{"result": {"username": "test" }}' });
-			mocks.config.writeSetting.resolves(expectedOutput);
+			config.writeSetting.resolves(expectedOutput);
 
 			// when - then
 			return expect(sfdx.select(expectedInput))
@@ -849,7 +846,7 @@ describe('service/deploy/sfdx.js', () => {
 				expectedOutput = expectedInput;
 
 			inquirer.prompt.resolves(expectedAnswer);
-			mocks.config.writeSetting.resolves(expectedOutput);
+			config.writeSetting.resolves(expectedOutput);
 
 			// when - then
 			return expect(sfdx.select(expectedInput))

@@ -28,9 +28,12 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
+
+	shell = require('../../../lib/util/shell'),
+
+	npm = require('../../../lib/service/init/npm'),
 
 	expect = chai.expect;
 
@@ -39,22 +42,13 @@ chai.use(sinonChai);
 
 describe('service/init/npm.js', () => {
 
-	let mocks, npm;
-
 	beforeEach(() => {
-
-		mocks = {};
-
-		mocks.shell = sinon.stub();
-		mocks.shell.executeCommand = sinon.stub();
-
-		npm = proxyquire('../../../lib/service/init/npm', {
-			'../../util/shell': mocks.shell
-		});
-
+		sinon.stub(shell, 'executeCommand');
 	});
 
-	afterEach(() => sinon.restore());
+	afterEach(() => {
+		sinon.restore()
+	});
 
 	describe('generateApexTransport', () => {
 
@@ -77,14 +71,14 @@ describe('service/init/npm.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.generateApexTransport(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -112,14 +106,14 @@ describe('service/init/npm.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.generateDocumentation(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -147,14 +141,14 @@ describe('service/init/npm.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.init(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -182,14 +176,14 @@ describe('service/init/npm.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.install(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -217,14 +211,14 @@ describe('service/init/npm.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.orizuruPostInit(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -252,14 +246,14 @@ describe('service/init/npm.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(npm.test(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
