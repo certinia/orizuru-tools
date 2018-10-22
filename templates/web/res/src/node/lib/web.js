@@ -100,10 +100,11 @@ const
 
 			const
 				fullSchema = readSchema(schema),
-				openApiEndpoint = ('.' + fullSchema.namespace + '.' + fullSchema.name).replace(/\./g, '/').replace('_', '.') + OPEN_API_EXT;
+				openApiEndpoint = (`.api.${fullSchema.namespace}.${fullSchema.name}`).replace(/\./g, '/').replace('_', '.') + OPEN_API_EXT;
 
 			// add the route
 			serverInstance.addRoute({
+				endpoint: '/api/',
 				middleware: middlewares,
 				schema: fullSchema
 			});
@@ -111,7 +112,7 @@ const
 			// add the Open API handler
 			serverInstance.server.get(openApiEndpoint, openApi.generator.generateV2({
 				info,
-				basePath: fullSchema.namespace.replace(/\./g, '/').replace('_', '.'),
+				basePath: 'api.' + fullSchema.namespace.replace(/\./g, '/').replace('_', '.'),
 				host: ADVERTISE_HOST,
 				schemes: [ADVERTISE_SCHEME]
 			}, { [fullSchema.name]: fullSchema }));

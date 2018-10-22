@@ -130,10 +130,12 @@ describe('web.js', () => {
 
 		expect(serverStubInstance.addRoute).to.have.been.calledTwice;
 		expect(serverStubInstance.addRoute).to.have.calledWithExactly({
+			endpoint: '/api/',
 			middleware: [jsonStub, tokenValidatorStub, grantCheckerStub, idStub],
 			schema: { namespace: 'api', name: 'test1' }
 		});
 		expect(serverStubInstance.addRoute).to.have.calledWithExactly({
+			endpoint: '/api/',
 			middleware: [jsonStub, tokenValidatorStub, grantCheckerStub, idStub],
 			schema: { namespace: 'api', name: 'test2' }
 		});
@@ -141,7 +143,7 @@ describe('web.js', () => {
 		expect(serverStubInstance.server.get).to.have.been.calledTwice;
 		expect(openApi.generator.generateV2).to.have.been.calledTwice;
 		expect(openApi.generator.generateV2).to.have.been.calledWithExactly({
-			basePath: 'api',
+			basePath: 'api.api',
 			host: 'localhost:8080',
 			info: {
 				description: 'Test Web Server Description',
@@ -151,7 +153,7 @@ describe('web.js', () => {
 			schemes: ['http']
 		}, { test1: { name: 'test1', namespace: 'api' } });
 		expect(openApi.generator.generateV2).to.have.been.calledWithExactly({
-			basePath: 'api',
+			basePath: 'api.api',
 			host: 'localhost:8080',
 			info: {
 				description: 'Test Web Server Description',
@@ -197,10 +199,12 @@ describe('web.js', () => {
 
 		expect(serverStubInstance.addRoute).to.have.been.calledTwice;
 		expect(serverStubInstance.addRoute).to.have.calledWithExactly({
+			endpoint: '/api/',
 			middleware: [jsonStub, tokenValidatorStub, grantCheckerStub, idStub],
 			schema: { namespace: 'api', name: 'test1' }
 		});
 		expect(serverStubInstance.addRoute).to.have.calledWithExactly({
+			endpoint: '/api/',
 			middleware: [jsonStub, tokenValidatorStub, grantCheckerStub, idStub],
 			schema: { namespace: 'api', name: 'test2' }
 		});
@@ -208,7 +212,7 @@ describe('web.js', () => {
 		expect(serverStubInstance.server.get).to.have.been.calledTwice;
 		expect(openApi.generator.generateV2).to.have.been.calledTwice;
 		expect(openApi.generator.generateV2).to.have.been.calledWithExactly({
-			basePath: 'api',
+			basePath: 'api.api',
 			host: 'testHost',
 			info: {
 				description: 'Test Web Server Description',
@@ -218,7 +222,7 @@ describe('web.js', () => {
 			schemes: ['testScheme']
 		}, { test1: { name: 'test1', namespace: 'api' } });
 		expect(openApi.generator.generateV2).to.have.been.calledWithExactly({
-			basePath: 'api',
+			basePath: 'api.api',
 			host: 'testHost',
 			info: {
 				description: 'Test Web Server Description',

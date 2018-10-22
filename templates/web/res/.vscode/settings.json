@@ -1,30 +1,4 @@
 {
-	"beautify.language": {
-		"js": {
-			"type": [
-				"javascript",
-				"javascriptreact",
-				"json",
-				"apex"
-			],
-			"filename": [
-				".jsbeautifyrc"
-			]
-		},
-		"css": [
-			"css",
-			"scss"
-		],
-		"html": [
-			"htm",
-			"html",
-			"xml",
-			"visualforce"
-		]
-	},
-	"beautify.ignore": [
-		"package.json"
-	],
 	"files.associations": {
 		"*.avsc": "json"
 	},
@@ -41,10 +15,12 @@
 		"**/coverage": true
 	},
 	"lcov.path": "coverage/lcov.info",
-	"lcov.watch": [{
-		"pattern": "**/*.js",
-		"command": "npm test"
-	}],
+	"lcov.watch": [
+		{
+			"pattern": "**/*.js",
+			"command": "npm test"
+		}
+	],
 	"runCurrentTest.run": "npm run single-test -- ${relativeTestPath}",
 	"terminal.integrated.scrollback": 10000
 }
