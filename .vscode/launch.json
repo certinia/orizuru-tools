@@ -11,8 +11,7 @@
 				"JWT_SIGNING_KEY": "test",
 				"OPENID_CLIENT_ID": "test",
 				"OPENID_HTTP_TIMEOUT": "4000",
-				"OPENID_ISSUER_URI": "https://login.salesforce.com",
-				"WEB_CONCURRENCY": "2"
+				"OPENID_ISSUER_URI": "https://login.salesforce.com"
 			}
 		},
 		{
