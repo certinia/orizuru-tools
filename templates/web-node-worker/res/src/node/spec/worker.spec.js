@@ -28,80 +28,154 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire').noCallThru(),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
 
-	schemas = require('../lib/boilerplate/schema'),
+	schemas = require('../lib/boilerplate/schema/worker'),
 	handlers = require('../lib/boilerplate/handler'),
 	read = require('../lib/boilerplate/read'),
-	defaultTransport = require('../lib/boilerplate/transport'),
-	orizuru = require('@financialforcedev/orizuru');
+
+	orizuru = require('@financialforcedev/orizuru'),
+	transport = require('@financialforcedev/orizuru-transport-rabbitmq');
 
 chai.use(sinonChai);
 
 describe('worker.js', () => {
 
-	let handleSpy, throngStub;
+	let transportStubInstance, handlerStubInstance;
 
 	beforeEach(() => {
-		handleSpy = sinon.spy();
-		throngStub = sinon.stub();
-		sinon.stub(orizuru, 'Handler').callsFake(function () {
-			this.handle = handleSpy;
-		});
-		sinon.stub(read, 'readSchema').returns({ mock: true });
-		sinon.stub(read, 'readHandler').returns({ mockHandler: true });
-		sinon.stub(schemas, 'getWorkerSchemas');
-		sinon.stub(handlers, 'get');
-		orizuru.Handler.emitter = {
-			on: sinon.stub()
-		};
+
+		transportStubInstance = sinon.createStubInstance(transport.Transport);
+		sinon.stub(transport, 'Transport').returns(transportStubInstance);
+
+		handlerStubInstance = sinon.createStubInstance(orizuru.Handler);
+		handlerStubInstance.on.returnsThis();
+		handlerStubInstance.handle.returns({});
+		sinon.stub(orizuru, 'Handler').returns(handlerStubInstance);
+
+		sinon.stub(handlers, 'getHandlers');
+		sinon.stub(handlers, 'publishHandler');
+		sinon.stub(schemas, 'getSchemas');
+		sinon.stub(read, 'readHandler');
+		sinon.stub(read, 'readSchema');
+
 	});
 
 	afterEach(() => {
+		delete process.env.CLOUDAMQP_URL;
 		delete require.cache[require.resolve('../lib/worker')];
-		delete process.env.WEB_CONCURRENCY;
-
 		sinon.restore();
 	});
 
-	it('should create an orizuru handler', () => {
+	describe('should create an orizuru handler', () => {
 
-		// given
-		schemas.getWorkerSchemas.returns({
-			test1: {
-				incoming: {
-					path: 'api/test1_incoming.avsc',
-					sharedPath: '/api',
-					fileName: 'test1'
+		beforeEach(() => {
+
+			schemas.getSchemas.returns({
+				test1: {
+					incoming: 'api/test1_incoming.avsc',
+					outgoing: 'api/test1_outgoing.avsc'
 				},
-				outgoing: {
-					path: 'api/test1_outgoing.avsc',
-					sharedPath: '/api',
-					fileName: 'test1'
+				test2: {
+					incoming: 'api/test2_incoming.avsc'
 				}
-			},
-			test2: {
-				incoming: {
-					path: 'api/test2_incoming.avsc',
-					sharedPath: '/api',
-					fileName: 'test2'
-				}
+			});
+
+			read.readSchema
+				.withArgs('api/test1_incoming.avsc').returns({ name: 'api.test1.incoming' })
+				.withArgs('api/test1_outgoing.avsc').returns({ name: 'api.test1.outgoing' })
+				.withArgs('api/test2_incoming.avsc').returns({ name: 'api.test2.incoming' });
+
+			handlers.getHandlers.returns({
+				test1: 'api/test1.js',
+				test2: 'api/test2.js'
+			});
+
+			handlers.publishHandler.returns({
+				name: 'api.test1.outgoing.handler.wrapped'
+			});
+
+			read.readHandler
+				.withArgs('api/test1.js').returns({ name: 'api.test1.incoming.handler' })
+				.withArgs('api/test2.js').returns({ name: 'api.test2.outgoing.handler' });
+
+		});
+
+		it('with the default options', () => {
+
+			// given
+			// when
+			require('../lib/worker');
+
+			// then
+			expect(transport.Transport).to.have.been.calledOnce;
+			expect(transport.Transport).to.have.been.calledWithNew;
+			expect(transport.Transport).to.have.been.calledWithExactly({
+				url: 'amqp://localhost'
+			});
+
+			expect(orizuru.Handler).to.have.been.calledOnce;
+			expect(orizuru.Handler).to.have.been.calledWithNew;
+			expect(orizuru.Handler).to.have.been.calledWith({ transport: transportStubInstance });
+
+			expect(handlerStubInstance.handle).to.have.been.calledTwice;
+			expect(handlerStubInstance.handle).to.have.been.calledWith({
+				handler: { name: 'api.test1.outgoing.handler.wrapped' },
+				schema: { name: 'api.test1.incoming' }
+			});
+			expect(handlerStubInstance.handle).to.have.been.calledWith({
+				handler: { name: 'api.test2.outgoing.handler' },
+				schema: { name: 'api.test2.incoming' }
+			});
+
+		});
+
+		it('should create an orizuru handler with the specified options', () => {
+
+			// given
+			process.env.CLOUDAMQP_URL = 'testCloudAmqpUrl';
+
+			// when
+			require('../lib/worker');
+
+			// then
+			expect(transport.Transport).to.have.been.calledOnce;
+			expect(transport.Transport).to.have.been.calledWithNew;
+			expect(transport.Transport).to.have.been.calledWithExactly({
+				url: 'testCloudAmqpUrl'
+			});
+
+			expect(orizuru.Handler).to.have.been.calledOnce;
+			expect(orizuru.Handler).to.have.been.calledWithNew;
+			expect(orizuru.Handler).to.have.been.calledWith({ transport: transportStubInstance });
+
+			expect(handlerStubInstance.handle).to.have.been.calledTwice;
+			expect(handlerStubInstance.handle).to.have.been.calledWith({
+				handler: { name: 'api.test1.outgoing.handler.wrapped' },
+				schema: { name: 'api.test1.incoming' }
+			});
+			expect(handlerStubInstance.handle).to.have.been.calledWith({
+				handler: { name: 'api.test2.outgoing.handler' },
+				schema: { name: 'api.test2.incoming' }
+			});
+
+		});
+
+	});
+
+	it('should not register a schema has no associated handler', () => {
+
+		// given
+		schemas.getSchemas.returns({
+			test1: {
+				incoming: 'api/test1_incoming.avsc'
 			}
 		});
 
-		handlers.get.returns([{
-			path: 'api/test1.js',
-			sharedPath: '/api',
-			fileName: 'test1'
-		}, {
-			path: 'api/test2.js',
-			sharedPath: '/api',
-			fileName: 'test2'
-		}]);
+		handlers.getHandlers.returns({});
 
 		// when
 		require('../lib/worker');
@@ -109,102 +183,23 @@ describe('worker.js', () => {
 		// then
 		expect(orizuru.Handler).to.have.been.calledOnce;
 		expect(orizuru.Handler).to.have.been.calledWithNew;
-		expect(orizuru.Handler).to.have.been.calledWith(defaultTransport);
+		expect(orizuru.Handler).to.have.been.calledWith({ transport: transportStubInstance });
 
-		expect(handleSpy).to.have.been.calledTwice;
-		expect(handleSpy).to.have.been.calledWith({
-			schema: { mock: true },
-			callback: { mockHandler: true }
-		});
-		expect(handleSpy).to.have.been.calledWith({
-			schema: { mock: true },
-			callback: { mockHandler: true }
-		});
+		expect(handlerStubInstance.handle).to.not.have.been.called;
+		expect(read.readHandler).to.not.have.been.called;
 
 	});
 
-	it('should create an orizuru handler cluster', () => {
+	it('should not register a handler a handler has no associated schema', () => {
 
 		// given
+		schemas.getSchemas.returns({});
 
-		throngStub = sinon.stub();
-		throngStub.yields();
-		process.env.WEB_CONCURRENCY = 2;
-
-		schemas.getWorkerSchemas.returns({
-			test1: {
-				incoming: {
-					path: 'api/test1_incoming.avsc',
-					sharedPath: '/api',
-					fileName: 'test1'
-				}
-			},
-			test2: {
-				incoming: {
-					path: 'api/test2_incoming.avsc',
-					sharedPath: '/api',
-					fileName: 'test2'
-				}
-			}
+		handlers.getHandlers.returns({
+			test1: 'api/test1.js'
 		});
 
-		handlers.get.returns([{
-			path: 'api/test1.js',
-			sharedPath: '/api',
-			fileName: 'test1'
-		}, {
-			path: 'api/test2.js',
-			sharedPath: '/api',
-			fileName: 'test2'
-		}]);
-
-		// when
-		proxyquire('../lib/worker', {
-			throng: throngStub
-		});
-
-		// then
-		expect(orizuru.Handler).to.have.been.calledOnce;
-		expect(orizuru.Handler).to.have.been.calledWithNew;
-		expect(orizuru.Handler).to.have.been.calledWith(defaultTransport);
-
-		expect(handleSpy).to.have.been.calledTwice;
-		expect(handleSpy).to.have.been.calledWith({
-			schema: { mock: true },
-			callback: { mockHandler: true }
-		});
-		expect(handleSpy).to.have.been.calledWith({
-			schema: { mock: true },
-			callback: { mockHandler: true }
-		});
-
-		expect(throngStub).to.have.been.calledOnce;
-		expect(throngStub).to.have.been.calledWith('2', sinon.match.any);
-
-	});
-
-	it('should not register a handler if no handler for a schema exists', () => {
-
-		// given
-		schemas.getWorkerSchemas.returns({
-			test1: {
-				incoming: {
-					path: 'api/test1_incoming.avsc',
-					sharedPath: '/api',
-					fileName: 'test1'
-				}
-			}
-		});
-
-		handlers.get.returns([{
-			path: 'api/test1.js',
-			sharedPath: '/api',
-			fileName: 'test1'
-		}, {
-			path: 'api/test2.js',
-			sharedPath: '/api',
-			fileName: 'test2'
-		}]);
+		read.readHandler.returns({ name: 'api.test1.incoming.handler' });
 
 		// when
 		require('../lib/worker');
@@ -212,55 +207,10 @@ describe('worker.js', () => {
 		// then
 		expect(orizuru.Handler).to.have.been.calledOnce;
 		expect(orizuru.Handler).to.have.been.calledWithNew;
-		expect(orizuru.Handler).to.have.been.calledWith(defaultTransport);
+		expect(orizuru.Handler).to.have.been.calledWith({ transport: transportStubInstance });
+		expect(read.readHandler).to.have.been.calledOnce;
 
-		expect(handleSpy).to.have.been.calledOnce;
-		expect(handleSpy).to.have.been.calledWith({
-			schema: { mock: true },
-			callback: { mockHandler: true }
-		});
-
-	});
-
-	it('should not register a handler if schema for a handler exists', () => {
-
-		// given
-		schemas.getWorkerSchemas.returns({
-			test1: {
-				incoming: {
-					path: 'api/test1_incoming.avsc',
-					sharedPath: '/api',
-					fileName: 'test1'
-				}
-			},
-			test2: {
-				incoming: {
-					path: 'api/test2_incoming.avsc',
-					sharedPath: '/api',
-					fileName: 'test2'
-				}
-			}
-		});
-
-		handlers.get.returns([{
-			path: 'api/test1.js',
-			sharedPath: '/api',
-			fileName: 'test1'
-		}]);
-
-		// when
-		require('../lib/worker');
-
-		// then
-		expect(orizuru.Handler).to.have.been.calledOnce;
-		expect(orizuru.Handler).to.have.been.calledWithNew;
-		expect(orizuru.Handler).to.have.been.calledWith(defaultTransport);
-
-		expect(handleSpy).to.have.been.calledOnce;
-		expect(handleSpy).to.have.been.calledWith({
-			schema: { mock: true },
-			callback: { mockHandler: true }
-		});
+		expect(handlerStubInstance.handle).to.not.have.been.called;
 
 	});
 

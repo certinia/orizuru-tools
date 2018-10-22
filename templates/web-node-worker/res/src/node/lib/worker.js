@@ -28,86 +28,96 @@
 
 const
 
-	CONCURRENCY = process.env.WEB_CONCURRENCY || 1,
+	CLOUDAMQP_URL = process.env.CLOUDAMQP_URL || 'amqp://localhost',
 
 	// get utils
-	_ = require('lodash'),
-	throng = require('throng'),
-	debug = require('debug-plus')('worker'),
+	debug = require('debug')('worker'),
 	{ readSchema, readHandler } = require('./boilerplate/read'),
 
 	// define transport
-	transport = require('./boilerplate/transport'),
+	{ Transport } = require('@financialforcedev/orizuru-transport-rabbitmq'),
+
+	transport = new Transport({
+		url: CLOUDAMQP_URL
+	}),
 
 	// get orizuru classes
 	{ Handler, Publisher } = require('@financialforcedev/orizuru'),
-	handlerInstance = new Handler(transport),
-	publisherInstance = new Publisher(transport),
+	handlerInstance = new Handler({ transport }),
+	publisherInstance = new Publisher({ transport }),
 
 	// get all files in our 'schemas' and 'handlers' directories
-	schemas = require('./boilerplate/schema').getWorkerSchemas(),
+	schemas = require('./boilerplate/schema/worker').getSchemas(),
 	handler = require('./boilerplate/handler'),
-	handlers = handler.get(),
+	handlers = handler.getHandlers(),
 
 	// create an object to contain the union of schema and handler paths
-	schemasAndHandlers = {};
+	schemasAndHandlers = Object.entries(schemas).reduce((results, entry) => {
 
-// map schemas on to the union
-_.each(schemas, (schema, schemaName) => {
+		const
+			schemaName = entry.shift(),
+			incomingAndOutgoingSchemas = entry.shift(),
+			incomingPath = incomingAndOutgoingSchemas.incoming,
+			outgoingPath = incomingAndOutgoingSchemas.outgoing;
 
-	const fullyQualifiedName = schema.incoming.sharedPath + '/' + schemaName;
-	_.set(schemasAndHandlers, fullyQualifiedName + '.schema.incoming', readSchema(schema.incoming.path));
+		results[schemaName] = results[schemaName] || { schema: {} };
+		results[schemaName].schema.incoming = readSchema(incomingPath);
 
-	if (_.get(schema, 'outgoing.path')) {
-		_.set(schemasAndHandlers, fullyQualifiedName + '.schema.outgoing', readSchema(schema.outgoing.path));
-	}
+		if (outgoingPath) {
+			results[schemaName].schema.outgoing = readSchema(outgoingPath);
+		}
 
-});
+		return results;
+
+	}, {});
 
 // map handlers on to the union
-_.each(handlers, handler => {
-	const fullyQualifiedName = handler.sharedPath + '/' + handler.fileName;
-	_.set(schemasAndHandlers, fullyQualifiedName + '.handler', readHandler(handler.path));
+Object.entries(handlers).forEach((entry) => {
+
+	const
+		schemaName = entry.shift(),
+		filePath = entry.shift();
+
+	schemasAndHandlers[schemaName] = schemasAndHandlers[schemaName] || {};
+	schemasAndHandlers[schemaName].handler = readHandler(filePath);
+
 });
 
 // debug out errors and info
-Handler.emitter.on(Handler.emitter.ERROR, debug.error);
-Handler.emitter.on(Handler.emitter.INFO, debug.log);
+handlerInstance.on(Handler.ERROR, debug.error);
+handlerInstance.on(Handler.INFO, debug.log);
 
-function handle() {
-	// map tuples to handler handle promises and swallow any errors
-	Promise.all(_.map(schemasAndHandlers, (schemasAndHandler, sharedPath) => {
+// map tuples to handler handle promises and swallow any errors
+Promise.all(Object.entries(schemasAndHandlers).map((entry) => {
 
-		if (!schemasAndHandler.schema) {
-			debug.warn('no schema found for handler \'%s\'', sharedPath);
-			return null;
-		}
+	const
+		fileName = entry.shift(),
+		schemasAndHandler = entry.shift();
 
-		if (!schemasAndHandler.handler) {
-			debug.warn('no handler found for schema \'%s\'', sharedPath);
-			return null;
-		}
+	if (!schemasAndHandler.schema) {
+		debug('no schema found for handler \'%s\'', fileName);
+		return null;
+	}
 
-		let callback = schemasAndHandler.handler;
+	if (!schemasAndHandler.handler) {
+		debug('no handler found for schema \'%s\'', fileName);
+		return null;
+	}
 
-		if (schemasAndHandler.schema.outgoing) {
+	let callback = schemasAndHandler.handler;
 
-			callback = handler.publishHandler({
-				schemasAndHandler,
-				publisherInstance
-			});
+	if (schemasAndHandler.schema.outgoing) {
 
-		}
-
-		return handlerInstance.handle({
-			schema: schemasAndHandler.schema.incoming,
-			callback
+		callback = handler.publishHandler({
+			schemasAndHandler,
+			publisherInstance
 		});
-	}));
-}
 
-if (CONCURRENCY > 1) {
-	throng(CONCURRENCY, handle);
-} else {
-	handle();
-}
+	}
+
+	return handlerInstance.handle({
+		schema: schemasAndHandler.schema.incoming,
+		handler: callback
+	});
+
+}));

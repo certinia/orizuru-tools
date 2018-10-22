@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2018, FinancialForce.com, inc
+ * Copyright (c) 2018, FinancialForce.com, inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,11 +27,9 @@
 'use strict';
 
 const
-	_ = require('lodash'),
 	path = require('path'),
-	walk = require('./walk'),
+	walk = require('../walk'),
 
-	EMPTY = '',
 	INCOMING = '_incoming',
 	OUTGOING = '_outgoing';
 
@@ -41,13 +39,17 @@ const
  * Web dyno schemas are identified as any file without the suffixes `_incoming` and `_outgoing`.
  * @returns {Object} - Map of schema name to schema object.
  */
-function getWebSchemas() {
+function getSchemas() {
 
 	const
-		schemaDirectory = path.resolve(__dirname, '../schema'),
+		schemaDirectory = path.resolve(__dirname, '../../schema'),
 		schemas = walk.walk(schemaDirectory, '.avsc');
 
-	return _.reduce(schemas, (results, filePath, schemaName) => {
+	return Object.entries(schemas).reduce((results, entry) => {
+
+		const
+			schemaName = entry.shift(),
+			filePath = entry.shift();
 
 		if (!schemaName.endsWith(INCOMING) && !schemaName.endsWith(OUTGOING)) {
 			results[schemaName] = filePath;
@@ -59,56 +61,6 @@ function getWebSchemas() {
 
 }
 
-/**
- * @typedef Schema
- * @property {string} incoming
- * @property {string} outgoing
- */
-
-/**
- * @typedef {Object.<string, Schema>} WorkerSchema
- */
-
-/**
- * Gets all the schemas for a worker dyno.
- *
- * Worker dyno schemas are identified via the file name suffixes `_incoming` and `_outgoing`.
- *
- * An `_incoming` schema is always required.
- *
- * An `_outgoing` schema is optional. It is used for publishing onward messages to other worker dynos.
- *
- * @returns {WorkerSchema} - The map of names to schemas.
- */
-function getWorkerSchemas() {
-
-	const
-		schemaDirectory = path.resolve(__dirname, '../schema'),
-		schemas = walk.walk(schemaDirectory, '.avsc');
-
-	return _.reduce(schemas, (results, filePath, schemaName) => {
-
-		let property;
-
-		if (schemaName.endsWith(INCOMING)) {
-			const incomingFileName = schemaName.replace(INCOMING, EMPTY);
-			property = incomingFileName + '.incoming';
-		} else if (schemaName.endsWith(OUTGOING)) {
-			const outgoingFileName = schemaName.replace(OUTGOING, EMPTY);
-			property = outgoingFileName + '.outgoing';
-		}
-
-		if (property) {
-			_.set(results, property, filePath);
-		}
-
-		return results;
-
-	}, {});
-
-}
-
 module.exports = {
-	getWebSchemas,
-	getWorkerSchemas
+	getSchemas
 };

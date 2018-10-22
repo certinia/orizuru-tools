@@ -60,7 +60,7 @@ const
 	{ json, Server } = require('@financialforcedev/orizuru'),
 
 	// get all files in our 'schemas' directory
-	schemas = require('./boilerplate/schema').getWebSchemas(),
+	schemas = require('./boilerplate/schema/web').getSchemas(),
 
 	// get auth middleware
 	auth = require('@financialforcedev/orizuru-auth'),

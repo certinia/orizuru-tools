@@ -32,9 +32,9 @@ const
 
 	path = require('path'),
 
-	walk = require('../../lib/boilerplate/walk'),
+	walk = require('../../../lib/boilerplate/walk'),
 
-	schemas = require('../../lib/boilerplate/schema'),
+	schemas = require('../../../lib/boilerplate/schema/web'),
 
 	expect = chai.expect,
 
@@ -58,7 +58,7 @@ describe('boilerplate/schema.js', () => {
 		sinon.restore();
 	});
 
-	describe('getWebSchemas', () => {
+	describe('getSchemas', () => {
 
 		it('should return all the web schemas', () => {
 
@@ -70,33 +70,7 @@ describe('boilerplate/schema.js', () => {
 
 			// When
 			// Then
-			expect(schemas.getWebSchemas()).to.eql(expectedOutput);
-
-		});
-
-	});
-
-	describe('getWorkerSchemas', () => {
-
-		it('should return all the worker schemas', () => {
-
-			// Given
-			const expectedOutput = {
-				createData: {
-					incoming: '/Users/Guest/GIT/test/src/node/lib/schema/createData_incoming.avsc'
-				},
-				questionBuilder: {
-					incoming: '/Users/Guest/GIT/test/src/node/lib/schema/questionBuilder_incoming.avsc',
-					outgoing: '/Users/Guest/GIT/test/src/node/lib/schema/questionBuilder_outgoing.avsc'
-				},
-				resultWriter: {
-					incoming: '/Users/Guest/GIT/test/src/node/lib/schema/resultWriter_incoming.avsc'
-				}
-			};
-
-			// When
-			// Then
-			expect(schemas.getWorkerSchemas()).to.eql(expectedOutput);
+			expect(schemas.getSchemas()).to.eql(expectedOutput);
 
 		});
 

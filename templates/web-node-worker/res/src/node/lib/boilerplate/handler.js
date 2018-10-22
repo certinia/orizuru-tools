@@ -26,25 +26,34 @@
 
 'use strict';
 
-const uuid = require('uuid');
+const walk = require('./walk');
 
-function middleware(req, res, next) {
-	req.orizuru = req.orizuru || {};
-	req.orizuru.id = uuid.v4();
-	next();
+function getHandlers() {
+	return walk.walk('handler', '.js');
 }
 
-function responseWriter(err, response, orizuru) {
-	if (err) {
-		response.status(400).send(err.message);
-	} else {
-		response.json({
-			id: orizuru.id
-		});
-	}
+function publishHandler({ schemasAndHandler, publisherInstance }) {
+
+	return function (event) {
+
+		return schemasAndHandler.handler(event)
+			.then(result => {
+
+				return publisherInstance.publish({
+					message: {
+						context: event.context,
+						message: result
+					},
+					schema: schemasAndHandler.schema.outgoing
+				});
+
+			});
+
+	};
+
 }
 
 module.exports = {
-	middleware,
-	responseWriter
+	getHandlers,
+	publishHandler
 };

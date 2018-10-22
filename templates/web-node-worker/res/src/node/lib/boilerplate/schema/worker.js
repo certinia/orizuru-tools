@@ -26,32 +26,63 @@
 
 'use strict';
 
-const walk = require('./walk');
+const
+	path = require('path'),
+	walk = require('../walk'),
 
-function get() {
-	return walk.walk('handler', '.js');
-}
+	EMPTY = '',
+	INCOMING = '_incoming',
+	OUTGOING = '_outgoing';
 
-function publishHandler({ schemasAndHandler, publisherInstance }) {
+/**
+ * @typedef Schema
+ * @property {string} incoming
+ * @property {string} outgoing
+ */
 
-	return function (event) {
+/**
+ * @typedef {Object.<string, Schema>} WorkerSchema
+ */
 
-		return schemasAndHandler.handler(event)
-			.then(result => {
+/**
+ * Gets all the schemas for a worker dyno.
+ *
+ * Worker dyno schemas are identified via the file name suffixes `_incoming` and `_outgoing`.
+ *
+ * An `_incoming` schema is always required.
+ *
+ * An `_outgoing` schema is optional. It is used for publishing onward messages to other worker dynos.
+ *
+ * @returns {WorkerSchema} - The map of names to schemas.
+ */
+function getSchemas() {
 
-				return publisherInstance.publish({
-					message: result,
-					schema: schemasAndHandler.schema.outgoing,
-					context: event.context
-				});
+	const
+		schemaDirectory = path.resolve(__dirname, '../schema'),
+		schemas = walk.walk(schemaDirectory, '.avsc');
 
-			});
+	return Object.entries(schemas).reduce((results, entry) => {
 
-	};
+		const
+			schemaName = entry.shift(),
+			filePath = entry.shift();
+
+		if (schemaName.endsWith(INCOMING)) {
+			const incomingFileName = schemaName.replace(INCOMING, EMPTY);
+			results[incomingFileName] = results[incomingFileName] || {};
+			results[incomingFileName].incoming = filePath;
+		} else if (schemaName.endsWith(OUTGOING)) {
+			const outgoingFileName = schemaName.replace(OUTGOING, EMPTY);
+			results[outgoingFileName] = results[outgoingFileName] || {};
+			results[outgoingFileName].outgoing = filePath;
+		}
+
+		return results;
+
+	}, {});
 
 }
 
 module.exports = {
-	get,
-	publishHandler
+	getSchemas
 };

@@ -34,7 +34,7 @@ const
 	pkgInfo = require('pkginfo'),
 
 	id = require('../lib/boilerplate/id'),
-	schemas = require('../lib/boilerplate/schema'),
+	schemas = require('../lib/boilerplate/schema/web'),
 	read = require('../lib/boilerplate/read'),
 
 	orizuru = require('@financialforcedev/orizuru'),
@@ -60,7 +60,7 @@ describe('web.js', () => {
 			}
 		});
 
-		sinon.stub(schemas, 'getWebSchemas').returns({
+		sinon.stub(schemas, 'getSchemas').returns({
 			test1: 'api/test1.avsc',
 			test2: 'api/test2.avsc'
 		});

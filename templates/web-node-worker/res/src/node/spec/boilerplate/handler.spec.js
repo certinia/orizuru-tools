@@ -56,7 +56,7 @@ describe('boilerplate/handler.js', () => {
 			// Given
 			// When
 			// Then
-			expect(handlers.get()).to.eql([]);
+			expect(handlers.getHandlers()).to.eql([]);
 
 		});
 
@@ -109,7 +109,13 @@ describe('boilerplate/handler.js', () => {
 			expect(schemasAndHandler.handler).to.have.been.calledOnce;
 			expect(publisherInstance.publish).to.have.been.calledOnce;
 			expect(schemasAndHandler.handler).to.have.been.calledWithExactly(expectedEvent);
-			expect(publisherInstance.publish).to.have.been.calledWithExactly({ context: expectedEvent.context, message: expectedResult, schema: schemasAndHandler.schema.outgoing });
+			expect(publisherInstance.publish).to.have.been.calledWithExactly({
+				message: {
+					context: expectedEvent.context,
+					message: expectedResult
+				},
+				schema: schemasAndHandler.schema.outgoing
+			});
 
 		});
 
