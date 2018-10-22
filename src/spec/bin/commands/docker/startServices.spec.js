@@ -33,7 +33,7 @@ const
 
 	yargs = require('yargs'),
 
-	COPYRIGHT_NOTICE = require('../../../../lib/bin/constants/constants').COPYRIGHT_NOTICE,
+	constants = require('../../../../lib/bin/constants/constants'),
 
 	service = require('../../../../lib/service/docker'),
 
@@ -46,9 +46,13 @@ chai.use(sinonChai);
 describe('bin/commands/docker/startServices.js', () => {
 
 	beforeEach(() => {
+
+		sinon.stub(constants, 'getCopyrightNotice').returns('(c)');
+
 		sinon.stub(yargs, 'epilogue').returnsThis();
 		sinon.stub(yargs, 'option').returnsThis();
 		sinon.stub(yargs, 'usage').returnsThis();
+
 	});
 
 	afterEach(() => {
@@ -74,7 +78,7 @@ describe('bin/commands/docker/startServices.js', () => {
 		expect(yargs.option).to.have.been.calledThrice;
 		expect(yargs.usage).to.have.been.calledOnce;
 
-		expect(yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(yargs.epilogue).to.have.been.calledWith('(c)');
 		expect(yargs.option).to.have.been.calledWith('a', sinon.match.object);
 		expect(yargs.option).to.have.been.calledWith('d', sinon.match.object);
 		expect(yargs.option).to.have.been.calledWith('verbose', sinon.match.object);

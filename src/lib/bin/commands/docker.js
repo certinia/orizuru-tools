@@ -34,7 +34,7 @@ const
 	startServices = require('./docker/startServices'),
 	stopServices = require('./docker/stopServices'),
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+	constants = require('../constants/constants');
 
 module.exports = {
 	command: 'docker',
@@ -52,5 +52,5 @@ module.exports = {
 		.updateStrings({
 			'Commands:': 'Docker:'
 		})
-		.epilogue(COPYRIGHT_NOTICE)
+		.epilogue(constants.getCopyrightNotice())
 };

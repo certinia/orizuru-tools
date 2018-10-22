@@ -29,14 +29,14 @@
 const
 	service = require('../../../service/docker'),
 
-	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
+	constants = require('../../constants/constants');
 
 module.exports = {
 	command: 'list-services',
 	aliases: ['ls'],
 	desc: 'List all Docker services',
 	builder: (yargs) => yargs.usage('\nUsage: orizuru docker list-services [OPTIONS]')
-		.epilogue(COPYRIGHT_NOTICE)
+		.epilogue(constants.getCopyrightNotice())
 		.option('d', {
 			alias: 'debug',
 			describe: 'Turn on debug logging',

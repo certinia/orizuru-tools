@@ -33,7 +33,7 @@ const
 
 	yargs = require('yargs'),
 
-	COPYRIGHT_NOTICE = require('../../../../lib/bin/constants/constants').COPYRIGHT_NOTICE,
+	constants = require('../../../../lib/bin/constants/constants'),
 
 	service = require('../../../../lib/service/connectedApp'),
 	connectedAppCommands = require('../../../../lib/bin/commands/deploy/connectedApp'),
@@ -47,8 +47,12 @@ chai.use(sinonChai);
 describe('bin/commands/deploy/connectedApp.js', () => {
 
 	beforeEach(() => {
+
+		sinon.stub(constants, 'getCopyrightNotice').returns('(c)');
+
 		sinon.stub(yargs, 'epilogue').returnsThis();
 		sinon.stub(yargs, 'usage').returnsThis();
+
 	});
 
 	afterEach(() => {
@@ -66,7 +70,7 @@ describe('bin/commands/deploy/connectedApp.js', () => {
 		// then
 		expect(yargs.epilogue).to.have.been.calledOnce;
 
-		expect(yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(yargs.epilogue).to.have.been.calledWith('(c)');
 		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy connected-app');
 
 	});

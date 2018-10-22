@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2018, FinancialForce.com, inc
+ * Copyright (c) 2018, FinancialForce.com, inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,32 +27,44 @@
 'use strict';
 
 const
-	service = require('../../../service/docker'),
+	chai = require('chai'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
-	constants = require('../../constants/constants');
+	fs = require('fs-extra'),
 
-module.exports = {
-	command: 'stop-services',
-	aliases: ['stop', 'st'],
-	desc: 'Stops the selected Docker services',
-	builder: (yargs) => yargs.usage('\nUsage: orizuru docker stop-services [SERVICE] [OPTIONS]')
-		.option('a', {
-			alias: 'all',
-			describe: 'Stop all Docker services',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.option('d', {
-			alias: 'debug',
-			describe: 'Turn on debug logging',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.option('verbose', {
-			describe: 'Turn on all logging',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.epilogue(constants.getCopyrightNotice()),
-	handler: (argv) => service.stopServices({ argv })
-};
+	constants = require('../../../lib/bin/constants/constants'),
+
+	expect = chai.expect;
+
+chai.use(sinonChai);
+
+describe('bin/constants/constants.js', () => {
+
+	it('should return the copyright notice', () => {
+
+		// Given
+		// When
+		const result = constants.getCopyrightNotice();
+
+		// Then
+		expect(result).to.eql('Copyright (c) 2017-2018 FinancialForce.com, inc.  All rights reserved.');
+
+	});
+
+	it('should return the version', () => {
+
+		// Given
+		sinon.stub(fs, 'readJsonSync').returns({
+			version: '1.0.0'
+		});
+
+		// When
+		const result = constants.getVersion();
+
+		// Then
+		expect(result).to.eql('\nFinancialForceDev Orizuru\n\nVersion: 1.0.0\n\nCopyright (c) 2017-2018 FinancialForce.com, inc.  All rights reserved.\n');
+
+	});
+
+});

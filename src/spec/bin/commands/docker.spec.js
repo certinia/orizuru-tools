@@ -33,7 +33,7 @@ const
 
 	yargs = require('yargs'),
 
-	COPYRIGHT_NOTICE = require('../../../lib/bin/constants/constants').COPYRIGHT_NOTICE,
+	constants = require('../../../lib/bin/constants/constants'),
 
 	cli = require('../../../lib/bin/commands/docker'),
 
@@ -44,11 +44,15 @@ chai.use(sinonChai);
 describe('bin/commands/docker.js', () => {
 
 	beforeEach(() => {
+
+		sinon.stub(constants, 'getCopyrightNotice').returns('(c)');
+
 		sinon.stub(yargs, 'command').returnsThis();
 		sinon.stub(yargs, 'demandCommand').returnsThis();
 		sinon.stub(yargs, 'epilogue').returnsThis();
 		sinon.stub(yargs, 'updateStrings').returnsThis();
 		sinon.stub(yargs, 'usage').returnsThis();
+
 	});
 
 	afterEach(() => {
@@ -75,7 +79,7 @@ describe('bin/commands/docker.js', () => {
 		expect(yargs.epilogue).to.have.been.calledOnce;
 		expect(yargs.usage).to.have.been.calledOnce;
 
-		expect(yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(yargs.epilogue).to.have.been.calledWith('(c)');
 		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru docker COMMAND');
 
 	});

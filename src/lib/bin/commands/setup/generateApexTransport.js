@@ -29,7 +29,7 @@
 const
 	service = require('../../../service/generateApexTransport'),
 
-	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
+	constants = require('../../constants/constants');
 
 module.exports = {
 	command: 'generate-apex-transport [inputUrl] [outputUrl]',
@@ -37,6 +37,6 @@ module.exports = {
 	desc: 'Generates apex transport classes for .avsc files in a folder',
 	builder: (yargs) => yargs
 		.usage('\nUsage: orizuru setup generateapextransport [.avsc folder path] [apex class output path]')
-		.epilogue(COPYRIGHT_NOTICE),
+		.epilogue(constants.getCopyrightNotice()),
 	handler: (argv) => service.generateApexTransport({ argv })
 };

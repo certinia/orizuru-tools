@@ -26,13 +26,21 @@
 
 'use strict';
 
-const
-	version = require('../../../../package').version,
+const fs = require('fs-extra');
 
-	COPYRIGHT_NOTICE = 'Copyright (c) 2017-2018 FinancialForce.com, inc.  All rights reserved.',
-	VERSION = '\nFinancialForceDev Orizuru\n\nVersion: ' + version + '\n\n' + COPYRIGHT_NOTICE + '\n';
+function getCopyrightNotice() {
+	return 'Copyright (c) 2017-2018 FinancialForce.com, inc.  All rights reserved.';
+}
+
+function getVersion() {
+	const
+		packageJson = fs.readJsonSync(__dirname + '/../../../../package.json'),
+		version = packageJson.version;
+
+	return '\nFinancialForceDev Orizuru\n\nVersion: ' + version + '\n\n' + getCopyrightNotice() + '\n';
+}
 
 module.exports = {
-	COPYRIGHT_NOTICE,
-	VERSION
+	getCopyrightNotice,
+	getVersion
 };

@@ -29,27 +29,25 @@
 const
 	service = require('../../../service/deploy/certificate'),
 
-	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
+	constants = require('../../constants/constants');
 
 module.exports = {
 	command: 'certificate',
 	aliases: ['c'],
 	desc: 'Generates certificates',
-	builder: yargs => {
-		return yargs
-			.usage('\nUsage: orizuru deploy certificate [OPTIONS]')
-			.option('d', {
-				alias: 'debug',
-				describe: 'Turn on debug logging',
-				demandOption: false,
-				type: 'boolean'
-			})
-			.option('verbose', {
-				describe: 'Turn on all logging',
-				demandOption: false,
-				type: 'boolean'
-			})
-			.epilogue(COPYRIGHT_NOTICE);
-	},
+	builder: yargs => yargs
+		.usage('\nUsage: orizuru deploy certificate [OPTIONS]')
+		.option('d', {
+			alias: 'debug',
+			describe: 'Turn on debug logging',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.option('verbose', {
+			describe: 'Turn on all logging',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.epilogue(constants.getCopyrightNotice()),
 	handler: (argv) => service.generate({ argv })
 };

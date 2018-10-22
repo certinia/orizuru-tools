@@ -29,7 +29,7 @@
 const
 	deleteAll = require('./sfdx/deleteAll'),
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+	constants = require('../constants/constants');
 
 module.exports = {
 	command: 'sfdx',
@@ -41,5 +41,5 @@ module.exports = {
 		.updateStrings({
 			'Commands:': 'SFDX:'
 		})
-		.epilogue(COPYRIGHT_NOTICE)
+		.epilogue(constants.getCopyrightNotice())
 };
