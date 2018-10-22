@@ -26,10 +26,13 @@
 
 'use strict';
 
-const walk = require('./walk');
+const
+	path = require('path'),
+	walk = require('./walk');
 
 function getHandlers() {
-	return walk.walk('handler', '.js');
+	const handlerDirectory = path.resolve(__dirname, '../handler');
+	return walk.walk(handlerDirectory, '.js');
 }
 
 function publishHandler({ schemasAndHandler, publisherInstance }) {

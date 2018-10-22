@@ -80,6 +80,8 @@ describe('boilerplate/schema.js', () => {
 			// When
 			// Then
 			expect(schemas.getSchemas()).to.eql(expectedOutput);
+			expect(path.resolve).to.have.been.calledOnce;
+			expect(path.resolve).to.have.been.calledWithExactly(sinon.match.string, '../../schema');
 
 		});
 
@@ -109,6 +111,8 @@ describe('boilerplate/schema.js', () => {
 			// When
 			// Then
 			expect(schemas.getSchemas()).to.eql(expectedOutput);
+			expect(path.resolve).to.have.been.calledOnce;
+			expect(path.resolve).to.have.been.calledWithExactly(sinon.match.string, '../../schema');
 
 		});
 
@@ -139,9 +143,10 @@ describe('boilerplate/schema.js', () => {
 
 			sinon.stub(walk, 'walk').returns(testSchemas);
 
-			// When
 			// Then
 			expect(schemas.getSchemas()).to.eql(expectedOutput);
+			expect(path.resolve).to.have.been.calledOnce;
+			expect(path.resolve).to.have.been.calledWithExactly(sinon.match.string, '../../schema');
 
 		});
 

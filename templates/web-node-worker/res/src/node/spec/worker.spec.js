@@ -52,6 +52,7 @@ describe('worker.js', () => {
 		sinon.stub(transport, 'Transport').returns(transportStubInstance);
 
 		handlerStubInstance = sinon.createStubInstance(orizuru.Handler);
+		handlerStubInstance.init.resolves();
 		handlerStubInstance.on.returnsThis();
 		handlerStubInstance.handle.returns({});
 		sinon.stub(orizuru, 'Handler').returns(handlerStubInstance);
@@ -104,11 +105,11 @@ describe('worker.js', () => {
 
 		});
 
-		it('with the default options', () => {
+		it('with the default options', async () => {
 
 			// given
 			// when
-			require('../lib/worker');
+			await require('../lib/worker');
 
 			// then
 			expect(transport.Transport).to.have.been.calledOnce;
@@ -133,13 +134,13 @@ describe('worker.js', () => {
 
 		});
 
-		it('should create an orizuru handler with the specified options', () => {
+		it('should create an orizuru handler with the specified options', async () => {
 
 			// given
 			process.env.CLOUDAMQP_URL = 'testCloudAmqpUrl';
 
 			// when
-			require('../lib/worker');
+			await require('../lib/worker');
 
 			// then
 			expect(transport.Transport).to.have.been.calledOnce;
@@ -166,7 +167,7 @@ describe('worker.js', () => {
 
 	});
 
-	it('should not register a schema has no associated handler', () => {
+	it('should not register a schema has no associated handler', async () => {
 
 		// given
 		schemas.getSchemas.returns({
@@ -178,7 +179,7 @@ describe('worker.js', () => {
 		handlers.getHandlers.returns({});
 
 		// when
-		require('../lib/worker');
+		await require('../lib/worker');
 
 		// then
 		expect(orizuru.Handler).to.have.been.calledOnce;
@@ -190,7 +191,7 @@ describe('worker.js', () => {
 
 	});
 
-	it('should not register a handler a handler has no associated schema', () => {
+	it('should not register a handler a handler has no associated schema', async () => {
 
 		// given
 		schemas.getSchemas.returns({});
@@ -202,7 +203,7 @@ describe('worker.js', () => {
 		read.readHandler.returns({ name: 'api.test1.incoming.handler' });
 
 		// when
-		require('../lib/worker');
+		await require('../lib/worker');
 
 		// then
 		expect(orizuru.Handler).to.have.been.calledOnce;

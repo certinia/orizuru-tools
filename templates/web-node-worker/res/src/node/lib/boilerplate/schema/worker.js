@@ -58,7 +58,7 @@ const
 function getSchemas() {
 
 	const
-		schemaDirectory = path.resolve(__dirname, '../schema'),
+		schemaDirectory = path.resolve(__dirname, '../../schema'),
 		schemas = walk.walk(schemaDirectory, '.avsc');
 
 	return Object.entries(schemas).reduce((results, entry) => {

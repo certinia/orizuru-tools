@@ -31,6 +31,8 @@ const
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
+	path = require('path'),
+
 	walk = require('../../lib/boilerplate/walk'),
 
 	handlers = require('../../lib/boilerplate/handler'),
@@ -42,7 +44,8 @@ chai.use(sinonChai);
 describe('boilerplate/handler.js', () => {
 
 	beforeEach(() => {
-		sinon.stub(walk, 'walk').returns([]);
+		sinon.stub(path, 'resolve');
+		sinon.stub(walk, 'walk');
 	});
 
 	afterEach(() => {
@@ -54,9 +57,15 @@ describe('boilerplate/handler.js', () => {
 		it('should return all handlers in the handler folder', () => {
 
 			// Given
+			walk.walk.returns([]);
+
 			// When
+			const result = handlers.getHandlers();
+
 			// Then
-			expect(handlers.getHandlers()).to.eql([]);
+			expect(result).to.eql([]);
+			expect(path.resolve).to.have.been.calledOnce;
+			expect(path.resolve).to.have.been.calledWithExactly(sinon.match.string, '../handler');
 
 		});
 

@@ -84,40 +84,41 @@ Object.entries(handlers).forEach((entry) => {
 });
 
 // debug out errors and info
-handlerInstance.on(Handler.ERROR, debug.error);
-handlerInstance.on(Handler.INFO, debug.log);
+handlerInstance.on(Handler.ERROR, debug);
+handlerInstance.on(Handler.INFO, debug);
 
-// map tuples to handler handle promises and swallow any errors
-Promise.all(Object.entries(schemasAndHandlers).map((entry) => {
+module.exports = handlerInstance.init()
+	.then(() => Promise.all(Object.entries(schemasAndHandlers).map((entry) => {
 
-	const
-		fileName = entry.shift(),
-		schemasAndHandler = entry.shift();
+		const
+			fileName = entry.shift(),
+			schemasAndHandler = entry.shift();
 
-	if (!schemasAndHandler.schema) {
-		debug('no schema found for handler \'%s\'', fileName);
-		return null;
-	}
+		if (!schemasAndHandler.schema) {
+			debug('no schema found for handler \'%s\'', fileName);
+			return null;
+		}
 
-	if (!schemasAndHandler.handler) {
-		debug('no handler found for schema \'%s\'', fileName);
-		return null;
-	}
+		if (!schemasAndHandler.handler) {
+			debug('no handler found for schema \'%s\'', fileName);
+			return null;
+		}
 
-	let callback = schemasAndHandler.handler;
+		let callback = schemasAndHandler.handler;
 
-	if (schemasAndHandler.schema.outgoing) {
+		if (schemasAndHandler.schema.outgoing) {
 
-		callback = handler.publishHandler({
-			schemasAndHandler,
-			publisherInstance
+			callback = handler.publishHandler({
+				schemasAndHandler,
+				publisherInstance
+			});
+
+		}
+
+		return handlerInstance.handle({
+			schema: schemasAndHandler.schema.incoming,
+			handler: callback
 		});
 
-	}
+	})));
 
-	return handlerInstance.handle({
-		schema: schemasAndHandler.schema.incoming,
-		handler: callback
-	});
-
-}));
