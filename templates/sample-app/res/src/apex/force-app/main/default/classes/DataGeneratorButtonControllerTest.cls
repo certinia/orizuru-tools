@@ -22,7 +22,7 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 @isTest(SeeAllData=false)
 private class DataGeneratorButtonControllerTest
@@ -48,32 +48,32 @@ private class DataGeneratorButtonControllerTest
 	@IsTest
 	private static void getTaskStatus_withId_shouldReturnTaskComplete()
 	{
-		// given
+		// Given
 		String expectedResult = 'NOT STARTED';
 		
 		GenerateDataTask__c task = new GenerateDataTask__c();
 		insert task;
 
-		// when
+		// When
 		String result = DataGeneratorButtonController.getTaskStatus(task.id);
 
-		// then
+		// Then
 		System.assertEquals(expectedResult, result);
 	}
 
 	@IsTest
 	private static void sendInitialPlatformEvent_withId_shouldReturnSuccess()
 	{
-		// given
+		// Given
 		GenerateDataTask__c task = new GenerateDataTask__c();
 		insert task;
 
-		// when
+		// When
 		Test.startTest();
 		Boolean result = DataGeneratorButtonController.sendInitialPlatformEvent(task.id);
 		Test.stopTest();
 
-		// then
+		// Then
 		System.assertEquals(true, result);
 	}
 }

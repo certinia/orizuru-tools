@@ -22,7 +22,7 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 @isTest(SeeAllData=false)
 private class DeliveryRouteSelectorTest {
@@ -40,8 +40,8 @@ private class DeliveryRouteSelectorTest {
 		//Then
 		System.assertEquals(expected, actual);
 	}
-	
-	@IsTest
+    
+    @IsTest
 	private static void selectByIds_emptySet_emptyList()
 	{
 		//Given
@@ -54,8 +54,8 @@ private class DeliveryRouteSelectorTest {
 		//Then
 		System.assertEquals(expected, actual);
 	}
-	
-	@IsTest
+    
+    @IsTest
 	private static void selectByIds_setWithIdAndResults_resultsReturned()
 	{
 		//Given
@@ -69,20 +69,20 @@ private class DeliveryRouteSelectorTest {
 			new DeliveryRoute__c(DeliveryPlan__c = plans[0].Id),
 			new DeliveryRoute__c(DeliveryPlan__c = plans[1].Id)
 		};
-		insert routes;
+        insert routes;
 
 		DeliveryRouteSelector selector = DeliveryRouteSelector.newInstance();
 		
 		//When
-		DeliveryRoute__c[] actual = selector.selectByIds(new Set<Id>{
-			routes[0].Id
-		});
+        DeliveryRoute__c[] actual = selector.selectByIds(new Set<Id>{
+            routes[0].Id
+        });
 
 		//Then
 		System.assertEquals(1, actual.size());
 		System.assertEquals(actual[0].Id, routes[0].Id);
 	}
-	
+    
 	@IsTest
 	private static void selectByPlanIds_null_emptyList()
 	{
@@ -96,8 +96,8 @@ private class DeliveryRouteSelectorTest {
 		//Then
 		System.assertEquals(expected, actual);
 	}
-	
-	@IsTest
+    
+    @IsTest
 	private static void selectByPlanIds_emptySet_emptyList()
 	{
 		//Given
@@ -110,8 +110,8 @@ private class DeliveryRouteSelectorTest {
 		//Then
 		System.assertEquals(expected, actual);
 	}
-	
-	@IsTest
+    
+    @IsTest
 	private static void selectByPlanIds_setWithIdAndResults_resultsReturned()
 	{
 		//Given
@@ -125,18 +125,18 @@ private class DeliveryRouteSelectorTest {
 			new DeliveryRoute__c(DeliveryPlan__c = plans[0].Id),
 			new DeliveryRoute__c(DeliveryPlan__c = plans[1].Id)
 		};
-		insert routes;
+        insert routes;
 
 		DeliveryRouteSelector selector = DeliveryRouteSelector.newInstance();
 		
 		//When
-		DeliveryRoute__c[] actual = selector.selectByPlanIds(new Set<Id>{
-			plans[0].Id
-		});
+        DeliveryRoute__c[] actual = selector.selectByPlanIds(new Set<Id>{
+            plans[0].Id
+        });
 
 		//Then
 		System.assertEquals(1, actual.size());
 		System.assertEquals(actual[0].Id, routes[0].Id);
 	}
-	
+    
 }

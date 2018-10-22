@@ -22,28 +22,28 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 @isTest(SeeAllData=false)
 private class DeliveryWaypointControllerTest
 {
-	@isTest
-	static void calculateRoute_withId_callsGenerateUrl()
-	{
-		// Given
-		Id fakeId = 'a009E000006Fi28';
-		String expectedURL = 'testUrl';
-		
-		StubProvider mocks = new StubProvider();
-		DeliveryRouteService mockService = (DeliveryRouteService) mocks.mock(DeliveryRouteService.class);
-		DeliveryRouteService.instance = mockService;
+    @isTest
+    static void calculateRoute_withId_callsGenerateUrl()
+    {
+        // Given
+        Id fakeId = 'a009E000006Fi28';
+        String expectedURL = 'testUrl';
+        
+        StubProvider mocks = new StubProvider();
+        DeliveryRouteService mockService = (DeliveryRouteService) mocks.mock(DeliveryRouteService.class);
+        DeliveryRouteService.instance = mockService;
 
-		mocks.stub(mockService, 'generateUrl', new Type[]{id.class}, new Object[]{fakeId}, expectedURL);
-		
-		// When
-		String result = DeliveryWaypointController.calculateRoute(fakeId);
-		
-		// Then
-		System.assertEquals(expectedURL, result);
-	}  
+        mocks.stub(mockService, 'generateUrl', new Type[]{id.class}, new Object[]{fakeId}, expectedURL);
+        
+        // When
+        String result = DeliveryWaypointController.calculateRoute(fakeId);
+        
+        // Then
+        System.assertEquals(expectedURL, result);
+    }  
 }

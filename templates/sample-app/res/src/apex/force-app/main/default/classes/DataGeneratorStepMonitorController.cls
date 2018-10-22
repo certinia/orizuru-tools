@@ -22,14 +22,14 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 public with sharing class DataGeneratorStepMonitorController
 {
 	@AuraEnabled
-	public static String getTaskStatus(String id)
-	{
+    public static String getTaskStatus(String id)
+    {
 		GenerateDataTask__c gdt = [SELECT Id, TaskStatus__c FROM GenerateDataTask__c WHERE Id=:id LIMIT 1];
 		return gdt.TaskStatus__c;
-	}
+    }
 }

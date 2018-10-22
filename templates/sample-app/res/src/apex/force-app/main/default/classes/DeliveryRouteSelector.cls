@@ -22,46 +22,46 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 public with sharing class DeliveryRouteSelector
 {
-	@testVisible
-	private static DeliveryRouteSelector instance = null;
+    @testVisible
+    private static DeliveryRouteSelector instance = null;
 
-	public static DeliveryRouteSelector newInstance()
-	{
-		if (instance == null)
-		{
-			instance = new DeliveryRouteSelector();
-		}
+    public static DeliveryRouteSelector newInstance()
+    {
+        if (instance == null)
+        {
+            instance = new DeliveryRouteSelector();
+        }
 
-		return instance;
-	}
+        return instance;
+    }
 
-	public DeliveryRoute__c[] selectByIds(Set<Id> deliveryRouteIds)
-	{
-		if (deliveryRouteIds == null || deliveryRouteIds.size() == 0) {
-			return new List<DeliveryRoute__c>();
-		}
-		return [
-			SELECT Id, Name, DeliveryPlan__c, Vehicle__r.Id, Vehicle__r.Warehouse__r.Contact__r.MailingLatitude, Vehicle__r.Warehouse__r.Contact__r.MailingLongitude 
-			FROM DeliveryRoute__c 
-			WHERE Id IN :deliveryRouteIds
-		];
-	}
-	
+    public DeliveryRoute__c[] selectByIds(Set<Id> deliveryRouteIds)
+    {
+        if (deliveryRouteIds == null || deliveryRouteIds.size() == 0) {
+            return new List<DeliveryRoute__c>();
+        }
+        return [
+            SELECT Id, Name, DeliveryPlan__c, Vehicle__r.Id, Vehicle__r.Warehouse__r.Contact__r.MailingLatitude, Vehicle__r.Warehouse__r.Contact__r.MailingLongitude 
+            FROM DeliveryRoute__c 
+            WHERE Id IN :deliveryRouteIds
+        ];
+    }
+    
 	public DeliveryRoute__c[] selectByPlanIds(Set<Id> deliveryPlanIds)
-	{
-		if (deliveryPlanIds == null || deliveryPlanIds.size() == 0) {
-			return new List<DeliveryRoute__c>();
-		}
-		return [
-			SELECT Id, Name, DeliveryPlan__c, Vehicle__r.Id, Vehicle__r.Warehouse__r.Contact__r.MailingLatitude, Vehicle__r.Warehouse__r.Contact__r.MailingLongitude, Vehicle__r.Name, Vehicle__r.Warehouse__r.Name 
-			FROM DeliveryRoute__c 
-			WHERE DeliveryPlan__c IN :deliveryPlanIds
+    {
+        if (deliveryPlanIds == null || deliveryPlanIds.size() == 0) {
+            return new List<DeliveryRoute__c>();
+        }
+        return [
+            SELECT Id, Name, DeliveryPlan__c, Vehicle__r.Id, Vehicle__r.Warehouse__r.Contact__r.MailingLatitude, Vehicle__r.Warehouse__r.Contact__r.MailingLongitude, Vehicle__r.Name, Vehicle__r.Warehouse__r.Name 
+            FROM DeliveryRoute__c 
+            WHERE DeliveryPlan__c IN :deliveryPlanIds
 			ORDER BY Name
-		];
-	}
+        ];
+    }
 	
 }

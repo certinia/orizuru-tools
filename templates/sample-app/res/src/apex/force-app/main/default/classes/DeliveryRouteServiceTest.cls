@@ -22,7 +22,7 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 @isTest(SeeAllData=false)
 private class DeliveryRouteServiceTest
@@ -61,10 +61,10 @@ private class DeliveryRouteServiceTest
 		insert plan;
 
 		DeliveryRoute__c deliveryRoute = new DeliveryRoute__c(DeliveryPlan__c = plan.Id, Vehicle__c = vehicle.Id);
-		insert deliveryRoute;
+        insert deliveryRoute;
 
 		DeliveryWaypoint__c waypoint = new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = order.Id, WaypointNumber__c = 1);
-		insert waypoint;
+        insert waypoint;
 
 		DeliveryRouteService service = DeliveryRouteService.newInstance();
 
@@ -119,14 +119,14 @@ private class DeliveryRouteServiceTest
 		insert plan;
 
 		DeliveryRoute__c deliveryRoute = new DeliveryRoute__c(DeliveryPlan__c = plan.Id, Vehicle__c = vehicle.Id);
-		insert deliveryRoute;
+        insert deliveryRoute;
 		
 		DeliveryWaypoint__c[] waypoints = new DeliveryWaypoint__c[]{
-			new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = orders[0].Id, WaypointNumber__c = 1),
-			new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = orders[1].Id, WaypointNumber__c = 2),
+            new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = orders[0].Id, WaypointNumber__c = 1),
+            new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = orders[1].Id, WaypointNumber__c = 2),
 			new DeliveryWaypoint__c(DeliveryRoute__c = deliveryRoute.Id, Order__c = orders[2].Id, WaypointNumber__c = 3)
-		};
-		insert waypoints;
+        };
+        insert waypoints;
 
 		DeliveryRouteService service = DeliveryRouteService.newInstance();
 
@@ -136,5 +136,4 @@ private class DeliveryRouteServiceTest
 		//Then
 		System.assertEquals(expected, actual);
 	}
-
 }

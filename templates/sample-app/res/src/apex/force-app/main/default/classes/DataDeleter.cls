@@ -22,23 +22,23 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 public class DataDeleter 
 {
-	public static void deleteData()
-	{
-		Id userId = UserInfo.getUserId();
-		delete [SELECT Id FROM Vehicle__c];
-		delete [SELECT Id FROM VehicleType__c];
+    public static void deleteData()
+    {
+        Id userId = UserInfo.getUserId();
+        delete [SELECT Id FROM Vehicle__c];
+        delete [SELECT Id FROM VehicleType__c];
 		delete [SELECT Id FROM DeliveryWaypoint__c];
 		delete [SELECT Id FROM DeliveryRoute__c];
 		delete [SELECT Id FROM DeliveryPlan__c];
-		delete [SELECT Id FROM Order];
-		delete [SELECT Id FROM Warehouse__c];
+        delete [SELECT Id FROM Order];
+        delete [SELECT Id FROM Warehouse__c];
 		delete [SELECT Id FROM Product2];
-		delete [SELECT Id FROM Contact];
+        delete [SELECT Id FROM Contact];
 		delete [SELECT Id FROM Account];
 		delete [SELECT Id FROM GenerateDataTask__c];
-	}
+    }
 }

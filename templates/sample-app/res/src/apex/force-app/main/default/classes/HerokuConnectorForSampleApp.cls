@@ -22,7 +22,7 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 public class HerokuConnectorForSampleApp
 {
@@ -40,11 +40,12 @@ public class HerokuConnectorForSampleApp
 
 	public HttpResponse calculateRoute(String id)
 	{
-		return HerokuConnector.newInstance().post('callout:Orizuru/api/calculateRoutesForPlan', new OrizuruTransport.com_financialforce_orizuru_problem_avro_CalculateRoutesForPlan(id), UserInfo.getSessionId());
+		return HerokuConnector.newInstance().post('callout:Orizuru/api/calculateRoutesForPlan', new OrizuruTransport.com_financialforce_orizuru_problem_avro_calculateRoutesForPlan(id));
 	}
 
 	public HttpResponse generateData(String id)
 	{
-		return HerokuConnector.newInstance().post('callout:Orizuru/api/createData', new OrizuruTransport.com_financialforce_orizuru_problem_avro_createData(id), UserInfo.getSessionId());
+		return HerokuConnector.newInstance().post('callout:Orizuru/api/createData', new OrizuruTransport.com_financialforce_orizuru_problem_avro_createData(id));
 	}
+
 }

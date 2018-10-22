@@ -22,7 +22,7 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 @isTest(seeAllData=false)
 public class WaypointAPITest {
@@ -46,7 +46,7 @@ public class WaypointAPITest {
 
 	@isTest
 	private static void saveWaypoints_validWaypoints_Saves()
-	{
+    {
 	   	//Given
 		List<DeliveryWaypoint__c> routesToSave = ceateWaypointsToSave();
 
@@ -55,7 +55,7 @@ public class WaypointAPITest {
 
 		//Then
 		assertEquals(routesToSave, response);
-	}
+    }
 
 	private static void assertEquals(List<DeliveryWaypoint__c> expected, List<DeliveryWaypoint__c> actual)
 	{
@@ -80,20 +80,20 @@ public class WaypointAPITest {
 		Account account = new Account(Name='Account One');
 		insert account;
 
-		Contact contact = new Contact(FirstName = 'Contact', LastName = 'One', MailingLatitude = 1, MailingLongitude = 1);
+        Contact contact = new Contact(FirstName = 'Contact', LastName = 'One', MailingLatitude = 1, MailingLongitude = 1);
 		insert contact;
-		
-		Warehouse__c warehouse = new Warehouse__c(Contact__c = contact.Id);
+        
+        Warehouse__c warehouse = new Warehouse__c(Contact__c = contact.Id);
 		insert warehouse;     
-	
-		Order order = new Order(AccountId = account.Id, ShipToContactId = contact.Id, EffectiveDate = Date.newInstance(2017, 10, 1), Status = 'Draft');
-		insert order;  
+    
+        Order order = new Order(AccountId = account.Id, ShipToContactId = contact.Id, EffectiveDate = Date.newInstance(2017, 10, 1), Status = 'Draft');
+        insert order;  
 
-		VehicleType__c vtype = new VehicleType__c(name ='test');
+        VehicleType__c vtype = new VehicleType__c(name ='test');
 		insert vtype;
-		
-		Vehicle__c vehicle = new Vehicle__c(VehicleType__c = vtype.id, Warehouse__c = warehouse.id);
-		insert vehicle;
+        
+        Vehicle__c vehicle = new Vehicle__c(VehicleType__c = vtype.id, Warehouse__c = warehouse.id);
+        insert vehicle;
 
 		DeliveryPlan__c plan = new DeliveryPlan__c();
 		insert plan;
@@ -109,3 +109,4 @@ public class WaypointAPITest {
 		return waypoints;
 	}
 }
+

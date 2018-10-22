@@ -28,9 +28,9 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
+	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
 
 	expect = chai.expect,
 

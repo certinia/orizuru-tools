@@ -22,30 +22,30 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 @isTest(SeeAllData=false)
 private class RouteCalculationStepTriggerTest 
 {
-	@isTest static void routeCalculationStepTrigger_shouldUpdateDeliveryPlan() 
+    @isTest static void routeCalculationStepTrigger_shouldUpdateDeliveryPlan() 
 	{
-		DeliveryPlan__c plan = new DeliveryPlan__c();
+        DeliveryPlan__c plan = new DeliveryPlan__c();
 		insert plan;
-		RouteCalculationStep__e stepEvent = new RouteCalculationStep__e(SObjectId__c = plan.Id, 
-											 Severity__c = 'Info', 
-											 Messages__c = 'Route(s) Created',
+        RouteCalculationStep__e stepEvent = new RouteCalculationStep__e(SObjectId__c = plan.Id, 
+                                             Severity__c = 'Info', 
+                                             Messages__c = 'Route(s) Created',
 											 Status__c = 'COMPLETED');
-		
-		Test.startTest();
-		
-		Database.SaveResult sr = EventBus.publish(stepEvent);
-			
-		Test.stopTest();
+        
+        Test.startTest();
+        
+        Database.SaveResult sr = EventBus.publish(stepEvent);
+            
+        Test.stopTest();
 
-		System.assertEquals(true, sr.isSuccess());
-		
-		DeliveryPlan__c updatedPlan = [SELECT Id, PlanStatus__c FROM DeliveryPlan__c WHERE Id=:plan.Id LIMIT 1];
+        System.assertEquals(true, sr.isSuccess());
+        
+        DeliveryPlan__c updatedPlan = [SELECT Id, PlanStatus__c FROM DeliveryPlan__c WHERE Id=:plan.Id LIMIT 1];
 
-		System.assertEquals('COMPLETED', updatedPlan.PlanStatus__c);
-	}
+        System.assertEquals('COMPLETED', updatedPlan.PlanStatus__c);
+    }
 }

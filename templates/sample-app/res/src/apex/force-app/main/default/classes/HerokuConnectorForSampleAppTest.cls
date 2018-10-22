@@ -22,43 +22,42 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 @IsTest(SeeAllData=false)
 private class HerokuConnectorForSampleAppTest
 {
-	// TODO
-	/*@IsTest
+	@IsTest
 	private static void requestCalculateRoute_callsHerokuConnectorWithCorrectInfo()
 	{
-		// given
+		// Given
 		HTTPResponse result = new HTTPResponse();
 		HerokuConnectorMock connMock = new HerokuConnectorMock(result);
 		HerokuConnector.setMock((IHerokuConnector) connMock);
 		HerokuConnectorForSampleApp connector = HerokuConnectorForSampleApp.newInstance();
 
-		// when
+		// When
 		HTTPResponse resultFromCall = connector.calculateRoute('Test');
 
-		// then
+		// Then
 		System.assertEquals('callout:Orizuru/api/calculateRoutesForPlan', connMock.endpoint);
-		System.assertEquals(new OrizuruTransport.com_financialforce_orizuru_problem_avro_CalculateRoutesForPlan('Test').serialize(), connMock.transport.serialize());
+		System.assertEquals(new OrizuruTransport.com_financialforce_orizuru_problem_avro_calculateRoutesForPlan('Test').serialize(), connMock.transport.serialize());
 		System.assertEquals(result, resultFromCall);
 	}
 
 	@IsTest
 	private static void requestGenerateData_callsHerokuConnectorWithCorrectInfo()
 	{
-		// given
+		// Given
 		HTTPResponse result = new HTTPResponse();
 		HerokuConnectorMock connMock = new HerokuConnectorMock(result);
 		HerokuConnector.setMock((IHerokuConnector) connMock);
 		HerokuConnectorForSampleApp connector = HerokuConnectorForSampleApp.newInstance();
 
-		// when
+		// When
 		HTTPResponse resultFromCall = connector.generateData('Test');
 
-		// then
+		// Then
 		System.assertEquals('callout:Orizuru/api/createData', connMock.endpoint);
 		System.assertEquals(new OrizuruTransport.com_financialforce_orizuru_problem_avro_createData('Test').serialize(), connMock.transport.serialize());
 		System.assertEquals(result, resultFromCall);
@@ -81,6 +80,6 @@ private class HerokuConnectorForSampleAppTest
 			this.transport = transport;
 			return result;
 		}
-	}*/
+	}
 
 }

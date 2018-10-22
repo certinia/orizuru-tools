@@ -28,9 +28,9 @@
 
 const
 	chai = require('chai'),
+	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	chaiAsPromised = require('chai-as-promised'),
 
 	service = require('../../lib/handler/resultWriter'),
 

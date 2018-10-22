@@ -4,6 +4,9 @@
 		"web-node-worker"
 	],
 	"package": {
+		"devDependencies": {
+			"chai-as-promised": "^7.1.1"
+		},
 		"scripts": {
 			"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schema/api src/apex/force-app/main/default/classes",
 			"orizuru-post-init": "mvn clean install"

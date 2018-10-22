@@ -22,33 +22,34 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ **/
 
 public with sharing class DeliveryWaypointSelector
 {
-	@testVisible
-	private static DeliveryWaypointSelector instance = null;
+    @testVisible
+    private static DeliveryWaypointSelector instance = null;
 
-	public static DeliveryWaypointSelector newInstance()
-	{
-		if (instance == null)
-		{
-			instance = new DeliveryWaypointSelector();
-		}
+    public static DeliveryWaypointSelector newInstance()
+    {
+        if (instance == null)
+        {
+            instance = new DeliveryWaypointSelector();
+        }
 
-		return instance;
-	}
+        return instance;
+    }
 
-	public DeliveryWaypoint__c[] selectByDeliveryRouteIds(Set<Id> deliveryRouteIds)
-	{
-		if (deliveryRouteIds == null || deliveryRouteIds.size() == 0) {
-			return new List<DeliveryWaypoint__c>();
-		}
-		return [
-			SELECT Id, WaypointNumber__c, DeliveryRoute__c, Order__r.ShipToContact.MailingLongitude, Order__r.ShipToContact.MailingLatitude
-			FROM DeliveryWaypoint__c 
-			WHERE DeliveryRoute__c = :deliveryRouteIds
-			ORDER BY WaypointNumber__c ASC
-		];
-	}
+    public DeliveryWaypoint__c[] selectByDeliveryRouteIds(Set<Id> deliveryRouteIds)
+    {
+        if (deliveryRouteIds == null || deliveryRouteIds.size() == 0) {
+            return new List<DeliveryWaypoint__c>();
+        }
+        return [
+            SELECT Id, WaypointNumber__c, DeliveryRoute__c, Order__r.ShipToContact.MailingLongitude, Order__r.ShipToContact.MailingLatitude
+            FROM DeliveryWaypoint__c 
+            WHERE DeliveryRoute__c = :deliveryRouteIds
+            ORDER BY WaypointNumber__c ASC
+        ];
+    }
+	
 }

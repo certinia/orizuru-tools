@@ -27,10 +27,10 @@
 'use strict';
 
 const
-	sinon = require('sinon'),
 	chai = require('chai'),
-	sinonChai = require('sinon-chai'),
 	chaiAsPromised = require('chai-as-promised'),
+	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
 
