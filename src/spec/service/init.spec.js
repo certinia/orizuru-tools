@@ -72,7 +72,7 @@ describe('service/init.js', () => {
 
 		it('should call init functions in order', () => {
 
-			// when/then
+			// When/then
 			return expect(service.init({}))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -108,12 +108,12 @@ describe('service/init.js', () => {
 
 		it('should call logError function if there is an error and exit thr process', () => {
 
-			// given
+			// Given
 			const expectedError = new Error('errorTest');
 
 			template.select.rejects(expectedError);
 
-			// when/then
+			// When/then
 			return expect(service.init({}))
 				.to.eventually.be.fulfilled
 				.then(() => {

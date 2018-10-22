@@ -67,11 +67,11 @@ describe('bin/cli.js', () => {
 
 	it('should create the base cli', () => {
 
-		// given
-		// when
+		// Given
+		// When
 		require('../../lib/bin/cli');
 
-		// then
+		// Then
 		expect(yargs.alias).to.have.been.calledTwice;
 		expect(yargs.command).to.have.callCount(4);
 		expect(yargs.demandCommand).to.have.been.calledOnce;

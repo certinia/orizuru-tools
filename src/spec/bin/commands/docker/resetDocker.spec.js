@@ -61,7 +61,7 @@ describe('bin/commands/docker/resetDocker.js', () => {
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('reset-docker');
 		expect(cli.aliases).to.eql(['reset']);
 		expect(cli.desc).to.eql('Removes all Docker containers and images');
@@ -70,10 +70,10 @@ describe('bin/commands/docker/resetDocker.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
+		// When
 		cli.builder(yargs);
 
-		// then
+		// Then
 		expect(yargs.epilogue).to.have.been.calledOnce;
 		expect(yargs.option).to.have.been.calledTwice;
 		expect(yargs.usage).to.have.been.calledOnce;
@@ -87,17 +87,17 @@ describe('bin/commands/docker/resetDocker.js', () => {
 
 	it('should call the handler', () => {
 
-		// given
+		// Given
 		const
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
 		sinon.stub(service, 'reset');
 
-		// when
+		// When
 		cli.handler(expectedInput);
 
-		// then
+		// Then
 		expect(service.reset).to.have.been.calledOnce;
 		expect(service.reset).to.have.been.calledWith(expectedOutput);
 

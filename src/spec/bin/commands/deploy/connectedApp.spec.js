@@ -61,13 +61,13 @@ describe('bin/commands/deploy/connectedApp.js', () => {
 
 	it('should create the cli', () => {
 
-		// given
+		// Given
 		sinon.stub(service, 'create');
 
-		// when
+		// When
 		cli.builder(yargs);
 
-		// then
+		// Then
 		expect(yargs.epilogue).to.have.been.calledOnce;
 
 		expect(yargs.epilogue).to.have.been.calledWith('(c)');
@@ -77,15 +77,15 @@ describe('bin/commands/deploy/connectedApp.js', () => {
 
 	it('should have a handler that calls the connectedApp service', () => {
 
-		// given
+		// Given
 		const { handler } = connectedAppCommands;
 
 		sinon.stub(service, 'create');
 
-		// when
+		// When
 		handler('test');
 
-		// then
+		// Then
 		expect(service.create).to.have.been.calledOnce;
 		expect(service.create).to.have.been.calledWith({ argv: 'test' });
 

@@ -91,7 +91,7 @@ describe('service/deploy/properties.js', () => {
 			fs.readFile.resolves();
 			fs.writeFile.resolves();
 
-			// when - then
+			// When - Then
 			return expect(properties.updateProperties(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -142,7 +142,7 @@ describe('service/deploy/properties.js', () => {
 			fs.readFile.resolves(readOutput);
 			fs.writeFile.resolves();
 
-			// when - then
+			// When - Then
 			return expect(properties.updateProperties(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {

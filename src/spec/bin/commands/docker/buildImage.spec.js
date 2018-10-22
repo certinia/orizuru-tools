@@ -61,7 +61,7 @@ describe('bin/commands/docker/buildImage.js', () => {
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('build-image');
 		expect(cli.aliases).to.eql(['build', 'b', 'bi']);
 		expect(cli.desc).to.eql('Builds the selected Docker images');
@@ -70,10 +70,10 @@ describe('bin/commands/docker/buildImage.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
+		// When
 		cli.builder(yargs);
 
-		// then
+		// Then
 		expect(yargs.epilogue).to.have.been.calledOnce;
 		expect(yargs.option).to.have.been.calledThrice;
 		expect(yargs.usage).to.have.been.calledOnce;
@@ -88,17 +88,17 @@ describe('bin/commands/docker/buildImage.js', () => {
 
 	it('should call the handler', () => {
 
-		// given
+		// Given
 		const
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
 		sinon.stub(service, 'buildImage');
 
-		// when
+		// When
 		cli.handler(expectedInput);
 
-		// then
+		// Then
 		expect(service.buildImage).to.have.been.calledOnce;
 		expect(service.buildImage).to.have.been.calledWith(expectedOutput);
 

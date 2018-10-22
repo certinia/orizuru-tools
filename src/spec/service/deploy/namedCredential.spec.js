@@ -63,7 +63,7 @@ describe('service/deploy/namedCredential.js', () => {
 
 		it('should ask the correct questions', () => {
 
-			// given
+			// Given
 			const
 				expectedAnswers = {
 					name: 'test'
@@ -76,7 +76,7 @@ describe('service/deploy/namedCredential.js', () => {
 
 			inquirer.prompt.resolves(expectedAnswers);
 
-			// when - then
+			// When - Then
 			return expect(namedCredential.askQuestions({})).to.eventually.eql(expectedResults);
 
 		});
@@ -87,7 +87,7 @@ describe('service/deploy/namedCredential.js', () => {
 
 		it('should execute the correct commands', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					conn: sinon.stub(),
@@ -111,7 +111,7 @@ describe('service/deploy/namedCredential.js', () => {
 			expectedInput.conn.metadata.upsert = sinon.stub().resolves();
 			expectedInput.conn.metadata.read = sinon.stub().resolves();
 
-			// when - then
+			// When - Then
 			return expect(namedCredential.create(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {

@@ -55,14 +55,14 @@ describe('service/docker/docker', () => {
 
 		it('should handle no containers', () => {
 
-			// given
+			// Given
 			const expectedInput = {
 				docker: {
 					containers: []
 				}
 			};
 
-			// when/then
+			// When/then
 			return expect(docker.displayLogs(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -73,7 +73,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle one containers', () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId = '855da641126a',
 				expectedInput = {
@@ -95,7 +95,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedContainerId);
 
-			// when/then
+			// When/then
 			return expect(docker.displayLogs(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -107,7 +107,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle multiple containers', () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId1 = '855da641126a',
 				expectedContainerId2 = '6cd97630122b',
@@ -142,7 +142,7 @@ describe('service/docker/docker', () => {
 				.onFirstCall().resolves(expectedContainerId1)
 				.onSecondCall().resolves(expectedContainerId2);
 
-			// when/then
+			// When/then
 			return expect(docker.displayLogs(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -159,7 +159,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle no containers for an image', () => {
 
-			// given
+			// Given
 			const
 				expectedImageId = 'af9748170b0',
 				expectedInput = {
@@ -201,7 +201,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.findContainersForImage(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -213,7 +213,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle containers for an image', () => {
 
-			// given
+			// Given
 			const
 				expectedImageId = 'af9748170b0',
 				expectedInput = {
@@ -256,7 +256,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.findContainersForImage(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -272,7 +272,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle no dangling images', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -303,7 +303,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.findDanglingImages(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -315,7 +315,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle dangling images', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -351,7 +351,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.findDanglingImages(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -367,7 +367,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle no containers', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -398,7 +398,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.listContainers(true)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -410,7 +410,7 @@ describe('service/docker/docker', () => {
 
 		it('should return only the running containers if the only running option is set', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -444,7 +444,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.listContainers(true)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -456,7 +456,7 @@ describe('service/docker/docker', () => {
 
 		it('should return all containers if the only running option is not set', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -490,7 +490,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.listContainers(false)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -506,7 +506,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle no images', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -537,7 +537,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.listImages(true)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -549,7 +549,7 @@ describe('service/docker/docker', () => {
 
 		it('should return only the orizuru images with the only ffdc images option', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -583,7 +583,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.listImages(true)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -595,7 +595,7 @@ describe('service/docker/docker', () => {
 
 		it('should return all images without the only ffdc Images option', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -629,7 +629,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.listImages(false)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -645,14 +645,14 @@ describe('service/docker/docker', () => {
 
 		it('should handle no containers', () => {
 
-			// given
+			// Given
 			const expectedInput = {
 				docker: {
 					containers: []
 				}
 			};
 
-			// when/then
+			// When/then
 			return expect(docker.removeContainers(expectedInput))
 				.to.eventually.deep.equal(expectedInput)
 				.then(() => {
@@ -663,7 +663,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle one container', () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId = '855da641126a',
 				expectedInput = {
@@ -698,7 +698,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.removeContainers(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -710,7 +710,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle multiple containers', () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId1 = '855da641126a',
 				expectedContainerId2 = '6cd97630122b',
@@ -764,7 +764,7 @@ describe('service/docker/docker', () => {
 				.onFirstCall().resolves(expectedCommandOutput[0])
 				.onSecondCall().resolves(expectedCommandOutput[1]);
 
-			// when/then
+			// When/then
 			return expect(docker.removeContainers(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -781,14 +781,14 @@ describe('service/docker/docker', () => {
 
 		it('should handle no images', () => {
 
-			// given
+			// Given
 			const expectedInput = {
 				docker: {
 					images: []
 				}
 			};
 
-			// when/then
+			// When/then
 			return expect(docker.removeImages(expectedInput))
 				.to.eventually.deep.equal(expectedInput)
 				.then(() => {
@@ -799,7 +799,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle one image', () => {
 
-			// given
+			// Given
 			const
 				expectedImageId = '855da641126a',
 				expectedInput = {
@@ -834,7 +834,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.removeImages(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -846,7 +846,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle multiple images', () => {
 
-			// given
+			// Given
 			const
 				expectedImageId1 = '855da641126a',
 				expectedImageId2 = '6cd97630122b',
@@ -900,7 +900,7 @@ describe('service/docker/docker', () => {
 				.onFirstCall().resolves(expectedCommandOutput[0])
 				.onSecondCall().resolves(expectedCommandOutput[1]);
 
-			// when/then
+			// When/then
 			return expect(docker.removeImages(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -917,7 +917,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle no dangling images', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommandOutput = {
@@ -930,7 +930,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
+			// When/then
 			return expect(docker.removeDanglingImages(expectedInput))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -941,7 +941,7 @@ describe('service/docker/docker', () => {
 
 		it('should remove a single dangling image', () => {
 
-			// given
+			// Given
 			const
 				expectedImageId = '855da6411260',
 				expectedContainerId = 'b55da6411260',
@@ -982,7 +982,7 @@ describe('service/docker/docker', () => {
 				.onCall(3).resolves(expectedCommandOutput[1])
 				.onCall(4).resolves(expectedCommandOutput[0]);
 
-			// when/then
+			// When/then
 			return expect(docker.removeDanglingImages(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -997,14 +997,14 @@ describe('service/docker/docker', () => {
 
 		it('should handle no containers', () => {
 
-			// given
+			// Given
 			const expectedInput = {
 				docker: {
 					containers: []
 				}
 			};
 
-			// when/then
+			// When/then
 			return expect(docker.stopContainers(expectedInput))
 				.to.eventually.deep.equal(expectedInput)
 				.then(() => {
@@ -1015,7 +1015,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle one containers', () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId = '855da641126a',
 				expectedInput = {
@@ -1037,7 +1037,7 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedContainerId);
 
-			// when/then
+			// When/then
 			return expect(docker.stopContainers(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -1049,7 +1049,7 @@ describe('service/docker/docker', () => {
 
 		it('should handle multiple containers', () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId1 = '855da641126a',
 				expectedContainerId2 = '6cd97630122b',
@@ -1084,7 +1084,7 @@ describe('service/docker/docker', () => {
 				.onFirstCall().resolves(expectedContainerId1)
 				.onSecondCall().resolves(expectedContainerId2);
 
-			// when/then
+			// When/then
 			return expect(docker.stopContainers(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {

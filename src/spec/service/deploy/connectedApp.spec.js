@@ -76,7 +76,7 @@ describe('service/deploy/connectedApp.js', () => {
 
 		it('should ask the correct questions', () => {
 
-			// given
+			// Given
 			const
 				expectedAnswers = {
 					name: 'test',
@@ -90,7 +90,7 @@ describe('service/deploy/connectedApp.js', () => {
 
 			inquirer.prompt.resolves(expectedAnswers);
 
-			// when - then
+			// When - Then
 			return expect(connectedApp.askQuestions({})).to.eventually.eql(expectedResults);
 
 		});
@@ -101,7 +101,7 @@ describe('service/deploy/connectedApp.js', () => {
 
 		it('should execute the correct commands', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					conn: sinon.stub(),
@@ -128,7 +128,7 @@ describe('service/deploy/connectedApp.js', () => {
 			expectedInput.conn.metadata.upsert = sinon.stub().resolves();
 			expectedInput.conn.metadata.read = sinon.stub().resolves();
 
-			// when - then
+			// When - Then
 			return expect(connectedApp.create(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -144,7 +144,7 @@ describe('service/deploy/connectedApp.js', () => {
 
 		it('should navigate to the correct url', () => {
 
-			// given
+			// Given
 			const
 				expectedInstanceUrl = 'testInstance',
 				expectedInstallLink = '/testLink',
@@ -167,7 +167,7 @@ describe('service/deploy/connectedApp.js', () => {
 					}
 				};
 
-			// when - then
+			// When - Then
 			expect(connectedApp.install(expectedInput)).to.eql(expectedInput);
 
 		});
@@ -178,7 +178,7 @@ describe('service/deploy/connectedApp.js', () => {
 
 		it('should query the Salesforce org for the ConnectedApplications', () => {
 
-			// given
+			// Given
 			const
 				expectedRecords = {
 					records: [{
@@ -195,7 +195,7 @@ describe('service/deploy/connectedApp.js', () => {
 
 			connectionStub.query.resolves(expectedRecords);
 
-			// when - then
+			// When - Then
 			return expect(connectedApp.list({ conn: connectionStub }))
 				.to.eventually.eql(expectedResults);
 
@@ -207,7 +207,7 @@ describe('service/deploy/connectedApp.js', () => {
 
 		it('should create the installUrl for the connected app', () => {
 
-			// given
+			// Given
 			const
 				expectedConnectedAppId = 'testConnectedAppId',
 				expectedOutput = {
@@ -229,7 +229,7 @@ describe('service/deploy/connectedApp.js', () => {
 					`\nif (this.SfdcApp && this.SfdcApp.projectOneNavigator) { SfdcApp.projectOneNavigator.handleRedirect('/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=06P1D00000000Er&id=${expectedConnectedAppId}'); }  else \nif (window.location.replace){ \nwindow.location.replace('/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=06P1D00000000Er&id=${expectedConnectedAppId}');\n} else {;\nwindow.location.href ='/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=06P1D00000000Er&id=${expectedConnectedAppId}';\n} \n`
 				]);
 
-			// when then
+			// When then
 			return expect(connectedApp.generateInstallUrl({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -245,7 +245,7 @@ describe('service/deploy/connectedApp.js', () => {
 
 		it('should prompt the user to select a connecte app', () => {
 
-			// given
+			// Given
 			const
 				expectedConnectedAppId = 'testId',
 				expectedConnectedApp = {
@@ -292,7 +292,7 @@ describe('service/deploy/connectedApp.js', () => {
 			configFile.writeSetting.resolves(expectedOutput);
 			inquirer.prompt.resolves(expectedAnswers);
 
-			// when - then
+			// When - Then
 			return expect(connectedApp.select(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -307,7 +307,7 @@ describe('service/deploy/connectedApp.js', () => {
 
 		it('should execute the correct commands', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -344,7 +344,7 @@ describe('service/deploy/connectedApp.js', () => {
 
 			shell.executeCommands = sinon.stub().resolves({});
 
-			// when - then
+			// When - Then
 			return expect(connectedApp.updateHerokuConfigVariables(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {

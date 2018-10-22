@@ -61,7 +61,7 @@ describe('bin/commands/docker.js', () => {
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('docker');
 		expect(cli.aliases).to.eql(['dc']);
 		expect(cli.desc).to.eql('Executes Docker commands');
@@ -70,10 +70,10 @@ describe('bin/commands/docker.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
+		// When
 		cli.builder(yargs);
 
-		// then
+		// Then
 		expect(yargs.command).to.have.callCount(6);
 		expect(yargs.demandCommand).to.have.been.calledOnce;
 		expect(yargs.epilogue).to.have.been.calledOnce;

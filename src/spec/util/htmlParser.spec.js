@@ -45,14 +45,14 @@ describe('util/htmlParser.js', () => {
 
 		it('should parse the scripts from a html page ', () => {
 
-			// given
+			// Given
 			const
 				html = '<html><body><p>test</p><script>test script</script></body></html>',
 
-				// when
+				// When
 				scripts = htmlParser.parseScripts({ html });
 
-			// then
+			// Then
 			expect(scripts).to.eql(['test script']);
 
 		});

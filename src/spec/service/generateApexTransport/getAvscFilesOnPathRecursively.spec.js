@@ -66,7 +66,7 @@ describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () =>
 
 		it('should call klawSync and process results', () => {
 
-			// given
+			// Given
 			const
 				expected = [{
 					file: 'potato',
@@ -80,7 +80,7 @@ describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () =>
 					sharedPath: 'd/e'
 				}];
 
-			// when - then
+			// When - Then
 			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively(startPath)).to.eql(expected);
 
 			expect(mocks.klawSync).to.have.been.calledOnce;

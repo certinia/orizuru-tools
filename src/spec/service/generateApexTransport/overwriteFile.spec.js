@@ -55,7 +55,7 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 
 		it('should call fs.writeFile with the correct params', () => {
 
-			// given
+			// Given
 			const
 				path = 'a',
 				file = 'b',
@@ -64,7 +64,7 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 
 			fs.writeFile.resolves(expected);
 
-			// when - then
+			// When - Then
 			return expect(overwriteFile(path, file, content))
 				.to.eventually.eql(expected)
 				.then(() => {

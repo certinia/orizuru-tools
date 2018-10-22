@@ -61,7 +61,7 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('generate-apex-transport [inputUrl] [outputUrl]');
 		expect(cli.aliases).to.eql(['gat']);
 		expect(cli.desc).to.eql('Generates apex transport classes for .avsc files in a folder');
@@ -70,10 +70,10 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
+		// When
 		cli.builder(yargs);
 
-		// then
+		// Then
 		expect(yargs.epilogue).to.have.been.calledOnce;
 		expect(yargs.usage).to.have.been.calledOnce;
 
@@ -84,17 +84,17 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 
 	it('should call the handler', () => {
 
-		// given
+		// Given
 		const
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
 		sinon.stub(service, 'generateApexTransport');
 
-		// when
+		// When
 		cli.handler(expectedInput);
 
-		// then
+		// Then
 		expect(service.generateApexTransport).to.have.been.calledOnce;
 		expect(service.generateApexTransport).to.have.been.calledWith(expectedOutput);
 

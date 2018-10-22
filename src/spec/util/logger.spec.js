@@ -55,15 +55,15 @@ describe('util/logger.js', () => {
 
 		it('should log out the message provided', () => {
 
-			// given
+			// Given
 			const
 				message = 'test',
 				expectedMessage = message + '\n';
 
-			// when
+			// When
 			logger.log(message);
 
-			// then
+			// Then
 			expect(process.stdout.write).to.have.been.calledOnce;
 			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
@@ -71,30 +71,30 @@ describe('util/logger.js', () => {
 
 		it('should not log out the message if silent mode is enabled', () => {
 
-			// given
+			// Given
 			const message = 'test';
 
-			// when
+			// When
 			logger.log(message, { silent: true });
 
-			// then
+			// Then
 			expect(process.stdout.write).to.not.have.been.called;
 
 		});
 
 		it('should log out each line of a messsage array', () => {
 
-			// given
+			// Given
 			const
 				line1 = 'test',
 				line2 = 'test2',
 				message = ['test', 'test2'],
 				expectedMessage = line1 + '\n' + line2 + '\n';
 
-			// when
+			// When
 			logger.log(message);
 
-			// then
+			// Then
 			expect(process.stdout.write).to.have.been.calledOnce;
 			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
@@ -106,16 +106,16 @@ describe('util/logger.js', () => {
 
 		it('should log out the error message', () => {
 
-			// given
+			// Given
 			const
 				expectedError = 'error',
 				expectedMessage = expectedError + '\n\n',
 				error = new Error(expectedError);
 
-			// when
+			// When
 			logger.logError(error);
 
-			// then
+			// Then
 			expect(process.stdout.write).to.have.been.calledOnce;
 			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
@@ -127,15 +127,15 @@ describe('util/logger.js', () => {
 
 		it('should log out the message provided', () => {
 
-			// given
+			// Given
 			const
 				message = 'test',
 				expectedMessage = message + '\n';
 
-			// when
+			// When
 			logger.logEvent(message)();
 
-			// then
+			// Then
 			expect(process.stdout.write).to.have.been.calledOnce;
 			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
@@ -147,28 +147,28 @@ describe('util/logger.js', () => {
 
 		it('should not log out undefined', () => {
 
-			// given
+			// Given
 			const message = undefined;
 
-			// when
+			// When
 			logger.logFinish(message)();
 
-			// then
+			// Then
 			expect(process.stdout.write).to.not.have.been.called;
 
 		});
 
 		it('should log out the message provided', () => {
 
-			// given
+			// Given
 			const
 				message = 'test',
 				expectedMessage = message + '\n\n';
 
-			// when
+			// When
 			logger.logFinish(message)();
 
-			// then
+			// Then
 			expect(process.stdout.write).to.have.been.calledOnce;
 			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
@@ -180,15 +180,15 @@ describe('util/logger.js', () => {
 
 		it('should log out the message provided with a new line at the end', () => {
 
-			// given
+			// Given
 			const
 				message = 'test',
 				expectedMessage = message + '\n\n';
 
-			// when
+			// When
 			logger.logLn(message);
 
-			// then
+			// Then
 			expect(process.stdout.write).to.have.been.calledOnce;
 			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
@@ -200,15 +200,15 @@ describe('util/logger.js', () => {
 
 		it('should log out the message provided with a new line at the start and end', () => {
 
-			// given
+			// Given
 			const
 				message = 'test',
 				expectedMessage = '\n' + message + '\n';
 
-			// when
+			// When
 			logger.logLns(message);
 
-			// then
+			// Then
 			expect(process.stdout.write).to.have.been.calledOnce;
 			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 
@@ -220,28 +220,28 @@ describe('util/logger.js', () => {
 
 		it('should not log out undefined', () => {
 
-			// given
+			// Given
 			const message = undefined;
 
-			// when
+			// When
 			logger.logStart(message)();
 
-			// then
+			// Then
 			expect(process.stdout.write).to.not.have.been.called;
 
 		});
 
 		it('should log out the message provided', () => {
 
-			// given
+			// Given
 			const
 				message = 'test',
 				expectedMessage = '\n' + message + '\n';
 
-			// when
+			// When
 			logger.logStart(message)();
 
-			// then
+			// Then
 			expect(process.stdout.write).to.have.been.calledOnce;
 			expect(process.stdout.write).to.have.been.calledWith(expectedMessage);
 

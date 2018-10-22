@@ -56,7 +56,7 @@ describe('service/deploy/shared/connection.js', () => {
 
 		it('should create a jsforce connection', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					parameters: {
@@ -71,10 +71,10 @@ describe('service/deploy/shared/connection.js', () => {
 					}
 				},
 
-				// when
+				// When
 				result = connection.create(expectedInput);
 
-			// then
+			// Then
 			expect(result).to.eql({
 				conn: connectionStub,
 				parameters: expectedInput.parameters

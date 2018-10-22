@@ -100,9 +100,9 @@ describe('service/deploy.js', () => {
 
 	describe('apex', () => {
 
-		it('should call the correct functions', () => {
+		it('should call the correct functions', async () => {
 
-			// given
+			// Given
 			const expectedInput = {
 				argv: {
 					apex: true,
@@ -125,51 +125,48 @@ describe('service/deploy.js', () => {
 				}
 			};
 
-			// when - then
-			return expect(service.run(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
+			// When
+			await service.run(expectedInput);
 
-					expect(certificate.getOrCreate).to.have.been.calledOnce;
+			// Then
+			expect(certificate.getOrCreate).to.have.been.calledOnce;
 
-					expect(configFile.readSettings).to.have.been.calledOnce;
+			expect(configFile.readSettings).to.have.been.calledOnce;
 
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logEvent).to.have.callCount(5);
-					expect(logger.logFinish).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logEvent).to.have.callCount(5);
+			expect(logger.logFinish).to.have.been.calledOnce;
 
-					expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
-					expect(sfdx.deploy).to.have.been.calledOnce;
-					expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
-					expect(sfdx.login).to.have.been.calledOnce;
-					expect(sfdx.openOrg).to.have.been.calledOnce;
-					expect(sfdx.readSfdxYaml).to.have.been.calledOnce;
-					expect(sfdx.select).to.have.been.calledOnce;
+			expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
+			expect(sfdx.deploy).to.have.been.calledOnce;
+			expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
+			expect(sfdx.login).to.have.been.calledOnce;
+			expect(sfdx.openOrg).to.have.been.calledOnce;
+			expect(sfdx.readSfdxYaml).to.have.been.calledOnce;
+			expect(sfdx.select).to.have.been.calledOnce;
 
-					expect(conn.create).to.not.have.been.called;
+			expect(conn.create).to.not.have.been.called;
 
-					expect(connectedApp.askQuestions).to.not.have.been.called;
-					expect(connectedApp.create).to.not.have.been.called;
-					expect(connectedApp.updateHerokuConfigVariables).to.not.have.been.called;
+			expect(connectedApp.askQuestions).to.not.have.been.called;
+			expect(connectedApp.create).to.not.have.been.called;
+			expect(connectedApp.updateHerokuConfigVariables).to.not.have.been.called;
 
-					expect(heroku.checkHerokuCliInstalled).to.not.have.been.called;
-					expect(heroku.getAllApps).to.not.have.been.called;
-					expect(heroku.select).to.not.have.been.called;
-					expect(heroku.readAppJson).to.not.have.been.called;
-					expect(heroku.addBuildpacks).to.not.have.been.called;
-					expect(heroku.addFormation).to.not.have.been.called;
-					expect(heroku.addAddOns).to.not.have.been.called;
-					expect(heroku.checkWorkingChanges).to.not.have.been.called;
-					expect(heroku.deployCurrentBranch).to.not.have.been.called;
+			expect(heroku.checkHerokuCliInstalled).to.not.have.been.called;
+			expect(heroku.getAllApps).to.not.have.been.called;
+			expect(heroku.select).to.not.have.been.called;
+			expect(heroku.readAppJson).to.not.have.been.called;
+			expect(heroku.addBuildpacks).to.not.have.been.called;
+			expect(heroku.addFormation).to.not.have.been.called;
+			expect(heroku.addAddOns).to.not.have.been.called;
+			expect(heroku.checkWorkingChanges).to.not.have.been.called;
+			expect(heroku.deployCurrentBranch).to.not.have.been.called;
 
-					expect(namedCredential.askQuestions).to.not.have.been.called;
-					expect(namedCredential.create).to.not.have.been.called;
+			expect(namedCredential.askQuestions).to.not.have.been.called;
+			expect(namedCredential.create).to.not.have.been.called;
 
-					expect(properties.updateProperties).to.not.have.been.called;
+			expect(properties.updateProperties).to.not.have.been.called;
 
-					expect(sfdx.display).to.not.have.been.called;
-
-				});
+			expect(sfdx.display).to.not.have.been.called;
 
 		});
 
@@ -177,9 +174,9 @@ describe('service/deploy.js', () => {
 
 	describe('full', () => {
 
-		it('should call the correct functions', () => {
+		it('should call the correct functions', async () => {
 
-			// given
+			// Given
 			const expectedInput = {
 				argv: {
 					silent: true
@@ -201,50 +198,47 @@ describe('service/deploy.js', () => {
 				}
 			};
 
-			// when - then
-			return expect(service.run(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
+			// When
+			await service.run(expectedInput);
 
-					expect(certificate.getOrCreate).to.have.been.calledOnce;
+			// Then
+			expect(certificate.getOrCreate).to.have.been.calledOnce;
 
-					expect(configFile.readSettings).to.have.been.calledOnce;
+			expect(configFile.readSettings).to.have.been.calledOnce;
 
-					expect(conn.create).to.have.been.calledOnce;
+			expect(conn.create).to.have.been.calledOnce;
 
-					expect(connectedApp.askQuestions).to.have.been.calledOnce;
-					expect(connectedApp.create).to.have.been.calledOnce;
-					expect(connectedApp.updateHerokuConfigVariables).to.have.been.calledOnce;
+			expect(connectedApp.askQuestions).to.have.been.calledOnce;
+			expect(connectedApp.create).to.have.been.calledOnce;
+			expect(connectedApp.updateHerokuConfigVariables).to.have.been.calledOnce;
 
-					expect(heroku.checkHerokuCliInstalled).to.have.been.calledOnce;
-					expect(heroku.getAllApps).to.have.been.calledOnce;
-					expect(heroku.select).to.have.been.calledOnce;
-					expect(heroku.readAppJson).to.have.been.calledOnce;
-					expect(heroku.addBuildpacks).to.have.been.calledOnce;
-					expect(heroku.addFormation).to.have.been.calledOnce;
-					expect(heroku.addAddOns).to.have.been.calledOnce;
-					expect(heroku.checkWorkingChanges).to.have.been.calledOnce;
-					expect(heroku.deployCurrentBranch).to.have.been.calledOnce;
+			expect(heroku.checkHerokuCliInstalled).to.have.been.calledOnce;
+			expect(heroku.getAllApps).to.have.been.calledOnce;
+			expect(heroku.select).to.have.been.calledOnce;
+			expect(heroku.readAppJson).to.have.been.calledOnce;
+			expect(heroku.addBuildpacks).to.have.been.calledOnce;
+			expect(heroku.addFormation).to.have.been.calledOnce;
+			expect(heroku.addAddOns).to.have.been.calledOnce;
+			expect(heroku.checkWorkingChanges).to.have.been.calledOnce;
+			expect(heroku.deployCurrentBranch).to.have.been.calledOnce;
 
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logEvent).to.have.callCount(17);
-					expect(logger.logFinish).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logEvent).to.have.callCount(17);
+			expect(logger.logFinish).to.have.been.calledOnce;
 
-					expect(namedCredential.askQuestions).to.have.been.calledOnce;
-					expect(namedCredential.create).to.have.been.calledOnce;
+			expect(namedCredential.askQuestions).to.have.been.calledOnce;
+			expect(namedCredential.create).to.have.been.calledOnce;
 
-					expect(properties.updateProperties).to.have.been.calledOnce;
+			expect(properties.updateProperties).to.have.been.calledOnce;
 
-					expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
-					expect(sfdx.deploy).to.have.been.calledOnce;
-					expect(sfdx.display).to.have.been.calledOnce;
-					expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
-					expect(sfdx.login).to.have.been.calledOnce;
-					expect(sfdx.openOrg).to.have.been.calledOnce;
-					expect(sfdx.readSfdxYaml).to.have.been.calledOnce;
-					expect(sfdx.select).to.have.been.calledOnce;
-
-				});
+			expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
+			expect(sfdx.deploy).to.have.been.calledOnce;
+			expect(sfdx.display).to.have.been.calledOnce;
+			expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
+			expect(sfdx.login).to.have.been.calledOnce;
+			expect(sfdx.openOrg).to.have.been.calledOnce;
+			expect(sfdx.readSfdxYaml).to.have.been.calledOnce;
+			expect(sfdx.select).to.have.been.calledOnce;
 
 		});
 

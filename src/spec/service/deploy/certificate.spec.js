@@ -68,12 +68,12 @@ describe('service/deploy/certificate.js', () => {
 
 		it('should check that the OpenSSL is installed', () => {
 
-			// given
+			// Given
 			const expectedCommand = { cmd: 'openssl', args: ['version'] };
 
 			shell.executeCommand = sinon.stub().resolves('OpenSSL 0.9.8zh 14 Jan 2016');
 
-			// when - then
+			// When - Then
 			return expect(certificate.checkOpenSSLInstalled({}))
 				.to.eventually.eql({})
 				.then(() => {
@@ -89,7 +89,7 @@ describe('service/deploy/certificate.js', () => {
 
 		it('should execute the correct commands', () => {
 
-			// given
+			// Given
 			const
 				expectedSslCommands = [{
 					cmd: 'openssl',
@@ -124,7 +124,7 @@ describe('service/deploy/certificate.js', () => {
 				command1: { stdout: 'privateKey' }
 			});
 
-			// when - then
+			// When - Then
 			return expect(certificate.generate({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -141,7 +141,7 @@ describe('service/deploy/certificate.js', () => {
 
 		it('should generate certificate', () => {
 
-			// given
+			// Given
 			const
 				expectedSslCommands = [{
 					cmd: 'openssl',
@@ -179,7 +179,7 @@ describe('service/deploy/certificate.js', () => {
 				command1: { stdout: 'privateKey' }
 			});
 
-			// when - then
+			// When - Then
 			return expect(certificate.getOrCreate({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -193,7 +193,7 @@ describe('service/deploy/certificate.js', () => {
 
 		it('should not generate certificate when it already exists', () => {
 
-			// given
+			// Given
 			const
 
 				expectedReadCommands = [
@@ -212,7 +212,7 @@ describe('service/deploy/certificate.js', () => {
 				command1: { stdout: 'privateKey' }
 			});
 
-			// when - then
+			// When - Then
 			return expect(certificate.getOrCreate({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {

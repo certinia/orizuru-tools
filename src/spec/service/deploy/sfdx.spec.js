@@ -82,12 +82,12 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should check that SFDX is installed', () => {
 
-			// given
+			// Given
 			const expectedCommand = { cmd: 'sfdx', args: ['version'] };
 
 			shell.executeCommand.resolves('sfdx-cli/6.0.13-a52f73c (darwin-x64) node-v8.6.0');
 
-			// when - then
+			// When - Then
 			return expect(sfdx.checkSfdxInstalled({}))
 				.to.eventually.eql({})
 				.then(() => {
@@ -103,14 +103,14 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should return the config if the folder exists', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = 'test',
 				expectedCommand = { cmd: 'cd', args: ['.sfdx'] };
 
 			shell.executeCommand.resolves();
 
-			// when - then
+			// When - Then
 			return expect(sfdx.checkSfdxFolderExists(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -122,7 +122,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should call the login function if the folder does not exist', () => {
 
-			// given
+			// Given
 			const
 				expectedUsername = 'test@financialforce.com',
 				expectedInput = {},
@@ -141,7 +141,7 @@ describe('service/deploy/sfdx.js', () => {
 			shell.executeCommand.onCall(1).resolves(expectedLoginResult);
 			config.writeSetting.resolves(expectedOutput);
 
-			// when - then
+			// When - Then
 			return expect(sfdx.checkSfdxFolderExists(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -160,14 +160,14 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should return the config if the folder exists', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = 'test',
 				expectedCommand = { cmd: 'cat', args: ['sfdx-project.json'] };
 
 			shell.executeCommand.resolves();
 
-			// when - then
+			// When - Then
 			return expect(sfdx.checkSfdxProjectFileExists(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -179,7 +179,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should ask the user if they want to create the default file if it doesn\'t exist (user confirms)', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = { cmd: 'cat', args: ['sfdx-project.json'] };
@@ -188,7 +188,7 @@ describe('service/deploy/sfdx.js', () => {
 			shell.executeCommand.rejects();
 			fs.writeJson.resolves();
 
-			// when - then
+			// When - Then
 			return expect(sfdx.checkSfdxProjectFileExists(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -200,7 +200,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should ask the user if they want to create the default file if it doesn\'t exist (user rejects)', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = { cmd: 'cat', args: ['sfdx-project.json'] };
@@ -209,7 +209,7 @@ describe('service/deploy/sfdx.js', () => {
 			shell.executeCommand.rejects();
 			fs.writeJson.resolves();
 
-			// when - then
+			// When - Then
 			return expect(sfdx.checkSfdxProjectFileExists(expectedInput))
 				.to.eventually.be.rejected
 				.then(() => {
@@ -225,7 +225,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should create the default scratch org definition file if it does nto exist', () => {
 
-			// given
+			// Given
 			const
 				expectedUsername = 'test-ki9yknei6emv@orizuru.net',
 				expectedHubUsername = 'dev-hub@orizuru.net',
@@ -252,7 +252,7 @@ describe('service/deploy/sfdx.js', () => {
 				stdout: `{"result":{"username":"${expectedUsername}"}}`
 			});
 
-			// when - then
+			// When - Then
 			return expect(sfdx.createNewScratchOrg(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -265,7 +265,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should create a new scratch org', () => {
 
-			// given
+			// Given
 			const
 				expectedUsername = 'test-ki9yknei6emv@orizuru.net',
 				expectedHubUsername = 'dev-hub@orizuru.net',
@@ -297,7 +297,7 @@ describe('service/deploy/sfdx.js', () => {
 				stdout: `{"result":{"username":"${expectedUsername}"}}`
 			});
 
-			// when - then
+			// When - Then
 			return expect(sfdx.createNewScratchOrg(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -313,11 +313,11 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should execute the correct commands', () => {
 
-			// given
+			// Given
 			shell.executeCommand = sinon.stub().resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
 			shell.executeCommands = sinon.stub().resolves({});
 
-			// when - then
+			// When - Then
 			return expect(sfdx.deleteAllScratchOrgs({}))
 				.to.eventually.eql({})
 				.then(() => {
@@ -333,7 +333,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should execute the correct commands', () => {
 
-			// given
+			// Given
 			const
 				expectedUsername = 'test',
 				expectedPermset = 'OrizuruAdmin',
@@ -383,7 +383,7 @@ describe('service/deploy/sfdx.js', () => {
 				command3: { stdout: '{"command3Out":"testing"}' }
 			});
 
-			// when - then
+			// When - Then
 			return expect(sfdx.deploy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -398,7 +398,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should execute the correct commands', () => {
 
-			// given
+			// Given
 			const
 				expectedScratchOrgUsername = 'testUsername',
 				expectedInput = {
@@ -427,7 +427,7 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand.resolves({ stdout: '{"result":{"accessToken":"00Dd0000004aIWe!ARoAQMU1KjrCMZVbSxrPd8xQe5vxktUdTWllFWKM5C05KsVT817.uKkVQZdVm4xC22rknAb5G0SdBp4GsKfWBXcZsUFv_PFa","instanceUrl":"https://random-velocity-3672-dev-ed.cs16.my.salesforce.com"}}' });
 
-			// when - then
+			// When - Then
 			return expect(sfdx.display(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -442,7 +442,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should execute the correct commands', () => {
 
-			// given
+			// Given
 			const
 				expectedCommand = { cmd: 'sfdx', args: ['force:org:list', '--json'] },
 				expectedOutput = {
@@ -455,7 +455,7 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand.resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
 
-			// when - then
+			// When - Then
 			return expect(sfdx.getAllScratchOrgs({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -470,7 +470,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should login to the SFDX dev hub', () => {
 
-			// given
+			// Given
 			const
 				expectedUsername = 'test@financialforce.com',
 				expectedCommand = { cmd: 'sfdx', args: ['force:auth:web:login', '-s', '--json'] },
@@ -486,7 +486,7 @@ describe('service/deploy/sfdx.js', () => {
 			config.writeSetting.resolves(expectedOutput);
 			shell.executeCommand.resolves(expectedLoginResult);
 
-			// when - then
+			// When - Then
 			return expect(sfdx.login({}))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -500,7 +500,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should use the Orizuru config file to get the dev hub if the file exists', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					orizuru: {
@@ -526,7 +526,7 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand = sinon.stub();
 
-			// when - then
+			// When - Then
 			return expect(sfdx.login(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -541,7 +541,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should execute the correct commands', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					parameters: {
@@ -557,7 +557,7 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand.resolves({});
 
-			// when - then
+			// When - Then
 			return expect(sfdx.openOrg(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -572,7 +572,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should create the default yaml file if it is not found', () => {
 
-			// given
+			// Given
 			const expectedOutput = {
 				sfdx: {
 					yaml: {
@@ -589,7 +589,7 @@ describe('service/deploy/sfdx.js', () => {
 			fs.readFile.rejects();
 			fs.outputFile.resolves();
 
-			// when - then
+			// When - Then
 			return expect(sfdx.readSfdxYaml({}))
 				.to.eventually.eql(expectedOutput);
 
@@ -597,7 +597,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should execute the correct commands', () => {
 
-			// given
+			// Given
 			const expectedOutput = {
 				sfdx: {
 					yaml: {
@@ -613,7 +613,7 @@ describe('service/deploy/sfdx.js', () => {
 
 			fs.readFile.resolves('scratch-org-def: src/apex/config/project-scratch-def.json\nassign-permset: true\npermset-name: OrizuruAdmin\nrun-apex-tests: true\ndelete-scratch-org: false\nshow-scratch-org-url: true\n');
 
-			// when - then
+			// When - Then
 			return expect(sfdx.readSfdxYaml({}))
 				.to.eventually.eql(expectedOutput);
 
@@ -625,7 +625,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should prompt the user to select the SFDX scratch org application without a new app option', () => {
 
-			// given
+			// Given
 			const
 				expectedScratchOrgUsername = 'testUsername',
 				expectedInput = {
@@ -653,7 +653,7 @@ describe('service/deploy/sfdx.js', () => {
 			inquirer.prompt.resolves(expectedAnswer);
 			config.writeSetting.resolves(expectedOutput);
 
-			// when - then
+			// When - Then
 			return expect(sfdx.select(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -664,7 +664,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should prompt the user to select the SFDX scratch org application with a new app option', () => {
 
-			// given
+			// Given
 			const
 				expectedScratchOrgUsername = 'testUsername',
 				expectedInput = {
@@ -702,7 +702,7 @@ describe('service/deploy/sfdx.js', () => {
 			config.writeSetting.resolves(expectedOutput);
 			inquirer.prompt.resolves(expectedAnswer);
 
-			// when - then
+			// When - Then
 			return expect(sfdx.select(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -714,7 +714,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should prompt the user to select the SFDX scratch org with a new app option and create a new app if that option is chosen', () => {
 
-			// given
+			// Given
 			const
 				expectedScratchOrgUsername = 'testUsername',
 				expectedHubUsername = 'dev-hub@orizuru.net',
@@ -770,7 +770,7 @@ describe('service/deploy/sfdx.js', () => {
 			shell.executeCommand.resolves({ stdout: '{"result": {"username": "test" }}' });
 			config.writeSetting.resolves(expectedOutput);
 
-			// when - then
+			// When - Then
 			return expect(sfdx.select(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -782,7 +782,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		it('should default to the SFDX org provided in the Orizuru config', () => {
 
-			// given
+			// Given
 			const
 				expectedScratchOrgUsername = 'testUsername1',
 				expectedScratchOrgUsername2 = 'testUsername2',
@@ -848,7 +848,7 @@ describe('service/deploy/sfdx.js', () => {
 			inquirer.prompt.resolves(expectedAnswer);
 			config.writeSetting.resolves(expectedOutput);
 
-			// when - then
+			// When - Then
 			return expect(sfdx.select(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {

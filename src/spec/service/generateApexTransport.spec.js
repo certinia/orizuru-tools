@@ -79,7 +79,7 @@ describe('service/generateApexTransport.js', () => {
 
 		it('should log error if input url not supplied', () => {
 
-			// given
+			// Given
 			const input = {};
 
 			//when - then
@@ -93,14 +93,14 @@ describe('service/generateApexTransport.js', () => {
 
 		it('should log error if output url not supplied', () => {
 
-			// given
+			// Given
 			const input = {
 				argv: {
 					inputUrl: 'test'
 				}
 			};
 
-			// when - then
+			// When - Then
 			return expect(service.generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.logger.logError).to.have.been.calledOnce;
@@ -111,7 +111,7 @@ describe('service/generateApexTransport.js', () => {
 
 		it('should search for .avsc files in input path and log error if search throws', () => {
 
-			// given
+			// Given
 			const
 				input = {
 					argv: {
@@ -123,7 +123,7 @@ describe('service/generateApexTransport.js', () => {
 
 			mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively.throws(expectedError);
 
-			// when - then
+			// When - Then
 			return expect(service.generateApexTransport(input))
 				.to.be.fulfilled
 				.then(() => {
@@ -137,7 +137,7 @@ describe('service/generateApexTransport.js', () => {
 
 		it('should deserialize schemas and log if deserialize fails', () => {
 
-			// given
+			// Given
 			const input = {
 				argv: {
 					inputUrl: 'inputTest',
@@ -149,7 +149,7 @@ describe('service/generateApexTransport.js', () => {
 				file: 'a'
 			}]);
 
-			// when - then
+			// When - Then
 			return expect(service.generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
@@ -162,7 +162,7 @@ describe('service/generateApexTransport.js', () => {
 
 		it('should generate apex transport and log if generate fails', () => {
 
-			// given
+			// Given
 			const
 				input = {
 					argv: {
@@ -177,7 +177,7 @@ describe('service/generateApexTransport.js', () => {
 			}]);
 			mocks.generate.generate.throws(expectedError);
 
-			// when - then
+			// When - Then
 			return expect(service.generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
@@ -192,7 +192,7 @@ describe('service/generateApexTransport.js', () => {
 
 		it('should save generated apex transport and log if save fails', () => {
 
-			// given
+			// Given
 			const
 				input = {
 					argv: {
@@ -211,7 +211,7 @@ describe('service/generateApexTransport.js', () => {
 			});
 			mocks.overwriteFile.throws(expectedError);
 
-			// when - then
+			// When - Then
 			return expect(service.generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
@@ -228,7 +228,7 @@ describe('service/generateApexTransport.js', () => {
 
 		it('should save generated apex transport and log complete if save succeeds', () => {
 
-			// given
+			// Given
 			const input = {
 				argv: {
 					inputUrl: 'inputTest',
@@ -245,7 +245,7 @@ describe('service/generateApexTransport.js', () => {
 			});
 			mocks.overwriteFile.resolves(true);
 
-			// when - then
+			// When - Then
 			return expect(service.generateApexTransport(input)).to.be.fulfilled
 				.then(() => {
 					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;

@@ -57,19 +57,19 @@ function schemaToJson(path) {
 
 function testError(inputFiles, errorMsg) {
 
-	// given
+	// Given
 	const input = [];
 
 	_.each(inputFiles, inputFile => input.push(schemaToJson(inputPath(inputFile))));
 
-	// when - then
+	// When - Then
 	expect(() => generate(input)).to.throw(errorMsg);
 
 }
 
 function testSuccess(inputFiles, outputFile) {
 
-	// given
+	// Given
 	const
 		input = [],
 		outputCls = read(outputPath(outputFile)),
@@ -78,7 +78,7 @@ function testSuccess(inputFiles, outputFile) {
 
 	_.each(inputFiles, inputFile => input.push(schemaToJson(inputPath(inputFile))));
 
-	// when - then
+	// When - Then
 
 	_.each(generate(input).cls.split('\n'), (line, index) => {
 		expect(line).to.eql(outputClsLines[index], 'Mismatch line: ' + (index + 1) + ' File: ' + outputFile);

@@ -65,7 +65,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should create the add-ons specified in the app.json, filtering out existing addons', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -103,7 +103,7 @@ describe('service/deploy/heroku.js', () => {
 			});
 			shell.executeCommands = sinon.stub().resolves();
 
-			// when - then
+			// When - Then
 			return expect(heroku.addAddOns(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -119,7 +119,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should add the build packs specified in the app.json', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -153,7 +153,7 @@ describe('service/deploy/heroku.js', () => {
 
 			shell.executeCommands = sinon.stub().resolves();
 
-			// when - then
+			// When - Then
 			return expect(heroku.addBuildpacks(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -168,7 +168,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should add the dyno formation specified in the app.json', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -207,7 +207,7 @@ describe('service/deploy/heroku.js', () => {
 
 			shell.executeCommands = sinon.stub().resolves();
 
-			// when - then
+			// When - Then
 			return expect(heroku.addFormation(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -222,12 +222,12 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should check that the Heroku CLI is installed', () => {
 
-			// given
+			// Given
 			const expectedCommand = { cmd: 'heroku', args: ['version'] };
 
 			shell.executeCommand = sinon.stub().resolves('heroku-toolbelt/3.43.9999 (x86_64-darwin10.8.0) ruby/1.9.3\nheroku-cli/6.14.36-15f8a25 (darwin-x64) node-v8.7.0');
 
-			// when - then
+			// When - Then
 			return expect(heroku.checkHerokuCliInstalled({}))
 				.to.eventually.eql({})
 				.then(() => {
@@ -243,7 +243,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should create a new Heroku app', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -258,7 +258,7 @@ describe('service/deploy/heroku.js', () => {
 
 			shell.executeCommand = sinon.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });
 
-			// when - then
+			// When - Then
 			return expect(heroku.createNewApp(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -274,7 +274,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should create a new Heroku app in the expected organization', () => {
 
-			// given
+			// Given
 			const
 				expectedTeam = 'research',
 				expectedAppName = 'rocky-shore-45862',
@@ -293,7 +293,7 @@ describe('service/deploy/heroku.js', () => {
 			inquirer.prompt = sinon.stub().resolves({ heroku: { organization: expectedTeam } });
 			shell.executeCommand = sinon.stub().withArgs(expectedAppCommand).resolves({ stdout: `{"name":"${expectedAppName}"}` });
 
-			// when - then
+			// When - Then
 			return expect(heroku.createNewOrganizationApp(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -310,7 +310,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should resolve if there are working changes and the user responds yes to prompt', () => {
 
-			// given
+			// Given
 			const
 				shellOutput = {
 					stdout: ':100644 100644 a65538bf48cb14f8cb616072be2a7ecbd0d30a9e 0000000000000000000000000000000000000000 M\tpath/to/file/file.js'
@@ -320,7 +320,7 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 			inquirer.prompt = sinon.stub().resolves({ ignoreChanges: true });
 
-			// when - then
+			// When - Then
 			return expect(heroku.checkWorkingChanges({}))
 				.to.eventually.eql({})
 				.then(() => {
@@ -331,7 +331,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should reject if there are working changes and the user responds no to prompt', () => {
 
-			// given
+			// Given
 			const
 				shellOutput = {
 					stdout: ':100644 100644 a65538bf48cb14f8cb616072be2a7ecbd0d30a9e 0000000000000000000000000000000000000000 M\tpath/to/file/file.js'
@@ -341,7 +341,7 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 			inquirer.prompt = sinon.stub().resolves({ ignoreChanges: false });
 
-			// when - then
+			// When - Then
 			return expect(heroku.checkWorkingChanges({}))
 				.to.eventually.be.rejectedWith('Aborting deploy due to uncomitted changes')
 				.then(() => {
@@ -352,7 +352,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should resolve if there are no working changes', () => {
 
-			// given
+			// Given
 			const
 				shellOutput = {
 					stdout: ''
@@ -361,7 +361,7 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().resolves();
 			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 
-			// when - then
+			// When - Then
 			return expect(heroku.checkWorkingChanges({}))
 				.to.eventually.eql({})
 				.then(() => {
@@ -374,7 +374,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should deploy the current branch to Heroku', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -403,7 +403,7 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().resolves();
 			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] }).resolves({ stdout: 'master' });
 
-			// when - then
+			// When - Then
 			return expect(heroku.deployCurrentBranch(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -422,7 +422,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should get all the current Heroku apps', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -439,7 +439,7 @@ describe('service/deploy/heroku.js', () => {
 
 			shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
 
-			// when - then
+			// When - Then
 			return expect(heroku.getAllApps(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -455,7 +455,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should read the app.json file', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -486,14 +486,14 @@ describe('service/deploy/heroku.js', () => {
 
 			fs.readJson.resolves({ name: 'rocky-shore-45862' });
 
-			// when - then
+			// When - Then
 			return expect(heroku.readAppJson(expectedInput)).to.eventually.eql(expectedOutput);
 
 		});
 
 		it('should throw an error if app.json doesn\'t exist', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -508,7 +508,7 @@ describe('service/deploy/heroku.js', () => {
 
 			fs.readJson.rejects(new Error('test'));
 
-			// when - then
+			// When - Then
 			return expect(heroku.readAppJson(expectedInput)).to.eventually.be.rejectedWith('app.json is required in the root of your project when deploying to heroku.');
 
 		});
@@ -519,7 +519,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should prompt the user to select the Heroku application without a new app option', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -553,7 +553,7 @@ describe('service/deploy/heroku.js', () => {
 			inquirer.prompt.resolves(expectedAnswer);
 			config.writeSetting.resolves();
 
-			// when - then
+			// When - Then
 			return expect(heroku.select(expectedInput))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -565,7 +565,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should prompt the user to select the Heroku application with a new app option', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
@@ -604,7 +604,7 @@ describe('service/deploy/heroku.js', () => {
 			inquirer.prompt.resolves(expectedAnswer);
 			config.writeSetting.resolves();
 
-			// when - then
+			// When - Then
 			return expect(heroku.select(expectedInput))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -616,7 +616,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should prompt the user to select the Heroku application with a new app option and create a new app if that option is chosen', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
@@ -654,7 +654,7 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
 			config.writeSetting.resolves();
 
-			// when - then
+			// When - Then
 			return expect(heroku.select(expectedInput))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -667,7 +667,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should prompt the user to select the Heroku application with a new app option and create a new team app if that option is chosen', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
@@ -705,7 +705,7 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
 			config.writeSetting.resolves();
 
-			// when - then
+			// When - Then
 			return expect(heroku.select(expectedInput))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -718,7 +718,7 @@ describe('service/deploy/heroku.js', () => {
 
 		it('should default to the Heroku org provided in the Orizuru config', () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedAppName2 = 'rocky-shore-45861',
@@ -766,7 +766,7 @@ describe('service/deploy/heroku.js', () => {
 
 			inquirer.prompt.resolves(expectedAnswer);
 
-			// when - then
+			// When - Then
 			return expect(heroku.select(expectedInput))
 				.to.eventually.be.fulfilled
 				.then(() => {

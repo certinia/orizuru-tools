@@ -65,7 +65,7 @@ describe('service/init/template.js', () => {
 
 	it('should use the template from the command line argument if the provided template exists', () => {
 
-		// given
+		// Given
 		const
 			expectedTemplate = 'example-template',
 			config = {
@@ -115,7 +115,7 @@ describe('service/init/template.js', () => {
 
 	it('should prompt the user for the template if the template provided from the command line does not exist', () => {
 
-		// given
+		// Given
 		const
 			expectedTemplate = 'example-template',
 			config = {
@@ -171,7 +171,7 @@ describe('service/init/template.js', () => {
 
 	it('should read any extension configuration files', () => {
 
-		// given
+		// Given
 		const
 			expectedTemplate = 'example-template',
 			config = {},

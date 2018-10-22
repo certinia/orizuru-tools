@@ -65,10 +65,10 @@ describe('bin/commands/deploy.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
+		// When
 		cli.builder(yargs);
 
-		// then
+		// Then
 		expect(yargs.command).to.have.been.calledTwice;
 		expect(yargs.epilogue).to.have.been.calledOnce;
 		expect(yargs.options).to.have.callCount(6);
@@ -83,7 +83,7 @@ describe('bin/commands/deploy.js', () => {
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('deploy');
 		expect(cli.aliases).to.eql(['d']);
 		expect(cli.desc).to.eql('Executes Deployment commands');
@@ -92,15 +92,15 @@ describe('bin/commands/deploy.js', () => {
 
 	it('should have a handler that calls the init service', () => {
 
-		// given
+		// Given
 		const { handler } = deployCommand;
 
 		sinon.stub(service, 'run');
 
-		// when
+		// When
 		handler('test');
 
-		// then
+		// Then
 		expect(service.run).to.have.been.calledOnce;
 		expect(service.run).to.have.been.calledWith({ argv: 'test' });
 

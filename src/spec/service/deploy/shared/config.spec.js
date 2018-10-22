@@ -57,7 +57,7 @@ describe('service/deploy/shared/config.js', () => {
 
 		it('should create the Orizuru config file', () => {
 
-			// given
+			// Given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
 				expectedOutput = {
@@ -68,7 +68,7 @@ describe('service/deploy/shared/config.js', () => {
 			fs.mkdirp.resolves();
 			fs.writeJson.resolves();
 
-			// when - then
+			// When - Then
 			return expect(configFile.createFile())
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -84,7 +84,7 @@ describe('service/deploy/shared/config.js', () => {
 
 		it('should create the Orizuru config file if the file does not exist', () => {
 
-			// given
+			// Given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
 				expectedOutput = {
@@ -98,7 +98,7 @@ describe('service/deploy/shared/config.js', () => {
 			fs.writeJson.resolves();
 			fs.readJson.rejects();
 
-			// when - then
+			// When - Then
 			return expect(configFile.readSettings())
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -111,7 +111,7 @@ describe('service/deploy/shared/config.js', () => {
 
 		it('should read the Orizuru config file if the file exists', () => {
 
-			// given
+			// Given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
 				expectedOutput = {
@@ -124,7 +124,7 @@ describe('service/deploy/shared/config.js', () => {
 			fs.mkdirp.resolves();
 			fs.readJson.resolves({});
 
-			// when - then
+			// When - Then
 			return expect(configFile.readSettings())
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -140,7 +140,7 @@ describe('service/deploy/shared/config.js', () => {
 
 		it('should create the Orizuru config file if the file does not exist and write the setting', () => {
 
-			// given
+			// Given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
 				expectedOutput = {
@@ -156,7 +156,7 @@ describe('service/deploy/shared/config.js', () => {
 			fs.writeJson.resolves();
 			fs.readJson.rejects();
 
-			// when - then
+			// When - Then
 			return expect(configFile.writeSetting({}, 'test', 'test'))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -169,7 +169,7 @@ describe('service/deploy/shared/config.js', () => {
 
 		it('should add the setting if the file exist', () => {
 
-			// given
+			// Given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
 				expectedreadJsonOutput = {
@@ -191,7 +191,7 @@ describe('service/deploy/shared/config.js', () => {
 			fs.writeJson.resolves();
 			fs.readJson.resolves(expectedreadJsonOutput);
 
-			// when - then
+			// When - Then
 			return expect(configFile.writeSetting({}, 'test2.test3', 'test'))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {

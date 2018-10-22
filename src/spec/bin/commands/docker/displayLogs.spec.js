@@ -61,7 +61,7 @@ describe('bin/commands/docker/displayLogs.js', () => {
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('display-logs');
 		expect(cli.aliases).to.eql(['logs']);
 		expect(cli.desc).to.eql('Display logs for the selected Docker containers');
@@ -70,10 +70,10 @@ describe('bin/commands/docker/displayLogs.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
+		// When
 		cli.builder(yargs);
 
-		// then
+		// Then
 		expect(yargs.epilogue).to.have.been.calledOnce;
 		expect(yargs.option).to.have.been.calledThrice;
 		expect(yargs.usage).to.have.been.calledOnce;
@@ -88,17 +88,17 @@ describe('bin/commands/docker/displayLogs.js', () => {
 
 	it('should call the handler', () => {
 
-		// given
+		// Given
 		const
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
 		sinon.stub(service, 'displayLogs');
 
-		// when
+		// When
 		cli.handler(expectedInput);
 
-		// then
+		// Then
 		expect(service.displayLogs).to.have.been.calledOnce;
 		expect(service.displayLogs).to.have.been.calledWith(expectedOutput);
 

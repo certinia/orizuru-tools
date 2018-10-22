@@ -68,7 +68,7 @@ describe('service/init/packageJson.js', () => {
 
 		it('should use the default package.json if the command line arguments useDefaults option is set', () => {
 
-			// given
+			// Given
 			const
 				argv = {
 					useDefaults: true
@@ -89,17 +89,17 @@ describe('service/init/packageJson.js', () => {
 					'package': expectedPackageJson
 				};
 
-			// when
+			// When
 			expect(packageJson.askQuestions(expectedInput)).to.eql(expectedOutput);
 
-			// then
+			// Then
 			expect(inquirer.prompt).to.not.have.been.called;
 
 		});
 
 		it('should prompt the user if the command line arguments useDefaults option is not set', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedPackageJson = {
@@ -116,7 +116,7 @@ describe('service/init/packageJson.js', () => {
 
 			inquirer.prompt.resolves(expectedOutput);
 
-			// when - then
+			// When - Then
 			return expect(packageJson.askQuestions(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -131,7 +131,7 @@ describe('service/init/packageJson.js', () => {
 
 		it('should build the package.json from the config', () => {
 
-			// given
+			// Given
 			const
 				expectedPackageJson = {
 					name: '@financialforcedev/orizuru-tools',
@@ -165,7 +165,7 @@ describe('service/init/packageJson.js', () => {
 					selectedTemplate
 				};
 
-			// when - then
+			// When - Then
 			expect(packageJson.build(expectedInput)).to.eql(expectedOutput);
 
 		});
@@ -176,7 +176,7 @@ describe('service/init/packageJson.js', () => {
 
 		it('should create the package.json file', () => {
 
-			// given
+			// Given
 			const
 				argv = {
 					useDefaults: true
@@ -203,7 +203,7 @@ describe('service/init/packageJson.js', () => {
 			fs.readJson.resolves({});
 			fs.writeJson.resolves(expectedPackageJson);
 
-			// when - then
+			// When - Then
 			return expect(packageJson.create(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -218,7 +218,7 @@ describe('service/init/packageJson.js', () => {
 
 		it('should read the package.json file and add the contents to the config', () => {
 
-			// given
+			// Given
 			const
 				expectedPackageJson = {
 					name: '@financialforcedev/orizuru-tools',
@@ -235,7 +235,7 @@ describe('service/init/packageJson.js', () => {
 
 			fs.readJson.resolves(expectedPackageJson);
 
-			// when - then
+			// When - Then
 			return expect(packageJson.read(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -252,7 +252,7 @@ describe('service/init/packageJson.js', () => {
 
 		it('should write the config.package property to the package.json file', () => {
 
-			// given
+			// Given
 			const
 				expectedPackageJson = {
 					name: '@financialforcedev/orizuru-tools',
@@ -272,7 +272,7 @@ describe('service/init/packageJson.js', () => {
 
 			fs.writeJson.resolves(expectedPackageJson);
 
-			// when - then
+			// When - Then
 			return expect(packageJson.write(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {

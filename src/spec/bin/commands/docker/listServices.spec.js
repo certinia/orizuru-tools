@@ -61,7 +61,7 @@ describe('bin/commands/docker/listServices.js', () => {
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('list-services');
 		expect(cli.aliases).to.eql(['ls']);
 		expect(cli.desc).to.eql('List all Docker services');
@@ -70,10 +70,10 @@ describe('bin/commands/docker/listServices.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
+		// When
 		cli.builder(yargs);
 
-		// then
+		// Then
 		expect(yargs.epilogue).to.have.been.calledOnce;
 		expect(yargs.option).to.have.been.calledTwice;
 		expect(yargs.usage).to.have.been.calledOnce;
@@ -87,17 +87,17 @@ describe('bin/commands/docker/listServices.js', () => {
 
 	it('should call the handler', () => {
 
-		// given
+		// Given
 		const
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
 		sinon.stub(service, 'listServices');
 
-		// when
+		// When
 		cli.handler(expectedInput);
 
-		// then
+		// Then
 		expect(service.listServices).to.have.been.calledOnce;
 		expect(service.listServices).to.have.been.calledWith(expectedOutput);
 

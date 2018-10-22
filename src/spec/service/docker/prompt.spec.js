@@ -53,12 +53,12 @@ describe('service/docker/prompt.js', () => {
 
 		it('should throw an error for no services', () => {
 
-			// given
+			// Given
 			const
 				expectedMessage = 'testMessage',
 				expectedInput = {};
 
-			// when/then
+			// When/then
 			expect(() => prompt.getServicesForProcess(expectedMessage)(expectedInput))
 				.to.throw('No services found');
 
@@ -66,7 +66,7 @@ describe('service/docker/prompt.js', () => {
 
 		it('should convert a services array to an object', () => {
 
-			// given
+			// Given
 			const
 				expectedMessage = 'testMessage',
 				expectedServiceName = 'testService',
@@ -88,14 +88,14 @@ describe('service/docker/prompt.js', () => {
 					}
 				};
 
-			// when/then
+			// When/then
 			expect(prompt.getServicesForProcess(expectedMessage)(expectedInput)).to.eql(expectedOutput);
 
 		});
 
 		it('should create the inquirer prompts for the given services', () => {
 
-			// given
+			// Given
 			const
 				expectedMessage = 'testMessage',
 				expectedServiceName = 'testService',
@@ -125,7 +125,7 @@ describe('service/docker/prompt.js', () => {
 
 			inquirer.prompt.resolves(expectedAnswer);
 
-			// when/then
+			// When/then
 			return expect(prompt.getServicesForProcess(expectedMessage)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -136,7 +136,7 @@ describe('service/docker/prompt.js', () => {
 
 		it('should handle the all option', () => {
 
-			// given
+			// Given
 			const
 				expectedMessage = 'testMessage',
 				expectedServiceName = 'testService',
@@ -160,17 +160,17 @@ describe('service/docker/prompt.js', () => {
 					}
 				},
 
-				// when
+				// When
 				services = prompt.getServicesForProcess(expectedMessage)(expectedInput);
 
-			// then
+			// Then
 			expect(services).to.eql(expectedOutput);
 
 		});
 
 		it('should throw an error if no service is found', () => {
 
-			// given
+			// Given
 			const
 				expectedMessage = 'testMessage',
 				expectedServiceName = 'testService',
@@ -181,7 +181,7 @@ describe('service/docker/prompt.js', () => {
 					}
 				};
 
-			// when/then
+			// When/then
 			expect(() => prompt.getServicesForProcess(expectedMessage)(expectedInput))
 				.to.throw('Service not found: ' + expectedServiceName);
 

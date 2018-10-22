@@ -39,7 +39,7 @@ describe('util/questions.js', () => {
 
 		it('should return the config for an input field', () => {
 
-			// when/then
+			// When/then
 			expect(questions.checkboxField('a', 'b', 'c', 'd')).to.eql({
 				type: 'checkbox',
 				message: 'a',
@@ -56,7 +56,7 @@ describe('util/questions.js', () => {
 
 		it('should return the config for an input field', () => {
 
-			// when/then
+			// When/then
 			expect(questions.confirmField('a', 'b', 'c', 'd')).to.eql({
 				type: 'confirm',
 				message: 'a',
@@ -73,7 +73,7 @@ describe('util/questions.js', () => {
 
 		it('should return the config for an input field', () => {
 
-			// when/then
+			// When/then
 			expect(questions.inputField('a', 'b', 'c', 'd')).to.eql({
 				type: 'input',
 				message: 'a',
@@ -90,7 +90,7 @@ describe('util/questions.js', () => {
 
 		it('should return the config for an input field', () => {
 
-			// when/then
+			// When/then
 			expect(questions.listField('a', 'b', 'c', 'd', 'e')).to.eql({
 				type: 'list',
 				message: 'a',
@@ -108,7 +108,7 @@ describe('util/questions.js', () => {
 
 		it('should return the config for an password field', () => {
 
-			// when/then
+			// When/then
 			expect(questions.passwordField('a', 'b', 'c', 'd')).to.eql({
 				type: 'password',
 				message: 'a',

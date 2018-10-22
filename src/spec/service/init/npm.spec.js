@@ -54,7 +54,7 @@ describe('service/init/npm.js', () => {
 
 		it('should run the npm run generate-apex-transport command', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -73,7 +73,7 @@ describe('service/init/npm.js', () => {
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
+			// When - Then
 			return expect(npm.generateApexTransport(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -89,7 +89,7 @@ describe('service/init/npm.js', () => {
 
 		it('should run the npm run doc command', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -108,7 +108,7 @@ describe('service/init/npm.js', () => {
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
+			// When - Then
 			return expect(npm.generateDocumentation(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -124,7 +124,7 @@ describe('service/init/npm.js', () => {
 
 		it('should run the npm init command', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -143,7 +143,7 @@ describe('service/init/npm.js', () => {
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
+			// When - Then
 			return expect(npm.init(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -159,7 +159,7 @@ describe('service/init/npm.js', () => {
 
 		it('should run the npm install command', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -178,7 +178,7 @@ describe('service/init/npm.js', () => {
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
+			// When - Then
 			return expect(npm.install(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -194,7 +194,7 @@ describe('service/init/npm.js', () => {
 
 		it('should run the npm run orizuru-post-init command', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -213,7 +213,7 @@ describe('service/init/npm.js', () => {
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
+			// When - Then
 			return expect(npm.orizuruPostInit(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
@@ -229,7 +229,7 @@ describe('service/init/npm.js', () => {
 
 		it('should run the npm test command', () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -248,7 +248,7 @@ describe('service/init/npm.js', () => {
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
+			// When - Then
 			return expect(npm.test(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {

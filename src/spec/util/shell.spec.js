@@ -104,7 +104,7 @@ describe('util/shell.js', () => {
 
 		it('should handle config', () => {
 
-			// given
+			// Given
 			const
 				expectedConfig = sinon.stub(),
 				expectedCommand = 'command',
@@ -114,7 +114,7 @@ describe('util/shell.js', () => {
 
 			mocks.childProcess.spawn.on = sinon.stub().yields(0);
 
-			// when - then
+			// When - Then
 			return expect(shell.executeCommand(command, expectedConfig))
 				.to.eventually.eql(expectedConfig);
 
@@ -131,7 +131,7 @@ describe('util/shell.js', () => {
 
 			it('if the exitOnError option is false', () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -145,7 +145,7 @@ describe('util/shell.js', () => {
 
 				mocks.childProcess.spawn.on = sinon.stub().yields(1);
 
-				// when - then
+				// When - Then
 				return expect(shell.executeCommand(command))
 					.to.eventually.eql(expectedResult)
 					.then(() => {
@@ -156,7 +156,7 @@ describe('util/shell.js', () => {
 
 			it('if the exitOnError option is true', () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -165,7 +165,7 @@ describe('util/shell.js', () => {
 
 				mocks.childProcess.spawn.on = sinon.stub().yields(1);
 
-				// when - then
+				// When - Then
 				return expect(shell.executeCommand(command))
 					.to.eventually.be.rejectedWith('Command failed')
 					.then(() => {
@@ -176,7 +176,7 @@ describe('util/shell.js', () => {
 
 			it('a success code', () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -191,7 +191,7 @@ describe('util/shell.js', () => {
 
 				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 
-				// when - then
+				// When - Then
 				return expect(shell.executeCommand(command))
 					.to.eventually.eql(expectedResult)
 					.then(() => {
@@ -206,7 +206,7 @@ describe('util/shell.js', () => {
 
 			it('and log out everything in verbose mode', () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -222,7 +222,7 @@ describe('util/shell.js', () => {
 				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
 
-				// when - then
+				// When - Then
 				return expect(shell.executeCommand(command))
 					.to.eventually.eql(expectedResult)
 					.then(() => {
@@ -234,7 +234,7 @@ describe('util/shell.js', () => {
 
 			it('and log out nothing in silent mode', () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -250,7 +250,7 @@ describe('util/shell.js', () => {
 				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
 
-				// when - then
+				// When - Then
 				return expect(shell.executeCommand(command))
 					.to.eventually.eql(expectedResult)
 					.then(() => {
@@ -261,7 +261,7 @@ describe('util/shell.js', () => {
 
 			it('and capture stdout', () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -277,7 +277,7 @@ describe('util/shell.js', () => {
 				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
 
-				// when - then
+				// When - Then
 				return expect(shell.executeCommand(command))
 					.to.eventually.eql(expectedResult);
 
@@ -285,7 +285,7 @@ describe('util/shell.js', () => {
 
 			it('and capture stderr', () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -301,7 +301,7 @@ describe('util/shell.js', () => {
 				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stderr.on.withArgs('data').yields('test');
 
-				// when - then
+				// When - Then
 				return expect(shell.executeCommand(command))
 					.to.eventually.eql(expectedResult);
 
@@ -309,7 +309,7 @@ describe('util/shell.js', () => {
 
 			it('and log out if the namespace option is set and debug is true', () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -325,7 +325,7 @@ describe('util/shell.js', () => {
 				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stderr.on.withArgs('data').yields('test');
 
-				// when - then
+				// When - Then
 				return expect(shell.executeCommand(command))
 					.to.eventually.eql(expectedResult)
 					.then(() => {
@@ -342,7 +342,7 @@ describe('util/shell.js', () => {
 
 		it('should execute each command in turn', () => {
 
-			// given
+			// Given
 			const
 				expectedCommands = [{
 					cmd: 'ls',
@@ -371,7 +371,7 @@ describe('util/shell.js', () => {
 				.onFirstCall().yields(0)
 				.onSecondCall().yields(1);
 
-			// when - then
+			// When - Then
 			return expect(shell.executeCommands(expectedCommands, expectedOptions))
 				.to.eventually.eql(expectedResults);
 

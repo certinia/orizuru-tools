@@ -74,7 +74,7 @@ describe('service/docker/compose', () => {
 
 		it('should read the services from a given yaml file', () => {
 
-			// given
+			// Given
 			const
 				expectedImageName = 'image',
 				expectedYaml = 'version: \'3\'\nservices:\n  image:\n    testing';
@@ -83,10 +83,10 @@ describe('service/docker/compose', () => {
 
 			mocks.fs.readFileSync.returns(expectedYaml);
 
-			// when
+			// When
 			services = compose.getServices(expectedImageName);
 
-			// then
+			// Then
 			expect(mocks.fs.readFileSync).to.have.been.calledOnce;
 			expect(services).to.eql([expectedImageName]);
 
@@ -98,7 +98,7 @@ describe('service/docker/compose', () => {
 
 		it('should ignore non-yaml files', () => {
 
-			// given
+			// Given
 			const
 				expectedFile = 'docker.txt',
 				expectedInput = {},
@@ -123,7 +123,7 @@ describe('service/docker/compose', () => {
 				}
 			});
 
-			// when/then
+			// When/then
 			return expect(compose.getAllServices(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -134,7 +134,7 @@ describe('service/docker/compose', () => {
 
 		it('should ignore files that don\'t contain docker', () => {
 
-			// given
+			// Given
 			const
 				expectedFile = 'test.txt',
 				expectedInput = {},
@@ -159,7 +159,7 @@ describe('service/docker/compose', () => {
 				}
 			});
 
-			// when/then
+			// When/then
 			return expect(compose.getAllServices(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -170,7 +170,7 @@ describe('service/docker/compose', () => {
 
 		it('should read the services from a given yaml files', () => {
 
-			// given
+			// Given
 			const
 				expectedDockerComposeFile = 'docker.yaml',
 				expectedYaml = 'version: \'3\'\nservices:\n  image:\n    testing',
@@ -201,7 +201,7 @@ describe('service/docker/compose', () => {
 			mocks.fs.readFileSync.withArgs(expectedDockerComposeFile).returns(expectedYaml);
 			mocks.path.resolve.returns(expectedDockerComposeFile);
 
-			// when/then
+			// When/then
 			return expect(compose.getAllServices(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -217,7 +217,7 @@ describe('service/docker/compose', () => {
 
 		it('should handle no selected services', () => {
 
-			// when/then
+			// When/then
 			expect(() => {
 				compose.buildImages([]);
 			}).to.throw('No services selected');
@@ -226,7 +226,7 @@ describe('service/docker/compose', () => {
 
 		it('should call shell executeCommands', () => {
 
-			// given
+			// Given
 			const
 				expectedCommands = [{
 					args: ['-f', 'test1.yml', 'build', 'image1'],
@@ -260,7 +260,7 @@ describe('service/docker/compose', () => {
 
 			mocks.shell.executeCommands.resolves();
 
-			// when/then
+			// When/then
 			return expect(compose.buildImages(expectedInput))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -276,7 +276,7 @@ describe('service/docker/compose', () => {
 
 		it('should handle no selected services', () => {
 
-			// when/then
+			// When/then
 			expect(() => {
 				compose.up({});
 			}).to.throw('No services selected');
@@ -285,7 +285,7 @@ describe('service/docker/compose', () => {
 
 		it('should call shell executeCommands', () => {
 
-			// given
+			// Given
 			const
 				expectedCommands = [{
 					args: ['-f', 'test1.yml', 'up', '-d', 'image1'],
@@ -319,7 +319,7 @@ describe('service/docker/compose', () => {
 
 			mocks.shell.executeCommands.resolves();
 
-			// when/then
+			// When/then
 			return expect(compose.up(expectedInput))
 				.to.eventually.be.fulfilled
 				.then(() => {

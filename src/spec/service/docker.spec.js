@@ -78,7 +78,7 @@ describe('service/docker', () => {
 
 		it('should catch errors', () => {
 
-			// given
+			// Given
 			const
 				expectedServiceName = 'testService',
 				expectedOptions = { _: ['d', 'bi', expectedServiceName] },
@@ -86,7 +86,7 @@ describe('service/docker', () => {
 
 			dockerService.removeDanglingImages.rejects(expectedError);
 
-			// when/then
+			// When/then
 			return expect(docker.buildImage(expectedOptions))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -104,7 +104,7 @@ describe('service/docker', () => {
 
 		it('should log build images failures', () => {
 
-			// given
+			// Given
 			const
 				expectedServiceName = 'testService',
 				expectedOptions = { _: ['d', 'bi', expectedServiceName] },
@@ -118,7 +118,7 @@ describe('service/docker', () => {
 			promptService.getServicesForProcess.resolves(services);
 			dockerService.removeDanglingImages.resolves();
 
-			// when/then
+			// When/then
 			return expect(docker.buildImage(expectedOptions))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -138,7 +138,7 @@ describe('service/docker', () => {
 
 		it('should build the image for the given service', () => {
 
-			// given
+			// Given
 			const
 				expectedServiceName = 'testService',
 				expectedOptions = { _: ['d', 'bi', expectedServiceName] },
@@ -151,7 +151,7 @@ describe('service/docker', () => {
 			promptService.getServicesForProcess.resolves(services);
 			dockerService.removeDanglingImages.resolves();
 
-			// when/then
+			// When/then
 			return expect(docker.buildImage(expectedOptions))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -175,7 +175,7 @@ describe('service/docker', () => {
 
 		it('should catch errors', () => {
 
-			// given
+			// Given
 			const
 				expectedOptions = { _: ['d', 'logs'] },
 				expectedError = new Error('test'),
@@ -184,7 +184,7 @@ describe('service/docker', () => {
 			promptService.getServicesForProcess.resolves(services);
 			dockerService.listContainers.rejects(expectedError);
 
-			// when/then
+			// When/then
 			return expect(docker.displayLogs(expectedOptions))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -202,7 +202,7 @@ describe('service/docker', () => {
 
 		it('should display logs for the given service', () => {
 
-			// given
+			// Given
 			const
 				expectedServiceName = 'testService',
 				expectedOptions = { _: ['d', 'bi', expectedServiceName] },
@@ -214,7 +214,7 @@ describe('service/docker', () => {
 			dockerService.displayLogs.resolves();
 			promptService.getServicesForProcess.resolves(services);
 
-			// when/then
+			// When/then
 			return expect(docker.displayLogs(expectedOptions))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -236,7 +236,7 @@ describe('service/docker', () => {
 
 		it('should list the services found in the Docker Compose files', () => {
 
-			// given
+			// Given
 			const expectedServices = {
 				docker: {
 					services: {
@@ -250,7 +250,7 @@ describe('service/docker', () => {
 
 			composeService.getAllServices.resolves(expectedServices);
 
-			// when/then
+			// When/then
 			return expect(docker.listServices({}))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -268,12 +268,12 @@ describe('service/docker', () => {
 
 		it('should handle errors', () => {
 
-			// given
+			// Given
 			const expectedError = new Error('test');
 
 			listContainersStub.rejects(expectedError);
 
-			// when/then
+			// When/then
 			return expect(docker.reset({}))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -292,7 +292,7 @@ describe('service/docker', () => {
 
 		it('should catch errors', () => {
 
-			// given
+			// Given
 			const
 				expectedServiceName = 'testService',
 				expectedOptions = { _: ['d', 's', expectedServiceName] },
@@ -300,7 +300,7 @@ describe('service/docker', () => {
 
 			dockerService.removeDanglingImages.rejects(expectedError);
 
-			// when/then
+			// When/then
 			return expect(docker.startServices(expectedOptions))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -318,7 +318,7 @@ describe('service/docker', () => {
 
 		it('should log Docker compose up failures', () => {
 
-			// given
+			// Given
 			const
 				expectedServiceName = 'testService',
 				expectedOptions = { _: ['d', 's', expectedServiceName] },
@@ -332,7 +332,7 @@ describe('service/docker', () => {
 			promptService.getServicesForProcess.resolves(services);
 			dockerService.removeDanglingImages.resolves();
 
-			// when/then
+			// When/then
 			return expect(docker.startServices(expectedOptions))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -352,7 +352,7 @@ describe('service/docker', () => {
 
 		it('should start the given service', () => {
 
-			// given
+			// Given
 			const
 				expectedServiceName = 'testService',
 				expectedOptions = { _: ['d', 's', expectedServiceName] },
@@ -365,7 +365,7 @@ describe('service/docker', () => {
 			promptService.getServicesForProcess.resolves(services);
 			dockerService.removeDanglingImages.resolves();
 
-			// when/then
+			// When/then
 			return expect(docker.startServices(expectedOptions))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -389,7 +389,7 @@ describe('service/docker', () => {
 
 		it('should catch errors', () => {
 
-			// given
+			// Given
 			const
 				expectedService = 'ffdc -container',
 				expectedOptions = { _: ['d', 'st', expectedService] },
@@ -398,7 +398,7 @@ describe('service/docker', () => {
 			dockerService.listContainers.returns(expectedService);
 			dockerService.removeDanglingImages.rejects(expectedError);
 
-			// when/then
+			// When/then
 			return expect(docker.stopServices(expectedOptions))
 				.to.eventually.be.fulfilled
 				.then(() => {
@@ -416,7 +416,7 @@ describe('service/docker', () => {
 
 		it('should log Docker stopContainers failures', () => {
 
-			// given
+			// Given
 			const
 				expectedService = 'ffdc -container',
 				expectedOptions = { _: ['d', 'st', expectedService] },
@@ -429,7 +429,7 @@ describe('service/docker', () => {
 			dockerService.removeDanglingImages.resolves();
 			dockerService.stopContainers.rejects(expectedError);
 
-			// when/then
+			// When/then
 			return expect(docker.stopServices(expectedOptions))
 				.to.eventually.be.fulfilled
 				.then(() => {

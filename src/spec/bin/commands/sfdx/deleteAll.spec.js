@@ -61,7 +61,7 @@ describe('bin/commands/sfdx/deleteAll.js', () => {
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('delete-all');
 		expect(cli.aliases).to.eql(['d']);
 		expect(cli.desc).to.eql('Marks all scratch orgs for deletion');
@@ -70,10 +70,10 @@ describe('bin/commands/sfdx/deleteAll.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
+		// When
 		cli.builder(yargs);
 
-		// then
+		// Then
 		expect(yargs.epilogue).to.have.been.calledOnce;
 		expect(yargs.option).to.have.been.calledTwice;
 		expect(yargs.usage).to.have.been.calledOnce;
@@ -87,17 +87,17 @@ describe('bin/commands/sfdx/deleteAll.js', () => {
 
 	it('should call the handler', () => {
 
-		// given
+		// Given
 		const
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
 		sinon.stub(service, 'deleteAllScratchOrgs');
 
-		// when
+		// When
 		cli.handler(expectedInput);
 
-		// then
+		// Then
 		expect(service.deleteAllScratchOrgs).to.have.been.calledOnce;
 		expect(service.deleteAllScratchOrgs).to.have.been.calledWith(expectedOutput);
 

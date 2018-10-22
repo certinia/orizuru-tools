@@ -61,7 +61,7 @@ describe('bin/commands/setup/init.js', () => {
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('init');
 		expect(cli.aliases).to.eql(['i']);
 		expect(cli.desc).to.eql('Initialises a new project in your current folder');
@@ -70,10 +70,10 @@ describe('bin/commands/setup/init.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
+		// When
 		cli.builder(yargs);
 
-		// then
+		// Then
 		expect(yargs.epilogue).to.have.been.calledOnce;
 		expect(yargs.option).to.have.callCount(5);
 		expect(yargs.usage).to.have.been.calledOnce;
@@ -90,17 +90,17 @@ describe('bin/commands/setup/init.js', () => {
 
 	it('should call the handler', () => {
 
-		// given
+		// Given
 		const
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
 		sinon.stub(service, 'init');
 
-		// when
+		// When
 		cli.handler(expectedInput);
 
-		// then
+		// Then
 		expect(service.init).to.have.been.calledOnce;
 		expect(service.init).to.have.been.calledWith(expectedOutput);
 

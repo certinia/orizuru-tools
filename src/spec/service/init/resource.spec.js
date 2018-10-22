@@ -57,7 +57,7 @@ describe('service/init/resource.js', () => {
 
 		it('should copy a template that does not extend other templates', () => {
 
-			// given
+			// Given
 			const
 				templateFolder = 'templates',
 				folder = 'simple-example',
@@ -80,7 +80,7 @@ describe('service/init/resource.js', () => {
 
 			shell.executeCommand.resolves();
 
-			// when - then
+			// When - Then
 			return expect(resource.copy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -92,7 +92,7 @@ describe('service/init/resource.js', () => {
 
 		it('should copy a template that extends another template', () => {
 
-			// given
+			// Given
 			const
 				templateFolder = 'templates',
 				mainTemplate = 'main-template',
@@ -130,7 +130,7 @@ describe('service/init/resource.js', () => {
 
 			shell.executeCommand.resolves();
 
-			// when - then
+			// When - Then
 			return expect(resource.copy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
@@ -147,7 +147,7 @@ describe('service/init/resource.js', () => {
 
 		it('should rename the gitignore file to .gitignore', () => {
 
-			// given
+			// Given
 			sinon.stub(path, 'resolve')
 				.withArgs('currentWorkingDirectory', 'gitignore').returns('gitignore')
 				.withArgs('currentWorkingDirectory', '.gitignore').returns('.gitignore');
@@ -174,7 +174,7 @@ describe('service/init/resource.js', () => {
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
+			// When - Then
 			return expect(resource.renameGitIgnore(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
