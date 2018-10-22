@@ -25,27 +25,7 @@
 			"lint-fix": "eslint src/node --fix",
 			"orizuru-post-init": "echo 'No post init steps'",
 			"pretest": "eslint src/node",
-			"single-test": "nyc --all=false mocha",
-			"test": "nyc mocha --recursive src/node/spec"
-		},
-		"nyc": {
-			"check-coverage": true,
-			"per-file": true,
-			"lines": 100,
-			"statements": 100,
-			"functions": 100,
-			"branches": 100,
-			"include": [
-				"src/node"
-			],
-			"reporter": [
-				"lcov",
-				"html",
-				"text",
-				"text-summary"
-			],
-			"cache": true,
-			"all": true
+			"test": "nyc --nycrc-path=src/node/spec/nyc.opts mocha --recursive src/node/spec"
 		}
 	}
 }
