@@ -24,73 +24,44 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-'use strict';
+@IsTest(SeeAllData=false)
+private class HerokuConnectorTest
+{
+	@IsTest
+	private static void post_sendsExpectedHttpRequest()
+	{
+		// Given
+		IHerokuConnector connector = HerokuConnector.newInstance();
+		CalloutMock mock = new CalloutMock();
+		ISerializable testSerialize = new SerializableMock();
+		Test.setMock(HttpCalloutMock.class, mock);
 
-const
-	debug = require('debug')('account-handler'),
-	connection = require('../service/salesforce/connection'),
-	writer = require('../service/salesforce/writer'),
+		// When
+		connector.post('some/api/path', testSerialize, 'test');
 
-	CONTACT_SOBJECT_NAME = 'Contact';
+		// Then
+		System.assertEquals('Bearer test', mock.Request.getHeader('Authorization'));
+		System.assertEquals(Url.getSalesforceBaseUrl().toExternalForm(), mock.Request.getHeader('Referer'));
+		System.assertEquals('application/json', mock.Request.getHeader('Content-Type'));
+		System.assertEquals('testSerialize', mock.Request.getBody());
+		System.assertEquals('some/api/path', mock.Request.getEndpoint());
+	}
 
-/*
- * Logs information from the event
- */
-function logEvent(event) {
+	private class SerializableMock implements ISerializable
+	{
+		public String serialize() {
+			return 'testSerialize';
+		}
+	}
 
-	debug('Handled event for schema \'api/account\'...');
-	debug('Context:');
-	debug(JSON.stringify(event.context));
-	debug('Message:');
-	debug(JSON.stringify(event.message));
-
-}
-
-/*
- * Creates a contact for each of the account IDs found in the event
- */
-async function createContacts(conn, event) {
-
-	const
-		message = event.message,
-
-		contacts = message.ids.map((id) => {
-			return {
-				firstName: 'Default contact',
-				lastName: id,
-				accountId: id
-			};
-		}),
-
-		contactChunks = contacts.reduce((results, contact) => {
-			let contactChunk = results.pop();
-			if (contactChunk.length === 10) {
-				results.push(contactChunk);
-				contactChunk = [];
-			}
-			contactChunk.push(contact);
-			results.push(contactChunk);
-			return results;
-		}, [[]]);
-
-	let promise = Promise.resolve();
-
-	contactChunks.forEach((tenContacts) => {
-		promise = promise.then(() =>
-			Promise.all(tenContacts.map((contact) => writer.createObject(conn, CONTACT_SOBJECT_NAME, contact)))
-		);
-	});
-
-	await promise;
+	private class CalloutMock implements HttpCalloutMock
+	{
+		public HttpRequest Request {get; private set;}
+		public HTTPResponse respond(HTTPRequest request)
+		{
+			this.Request = request;
+			return new HttpResponse();
+		}
+	}
 
 }
-
-module.exports = async (event) => {
-
-	logEvent(event);
-
-	const conn = await connection.fromContext(event);
-	await createContacts(conn, event);
-	debug('Success!');
-
-};

@@ -28,79 +28,128 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
+	jsforce = require('jsforce'),
+
+	connection = require('../../lib/service/salesforce/connection'),
+	writer = require('../../lib/service/salesforce/writer'),
+
+	handler = require('../../lib/handler/account'),
+
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('handler/account.js', () => {
 
-	let handler, mocks;
+	let connectionStub, contactCreateStub;
 
 	beforeEach(() => {
 
-		process.env.JWT_SIGNING_KEY = '123';
-		process.env.OPENID_CLIENT_ID = '456';
-		process.env.OPENID_HTTP_TIMEOUT = '5333';
-		process.env.OPENID_ISSUER_URI = 'http://test';
+		contactCreateStub = sinon.stub();
 
-		class Connection { }
-
-		mocks = {};
-
-		mocks.auth = sinon.stub();
-		mocks.auth.grant = sinon.stub();
-
-		mocks.jsforce = sinon.stub();
-		mocks.jsforce.Connection = Connection;
-
-		mocks.sobject = sinon.stub();
-		mocks.sobject.create = sinon.stub();
-
-		mocks.jsforce.Connection.prototype.sobject = sinon.stub().returns(mocks.sobject);
-
-		handler = proxyquire('../../lib/handler/account', {
-			jsforce: mocks.jsforce,
-			'../boilerplate/auth': mocks.auth
+		connectionStub = sinon.createStubInstance(jsforce.Connection);
+		connectionStub.sobject.withArgs('Contact').returns({
+			create: contactCreateStub
 		});
+		sinon.stub(connection, 'fromContext').returns(connectionStub);
+
+		sinon.stub(writer, 'createObject');
 
 	});
 
 	afterEach(() => {
-
-		delete process.env.JWT_SIGNING_KEY;
-		delete process.env.OPENID_CLIENT_ID;
-		delete process.env.OPENID_HTTP_TIMEOUT;
-		delete process.env.OPENID_ISSUER_URI;
-
 		sinon.restore();
-
 	});
 
 	describe('handler', () => {
 
-		it('handler', () => {
+		it('should create a single contact', async () => {
 
-			// given
+			// Given
 			const event = {
 				context: {
 					user: 'test@test.com'
 				},
 				message: {
-					ids: ['test id']
+					ids: ['testId']
 				}
 			};
 
-			mocks.auth.grant.resolves();
+			// When
+			await handler(event);
 
-			// when - then
-			return expect(handler(event))
-				.to.eventually.be.fulfilled;
+			// Then
+			expect(connection.fromContext).to.have.been.calledOnce;
+
+			expect(writer.createObject).to.have.been.calledOnce;
+			expect(writer.createObject).to.have.been.calledWithExactly(connectionStub, 'Contact', {
+				accountId: 'testId',
+				firstName: 'Default contact',
+				lastName: 'testId'
+			});
+
+		});
+
+		it('should create a batch of 10 contacts', async () => {
+
+			// Given
+			const event = {
+				context: {
+					user: 'test@test.com'
+				},
+				message: {
+					ids: ['testId1', 'testId2', 'testId3', 'testId4', 'testId5', 'testId6', 'testId7', 'testId8', 'testId9', 'testId10']
+				}
+			};
+
+			// When
+			await handler(event);
+
+			// Then
+			expect(connection.fromContext).to.have.been.calledOnce;
+
+			expect(writer.createObject).to.have.callCount(10);
+
+			event.message.ids.forEach((id) => {
+				expect(writer.createObject).to.have.been.calledWithExactly(connectionStub, 'Contact', {
+					accountId: id,
+					firstName: 'Default contact',
+					lastName: id
+				});
+			});
+
+		});
+
+		it('should create a 11 contacts', async () => {
+
+			// Given
+			const event = {
+				context: {
+					user: 'test@test.com'
+				},
+				message: {
+					ids: ['testId1', 'testId2', 'testId3', 'testId4', 'testId5', 'testId6', 'testId7', 'testId8', 'testId9', 'testId10', 'testId11']
+				}
+			};
+
+			// When
+			await handler(event);
+
+			// Then
+			expect(connection.fromContext).to.have.been.calledOnce;
+
+			expect(writer.createObject).to.have.callCount(11);
+
+			event.message.ids.forEach((id) => {
+				expect(writer.createObject).to.have.been.calledWithExactly(connectionStub, 'Contact', {
+					accountId: id,
+					firstName: 'Default contact',
+					lastName: id
+				});
+			});
 
 		});
 

@@ -24,73 +24,7 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-'use strict';
-
-const
-	debug = require('debug')('account-handler'),
-	connection = require('../service/salesforce/connection'),
-	writer = require('../service/salesforce/writer'),
-
-	CONTACT_SOBJECT_NAME = 'Contact';
-
-/*
- * Logs information from the event
- */
-function logEvent(event) {
-
-	debug('Handled event for schema \'api/account\'...');
-	debug('Context:');
-	debug(JSON.stringify(event.context));
-	debug('Message:');
-	debug(JSON.stringify(event.message));
-
+public interface IHerokuConnector
+{
+	HttpResponse post(String endpoint, ISerializable transport, String sessionId); 
 }
-
-/*
- * Creates a contact for each of the account IDs found in the event
- */
-async function createContacts(conn, event) {
-
-	const
-		message = event.message,
-
-		contacts = message.ids.map((id) => {
-			return {
-				firstName: 'Default contact',
-				lastName: id,
-				accountId: id
-			};
-		}),
-
-		contactChunks = contacts.reduce((results, contact) => {
-			let contactChunk = results.pop();
-			if (contactChunk.length === 10) {
-				results.push(contactChunk);
-				contactChunk = [];
-			}
-			contactChunk.push(contact);
-			results.push(contactChunk);
-			return results;
-		}, [[]]);
-
-	let promise = Promise.resolve();
-
-	contactChunks.forEach((tenContacts) => {
-		promise = promise.then(() =>
-			Promise.all(tenContacts.map((contact) => writer.createObject(conn, CONTACT_SOBJECT_NAME, contact)))
-		);
-	});
-
-	await promise;
-
-}
-
-module.exports = async (event) => {
-
-	logEvent(event);
-
-	const conn = await connection.fromContext(event);
-	await createContacts(conn, event);
-	debug('Success!');
-
-};

@@ -40,8 +40,7 @@ services:
     image: ffdc/heroku/java/nodejs
 
   rabbitmq:
-    image: rabbitmq:management
-    hostname: ffdc-rabbitmq
+    image: rabbitmq:3.6.14-management
     ports:
       - "5672:5672"
       - "15672:15672"

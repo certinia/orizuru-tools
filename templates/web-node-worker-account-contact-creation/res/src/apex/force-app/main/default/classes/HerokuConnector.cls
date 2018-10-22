@@ -24,73 +24,46 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-'use strict';
+public class HerokuConnector implements IHerokuConnector
+{
 
-const
-	debug = require('debug')('account-handler'),
-	connection = require('../service/salesforce/connection'),
-	writer = require('../service/salesforce/writer'),
+	@TestVisible private static final String ACCOUNT_ENDPOINT = '/api/account';
+    @TestVisible private static final String POST_METHOD = 'POST';
+    @TestVisible private static final String REFERER_HEADER = 'Referer';
+    @TestVisible private static final String AUTHORIZATION_HEADER = 'Authorization';
+    @TestVisible private static final String AUTHORIZATION_PREFIX = 'Bearer ';
+    @TestVisible private static final String CONTENT_TYPE_HEADER = 'Content-Type';
+    @TestVisible private static final String CONTENT_TYPE_VALUE = 'application/json';
 
-	CONTACT_SOBJECT_NAME = 'Contact';
+	private static IHerokuConnector instance = new HerokuConnector();
 
-/*
- * Logs information from the event
- */
-function logEvent(event) {
+	public static IHerokuConnector newInstance() {
+		return instance;
+	}
 
-	debug('Handled event for schema \'api/account\'...');
-	debug('Context:');
-	debug(JSON.stringify(event.context));
-	debug('Message:');
-	debug(JSON.stringify(event.message));
+	@TestVisible
+	private static void setMock(IHerokuConnector instance) {
+		HerokuConnector.instance = instance;
+	}
 
-}
-
-/*
- * Creates a contact for each of the account IDs found in the event
- */
-async function createContacts(conn, event) {
-
-	const
-		message = event.message,
-
-		contacts = message.ids.map((id) => {
-			return {
-				firstName: 'Default contact',
-				lastName: id,
-				accountId: id
-			};
-		}),
-
-		contactChunks = contacts.reduce((results, contact) => {
-			let contactChunk = results.pop();
-			if (contactChunk.length === 10) {
-				results.push(contactChunk);
-				contactChunk = [];
-			}
-			contactChunk.push(contact);
-			results.push(contactChunk);
-			return results;
-		}, [[]]);
-
-	let promise = Promise.resolve();
-
-	contactChunks.forEach((tenContacts) => {
-		promise = promise.then(() =>
-			Promise.all(tenContacts.map((contact) => writer.createObject(conn, CONTACT_SOBJECT_NAME, contact)))
-		);
-	});
-
-	await promise;
+	private HerokuConnector() {}
+    
+    public HttpResponse post(String endpoint, ISerializable transport, String sessionId) 
+    {
+        HttpRequest req = new HttpRequest();
+		req.setEndpoint(endpoint);
+    	req.setMethod(POST_METHOD);
+		req.setHeader(REFERER_HEADER, Url.getSalesforceBaseUrl().toExternalForm());
+		req.setHeader(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE);
+        req.setHeader(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + sessionId);
+        req.setBody(transport.serialize());
+		return postRequest(req);
+    }
+    
+    private static HttpResponse postRequest(HttpRequest req)
+    {
+        Http h = new Http();
+        return h.send(req);
+    }
 
 }
-
-module.exports = async (event) => {
-
-	logEvent(event);
-
-	const conn = await connection.fromContext(event);
-	await createContacts(conn, event);
-	debug('Success!');
-
-};
