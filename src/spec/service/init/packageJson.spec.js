@@ -28,46 +28,35 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	fs = require('fs-extra'),
+	inquirer = require('inquirer'),
 
-	logger = require(root + '/src/lib/util/logger');
+	logger = require('../../../lib/util/logger'),
+
+	packageJson = require('../../../lib/service/init/packageJson'),
+
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/init/packageJson.js', () => {
 
-	let packageJson, mocks;
-
 	beforeEach(() => {
 
-		mocks = {};
+		sinon.stub(process, 'cwd').returns('currentWorkingDirectory');
 
-		mocks.debug = sinon.stub();
-		mocks.debug.log = sinon.stub();
-		mocks.debug.stringify = sinon.stub();
+		sinon.stub(fs, 'readJson');
+		sinon.stub(fs, 'writeJson');
 
-		mocks.fs = sinon.stub();
-		mocks.fs.readJson = sinon.stub();
-		mocks.fs.writeJson = sinon.stub();
-
-		mocks.inquirer = sinon.stub();
-		mocks.inquirer.prompt = sinon.stub();
+		sinon.stub(inquirer, 'prompt');
 
 		sinon.stub(logger, 'logEvent');
 		sinon.stub(logger, 'logFinish');
 		sinon.stub(logger, 'logLn');
-
-		packageJson = proxyquire(root + '/src/lib/service/init/packageJson', {
-			'fs-extra': mocks.fs,
-			inquirer: mocks.inquirer,
-			'../../util/debug': mocks.debug
-		});
 
 	});
 
@@ -104,7 +93,7 @@ describe('service/init/packageJson.js', () => {
 			expect(packageJson.askQuestions(expectedInput)).to.eql(expectedOutput);
 
 			// then
-			expect(mocks.inquirer.prompt).to.not.have.been.called;
+			expect(inquirer.prompt).to.not.have.been.called;
 
 		});
 
@@ -125,13 +114,13 @@ describe('service/init/packageJson.js', () => {
 					'package': expectedPackageJson
 				};
 
-			mocks.inquirer.prompt.resolves(expectedOutput);
+			inquirer.prompt.resolves(expectedOutput);
 
 			// when - then
 			return expect(packageJson.askQuestions(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
+					expect(inquirer.prompt).to.have.been.calledOnce;
 				});
 
 		});
@@ -207,18 +196,18 @@ describe('service/init/packageJson.js', () => {
 					argv,
 					'package': expectedPackageJson,
 					path: {
-						'package': `${process.cwd()}/package.json`
+						'package': 'currentWorkingDirectory/currentWorkingDirectory/package.json'
 					}
 				};
 
-			mocks.fs.readJson.resolves({});
-			mocks.fs.writeJson.resolves(expectedPackageJson);
+			fs.readJson.resolves({});
+			fs.writeJson.resolves(expectedPackageJson);
 
 			// when - then
 			return expect(packageJson.create(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.inquirer.prompt).to.not.have.been.called;
+					expect(inquirer.prompt).to.not.have.been.called;
 				});
 
 		});
@@ -240,19 +229,19 @@ describe('service/init/packageJson.js', () => {
 				expectedOutput = {
 					'package': expectedPackageJson,
 					path: {
-						'package': `${process.cwd()}/package.json`
+						'package': 'currentWorkingDirectory/currentWorkingDirectory/package.json'
 					}
 				};
 
-			mocks.fs.readJson.resolves(expectedPackageJson);
+			fs.readJson.resolves(expectedPackageJson);
 
 			// when - then
 			return expect(packageJson.read(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(logger.logLn).to.not.have.been.called;
-					expect(mocks.fs.readJson).to.have.been.calledOnce;
-					expect(mocks.fs.readJson).to.have.been.calledWith(root + '/package.json');
+					expect(fs.readJson).to.have.been.calledOnce;
+					expect(fs.readJson).to.have.been.calledWith('currentWorkingDirectory/currentWorkingDirectory/package.json');
 				});
 
 		});
@@ -276,20 +265,20 @@ describe('service/init/packageJson.js', () => {
 					},
 					'package': expectedPackageJson,
 					path: {
-						'package': `${process.cwd()}/package.json`
+						'package': 'package.json'
 					}
 				},
 				expectedOutput = expectedInput;
 
-			mocks.fs.writeJson.resolves(expectedPackageJson);
+			fs.writeJson.resolves(expectedPackageJson);
 
 			// when - then
 			return expect(packageJson.write(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
 					expect(logger.logLn).to.not.have.been.called;
-					expect(mocks.fs.writeJson).to.have.been.calledOnce;
-					expect(mocks.fs.writeJson).to.have.been.calledWith(root + '/package.json', expectedPackageJson, { spaces: 2 });
+					expect(fs.writeJson).to.have.been.calledOnce;
+					expect(fs.writeJson).to.have.been.calledWith('package.json', expectedPackageJson, { spaces: '\t' });
 				});
 
 		});

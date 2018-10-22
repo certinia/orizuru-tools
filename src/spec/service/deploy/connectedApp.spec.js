@@ -29,17 +29,19 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
 
 	inquirer = require('inquirer'),
+	jsforce = require('jsforce'),
 	openUrl = require('openurl'),
 	request = require('request-promise'),
 
 	configFile = require('../../../lib/service/deploy/shared/config'),
 	htmlParser = require('../../../lib/util/htmlParser'),
+	shell = require('../../../lib/util/shell'),
+
+	connectedApp = require('../../../lib/service/deploy/connectedApp'),
 
 	expect = chai.expect;
 
@@ -48,19 +50,12 @@ chai.use(sinonChai);
 
 describe('service/deploy/connectedApp.js', () => {
 
-	let mocks, connectedApp;
+	let connectionStub;
 
 	beforeEach(() => {
 
-		mocks = {};
-
-		mocks.conn = {};
-		mocks.conn.query = sinon.stub();
-
-		mocks.shell = {};
-
-		mocks.jsforce = {};
-		mocks.jsforce.Connection = sinon.stub();
+		connectionStub = sinon.createStubInstance(jsforce.Connection);
+		sinon.stub(jsforce, 'Connection').returns(connectionStub);
 
 		sinon.stub(openUrl, 'open');
 
@@ -69,10 +64,7 @@ describe('service/deploy/connectedApp.js', () => {
 		sinon.stub(htmlParser, 'parseScripts');
 		sinon.stub(request, 'get');
 
-		connectedApp = proxyquire(root + '/src/lib/service/deploy/connectedApp.js', {
-			jsforce: mocks.jsforce,
-			'../../util/shell': mocks.shell
-		});
+		sinon.stub(shell, 'executeCommands');
 
 	});
 
@@ -195,16 +187,16 @@ describe('service/deploy/connectedApp.js', () => {
 					}]
 				},
 				expectedResults = {
-					conn: mocks.conn,
+					conn: connectionStub,
 					connected: {
 						apps: expectedRecords.records
 					}
 				};
 
-			mocks.conn.query.resolves(expectedRecords);
+			connectionStub.query.resolves(expectedRecords);
 
 			// when - then
-			return expect(connectedApp.list({ conn: mocks.conn }))
+			return expect(connectedApp.list({ conn: connectionStub }))
 				.to.eventually.eql(expectedResults);
 
 		});
@@ -350,13 +342,13 @@ describe('service/deploy/connectedApp.js', () => {
 				}],
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommands = sinon.stub().resolves({});
+			shell.executeCommands = sinon.stub().resolves({});
 
 			// when - then
 			return expect(connectedApp.updateHerokuConfigVariables(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands);
+					expect(shell.executeCommands).to.have.been.calledWith(expectedCommands);
 				});
 
 		});

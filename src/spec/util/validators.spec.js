@@ -25,11 +25,11 @@
  */
 
 'use strict';
+
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
 
-	validators = require(root + '/src/lib/util/validators'),
+	validators = require('../../lib/util/validators'),
 
 	expect = chai.expect;
 

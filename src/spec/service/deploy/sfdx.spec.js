@@ -29,7 +29,6 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
@@ -39,8 +38,8 @@ const
 
 	expect = chai.expect,
 
-	logger = require(root + '/src/lib/util/logger'),
-	shell = require(root + '/src/lib/util/shell');
+	logger = require('../../../lib/util/logger'),
+	shell = require('../../../lib/util/shell');
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -72,7 +71,7 @@ describe('service/deploy/sfdx.js', () => {
 
 		sinon.stub(logger, 'logEvent').resolves();
 
-		sfdx = proxyquire(root + '/src/lib/service/deploy/sfdx.js', {
+		sfdx = proxyquire('../../../lib/service/deploy/sfdx.js', {
 			'./shared/config': mocks.config
 		});
 

@@ -28,35 +28,27 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	yargs = require('yargs'),
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE;
+	COPYRIGHT_NOTICE = require('../../../lib/bin/constants/constants').COPYRIGHT_NOTICE,
+
+	cli = require('../../../lib/bin/commands/docker'),
+
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('bin/commands/docker.js', () => {
 
-	let cli, mocks;
-
 	beforeEach(() => {
-
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.command = sinon.stub().returns(mocks.yargs);
-		mocks.yargs.demandCommand = sinon.stub().returns(mocks.yargs);
-		mocks.yargs.epilogue = sinon.stub().returns(mocks.yargs);
-		mocks.yargs.updateStrings = sinon.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sinon.stub().returns(mocks.yargs);
-
-		cli = proxyquire(root + '/src/lib/bin/commands/docker', {
-			yargs: mocks.yargs
-		});
-
+		sinon.stub(yargs, 'command').returnsThis();
+		sinon.stub(yargs, 'demandCommand').returnsThis();
+		sinon.stub(yargs, 'epilogue').returnsThis();
+		sinon.stub(yargs, 'updateStrings').returnsThis();
+		sinon.stub(yargs, 'usage').returnsThis();
 	});
 
 	afterEach(() => {
@@ -75,16 +67,16 @@ describe('bin/commands/docker.js', () => {
 	it('should create the cli', () => {
 
 		// when
-		cli.builder(mocks.yargs);
+		cli.builder(yargs);
 
 		// then
-		expect(mocks.yargs.command).to.have.callCount(6);
-		expect(mocks.yargs.demandCommand).to.have.been.calledOnce;
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-		expect(mocks.yargs.usage).to.have.been.calledOnce;
+		expect(yargs.command).to.have.callCount(6);
+		expect(yargs.demandCommand).to.have.been.calledOnce;
+		expect(yargs.epilogue).to.have.been.calledOnce;
+		expect(yargs.usage).to.have.been.calledOnce;
 
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru docker COMMAND');
+		expect(yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru docker COMMAND');
 
 	});
 

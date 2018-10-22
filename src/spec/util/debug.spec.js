@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -39,7 +38,7 @@ chai.use(sinonChai);
 describe('util/debug.js', () => {
 
 	beforeEach(() => {
-		delete require.cache[root + '/src/lib/util/debug.js'];
+		delete require.cache[require.resolve('../../lib/util/debug')];
 
 		sinon.stub(process.stderr, 'write');
 	});
@@ -55,7 +54,7 @@ describe('util/debug.js', () => {
 			// given
 			const
 				input = 'test\nlogging\nthese\nnew\nlines\n',
-				debug = require(root + '/src/lib/util/debug.js');
+				debug = require('../../lib/util/debug');
 
 			var debugInstance;
 
@@ -82,7 +81,7 @@ describe('util/debug.js', () => {
 			// given
 			const
 				input = undefined,
-				debug = require(root + '/src/lib/util/debug.js');
+				debug = require('../../lib/util/debug');
 
 			var debugInstance;
 
@@ -109,7 +108,7 @@ describe('util/debug.js', () => {
 			// given
 			const
 				input = 'test',
-				debug = require(root + '/src/lib/util/debug.js');
+				debug = require('../../lib/util/debug');
 
 			// when
 			debug.log({ debug: true }, 'test', input);
@@ -125,7 +124,7 @@ describe('util/debug.js', () => {
 			// given
 			const
 				input = 'test',
-				debug = require(root + '/src/lib/util/debug.js');
+				debug = require('../../lib/util/debug');
 
 			// when
 			debug.log({ silent: true, debug: false }, 'test', input);
@@ -144,7 +143,7 @@ describe('util/debug.js', () => {
 			// given
 			const
 				input = { test: 'test' },
-				debug = require(root + '/src/lib/util/debug.js');
+				debug = require('../../lib/util/debug');
 
 			// when
 			debug.stringify({ debug: true }, 'test', input);

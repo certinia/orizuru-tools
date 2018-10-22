@@ -28,37 +28,27 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	yargs = require('yargs'),
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE;
+	COPYRIGHT_NOTICE = require('../../../lib/bin/constants/constants').COPYRIGHT_NOTICE,
+
+	cli = require('../../../lib/bin/commands/sfdx'),
+
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('bin/commands/sfdx.js', () => {
 
-	let cli, mocks;
-
 	beforeEach(() => {
-
-		mocks = {
-			yargs: {
-				command: sinon.stub().returnsThis(),
-				demandCommand: sinon.stub().returnsThis(),
-				epilogue: sinon.stub().returnsThis(),
-				updateStrings: sinon.stub().returnsThis(),
-				usage: sinon.stub().returnsThis()
-			}
-		};
-
-		cli = proxyquire(root + '/src/lib/bin/commands/sfdx', {
-			yargs: mocks.yargs
-		});
-
+		sinon.stub(yargs, 'command').returnsThis();
+		sinon.stub(yargs, 'demandCommand').returnsThis();
+		sinon.stub(yargs, 'epilogue').returnsThis();
+		sinon.stub(yargs, 'updateStrings').returnsThis();
+		sinon.stub(yargs, 'usage').returnsThis();
 	});
 
 	afterEach(() => {
@@ -68,18 +58,19 @@ describe('bin/commands/sfdx.js', () => {
 	it('should create the cli', () => {
 
 		// when
-		cli.builder(mocks.yargs);
+		cli.builder(yargs);
 
 		// then
-		expect(mocks.yargs.command).to.have.been.calledOnce;
-		expect(mocks.yargs.demandCommand).to.have.been.calledOnce;
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-		expect(mocks.yargs.updateStrings).to.have.been.calledOnce;
+		expect(yargs.command).to.have.been.calledOnce;
+		expect(yargs.demandCommand).to.have.been.calledOnce;
+		expect(yargs.epilogue).to.have.been.calledOnce;
+		expect(yargs.updateStrings).to.have.been.calledOnce;
+		expect(yargs.usage).to.have.been.calledOnce;
 
-		expect(mocks.yargs.demandCommand).to.have.been.calledWith(3, 'Run \'orizuru sfdx --help\' for more information on a command.\n');
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'SFDX:' });
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru sfdx COMMAND');
+		expect(yargs.demandCommand).to.have.been.calledWith(3, 'Run \'orizuru sfdx --help\' for more information on a command.\n');
+		expect(yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'SFDX:' });
+		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru sfdx COMMAND');
 
 	});
 

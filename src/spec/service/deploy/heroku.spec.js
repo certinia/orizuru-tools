@@ -30,7 +30,6 @@ const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -58,7 +57,7 @@ describe('service/deploy/heroku.js', () => {
 
 		mocks.shell = {};
 
-		heroku = proxyquire(root + '/src/lib/service/deploy/heroku.js', {
+		heroku = proxyquire('../../../lib/service/deploy/heroku', {
 			'fs-extra': mocks.fs,
 			inquirer: mocks.inquirer,
 			'./shared/config': mocks.config,

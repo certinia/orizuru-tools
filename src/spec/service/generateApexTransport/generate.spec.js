@@ -28,17 +28,16 @@
 
 const
 	_ = require('lodash'),
-	root = require('app-root-path'),
 	chai = require('chai'),
 
 	expect = chai.expect,
 
-	generateInputResPath = root + '/src/res/spec/generate/input/',
-	generateOutputResPath = root + '/src/res/spec/generate/output/',
+	generateInputResPath = __dirname + '/../../../res/spec/generate/input/',
+	generateOutputResPath = __dirname + '/../../../res/spec/generate/output/',
 
 	{ readFileSync } = require('fs'),
 
-	{ generate } = require(root + '/src/lib/service/generateApexTransport/generate');
+	{ generate } = require('../../../lib/service/generateApexTransport/generate');
 
 function inputPath(filename) {
 	return generateInputResPath + filename;

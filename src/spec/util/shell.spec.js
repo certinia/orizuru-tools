@@ -29,7 +29,6 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
@@ -90,7 +89,7 @@ describe('util/shell.js', () => {
 		spawn.stderr.pipe.resume = sinon.stub();
 		spawn.stderr.on = sinon.stub();
 
-		shell = proxyquire(root + '/src/lib/util/shell.js', {
+		shell = proxyquire('../../lib/util/shell', {
 			['child_process']: mocks.childProcess,
 			'./debug': mocks.debug
 		});

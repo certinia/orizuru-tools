@@ -28,35 +28,27 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	yargs = require('yargs'),
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
+	COPYRIGHT_NOTICE = require('../../../../lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	service = require(root + '/src/lib/service/init');
+	service = require('../../../../lib/service/init'),
+
+	cli = require('../../../../lib/bin/commands/setup/init'),
+
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('bin/commands/setup/init.js', () => {
 
-	let cli, mocks;
-
 	beforeEach(() => {
-
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sinon.stub().returns(mocks.yargs);
-		mocks.yargs.option = sinon.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sinon.stub().returns(mocks.yargs);
-
-		cli = proxyquire(root + '/src/lib/bin/commands/setup/init', {
-			yargs: mocks.yargs
-		});
-
+		sinon.stub(yargs, 'epilogue').returnsThis();
+		sinon.stub(yargs, 'option').returnsThis();
+		sinon.stub(yargs, 'usage').returnsThis();
 	});
 
 	afterEach(() => {
@@ -75,20 +67,20 @@ describe('bin/commands/setup/init.js', () => {
 	it('should create the cli', () => {
 
 		// when
-		cli.builder(mocks.yargs);
+		cli.builder(yargs);
 
 		// then
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-		expect(mocks.yargs.option).to.have.callCount(5);
-		expect(mocks.yargs.usage).to.have.been.calledOnce;
+		expect(yargs.epilogue).to.have.been.calledOnce;
+		expect(yargs.option).to.have.callCount(5);
+		expect(yargs.usage).to.have.been.calledOnce;
 
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.option).to.have.been.calledWith('d', sinon.match.object);
-		expect(mocks.yargs.option).to.have.been.calledWith('s', sinon.match.object);
-		expect(mocks.yargs.option).to.have.been.calledWith('t', sinon.match.object);
-		expect(mocks.yargs.option).to.have.been.calledWith('y', sinon.match.object);
-		expect(mocks.yargs.option).to.have.been.calledWith('verbose', sinon.match.object);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup init [OPTIONS]');
+		expect(yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(yargs.option).to.have.been.calledWith('d', sinon.match.object);
+		expect(yargs.option).to.have.been.calledWith('s', sinon.match.object);
+		expect(yargs.option).to.have.been.calledWith('t', sinon.match.object);
+		expect(yargs.option).to.have.been.calledWith('y', sinon.match.object);
+		expect(yargs.option).to.have.been.calledWith('verbose', sinon.match.object);
+		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup init [OPTIONS]');
 
 	});
 

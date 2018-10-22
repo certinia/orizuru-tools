@@ -28,15 +28,17 @@
 
 const
 	chai = require('chai'),
-	root = require('app-root-path'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
+	yargs = require('yargs'),
 
-	service = require(root + '/src/lib/service/deploy'),
-	deployCommand = require(root + '/src/lib/bin/commands/deploy'),
+	COPYRIGHT_NOTICE = require('../../../lib/bin/constants/constants').COPYRIGHT_NOTICE,
+
+	service = require('../../../lib/service/deploy'),
+	deployCommand = require('../../../lib/bin/commands/deploy'),
+
+	cli = require('../../../lib/bin/commands/deploy'),
 
 	expect = chai.expect;
 
@@ -44,25 +46,13 @@ chai.use(sinonChai);
 
 describe('bin/commands/deploy.js', () => {
 
-	let cli, mocks;
-
 	beforeEach(() => {
-
-		mocks = {
-			yargs: {
-				command: sinon.stub().returnsThis(),
-				epilogue: sinon.stub().returnsThis(),
-				help: sinon.stub().returnsThis(),
-				options: sinon.stub().returnsThis(),
-				updateStrings: sinon.stub().returnsThis(),
-				usage: sinon.stub().returnsThis()
-			}
-		};
-
-		cli = proxyquire(root + '/src/lib/bin/commands/deploy', {
-			yargs: mocks.yargs
-		});
-
+		sinon.stub(yargs, 'command').returnsThis();
+		sinon.stub(yargs, 'epilogue').returnsThis();
+		sinon.stub(yargs, 'help').returnsThis();
+		sinon.stub(yargs, 'options').returnsThis();
+		sinon.stub(yargs, 'updateStrings').returnsThis();
+		sinon.stub(yargs, 'usage').returnsThis();
 	});
 
 	afterEach(() => {
@@ -72,17 +62,18 @@ describe('bin/commands/deploy.js', () => {
 	it('should create the cli', () => {
 
 		// when
-		cli.builder(mocks.yargs);
+		cli.builder(yargs);
 
 		// then
-		expect(mocks.yargs.command).to.have.been.calledTwice;
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-		expect(mocks.yargs.updateStrings).to.have.been.calledOnce;
-		expect(mocks.yargs.options).to.have.callCount(6);
+		expect(yargs.command).to.have.been.calledTwice;
+		expect(yargs.epilogue).to.have.been.calledOnce;
+		expect(yargs.options).to.have.callCount(6);
+		expect(yargs.updateStrings).to.have.been.calledOnce;
+		expect(yargs.usage).to.have.been.calledOnce;
 
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'Deployment:' });
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy COMMAND');
+		expect(yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'Deployment:' });
+		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy COMMAND');
 
 	});
 

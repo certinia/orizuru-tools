@@ -28,13 +28,12 @@
 
 const
 	chai = require('chai'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	htmlParser = require('../../lib/util/htmlParser'),
 
-	htmlParser = require(root + '/src/lib/util/htmlParser');
+	expect = chai.expect;
 
 chai.use(sinonChai);
 

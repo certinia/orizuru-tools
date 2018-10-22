@@ -30,7 +30,6 @@ const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -53,7 +52,7 @@ describe('service/deploy/namedCredential.js', () => {
 		mocks.inquirer = sinon.stub();
 		mocks.inquirer.prompt = sinon.stub();
 
-		namedCredential = proxyquire(root + '/src/lib/service/deploy/namedCredential.js', {
+		namedCredential = proxyquire('../../../lib/service/deploy/namedCredential', {
 			inquirer: mocks.inquirer,
 			jsforce: mocks.jsforce
 		});

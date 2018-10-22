@@ -30,7 +30,6 @@ const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -53,7 +52,7 @@ describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () =>
 			}]),
 			readFileSync: sinon.stub().returns(new Buffer('potato'))
 		};
-		getAvscFilesOnPathRecursively = proxyquire(root + '/src/lib/service/generateApexTransport/getAvscFilesOnPathRecursively', {
+		getAvscFilesOnPathRecursively = proxyquire('../../../lib/service/generateApexTransport/getAvscFilesOnPathRecursively', {
 			'klaw-sync': mocks.klawSync,
 			fs: {
 				readFileSync: mocks.readFileSync

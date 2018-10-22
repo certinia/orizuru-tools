@@ -27,7 +27,6 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
@@ -63,7 +62,7 @@ describe('service/generateApexTransport.js', () => {
 
 		mocks.overwriteFile = sinon.stub();
 
-		service = proxyquire(root + '/src/lib/service/generateApexTransport', {
+		service = proxyquire('../../lib/service/generateApexTransport', {
 			'./generateApexTransport/getAvscFilesOnPathRecursively': mocks.getAvscFilesOnPathRecursively,
 			'./generateApexTransport/generate': mocks.generate,
 			'./generateApexTransport/overwriteFile': mocks.overwriteFile,
@@ -113,7 +112,8 @@ describe('service/generateApexTransport.js', () => {
 		it('should search for .avsc files in input path and log error if search throws', () => {
 
 			// given
-			const input = {
+			const
+				input = {
 					argv: {
 						inputUrl: 'inputTest',
 						outputUrl: 'outputTest'

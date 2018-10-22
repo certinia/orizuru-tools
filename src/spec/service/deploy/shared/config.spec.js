@@ -29,7 +29,6 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
@@ -53,7 +52,7 @@ describe('service/deploy/shared/config.js', () => {
 
 		mocks.fsextra.readJSON = sinon.stub();
 
-		configFile = proxyquire(root + '/src/lib/service/deploy/shared/config.js', {
+		configFile = proxyquire('../../../../lib/service/deploy/shared/config', {
 			'fs-extra': mocks.fsextra
 		});
 

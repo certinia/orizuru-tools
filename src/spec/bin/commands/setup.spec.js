@@ -28,12 +28,14 @@
 
 const
 	chai = require('chai'),
-	root = require('app-root-path'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
+	yargs = require('yargs'),
+
+	COPYRIGHT_NOTICE = require('../../../lib/bin/constants/constants').COPYRIGHT_NOTICE,
+
+	cli = require('../../../lib/bin/commands/setup'),
 
 	expect = chai.expect;
 
@@ -41,24 +43,12 @@ chai.use(sinonChai);
 
 describe('bin/commands/setup.js', () => {
 
-	let cli, mocks;
-
 	beforeEach(() => {
-
-		mocks = {
-			yargs: {
-				command: sinon.stub().returnsThis(),
-				demandCommand: sinon.stub().returnsThis(),
-				epilogue: sinon.stub().returnsThis(),
-				updateStrings: sinon.stub().returnsThis(),
-				usage: sinon.stub().returnsThis()
-			}
-		};
-
-		cli = proxyquire(root + '/src/lib/bin/commands/setup', {
-			yargs: mocks.yargs
-		});
-
+		sinon.stub(yargs, 'command').returnsThis();
+		sinon.stub(yargs, 'demandCommand').returnsThis();
+		sinon.stub(yargs, 'epilogue').returnsThis();
+		sinon.stub(yargs, 'updateStrings').returnsThis();
+		sinon.stub(yargs, 'usage').returnsThis();
 	});
 
 	afterEach(() => {
@@ -68,18 +58,19 @@ describe('bin/commands/setup.js', () => {
 	it('should create the cli', () => {
 
 		// when
-		cli.builder(mocks.yargs);
+		cli.builder(yargs);
 
 		// then
-		expect(mocks.yargs.command).to.have.been.calledTwice;
-		expect(mocks.yargs.demandCommand).to.have.been.calledOnce;
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-		expect(mocks.yargs.updateStrings).to.have.been.calledOnce;
+		expect(yargs.command).to.have.been.calledTwice;
+		expect(yargs.demandCommand).to.have.been.calledOnce;
+		expect(yargs.epilogue).to.have.been.calledOnce;
+		expect(yargs.updateStrings).to.have.been.calledOnce;
+		expect(yargs.usage).to.have.been.calledOnce;
 
-		expect(mocks.yargs.demandCommand).to.have.been.calledWith(3, 'Run \'orizuru setup --help\' for more information on a command.\n');
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'Setup:' });
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup COMMAND');
+		expect(yargs.demandCommand).to.have.been.calledWith(3, 'Run \'orizuru setup --help\' for more information on a command.\n');
+		expect(yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'Setup:' });
+		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup COMMAND');
 
 	});
 

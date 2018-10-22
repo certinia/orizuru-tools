@@ -30,15 +30,14 @@ const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect,
 
-	dockerService = require(root + '/src/lib/service/docker/docker'),
-	composeService = require(root + '/src/lib/service/docker/compose'),
-	promptService = require(root + '/src/lib/service/docker/prompt');
+	dockerService = require('../../lib/service/docker/docker'),
+	composeService = require('../../lib/service/docker/compose'),
+	promptService = require('../../lib/service/docker/prompt');
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -68,7 +67,7 @@ describe('service/docker', () => {
 		sinon.stub(dockerService, 'removeDanglingImages');
 		sinon.stub(dockerService, 'stopContainers');
 
-		docker = proxyquire(root + '/src/lib/service/docker', {
+		docker = proxyquire('../../lib/service/docker', {
 			'../util/logger': mocks.logger
 		});
 

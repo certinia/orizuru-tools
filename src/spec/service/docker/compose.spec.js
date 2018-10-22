@@ -30,7 +30,6 @@ const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -58,7 +57,7 @@ describe('service/docker/compose', () => {
 		mocks.shell = sinon.stub();
 		mocks.shell.executeCommands = sinon.stub();
 
-		compose = proxyquire(root + '/src/lib/service/docker/compose', {
+		compose = proxyquire('../../../lib/service/docker/compose', {
 			klaw: mocks.klaw,
 			'../../util/shell': mocks.shell,
 			path: mocks.path,

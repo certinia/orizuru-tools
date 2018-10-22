@@ -29,10 +29,12 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
+
+	shell = require('../../../lib/util/shell'),
+
+	docker = require('../../../lib/service/docker/docker'),
 
 	expect = chai.expect;
 
@@ -41,18 +43,8 @@ chai.use(sinonChai);
 
 describe('service/docker/docker', () => {
 
-	let docker, mocks;
-
 	beforeEach(() => {
-
-		mocks = {};
-		mocks.shell = sinon.stub();
-		mocks.shell.executeCommand = sinon.stub();
-
-		docker = proxyquire(root + '/src/lib/service/docker/docker', {
-			'../../util/shell': mocks.shell
-		});
-
+		sinon.stub(shell, 'executeCommand');
 	});
 
 	afterEach(() => {
@@ -74,7 +66,7 @@ describe('service/docker/docker', () => {
 			return expect(docker.displayLogs(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.not.have.been.called;
+					expect(shell.executeCommand).to.not.have.been.called;
 				});
 
 		});
@@ -101,14 +93,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedContainerId);
+			shell.executeCommand.resolves(expectedContainerId);
 
 			// when/then
 			return expect(docker.displayLogs(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -146,7 +138,7 @@ describe('service/docker/docker', () => {
 					}
 				}];
 
-			mocks.shell.executeCommand
+			shell.executeCommand
 				.onFirstCall().resolves(expectedContainerId1)
 				.onSecondCall().resolves(expectedContainerId2);
 
@@ -154,9 +146,9 @@ describe('service/docker/docker', () => {
 			return expect(docker.displayLogs(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
+					expect(shell.executeCommand).to.have.been.calledTwice;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 				});
 
 		});
@@ -207,14 +199,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.findContainersForImage(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -262,14 +254,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.findContainersForImage(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -309,14 +301,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.findDanglingImages(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -357,14 +349,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.findDanglingImages(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -404,14 +396,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.listContainers(true)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -450,14 +442,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.listContainers(true)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -496,14 +488,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.listContainers(false)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -543,14 +535,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.listImages(true)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -589,14 +581,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.listImages(true)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -635,14 +627,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.listImages(false)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -664,7 +656,7 @@ describe('service/docker/docker', () => {
 			return expect(docker.removeContainers(expectedInput))
 				.to.eventually.deep.equal(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.not.have.been.called;
+					expect(shell.executeCommand).to.not.have.been.called;
 				});
 
 		});
@@ -704,14 +696,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.removeContainers(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -768,7 +760,7 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand
+			shell.executeCommand
 				.onFirstCall().resolves(expectedCommandOutput[0])
 				.onSecondCall().resolves(expectedCommandOutput[1]);
 
@@ -776,9 +768,9 @@ describe('service/docker/docker', () => {
 			return expect(docker.removeContainers(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
+					expect(shell.executeCommand).to.have.been.calledTwice;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 				});
 
 		});
@@ -800,7 +792,7 @@ describe('service/docker/docker', () => {
 			return expect(docker.removeImages(expectedInput))
 				.to.eventually.deep.equal(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.not.have.been.called;
+					expect(shell.executeCommand).to.not.have.been.called;
 				});
 
 		});
@@ -840,14 +832,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.removeImages(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -904,7 +896,7 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand
+			shell.executeCommand
 				.onFirstCall().resolves(expectedCommandOutput[0])
 				.onSecondCall().resolves(expectedCommandOutput[1]);
 
@@ -912,9 +904,9 @@ describe('service/docker/docker', () => {
 			return expect(docker.removeImages(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
+					expect(shell.executeCommand).to.have.been.calledTwice;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 				});
 
 		});
@@ -936,13 +928,13 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
 			// when/then
 			return expect(docker.removeDanglingImages(expectedInput))
 				.to.eventually.be.fulfilled
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledOnce;
 				});
 
 		});
@@ -983,7 +975,7 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand
+			shell.executeCommand
 				.onCall(0).resolves(expectedCommandOutput[0])
 				.onCall(1).resolves(expectedCommandOutput[1])
 				.onCall(2).resolves(expectedCommandOutput[1])
@@ -994,7 +986,7 @@ describe('service/docker/docker', () => {
 			return expect(docker.removeDanglingImages(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.callCount(5);
+					expect(shell.executeCommand).to.have.callCount(5);
 				});
 
 		});
@@ -1016,7 +1008,7 @@ describe('service/docker/docker', () => {
 			return expect(docker.stopContainers(expectedInput))
 				.to.eventually.deep.equal(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.not.have.been.called;
+					expect(shell.executeCommand).to.not.have.been.called;
 				});
 
 		});
@@ -1043,14 +1035,14 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedContainerId);
+			shell.executeCommand.resolves(expectedContainerId);
 
 			// when/then
 			return expect(docker.stopContainers(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -1088,7 +1080,7 @@ describe('service/docker/docker', () => {
 					}
 				}];
 
-			mocks.shell.executeCommand
+			shell.executeCommand
 				.onFirstCall().resolves(expectedContainerId1)
 				.onSecondCall().resolves(expectedContainerId2);
 
@@ -1096,9 +1088,9 @@ describe('service/docker/docker', () => {
 			return expect(docker.stopContainers(expectedInput))
 				.to.eventually.eql(expectedInput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
+					expect(shell.executeCommand).to.have.been.calledTwice;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 				});
 
 		});

@@ -47,7 +47,6 @@ module.exports = {
 			demandOption: false,
 			type: 'boolean'
 		})
-		.epilogue(COPYRIGHT_NOTICE)
-		.argv,
+		.epilogue(COPYRIGHT_NOTICE),
 	handler: (argv) => service.reset({ argv })
 };

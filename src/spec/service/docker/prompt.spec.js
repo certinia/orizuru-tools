@@ -29,34 +29,20 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
+
+	inquirer = require('inquirer'),
+
+	prompt = require('../../../lib/service/docker/prompt'),
 
 	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 
-function createMocks() {
-	return {
-		inquirer: {
-			prompt: sinon.stub()
-		}
-	};
-}
-
 describe('service/docker/prompt.js', () => {
 
-	let mocks, prompt;
-
 	beforeEach(() => {
-
-		mocks = createMocks();
-
-		prompt = proxyquire(root + '/src/lib/service/docker/prompt', {
-			inquirer: mocks.inquirer
-		});
-
+		sinon.stub(inquirer, 'prompt');
 	});
 
 	afterEach(() => {
@@ -137,13 +123,13 @@ describe('service/docker/prompt.js', () => {
 					}
 				};
 
-			mocks.inquirer.prompt.resolves(expectedAnswer);
+			inquirer.prompt.resolves(expectedAnswer);
 
 			// when/then
 			return expect(prompt.getServicesForProcess(expectedMessage)(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.inquirer.prompt.args[0][0][0].choices).to.eql(expectedChoices);
+					expect(inquirer.prompt.args[0][0][0].choices).to.eql(expectedChoices);
 				});
 
 		});

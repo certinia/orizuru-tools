@@ -27,35 +27,28 @@
 'use strict';
 
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	yargs = require('yargs'),
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
+	COPYRIGHT_NOTICE = require('../../../../lib/bin/constants/constants').COPYRIGHT_NOTICE,
 
-	service = require('../../../../lib/service/generateApexTransport');
+	service = require('../../../../lib/service/generateApexTransport'),
+
+	cli = require('../../../../lib/bin/commands/setup/generateApexTransport'),
+
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('bin/commands/setup/generateApexTransport.js', () => {
 
-	let cli, mocks;
-
 	beforeEach(() => {
-
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sinon.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sinon.stub().returns(mocks.yargs);
-
-		cli = proxyquire(root + '/src/lib/bin/commands/setup/generateApexTransport', {
-			yargs: mocks.yargs
-		});
-
+		sinon.stub(yargs, 'epilogue').returnsThis();
+		sinon.stub(yargs, 'option').returnsThis();
+		sinon.stub(yargs, 'usage').returnsThis();
 	});
 
 	afterEach(() => {
@@ -74,14 +67,14 @@ describe('bin/commands/setup/generateApexTransport.js', () => {
 	it('should create the cli', () => {
 
 		// when
-		cli.builder(mocks.yargs);
+		cli.builder(yargs);
 
 		// then
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-		expect(mocks.yargs.usage).to.have.been.calledOnce;
+		expect(yargs.epilogue).to.have.been.calledOnce;
+		expect(yargs.usage).to.have.been.calledOnce;
 
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup generateapextransport [.avsc folder path] [apex class output path]');
+		expect(yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
+		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru setup generateapextransport [.avsc folder path] [apex class output path]');
 
 	});
 

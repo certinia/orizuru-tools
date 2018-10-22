@@ -30,7 +30,6 @@ const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -49,7 +48,7 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 		mocks.fs = {};
 		mocks.fs.writeFile = sinon.stub();
 
-		overwriteFile = proxyquire(root + '/src/lib/service/generateApexTransport/overwriteFile', {
+		overwriteFile = proxyquire('../../../lib/service/generateApexTransport/overwriteFile', {
 			'fs-extra': mocks.fs
 		});
 

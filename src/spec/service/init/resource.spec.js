@@ -28,10 +28,14 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
+
+	path = require('path'),
+
+	shell = require('../../../lib/util/shell'),
+
+	resource = require('../../../lib/service/init/resource'),
 
 	expect = chai.expect;
 
@@ -40,18 +44,9 @@ chai.use(sinonChai);
 
 describe('service/init/resource.js', () => {
 
-	let resource, mocks;
-
 	beforeEach(() => {
-
-		mocks = {};
-		mocks.shell = sinon.stub();
-		mocks.shell.executeCommand = sinon.stub();
-
-		resource = proxyquire(root + '/src/lib/service/init/resource', {
-			'../../util/shell': mocks.shell
-		});
-
+		sinon.stub(process, 'cwd').returns('currentWorkingDirectory');
+		sinon.stub(shell, 'executeCommand');
 	});
 
 	afterEach(() => {
@@ -64,14 +59,14 @@ describe('service/init/resource.js', () => {
 
 			// given
 			const
-				templateFolder = root + '/templates',
+				templateFolder = 'templates',
 				folder = 'simple-example',
 				expectedCommand = {
-					args: ['-r', `${templateFolder}/${folder}/res/.`, `${root}`],
+					args: ['-r', `currentWorkingDirectory/${templateFolder}/${folder}/res/.`, 'currentWorkingDirectory'],
 					cmd: 'cp',
 					opts: {
 						logging: {
-							finish: `Copied ${templateFolder}/${folder}/res/. to ${root}`
+							finish: `Copied currentWorkingDirectory/${templateFolder}/${folder}/res/. to currentWorkingDirectory`
 						}
 					}
 				},
@@ -83,14 +78,14 @@ describe('service/init/resource.js', () => {
 				},
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand.resolves();
+			shell.executeCommand.resolves();
 
 			// when - then
 			return expect(resource.copy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledTwice;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});
@@ -99,7 +94,7 @@ describe('service/init/resource.js', () => {
 
 			// given
 			const
-				templateFolder = root + '/templates',
+				templateFolder = 'templates',
 				mainTemplate = 'main-template',
 				extendedTemplate = 'other-template',
 				expectedInput = {
@@ -114,34 +109,34 @@ describe('service/init/resource.js', () => {
 					templateFolder
 				},
 				expectedCommandExtendedTemplate = {
-					args: ['-r', `${templateFolder}/${extendedTemplate}/res/.`, `${root}`],
+					args: ['-r', `currentWorkingDirectory/${templateFolder}/${extendedTemplate}/res/.`, 'currentWorkingDirectory'],
 					cmd: 'cp',
 					opts: {
 						logging: {
-							finish: `Copied ${templateFolder}/${extendedTemplate}/res/. to ${root}`
+							finish: `Copied currentWorkingDirectory/${templateFolder}/${extendedTemplate}/res/. to currentWorkingDirectory`
 						}
 					}
 				},
 				expectedCommandMainTemplate = {
-					args: ['-r', `${templateFolder}/${mainTemplate}/res/.`, `${root}`],
+					args: ['-r', `currentWorkingDirectory/${templateFolder}/${mainTemplate}/res/.`, 'currentWorkingDirectory'],
 					cmd: 'cp',
 					opts: {
 						logging: {
-							finish: `Copied ${templateFolder}/${mainTemplate}/res/. to ${root}`
+							finish: `Copied currentWorkingDirectory/${templateFolder}/${mainTemplate}/res/. to currentWorkingDirectory`
 						}
 					}
 				},
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand.resolves();
+			shell.executeCommand.resolves();
 
 			// when - then
 			return expect(resource.copy(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledThrice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommandExtendedTemplate, expectedInput);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommandMainTemplate, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledThrice;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommandExtendedTemplate, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommandMainTemplate, expectedInput);
 				});
 
 		});
@@ -153,8 +148,12 @@ describe('service/init/resource.js', () => {
 		it('should rename the gitignore file to .gitignore', () => {
 
 			// given
+			sinon.stub(path, 'resolve')
+				.withArgs('currentWorkingDirectory', 'gitignore').returns('gitignore')
+				.withArgs('currentWorkingDirectory', '.gitignore').returns('.gitignore');
+
 			const
-				templateFolder = root + '/templates',
+				templateFolder = './templates',
 				folder = 'simple-example',
 				expectedInput = {
 					selectedTemplate: {
@@ -163,24 +162,24 @@ describe('service/init/resource.js', () => {
 					templateFolder
 				},
 				expectedCommand = {
-					args: [`${root}/gitignore`, `${root}/.gitignore`],
+					args: ['gitignore', '.gitignore'],
 					cmd: 'mv',
 					opts: {
 						logging: {
-							finish: `Renamed ${root}/gitignore to ${root}/.gitignore`
+							finish: 'Renamed gitignore to .gitignore'
 						}
 					}
 				},
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
 			// when - then
 			return expect(resource.renameGitIgnore(expectedInput))
 				.to.eventually.eql(expectedOutput)
 				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
+					expect(shell.executeCommand).to.have.been.calledOnce;
+					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 				});
 
 		});

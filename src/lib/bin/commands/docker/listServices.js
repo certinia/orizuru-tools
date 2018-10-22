@@ -47,7 +47,6 @@ module.exports = {
 			describe: 'Turn on all logging',
 			demandOption: false,
 			type: 'boolean'
-		})
-		.argv,
+		}),
 	handler: (argv) => service.listServices({ argv })
 };

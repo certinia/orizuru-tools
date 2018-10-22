@@ -29,7 +29,6 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
@@ -51,7 +50,7 @@ describe('service/deploy/properties.js', () => {
 		mocks.fsextra.readFile = sinon.stub();
 		mocks.fsextra.writeFile = sinon.stub();
 
-		properties = proxyquire(root + '/src/lib/service/deploy/properties.js', {
+		properties = proxyquire('../../../lib/service/deploy/properties', {
 			'fs-extra': mocks.fsextra
 		});
 	});
@@ -122,7 +121,7 @@ describe('service/deploy/properties.js', () => {
 					}
 				},
 				readOutput =
-				'JWT_SIGNING_KEY="notSameKey"\nOPENID_CLIENT_ID=anotherKey\nOPENID_ISSUER_URI=https://test.salesforce.com/\nOPENID_HTTP_TIMEOUT=4000\nDEBUG=*',
+					'JWT_SIGNING_KEY="notSameKey"\nOPENID_CLIENT_ID=anotherKey\nOPENID_ISSUER_URI=https://test.salesforce.com/\nOPENID_HTTP_TIMEOUT=4000\nDEBUG=*',
 				expectedOutput = {
 					certificate: {
 						privateKey: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\nCdHiDY5XGE=\n-----END RSA PRIVATE KEY----'

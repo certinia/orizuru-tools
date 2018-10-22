@@ -42,21 +42,21 @@ const
 
 	SELECTED_TEMPLATE_CONFIGURATION_FILE_EXTENSIONS = 'selectedTemplate.configuration.extensions',
 	SELECTED_TEMPLATE_PATH = 'selectedTemplate.fullPath',
-	TEMPLATE_FOLDER = 'templateFolder',
-
-	CWD = process.cwd();
+	TEMPLATE_FOLDER = 'templateFolder';
 
 function copySingleResource(config, resource) {
 
-	const command = {
-		cmd: 'cp',
-		args: ['-r', resource + '/.', CWD],
-		opts: {
-			logging: {
-				finish: `Copied ${resource}/. to ${CWD}`
+	const
+		cwd = process.cwd(),
+		command = {
+			cmd: 'cp',
+			args: ['-r', resource + '/.', cwd],
+			opts: {
+				logging: {
+					finish: `Copied ${resource}/. to ${cwd}`
+				}
 			}
-		}
-	};
+		};
 
 	return shell.executeCommand(command, config);
 
@@ -81,7 +81,7 @@ function copy(config) {
 
 	return Promise.reduce(extensionResources, copySingleResource, config)
 		.then(() => copySingleResource(config, resourcePath))
-		.then(() => shell.executeCommand({ cmd: 'ls', args: ['-a', CWD] }))
+		.then(() => shell.executeCommand({ cmd: 'ls', args: ['-a', process.cwd()] }))
 		.then(() => config);
 }
 
@@ -98,8 +98,9 @@ function copy(config) {
 function renameGitIgnore(config) {
 
 	const
-		oldPath = path.resolve(CWD, 'gitignore'),
-		newPath = path.resolve(CWD, '.gitignore'),
+		cwd = process.cwd(),
+		oldPath = path.resolve(cwd, 'gitignore'),
+		newPath = path.resolve(cwd, '.gitignore'),
 		command = {
 			cmd: 'mv',
 			args: [oldPath, newPath],

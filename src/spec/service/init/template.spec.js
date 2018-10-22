@@ -29,7 +29,6 @@ const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -57,7 +56,7 @@ describe('service/init/template.js', () => {
 		mocks.inquirer = sinon.stub();
 		mocks.inquirer.prompt = sinon.stub();
 
-		template = proxyquire(root + '/src/lib/service/init/template', {
+		template = proxyquire('../../../lib/service/init/template', {
 			'fs-extra': mocks.fs,
 			inquirer: mocks.inquirer
 		});

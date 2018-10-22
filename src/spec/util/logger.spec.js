@@ -27,9 +27,7 @@
 'use strict';
 
 const
-	_ = require('lodash'),
 	chai = require('chai'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -42,13 +40,13 @@ describe('util/logger.js', () => {
 	let logger;
 
 	beforeEach(() => {
-		delete require.cache[root + '/src/lib/util/logger.js'];
-		logger = require(root + '/src/lib/util/logger.js');
+		delete require.cache[require.resolve('../../lib/util/logger')];
+		logger = require('../../lib/util/logger');
 		sinon.stub(process.stdout, 'write');
 	});
 
 	afterEach(() => {
-		const data = _.last(process.stdout.write.args);
+		const data = process.stdout.write.args.pop();
 		sinon.restore();
 		process.stdout.write(data[0]);
 	});

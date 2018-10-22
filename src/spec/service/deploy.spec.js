@@ -29,7 +29,6 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -44,7 +43,7 @@ const
 
 	logger = require('../../lib/util/logger'),
 
-	service = require(root + '/src/lib/service/deploy'),
+	service = require('../../lib/service/deploy'),
 
 	expect = chai.expect;
 
