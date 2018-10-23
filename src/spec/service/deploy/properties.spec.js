@@ -75,7 +75,7 @@ describe('service/deploy/properties.js', () => {
 						}
 					},
 					properties: {
-						filepath: '/Users/test/git/orizuru-tools/local.run.properties',
+						filepath: '/Users/test/git/orizuru-tools/.env',
 						content: [
 							'JWT_SIGNING_KEY="-----BEGIN RSA PRIVATE KEY-----\\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\\nCdHiDY5XGE=\\n-----END RSA PRIVATE KEY----"',
 							'OPENID_CLIENT_ID=consumerKey',
@@ -100,6 +100,7 @@ describe('service/deploy/properties.js', () => {
 		});
 
 		it('should update an existing properties file', async () => {
+
 			const
 				expectedCwd = '/Users/test/git/orizuru-tools',
 				expectedInput = {
@@ -124,7 +125,7 @@ describe('service/deploy/properties.js', () => {
 						}
 					},
 					properties: {
-						filepath: '/Users/test/git/orizuru-tools/local.run.properties',
+						filepath: '/Users/test/git/orizuru-tools/.env',
 						content: [
 							'#JWT_SIGNING_KEY="notSameKey"',
 							'#OPENID_CLIENT_ID=anotherKey',

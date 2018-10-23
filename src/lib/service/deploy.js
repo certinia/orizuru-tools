@@ -109,7 +109,7 @@ function fullDeploy(config) {
 		.then(namedCredential.create)
 		.then(logger.logEvent('\nUpdating dyno formation'))
 		.then(heroku.addFormation)
-		.then(logger.logEvent('Adding/Updating local.run.properties'))
+		.then(logger.logEvent('Adding/Updating .env'))
 		.then(properties.updateProperties)
 		.then(sfdx.openOrg)
 		.then(logger.logFinish('Finished Full Deploy'))
