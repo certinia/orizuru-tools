@@ -33,7 +33,7 @@ const
 
 	fs = require('fs-extra'),
 
-	overwriteFile = require('../../../lib/service/generateApexTransport/overwriteFile'),
+	{ overwriteFile } = require('../../../lib/service/generateApexTransport/overwriteFile'),
 
 	expect = chai.expect;
 

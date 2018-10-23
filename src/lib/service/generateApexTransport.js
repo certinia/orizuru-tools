@@ -36,8 +36,8 @@ const
 	_ = require('lodash'),
 	path = require('path'),
 
-	getAvscFilesOnPathRecursively = require('./generateApexTransport/getAvscFilesOnPathRecursively').getAvscFilesOnPathRecursively,
-	generate = require('./generateApexTransport/generate').generate,
+	getAvscFilesOnPathRecursively = require('./generateApexTransport/getAvscFilesOnPathRecursively'),
+	generate = require('./generateApexTransport/generate'),
 	overwriteFile = require('./generateApexTransport/overwriteFile'),
 
 	logger = require('../util/logger');
@@ -68,13 +68,13 @@ function generateClasses(config) {
 
 	const
 		avscFilesPath = path.resolve(process.cwd(), config.argv.inputUrl),
-		files = getAvscFilesOnPathRecursively(avscFilesPath),
+		files = getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively(avscFilesPath),
 		parsedSchemas = parseSchemas(files),
-		result = generate(parsedSchemas),
+		result = generate.generate(parsedSchemas),
 		outputPath = path.resolve(process.cwd(), config.argv.outputUrl);
 
-	return overwriteFile(outputPath, 'OrizuruTransport.cls', result.cls)
-		.then(() => overwriteFile(outputPath, 'OrizuruTransport.cls-meta.xml', result.xml))
+	return overwriteFile.overwriteFile(outputPath, 'OrizuruTransport.cls', result.cls)
+		.then(() => overwriteFile.overwriteFile(outputPath, 'OrizuruTransport.cls-meta.xml', result.xml))
 		.then(() => config);
 }
 
