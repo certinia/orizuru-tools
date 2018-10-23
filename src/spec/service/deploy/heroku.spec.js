@@ -63,7 +63,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('addAddOns', () => {
 
-		it('should create the add-ons specified in the app.json, filtering out existing addons', () => {
+		it('should create the add-ons specified in the app.json, filtering out existing addons', async () => {
 
 			// Given
 			const
@@ -103,13 +103,13 @@ describe('service/deploy/heroku.js', () => {
 			});
 			shell.executeCommands = sinon.stub().resolves();
 
-			// When - Then
-			return expect(heroku.addAddOns(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledWith(expectedQueryCommand);
-					expect(shell.executeCommands).to.have.been.calledWith(expectedCreateCommands);
-				});
+			// When
+			const output = await heroku.addAddOns(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedQueryCommand);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedCreateCommands);
 
 		});
 
@@ -117,7 +117,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('addBuildpacks', () => {
 
-		it('should add the build packs specified in the app.json', () => {
+		it('should add the build packs specified in the app.json', async () => {
 
 			// Given
 			const
@@ -153,12 +153,12 @@ describe('service/deploy/heroku.js', () => {
 
 			shell.executeCommands = sinon.stub().resolves();
 
-			// When - Then
-			return expect(heroku.addBuildpacks(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: false });
-				});
+			// When
+			const output = await heroku.addBuildpacks(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: false });
 
 		});
 
@@ -166,7 +166,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('addFormation', () => {
 
-		it('should add the dyno formation specified in the app.json', () => {
+		it('should add the dyno formation specified in the app.json', async () => {
 
 			// Given
 			const
@@ -207,12 +207,12 @@ describe('service/deploy/heroku.js', () => {
 
 			shell.executeCommands = sinon.stub().resolves();
 
-			// When - Then
-			return expect(heroku.addFormation(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommands).to.have.calledWith(expectedCommand);
-				});
+			// When
+			const output = await heroku.addFormation(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.calledWith(expectedCommand);
 
 		});
 
@@ -220,20 +220,20 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('checkHerokuCliInstalled', () => {
 
-		it('should check that the Heroku CLI is installed', () => {
+		it('should check that the Heroku CLI is installed', async () => {
 
 			// Given
 			const expectedCommand = { cmd: 'heroku', args: ['version'] };
 
 			shell.executeCommand = sinon.stub().resolves('heroku-toolbelt/3.43.9999 (x86_64-darwin10.8.0) ruby/1.9.3\nheroku-cli/6.14.36-15f8a25 (darwin-x64) node-v8.7.0');
 
-			// When - Then
-			return expect(heroku.checkHerokuCliInstalled({}))
-				.to.eventually.eql({})
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await heroku.checkHerokuCliInstalled({});
+
+			// Then
+			expect(output).to.eql({});
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -241,7 +241,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('createNewApp', () => {
 
-		it('should create a new Heroku app', () => {
+		it('should create a new Heroku app', async () => {
 
 			// Given
 			const
@@ -258,13 +258,13 @@ describe('service/deploy/heroku.js', () => {
 
 			shell.executeCommand = sinon.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });
 
-			// When - Then
-			return expect(heroku.createNewApp(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await heroku.createNewApp(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -272,7 +272,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('createNewOrganizationApp', () => {
 
-		it('should create a new Heroku app in the expected organization', () => {
+		it('should create a new Heroku app in the expected organization', async () => {
 
 			// Given
 			const
@@ -293,14 +293,14 @@ describe('service/deploy/heroku.js', () => {
 			inquirer.prompt = sinon.stub().resolves({ heroku: { organization: expectedTeam } });
 			shell.executeCommand = sinon.stub().withArgs(expectedAppCommand).resolves({ stdout: `{"name":"${expectedAppName}"}` });
 
-			// When - Then
-			return expect(heroku.createNewOrganizationApp(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledTwice;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedOrgCommand);
-					expect(shell.executeCommand).to.have.been.calledWith(expectedAppCommand);
-				});
+			// When
+			const output = await heroku.createNewOrganizationApp(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedOrgCommand);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedAppCommand);
 
 		});
 
@@ -308,7 +308,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('checkWorkingChanges', () => {
 
-		it('should resolve if there are working changes and the user responds yes to prompt', () => {
+		it('should resolve if there are working changes and the user responds yes to prompt', async () => {
 
 			// Given
 			const
@@ -320,16 +320,17 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 			inquirer.prompt = sinon.stub().resolves({ ignoreChanges: true });
 
-			// When - Then
-			return expect(heroku.checkWorkingChanges({}))
-				.to.eventually.eql({})
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(inquirer.prompt).to.have.been.calledOnce;
-				});
+			// When
+			const output = await heroku.checkWorkingChanges({});
+
+			// Then
+			expect(output).to.eql({});
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(inquirer.prompt).to.have.been.calledOnce;
+
 		});
 
-		it('should reject if there are working changes and the user responds no to prompt', () => {
+		it('should reject if there are working changes and the user responds no to prompt', async () => {
 
 			// Given
 			const
@@ -341,16 +342,16 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 			inquirer.prompt = sinon.stub().resolves({ ignoreChanges: false });
 
-			// When - Then
-			return expect(heroku.checkWorkingChanges({}))
-				.to.eventually.be.rejectedWith('Aborting deploy due to uncomitted changes')
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(inquirer.prompt).to.have.been.calledOnce;
-				});
+			// When
+			await expect(heroku.checkWorkingChanges({})).to.eventually.be.rejectedWith('Aborting deploy due to uncomitted changes');
+
+			// Then
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(inquirer.prompt).to.have.been.calledOnce;
+
 		});
 
-		it('should resolve if there are no working changes', () => {
+		it('should resolve if there are no working changes', async () => {
 
 			// Given
 			const
@@ -361,18 +362,20 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().resolves();
 			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 
-			// When - Then
-			return expect(heroku.checkWorkingChanges({}))
-				.to.eventually.eql({})
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-				});
+			// When
+			const output = await heroku.checkWorkingChanges({});
+
+			// Then
+			expect(output).to.eql({});
+			expect(shell.executeCommand).to.have.been.calledOnce;
+
 		});
+
 	});
 
 	describe('deployCurrentBranch', () => {
 
-		it('should deploy the current branch to Heroku', () => {
+		it('should deploy the current branch to Heroku', async () => {
 
 			// Given
 			const
@@ -403,16 +406,16 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().resolves();
 			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] }).resolves({ stdout: 'master' });
 
-			// When - Then
-			return expect(heroku.deployCurrentBranch(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.callCount(5);
-					expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: false } });
-					expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'add', 'autodeploy', 'https://git.heroku.com/rocky-shore-45862.git'] });
-					expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] });
-					expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['push', 'autodeploy', 'master:master', '-f'], opts: { namespace: 'deploy' } });
-				});
+			// When
+			const output = await heroku.deployCurrentBranch(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.callCount(5);
+			expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: false } });
+			expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'add', 'autodeploy', 'https://git.heroku.com/rocky-shore-45862.git'] });
+			expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] });
+			expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['push', 'autodeploy', 'master:master', '-f'], opts: { namespace: 'deploy' } });
 
 		});
 
@@ -420,7 +423,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('getAllApps', () => {
 
-		it('should get all the current Heroku apps', () => {
+		it('should get all the current Heroku apps', async () => {
 
 			// Given
 			const
@@ -439,13 +442,13 @@ describe('service/deploy/heroku.js', () => {
 
 			shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
 
-			// When - Then
-			return expect(heroku.getAllApps(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await heroku.getAllApps(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -453,7 +456,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('readAppJson', () => {
 
-		it('should read the app.json file', () => {
+		it('should read the app.json file', async () => {
 
 			// Given
 			const
@@ -486,12 +489,15 @@ describe('service/deploy/heroku.js', () => {
 
 			fs.readJson.resolves({ name: 'rocky-shore-45862' });
 
-			// When - Then
-			return expect(heroku.readAppJson(expectedInput)).to.eventually.eql(expectedOutput);
+			// When
+			const output = await heroku.readAppJson(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
 
 		});
 
-		it('should throw an error if app.json doesn\'t exist', () => {
+		it('should throw an error if app.json doesn\'t exist', async () => {
 
 			// Given
 			const
@@ -508,8 +514,8 @@ describe('service/deploy/heroku.js', () => {
 
 			fs.readJson.rejects(new Error('test'));
 
-			// When - Then
-			return expect(heroku.readAppJson(expectedInput)).to.eventually.be.rejectedWith('app.json is required in the root of your project when deploying to heroku.');
+			// When
+			await expect(heroku.readAppJson(expectedInput)).to.eventually.be.rejectedWith('app.json is required in the root of your project when deploying to heroku.');
 
 		});
 
@@ -517,7 +523,7 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('select', () => {
 
-		it('should prompt the user to select the Heroku application without a new app option', () => {
+		it('should prompt the user to select the Heroku application without a new app option', async () => {
 
 			// Given
 			const
@@ -553,17 +559,16 @@ describe('service/deploy/heroku.js', () => {
 			inquirer.prompt.resolves(expectedAnswer);
 			config.writeSetting.resolves();
 
-			// When - Then
-			return expect(heroku.select(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(inquirer.prompt).to.have.been.calledOnce;
-					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
-				});
+			// When
+			await heroku.select(expectedInput);
+
+			// Then
+			expect(inquirer.prompt).to.have.been.calledOnce;
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 
 		});
 
-		it('should prompt the user to select the Heroku application with a new app option', () => {
+		it('should prompt the user to select the Heroku application with a new app option', async () => {
 
 			// Given
 			const
@@ -604,17 +609,16 @@ describe('service/deploy/heroku.js', () => {
 			inquirer.prompt.resolves(expectedAnswer);
 			config.writeSetting.resolves();
 
-			// When - Then
-			return expect(heroku.select(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(inquirer.prompt).to.have.been.calledOnce;
-					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
-				});
+			// When
+			await heroku.select(expectedInput);
+
+			// Then
+			expect(inquirer.prompt).to.have.been.calledOnce;
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 
 		});
 
-		it('should prompt the user to select the Heroku application with a new app option and create a new app if that option is chosen', () => {
+		it('should prompt the user to select the Heroku application with a new app option and create a new app if that option is chosen', async () => {
 
 			// Given
 			const
@@ -654,18 +658,17 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
 			config.writeSetting.resolves();
 
-			// When - Then
-			return expect(heroku.select(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(inquirer.prompt).to.have.been.calledOnce;
-					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
-					expect(shell.executeCommand).to.have.been.calledOnce;
-				});
+			// When
+			await heroku.select(expectedInput);
+
+			// Then
+			expect(inquirer.prompt).to.have.been.calledOnce;
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
+			expect(shell.executeCommand).to.have.been.calledOnce;
 
 		});
 
-		it('should prompt the user to select the Heroku application with a new app option and create a new team app if that option is chosen', () => {
+		it('should prompt the user to select the Heroku application with a new app option and create a new team app if that option is chosen', async () => {
 
 			// Given
 			const
@@ -705,18 +708,17 @@ describe('service/deploy/heroku.js', () => {
 			shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
 			config.writeSetting.resolves();
 
-			// When - Then
-			return expect(heroku.select(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(inquirer.prompt).to.have.been.calledTwice;
-					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
-					expect(shell.executeCommand).to.have.been.calledTwice;
-				});
+			// When
+			await heroku.select(expectedInput);
+
+			// Then
+			expect(inquirer.prompt).to.have.been.calledTwice;
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
+			expect(shell.executeCommand).to.have.been.calledTwice;
 
 		});
 
-		it('should default to the Heroku org provided in the Orizuru config', () => {
+		it('should default to the Heroku org provided in the Orizuru config', async () => {
 
 			// Given
 			const
@@ -766,12 +768,11 @@ describe('service/deploy/heroku.js', () => {
 
 			inquirer.prompt.resolves(expectedAnswer);
 
-			// When - Then
-			return expect(heroku.select(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
-				});
+			// When
+			await heroku.select(expectedInput);
+
+			// Then
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 
 		});
 

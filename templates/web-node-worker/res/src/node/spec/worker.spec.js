@@ -107,11 +107,11 @@ describe('worker.js', () => {
 
 		it('with the default options', async () => {
 
-			// given
-			// when
+			// Given
+			// When
 			await require('../lib/worker');
 
-			// then
+			// Then
 			expect(transport.Transport).to.have.been.calledOnce;
 			expect(transport.Transport).to.have.been.calledWithNew;
 			expect(transport.Transport).to.have.been.calledWithExactly({
@@ -136,13 +136,13 @@ describe('worker.js', () => {
 
 		it('should create an orizuru handler with the specified options', async () => {
 
-			// given
+			// Given
 			process.env.CLOUDAMQP_URL = 'testCloudAmqpUrl';
 
-			// when
+			// When
 			await require('../lib/worker');
 
-			// then
+			// Then
 			expect(transport.Transport).to.have.been.calledOnce;
 			expect(transport.Transport).to.have.been.calledWithNew;
 			expect(transport.Transport).to.have.been.calledWithExactly({
@@ -169,7 +169,7 @@ describe('worker.js', () => {
 
 	it('should not register a schema has no associated handler', async () => {
 
-		// given
+		// Given
 		schemas.getSchemas.returns({
 			test1: {
 				incoming: 'api/test1_incoming.avsc'
@@ -178,10 +178,10 @@ describe('worker.js', () => {
 
 		handlers.getHandlers.returns({});
 
-		// when
+		// When
 		await require('../lib/worker');
 
-		// then
+		// Then
 		expect(orizuru.Handler).to.have.been.calledOnce;
 		expect(orizuru.Handler).to.have.been.calledWithNew;
 		expect(orizuru.Handler).to.have.been.calledWith({ transport: transportStubInstance });
@@ -193,7 +193,7 @@ describe('worker.js', () => {
 
 	it('should not register a handler a handler has no associated schema', async () => {
 
-		// given
+		// Given
 		schemas.getSchemas.returns({});
 
 		handlers.getHandlers.returns({
@@ -202,10 +202,10 @@ describe('worker.js', () => {
 
 		read.readHandler.returns({ name: 'api.test1.incoming.handler' });
 
-		// when
+		// When
 		await require('../lib/worker');
 
-		// then
+		// Then
 		expect(orizuru.Handler).to.have.been.calledOnce;
 		expect(orizuru.Handler).to.have.been.calledWithNew;
 		expect(orizuru.Handler).to.have.been.calledWith({ transport: transportStubInstance });

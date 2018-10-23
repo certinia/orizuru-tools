@@ -62,7 +62,8 @@ function testError(inputFiles, errorMsg) {
 
 	_.each(inputFiles, inputFile => input.push(schemaToJson(inputPath(inputFile))));
 
-	// When - Then
+	// When
+	// Then
 	expect(() => generate(input)).to.throw(errorMsg);
 
 }
@@ -78,8 +79,8 @@ function testSuccess(inputFiles, outputFile) {
 
 	_.each(inputFiles, inputFile => input.push(schemaToJson(inputPath(inputFile))));
 
-	// When - Then
-
+	// When
+	// Then
 	_.each(generate(input).cls.split('\n'), (line, index) => {
 		expect(line).to.eql(outputClsLines[index], 'Mismatch line: ' + (index + 1) + ' File: ' + outputFile);
 	});

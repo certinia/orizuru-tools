@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -38,7 +37,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/generateApexTransport/overwriteFile.js', () => {
@@ -53,24 +51,24 @@ describe('service/generateApexTransport/overwriteFile.js', () => {
 
 	describe('overwriteFile', () => {
 
-		it('should call fs.writeFile with the correct params', () => {
+		it('should call fs.writeFile with the correct params', async () => {
 
 			// Given
 			const
 				path = 'a',
 				file = 'b',
 				content = 'c',
-				expected = 'd';
+				expectedOutput = 'd';
 
-			fs.writeFile.resolves(expected);
+			fs.writeFile.resolves(expectedOutput);
 
-			// When - Then
-			return expect(overwriteFile(path, file, content))
-				.to.eventually.eql(expected)
-				.then(() => {
-					expect(fs.writeFile).to.have.been.calledOnce;
-					expect(fs.writeFile).to.have.been.calledWith(process.cwd() + '/' + path + '/' + file, content, { flag: 'w' });
-				});
+			// When
+			const output = await overwriteFile(path, file, content);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.writeFile).to.have.been.calledOnce;
+			expect(fs.writeFile).to.have.been.calledWith(process.cwd() + '/' + path + '/' + file, content, { flag: 'w' });
 
 		});
 

@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
@@ -37,7 +36,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/generateApexTransport.js', () => {
@@ -77,21 +75,21 @@ describe('service/generateApexTransport.js', () => {
 
 	describe('generateApexTransport', () => {
 
-		it('should log error if input url not supplied', () => {
+		it('should log error if input url not supplied', async () => {
 
 			// Given
 			const input = {};
 
-			//when - then
-			return expect(service.generateApexTransport(input)).to.be.fulfilled
-				.then(() => {
-					expect(mocks.logger.logError).to.have.been.calledOnce;
-					expect(mocks.logger.logError).to.have.been.calledWith(sinon.match.instanceOf(Error));
-				});
+			// When
+			await service.generateApexTransport(input);
+
+			// Then
+			expect(mocks.logger.logError).to.have.been.calledOnce;
+			expect(mocks.logger.logError).to.have.been.calledWith(sinon.match.instanceOf(Error));
 
 		});
 
-		it('should log error if output url not supplied', () => {
+		it('should log error if output url not supplied', async () => {
 
 			// Given
 			const input = {
@@ -100,16 +98,16 @@ describe('service/generateApexTransport.js', () => {
 				}
 			};
 
-			// When - Then
-			return expect(service.generateApexTransport(input)).to.be.fulfilled
-				.then(() => {
-					expect(mocks.logger.logError).to.have.been.calledOnce;
-					expect(mocks.logger.logError).to.have.been.calledWith(sinon.match.instanceOf(Error));
-				});
+			// When
+			await service.generateApexTransport(input);
+
+			// Then
+			expect(mocks.logger.logError).to.have.been.calledOnce;
+			expect(mocks.logger.logError).to.have.been.calledWith(sinon.match.instanceOf(Error));
 
 		});
 
-		it('should search for .avsc files in input path and log error if search throws', () => {
+		it('should search for .avsc files in input path and log error if search throws', async () => {
 
 			// Given
 			const
@@ -123,19 +121,18 @@ describe('service/generateApexTransport.js', () => {
 
 			mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively.throws(expectedError);
 
-			// When - Then
-			return expect(service.generateApexTransport(input))
-				.to.be.fulfilled
-				.then(() => {
-					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
-					expect(mocks.logger.logError).to.have.been.calledOnce;
-					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
-					expect(mocks.logger.logError).to.have.been.calledWith(expectedError);
-				});
+			// When
+			await service.generateApexTransport(input);
+
+			// Then
+			expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
+			expect(mocks.logger.logError).to.have.been.calledOnce;
+			expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
+			expect(mocks.logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 
-		it('should deserialize schemas and log if deserialize fails', () => {
+		it('should deserialize schemas and log if deserialize fails', async () => {
 
 			// Given
 			const input = {
@@ -149,18 +146,18 @@ describe('service/generateApexTransport.js', () => {
 				file: 'a'
 			}]);
 
-			// When - Then
-			return expect(service.generateApexTransport(input)).to.be.fulfilled
-				.then(() => {
-					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
-					expect(mocks.logger.logError).to.have.been.calledOnce;
-					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
-					expect(mocks.logger.logError).to.have.been.calledWith(sinon.match.instanceOf(Error));
-				});
+			// When
+			await service.generateApexTransport(input);
+
+			// Then
+			expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
+			expect(mocks.logger.logError).to.have.been.calledOnce;
+			expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
+			expect(mocks.logger.logError).to.have.been.calledWith(sinon.match.instanceOf(Error));
 
 		});
 
-		it('should generate apex transport and log if generate fails', () => {
+		it('should generate apex transport and log if generate fails', async () => {
 
 			// Given
 			const
@@ -177,20 +174,20 @@ describe('service/generateApexTransport.js', () => {
 			}]);
 			mocks.generate.generate.throws(expectedError);
 
-			// When - Then
-			return expect(service.generateApexTransport(input)).to.be.fulfilled
-				.then(() => {
-					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
-					expect(mocks.generate.generate).to.have.been.calledOnce;
-					expect(mocks.logger.logError).to.have.been.calledOnce;
-					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
-					expect(mocks.generate.generate).to.have.been.calledWith([{ test: 'test' }]);
-					expect(mocks.logger.logError).to.have.been.calledWith(expectedError);
-				});
+			// When
+			await service.generateApexTransport(input);
+
+			// Then
+			expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
+			expect(mocks.generate.generate).to.have.been.calledOnce;
+			expect(mocks.logger.logError).to.have.been.calledOnce;
+			expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
+			expect(mocks.generate.generate).to.have.been.calledWith([{ test: 'test' }]);
+			expect(mocks.logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 
-		it('should save generated apex transport and log if save fails', () => {
+		it('should save generated apex transport and log if save fails', async () => {
 
 			// Given
 			const
@@ -211,22 +208,22 @@ describe('service/generateApexTransport.js', () => {
 			});
 			mocks.overwriteFile.throws(expectedError);
 
-			// When - Then
-			return expect(service.generateApexTransport(input)).to.be.fulfilled
-				.then(() => {
-					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
-					expect(mocks.generate.generate).to.have.been.calledOnce;
-					expect(mocks.overwriteFile).to.have.been.calledOnce;
-					expect(mocks.logger.logError).to.have.been.calledOnce;
-					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
-					expect(mocks.generate.generate).to.have.been.calledWith([{ test: 'test' }]);
-					expect(mocks.overwriteFile).to.have.been.calledWith(resolve(process.cwd(), input.argv.outputUrl), 'OrizuruTransport.cls', 'testCls');
-					expect(mocks.logger.logError).to.have.been.calledWith(expectedError);
-				});
+			// When
+			await service.generateApexTransport(input);
+
+			// Then
+			expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
+			expect(mocks.generate.generate).to.have.been.calledOnce;
+			expect(mocks.overwriteFile).to.have.been.calledOnce;
+			expect(mocks.logger.logError).to.have.been.calledOnce;
+			expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
+			expect(mocks.generate.generate).to.have.been.calledWith([{ test: 'test' }]);
+			expect(mocks.overwriteFile).to.have.been.calledWith(resolve(process.cwd(), input.argv.outputUrl), 'OrizuruTransport.cls', 'testCls');
+			expect(mocks.logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 
-		it('should save generated apex transport and log complete if save succeeds', () => {
+		it('should save generated apex transport and log complete if save succeeds', async () => {
 
 			// Given
 			const input = {
@@ -245,19 +242,19 @@ describe('service/generateApexTransport.js', () => {
 			});
 			mocks.overwriteFile.resolves(true);
 
-			// When - Then
-			return expect(service.generateApexTransport(input)).to.be.fulfilled
-				.then(() => {
-					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
-					expect(mocks.generate.generate).to.have.been.calledOnce;
-					expect(mocks.overwriteFile).to.have.been.calledTwice;
-					expect(mocks.logger.log).to.have.been.calledOnce;
-					expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
-					expect(mocks.generate.generate).to.have.been.calledWith([{ test: 'test' }]);
-					expect(mocks.overwriteFile).to.have.been.calledWith(resolve(process.cwd(), input.argv.outputUrl), 'OrizuruTransport.cls', 'testCls');
-					expect(mocks.overwriteFile).to.have.been.calledWith(resolve(process.cwd(), input.argv.outputUrl), 'OrizuruTransport.cls-meta.xml', 'testXml');
-					expect(mocks.logger.log).to.have.been.calledWith('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + resolve(process.cwd(), input.argv.outputUrl));
-				});
+			// When
+			await service.generateApexTransport(input);
+
+			// Then
+			expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
+			expect(mocks.generate.generate).to.have.been.calledOnce;
+			expect(mocks.overwriteFile).to.have.been.calledTwice;
+			expect(mocks.logger.log).to.have.been.calledOnce;
+			expect(mocks.getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
+			expect(mocks.generate.generate).to.have.been.calledWith([{ test: 'test' }]);
+			expect(mocks.overwriteFile).to.have.been.calledWith(resolve(process.cwd(), input.argv.outputUrl), 'OrizuruTransport.cls', 'testCls');
+			expect(mocks.overwriteFile).to.have.been.calledWith(resolve(process.cwd(), input.argv.outputUrl), 'OrizuruTransport.cls-meta.xml', 'testXml');
+			expect(mocks.logger.log).to.have.been.calledWith('\nGenerated apex transport classes (OrizuruTransport.cls) in: ' + resolve(process.cwd(), input.argv.outputUrl));
 
 		});
 

@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -38,7 +37,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/docker/docker', () => {
@@ -53,25 +51,32 @@ describe('service/docker/docker', () => {
 
 	describe('displayLogs', () => {
 
-		it('should handle no containers', () => {
+		it('should handle no containers', async () => {
 
 			// Given
-			const expectedInput = {
-				docker: {
-					containers: []
-				}
-			};
+			const
+				expectedInput = {
+					docker: {
+						containers: []
+					}
+				},
+				expectedOutput = {
+					docker: {
+						containers: []
+					}
+				};
 
-			// When/then
-			return expect(docker.displayLogs(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.not.have.been.called;
-				});
+			// When
+			const output = await docker.displayLogs(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommand).to.not.have.been.called;
 
 		});
 
-		it('should handle one containers', () => {
+		it('should handle one containers', async () => {
 
 			// Given
 			const
@@ -91,21 +96,27 @@ describe('service/docker/docker', () => {
 						},
 						namespace: 'docker'
 					}
+				},
+				expectedOutput = {
+					docker: {
+						container: expectedContainerId,
+						containers: expectedContainerId
+					}
 				};
 
 			shell.executeCommand.resolves(expectedContainerId);
 
-			// When/then
-			return expect(docker.displayLogs(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.displayLogs(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle multiple containers', () => {
+		it('should handle multiple containers', async () => {
 
 			// Given
 			const
@@ -136,20 +147,26 @@ describe('service/docker/docker', () => {
 						},
 						namespace: 'docker'
 					}
-				}];
+				}],
+				expectedOutput = {
+					docker: {
+						container: expectedContainerId2,
+						containers: [expectedContainerId1, expectedContainerId2]
+					}
+				};
 
 			shell.executeCommand
 				.onFirstCall().resolves(expectedContainerId1)
 				.onSecondCall().resolves(expectedContainerId2);
 
-			// When/then
-			return expect(docker.displayLogs(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledTwice;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
-				});
+			// When
+			const output = await docker.displayLogs(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 
 		});
 
@@ -157,7 +174,7 @@ describe('service/docker/docker', () => {
 
 	describe('findContainersForImage', () => {
 
-		it('should handle no containers for an image', () => {
+		it('should handle no containers for an image', async () => {
 
 			// Given
 			const
@@ -201,17 +218,17 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.findContainersForImage(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.findContainersForImage(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle containers for an image', () => {
+		it('should handle containers for an image', async () => {
 
 			// Given
 			const
@@ -256,13 +273,13 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.findContainersForImage(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.findContainersForImage(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -270,7 +287,7 @@ describe('service/docker/docker', () => {
 
 	describe('findDanglingImages', () => {
 
-		it('should handle no dangling images', () => {
+		it('should handle no dangling images', async () => {
 
 			// Given
 			const
@@ -303,17 +320,17 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.findDanglingImages(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.findDanglingImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle dangling images', () => {
+		it('should handle dangling images', async () => {
 
 			// Given
 			const
@@ -351,13 +368,13 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.findDanglingImages(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.findDanglingImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -365,7 +382,7 @@ describe('service/docker/docker', () => {
 
 	describe('listContainers', () => {
 
-		it('should handle no containers', () => {
+		it('should handle no containers', async () => {
 
 			// Given
 			const
@@ -398,17 +415,17 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.listContainers(true)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listContainers(true)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should return only the running containers if the only running option is set', () => {
+		it('should return only the running containers if the only running option is set', async () => {
 
 			// Given
 			const
@@ -444,17 +461,17 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.listContainers(true)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listContainers(true)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should return all containers if the only running option is not set', () => {
+		it('should return all containers if the only running option is not set', async () => {
 
 			// Given
 			const
@@ -490,13 +507,13 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.listContainers(false)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listContainers(false)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -504,7 +521,7 @@ describe('service/docker/docker', () => {
 
 	describe('listImages', () => {
 
-		it('should handle no images', () => {
+		it('should handle no images', async () => {
 
 			// Given
 			const
@@ -537,17 +554,17 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.listImages(true)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listImages(true)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should return only the orizuru images with the only ffdc images option', () => {
+		it('should return only the orizuru images with the only ffdc images option', async () => {
 
 			// Given
 			const
@@ -583,17 +600,17 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.listImages(true)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listImages(true)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should return all images without the only ffdc Images option', () => {
+		it('should return all images without the only ffdc Images option', async () => {
 
 			// Given
 			const
@@ -629,13 +646,13 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.listImages(false)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listImages(false)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -643,25 +660,32 @@ describe('service/docker/docker', () => {
 
 	describe('removeContainers', () => {
 
-		it('should handle no containers', () => {
+		it('should handle no containers', async () => {
 
 			// Given
-			const expectedInput = {
-				docker: {
-					containers: []
-				}
-			};
+			const
+				expectedInput = {
+					docker: {
+						containers: []
+					}
+				},
+				expectedOutput = {
+					docker: {
+						containers: []
+					}
+				};
 
-			// When/then
-			return expect(docker.removeContainers(expectedInput))
-				.to.eventually.deep.equal(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.not.have.been.called;
-				});
+			// When
+			const output = await docker.removeContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommand).to.not.have.been.called;
 
 		});
 
-		it('should handle one container', () => {
+		it('should handle one container', async () => {
 
 			// Given
 			const
@@ -698,17 +722,17 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.removeContainers(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.removeContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle multiple containers', () => {
+		it('should handle multiple containers', async () => {
 
 			// Given
 			const
@@ -764,14 +788,14 @@ describe('service/docker/docker', () => {
 				.onFirstCall().resolves(expectedCommandOutput[0])
 				.onSecondCall().resolves(expectedCommandOutput[1]);
 
-			// When/then
-			return expect(docker.removeContainers(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledTwice;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
-				});
+			// When
+			const output = await docker.removeContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 
 		});
 
@@ -779,25 +803,32 @@ describe('service/docker/docker', () => {
 
 	describe('removeImages', () => {
 
-		it('should handle no images', () => {
+		it('should handle no images', async () => {
 
 			// Given
-			const expectedInput = {
-				docker: {
-					images: []
-				}
-			};
+			const
+				expectedInput = {
+					docker: {
+						images: []
+					}
+				},
+				expectedOutput = {
+					docker: {
+						images: []
+					}
+				};
 
-			// When/then
-			return expect(docker.removeImages(expectedInput))
-				.to.eventually.deep.equal(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.not.have.been.called;
-				});
+			// When
+			const output = await docker.removeImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommand).to.not.have.been.called;
 
 		});
 
-		it('should handle one image', () => {
+		it('should handle one image', async () => {
 
 			// Given
 			const
@@ -834,17 +865,17 @@ describe('service/docker/docker', () => {
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.removeImages(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.removeImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle multiple images', () => {
+		it('should handle multiple images', async () => {
 
 			// Given
 			const
@@ -900,14 +931,14 @@ describe('service/docker/docker', () => {
 				.onFirstCall().resolves(expectedCommandOutput[0])
 				.onSecondCall().resolves(expectedCommandOutput[1]);
 
-			// When/then
-			return expect(docker.removeImages(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledTwice;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
-				});
+			// When
+			const output = await docker.removeImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 
 		});
 
@@ -915,7 +946,7 @@ describe('service/docker/docker', () => {
 
 	describe('removeDanglingImages', () => {
 
-		it('should handle no dangling images', () => {
+		it('should handle no dangling images', async () => {
 
 			// Given
 			const
@@ -926,20 +957,22 @@ describe('service/docker/docker', () => {
 							stdout: ''
 						}
 					}
-				};
+				},
+				expectedOutput = expectedCommandOutput;
 
 			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// When/then
-			return expect(docker.removeDanglingImages(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-				});
+			// When
+			const output = await docker.removeDanglingImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommand).to.have.been.calledOnce;
 
 		});
 
-		it('should remove a single dangling image', () => {
+		it('should remove a single dangling image', async () => {
 
 			// Given
 			const
@@ -982,12 +1015,12 @@ describe('service/docker/docker', () => {
 				.onCall(3).resolves(expectedCommandOutput[1])
 				.onCall(4).resolves(expectedCommandOutput[0]);
 
-			// When/then
-			return expect(docker.removeDanglingImages(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.callCount(5);
-				});
+			// When
+			const output = await docker.removeDanglingImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.callCount(5);
 
 		});
 
@@ -995,25 +1028,32 @@ describe('service/docker/docker', () => {
 
 	describe('stopContainers', () => {
 
-		it('should handle no containers', () => {
+		it('should handle no containers', async () => {
 
 			// Given
-			const expectedInput = {
-				docker: {
-					containers: []
-				}
-			};
+			const
+				expectedInput = {
+					docker: {
+						containers: []
+					}
+				},
+				expectedOutput = {
+					docker: {
+						containers: []
+					}
+				};
 
-			// When/then
-			return expect(docker.stopContainers(expectedInput))
-				.to.eventually.deep.equal(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.not.have.been.called;
-				});
+			// When
+			const output = await docker.stopContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommand).to.not.have.been.called;
 
 		});
 
-		it('should handle one containers', () => {
+		it('should handle one containers', async () => {
 
 			// Given
 			const
@@ -1033,21 +1073,27 @@ describe('service/docker/docker', () => {
 						},
 						namespace: 'docker'
 					}
+				},
+				expectedOutput = {
+					docker: {
+						container: expectedContainerId,
+						containers: expectedContainerId
+					}
 				};
 
 			shell.executeCommand.resolves(expectedContainerId);
 
-			// When/then
-			return expect(docker.stopContainers(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.stopContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle multiple containers', () => {
+		it('should handle multiple containers', async () => {
 
 			// Given
 			const
@@ -1078,20 +1124,26 @@ describe('service/docker/docker', () => {
 						},
 						namespace: 'docker'
 					}
-				}];
+				}],
+				expectedOutput = {
+					docker: {
+						container: expectedContainerId2,
+						containers: [expectedContainerId1, expectedContainerId2]
+					}
+				};
 
 			shell.executeCommand
 				.onFirstCall().resolves(expectedContainerId1)
 				.onSecondCall().resolves(expectedContainerId2);
 
-			// When/then
-			return expect(docker.stopContainers(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledTwice;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
-				});
+			// When
+			const output = await docker.stopContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 
 		});
 

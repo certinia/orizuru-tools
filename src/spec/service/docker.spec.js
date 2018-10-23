@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -42,7 +41,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/docker', () => {
@@ -76,7 +74,7 @@ describe('service/docker', () => {
 
 	describe('buildImage', () => {
 
-		it('should catch errors', () => {
+		it('should catch errors', async () => {
 
 			// Given
 			const
@@ -86,23 +84,22 @@ describe('service/docker', () => {
 
 			dockerService.removeDanglingImages.rejects(expectedError);
 
-			// When/then
-			return expect(docker.buildImage(expectedOptions))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logError).to.have.been.calledOnce;
-					expect(composeService.getAllServices).to.not.have.been.called;
-					expect(composeService.buildImages).to.not.have.been.called;
-					expect(logger.logStart).to.have.been.calledWith('Building images');
-					expect(logger.logError).to.have.been.calledWith(expectedError);
-				});
+			// When
+			await docker.buildImage(expectedOptions);
+
+			// Then
+			expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logError).to.have.been.calledOnce;
+			expect(composeService.getAllServices).to.not.have.been.called;
+			expect(composeService.buildImages).to.not.have.been.called;
+			expect(logger.logStart).to.have.been.calledWith('Building images');
+			expect(logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 
-		it('should log build images failures', () => {
+		it('should log build images failures', async () => {
 
 			// Given
 			const
@@ -118,25 +115,24 @@ describe('service/docker', () => {
 			promptService.getServicesForProcess.resolves(services);
 			dockerService.removeDanglingImages.resolves();
 
-			// When/then
-			return expect(docker.buildImage(expectedOptions))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(composeService.getAllServices).to.have.been.calledOnce;
-					expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledOnce;
-					expect(composeService.buildImages).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services to build');
-					expect(composeService.buildImages).to.have.been.calledWith(services);
-					expect(logger.logStart).to.have.been.calledWith('Building images');
-					expect(logger.logError).to.have.been.calledWith(expectedError);
-				});
+			// When
+			await docker.buildImage(expectedOptions);
+
+			// Then
+			expect(composeService.getAllServices).to.have.been.calledOnce;
+			expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledOnce;
+			expect(composeService.buildImages).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services to build');
+			expect(composeService.buildImages).to.have.been.calledWith(services);
+			expect(logger.logStart).to.have.been.calledWith('Building images');
+			expect(logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 
-		it('should build the image for the given service', () => {
+		it('should build the image for the given service', async () => {
 
 			// Given
 			const
@@ -152,20 +148,19 @@ describe('service/docker', () => {
 			dockerService.removeDanglingImages.resolves();
 
 			// When/then
-			return expect(docker.buildImage(expectedOptions))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(composeService.getAllServices).to.have.been.calledOnce;
-					expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledOnce;
-					expect(composeService.buildImages).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services to build');
-					expect(composeService.buildImages).to.have.been.calledWith(services);
-					expect(logger.logStart).to.have.been.calledWith('Building images');
-					expect(logger.logFinish).to.have.been.calledWith('Built images');
-				});
+			await docker.buildImage(expectedOptions);
+
+			// Then
+			expect(composeService.getAllServices).to.have.been.calledOnce;
+			expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledOnce;
+			expect(composeService.buildImages).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services to build');
+			expect(composeService.buildImages).to.have.been.calledWith(services);
+			expect(logger.logStart).to.have.been.calledWith('Building images');
+			expect(logger.logFinish).to.have.been.calledWith('Built images');
 
 		});
 
@@ -173,7 +168,7 @@ describe('service/docker', () => {
 
 	describe('displayLogs', () => {
 
-		it('should catch errors', () => {
+		it('should catch errors', async () => {
 
 			// Given
 			const
@@ -184,23 +179,22 @@ describe('service/docker', () => {
 			promptService.getServicesForProcess.resolves(services);
 			dockerService.listContainers.rejects(expectedError);
 
-			// When/then
-			return expect(docker.displayLogs(expectedOptions))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(dockerService.listContainers).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledOnce;
-					expect(dockerService.displayLogs).to.not.have.been.called;
-					expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services for which to display logs');
-					expect(logger.logStart).to.have.been.calledWith('Displaying logs');
-					expect(logger.logError).to.have.been.calledWith(expectedError);
-				});
+			// When
+			await docker.displayLogs(expectedOptions);
+
+			// Then
+			expect(dockerService.listContainers).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledOnce;
+			expect(dockerService.displayLogs).to.not.have.been.called;
+			expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services for which to display logs');
+			expect(logger.logStart).to.have.been.calledWith('Displaying logs');
+			expect(logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 
-		it('should display logs for the given service', () => {
+		it('should display logs for the given service', async () => {
 
 			// Given
 			const
@@ -214,19 +208,18 @@ describe('service/docker', () => {
 			dockerService.displayLogs.resolves();
 			promptService.getServicesForProcess.resolves(services);
 
-			// When/then
-			return expect(docker.displayLogs(expectedOptions))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(dockerService.listContainers).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledOnce;
-					expect(dockerService.displayLogs).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services for which to display logs');
-					expect(logger.logStart).to.have.been.calledWith('Displaying logs');
-					expect(logger.logFinish).to.have.been.calledWith('Displayed logs');
-				});
+			// When
+			await docker.displayLogs(expectedOptions);
+
+			// Then
+			expect(dockerService.listContainers).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledOnce;
+			expect(dockerService.displayLogs).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services for which to display logs');
+			expect(logger.logStart).to.have.been.calledWith('Displaying logs');
+			expect(logger.logFinish).to.have.been.calledWith('Displayed logs');
 
 		});
 
@@ -234,7 +227,7 @@ describe('service/docker', () => {
 
 	describe('listServices', () => {
 
-		it('should list the services found in the Docker Compose files', () => {
+		it('should list the services found in the Docker Compose files', async () => {
 
 			// Given
 			const expectedServices = {
@@ -250,15 +243,14 @@ describe('service/docker', () => {
 
 			composeService.getAllServices.resolves(expectedServices);
 
-			// When/then
-			return expect(docker.listServices({}))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledWith('List services:');
-					expect(logger.logFinish).to.have.been.calledWith('  image                                           file');
-				});
+			// When
+			await docker.listServices({});
+
+			// Then
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledWith('List services:');
+			expect(logger.logFinish).to.have.been.calledWith('  image                                           file');
 
 		});
 
@@ -266,7 +258,7 @@ describe('service/docker', () => {
 
 	describe('reset', () => {
 
-		it('should handle errors', () => {
+		it('should handle errors', async () => {
 
 			// Given
 			const expectedError = new Error('test');
@@ -274,15 +266,14 @@ describe('service/docker', () => {
 			listContainersStub.rejects(expectedError);
 
 			// When/then
-			return expect(docker.reset({}))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(dockerService.listContainers).to.have.been.calledTwice;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledWith('Removing all containers and images');
-					expect(logger.logError).to.have.been.calledWith(expectedError);
-				});
+			await docker.reset({});
+
+			// Then
+			expect(dockerService.listContainers).to.have.been.calledTwice;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledWith('Removing all containers and images');
+			expect(logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 
@@ -290,7 +281,7 @@ describe('service/docker', () => {
 
 	describe('startServices', () => {
 
-		it('should catch errors', () => {
+		it('should catch errors', async () => {
 
 			// Given
 			const
@@ -300,23 +291,22 @@ describe('service/docker', () => {
 
 			dockerService.removeDanglingImages.rejects(expectedError);
 
-			// When/then
-			return expect(docker.startServices(expectedOptions))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(composeService.up).to.not.have.been.called;
-					expect(composeService.getAllServices).to.not.have.been.called;
-					expect(logger.logStart).to.have.been.calledWith('Start services');
-					expect(logger.logError).to.have.been.calledWith(expectedError);
-				});
+			// When
+			await docker.startServices(expectedOptions);
+
+			// Then
+			expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(composeService.up).to.not.have.been.called;
+			expect(composeService.getAllServices).to.not.have.been.called;
+			expect(logger.logStart).to.have.been.calledWith('Start services');
+			expect(logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 
-		it('should log Docker compose up failures', () => {
+		it('should log Docker compose up failures', async () => {
 
 			// Given
 			const
@@ -332,25 +322,24 @@ describe('service/docker', () => {
 			promptService.getServicesForProcess.resolves(services);
 			dockerService.removeDanglingImages.resolves();
 
-			// When/then
-			return expect(docker.startServices(expectedOptions))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(composeService.getAllServices).to.have.been.calledOnce;
-					expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledOnce;
-					expect(composeService.up).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services to start');
-					expect(composeService.up).to.have.been.calledWith(services);
-					expect(logger.logStart).to.have.been.calledWith('Start services');
-					expect(logger.logError).to.have.been.calledWith(expectedError);
-				});
+			// When
+			await docker.startServices(expectedOptions);
+
+			// Then
+			expect(composeService.getAllServices).to.have.been.calledOnce;
+			expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledOnce;
+			expect(composeService.up).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services to start');
+			expect(composeService.up).to.have.been.calledWith(services);
+			expect(logger.logStart).to.have.been.calledWith('Start services');
+			expect(logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 
-		it('should start the given service', () => {
+		it('should start the given service', async () => {
 
 			// Given
 			const
@@ -365,21 +354,20 @@ describe('service/docker', () => {
 			promptService.getServicesForProcess.resolves(services);
 			dockerService.removeDanglingImages.resolves();
 
-			// When/then
-			return expect(docker.startServices(expectedOptions))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(composeService.getAllServices).to.have.been.calledOnce;
-					expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledOnce;
-					expect(composeService.up).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services to start');
-					expect(composeService.up).to.have.been.calledWith(services);
-					expect(logger.logStart).to.have.been.calledWith('Start services');
-					expect(logger.logFinish).to.have.been.calledWith('Started services');
-				});
+			// When
+			await docker.startServices(expectedOptions);
+
+			// Then
+			expect(composeService.getAllServices).to.have.been.calledOnce;
+			expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledOnce;
+			expect(composeService.up).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services to start');
+			expect(composeService.up).to.have.been.calledWith(services);
+			expect(logger.logStart).to.have.been.calledWith('Start services');
+			expect(logger.logFinish).to.have.been.calledWith('Started services');
 
 		});
 
@@ -387,7 +375,7 @@ describe('service/docker', () => {
 
 	describe('stopServices', () => {
 
-		it('should catch errors', () => {
+		it('should catch errors', async () => {
 
 			// Given
 			const
@@ -398,23 +386,22 @@ describe('service/docker', () => {
 			dockerService.listContainers.returns(expectedService);
 			dockerService.removeDanglingImages.rejects(expectedError);
 
-			// When/then
-			return expect(docker.stopServices(expectedOptions))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(dockerService.listContainers).to.not.have.been.called;
-					expect(dockerService.stopContainers).to.not.have.been.called;
-					expect(logger.logStart).to.have.been.calledWith('Stop services');
-					expect(logger.logError).to.have.been.calledWith(expectedError);
-				});
+			// When
+			await docker.stopServices(expectedOptions);
+
+			// Then
+			expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(dockerService.listContainers).to.not.have.been.called;
+			expect(dockerService.stopContainers).to.not.have.been.called;
+			expect(logger.logStart).to.have.been.calledWith('Stop services');
+			expect(logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 
-		it('should log Docker stopContainers failures', () => {
+		it('should log Docker stopContainers failures', async () => {
 
 			// Given
 			const
@@ -429,19 +416,18 @@ describe('service/docker', () => {
 			dockerService.removeDanglingImages.resolves();
 			dockerService.stopContainers.rejects(expectedError);
 
-			// When/then
-			return expect(docker.stopServices(expectedOptions))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledOnce;
-					expect(dockerService.stopContainers).to.have.been.calledOnce;
-					expect(logger.logStart).to.have.been.calledOnce;
-					expect(logger.logFinish).to.have.been.calledOnce;
-					expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services to stop');
-					expect(logger.logStart).to.have.been.calledWith('Stop services');
-					expect(logger.logError).to.have.been.calledWith(expectedError);
-				});
+			// When
+			await docker.stopServices(expectedOptions);
+
+			// Then
+			expect(dockerService.removeDanglingImages).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledOnce;
+			expect(dockerService.stopContainers).to.have.been.calledOnce;
+			expect(logger.logStart).to.have.been.calledOnce;
+			expect(logger.logFinish).to.have.been.calledOnce;
+			expect(promptService.getServicesForProcess).to.have.been.calledWith('Select services to stop');
+			expect(logger.logStart).to.have.been.calledWith('Stop services');
+			expect(logger.logError).to.have.been.calledWith(expectedError);
 
 		});
 

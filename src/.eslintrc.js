@@ -27,5 +27,11 @@
 'use strict';
 
 module.exports = {
-	'extends': '@financialforcedev'
+	'extends': '@financialforcedev',
+	overrides: [{
+		files: ['*.spec.js'],
+		rules: {
+			'one-var': 'off'
+		}
+	}]
 };

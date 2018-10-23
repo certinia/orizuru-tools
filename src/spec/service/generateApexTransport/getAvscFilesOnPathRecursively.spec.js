@@ -28,14 +28,12 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () => {
@@ -67,21 +65,23 @@ describe('service/generateApexTransport/getAvscFilesOnPathRecursively.js', () =>
 		it('should call klawSync and process results', () => {
 
 			// Given
-			const
-				expected = [{
-					file: 'potato',
-					fileName: 'c',
-					path: 'startPath/a/b/c.avsc',
-					sharedPath: 'a/b'
-				}, {
-					file: 'potato',
-					fileName: 'f',
-					path: 'startPath/d/e/f.avsc',
-					sharedPath: 'd/e'
-				}];
+			const expectedOutput = [{
+				file: 'potato',
+				fileName: 'c',
+				path: 'startPath/a/b/c.avsc',
+				sharedPath: 'a/b'
+			}, {
+				file: 'potato',
+				fileName: 'f',
+				path: 'startPath/d/e/f.avsc',
+				sharedPath: 'd/e'
+			}];
 
-			// When - Then
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively(startPath)).to.eql(expected);
+			// When
+			const output = getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively(startPath);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
 
 			expect(mocks.klawSync).to.have.been.calledOnce;
 			expect(mocks.klawSync).to.have.been.calledWith(startPath, {

@@ -7,5 +7,11 @@ module.exports = {
 	},
 	'rules': {
 		camelcase: 0
-	}
+	},
+	overrides: [{
+		files: ['*.spec.js'],
+		rules: {
+			'one-var': 'off'
+		}
+	}]
 };

@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -45,7 +44,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/deploy/sfdx.js', () => {
@@ -80,20 +78,20 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('checkSfdxInstalled', () => {
 
-		it('should check that SFDX is installed', () => {
+		it('should check that SFDX is installed', async () => {
 
 			// Given
 			const expectedCommand = { cmd: 'sfdx', args: ['version'] };
 
 			shell.executeCommand.resolves('sfdx-cli/6.0.13-a52f73c (darwin-x64) node-v8.6.0');
 
-			// When - Then
-			return expect(sfdx.checkSfdxInstalled({}))
-				.to.eventually.eql({})
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await sfdx.checkSfdxInstalled({});
+
+			// Then
+			expect(output).to.eql({});
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -101,7 +99,7 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('checkSfdxFolderExists', () => {
 
-		it('should return the config if the folder exists', () => {
+		it('should return the config if the folder exists', async () => {
 
 			// Given
 			const
@@ -110,17 +108,17 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand.resolves();
 
-			// When - Then
-			return expect(sfdx.checkSfdxFolderExists(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await sfdx.checkSfdxFolderExists(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedInput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
-		it('should call the login function if the folder does not exist', () => {
+		it('should call the login function if the folder does not exist', async () => {
 
 			// Given
 			const
@@ -141,16 +139,16 @@ describe('service/deploy/sfdx.js', () => {
 			shell.executeCommand.onCall(1).resolves(expectedLoginResult);
 			config.writeSetting.resolves(expectedOutput);
 
-			// When - Then
-			return expect(sfdx.checkSfdxFolderExists(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledTwice;
-					expect(config.writeSetting).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand1);
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand2);
-					expect(config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.hub.username', expectedUsername);
-				});
+			// When
+			const output = await sfdx.checkSfdxFolderExists(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(config.writeSetting).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand1);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand2);
+			expect(config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.hub.username', expectedUsername);
 
 		});
 
@@ -158,7 +156,7 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('checkSfdxProjectFileExists', () => {
 
-		it('should return the config if the folder exists', () => {
+		it('should return the config if the folder exists', async () => {
 
 			// Given
 			const
@@ -167,17 +165,17 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand.resolves();
 
-			// When - Then
-			return expect(sfdx.checkSfdxProjectFileExists(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await sfdx.checkSfdxProjectFileExists(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedInput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
-		it('should ask the user if they want to create the default file if it doesn\'t exist (user confirms)', () => {
+		it('should ask the user if they want to create the default file if it doesn\'t exist (user confirms)', async () => {
 
 			// Given
 			const
@@ -188,17 +186,17 @@ describe('service/deploy/sfdx.js', () => {
 			shell.executeCommand.rejects();
 			fs.writeJson.resolves();
 
-			// When - Then
-			return expect(sfdx.checkSfdxProjectFileExists(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await sfdx.checkSfdxProjectFileExists(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedInput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
-		it('should ask the user if they want to create the default file if it doesn\'t exist (user rejects)', () => {
+		it('should ask the user if they want to create the default file if it doesn\'t exist (user rejects)', async () => {
 
 			// Given
 			const
@@ -209,13 +207,12 @@ describe('service/deploy/sfdx.js', () => {
 			shell.executeCommand.rejects();
 			fs.writeJson.resolves();
 
-			// When - Then
-			return expect(sfdx.checkSfdxProjectFileExists(expectedInput))
-				.to.eventually.be.rejected
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			await expect(sfdx.checkSfdxProjectFileExists(expectedInput)).to.be.rejected;
+
+			// Then
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -223,7 +220,7 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('createNewScratchOrg', () => {
 
-		it('should create the default scratch org definition file if it does nto exist', () => {
+		it('should create the default scratch org definition file if it does nto exist', async () => {
 
 			// Given
 			const
@@ -252,18 +249,18 @@ describe('service/deploy/sfdx.js', () => {
 				stdout: `{"result":{"username":"${expectedUsername}"}}`
 			});
 
-			// When - Then
-			return expect(sfdx.createNewScratchOrg(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(fs.outputJsonSync).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await sfdx.createNewScratchOrg(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.outputJsonSync).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
-		it('should create a new scratch org', () => {
+		it('should create a new scratch org', async () => {
 
 			// Given
 			const
@@ -297,13 +294,13 @@ describe('service/deploy/sfdx.js', () => {
 				stdout: `{"result":{"username":"${expectedUsername}"}}`
 			});
 
-			// When - Then
-			return expect(sfdx.createNewScratchOrg(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await sfdx.createNewScratchOrg(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -311,19 +308,19 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('deleteAllScratchOrgs', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
 			// Given
 			shell.executeCommand = sinon.stub().resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
 			shell.executeCommands = sinon.stub().resolves({});
 
-			// When - Then
-			return expect(sfdx.deleteAllScratchOrgs({}))
-				.to.eventually.eql({})
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommands).to.have.been.calledOnce;
-				});
+			// When
+			const output = await sfdx.deleteAllScratchOrgs({});
+
+			// Then
+			expect(output).to.eql({});
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommands).to.have.been.calledOnce;
 
 		});
 
@@ -331,7 +328,7 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('deploy', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
 			// Given
 			const
@@ -383,12 +380,12 @@ describe('service/deploy/sfdx.js', () => {
 				command3: { stdout: '{"command3Out":"testing"}' }
 			});
 
-			// When - Then
-			return expect(sfdx.deploy(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommands).to.have.been.calledWith(expectedCommands, { exitOnError: true });
-				});
+			// When
+			const output = await sfdx.deploy(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedCommands, { exitOnError: true });
 
 		});
 
@@ -396,7 +393,7 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('display', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
 			// Given
 			const
@@ -427,12 +424,12 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand.resolves({ stdout: '{"result":{"accessToken":"00Dd0000004aIWe!ARoAQMU1KjrCMZVbSxrPd8xQe5vxktUdTWllFWKM5C05KsVT817.uKkVQZdVm4xC22rknAb5G0SdBp4GsKfWBXcZsUFv_PFa","instanceUrl":"https://random-velocity-3672-dev-ed.cs16.my.salesforce.com"}}' });
 
-			// When - Then
-			return expect(sfdx.display(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await sfdx.display(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -440,7 +437,7 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('getAllScratchOrgs', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
 			// Given
 			const
@@ -455,12 +452,12 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand.resolves({ stdout: '{"result":{"scratchOrgs":[{"username":"test-0wygrz0l4fyt@orizuru.net"}]}}' });
 
-			// When - Then
-			return expect(sfdx.getAllScratchOrgs({}))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await sfdx.getAllScratchOrgs({});
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -468,7 +465,7 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('login', () => {
 
-		it('should login to the SFDX dev hub', () => {
+		it('should login to the SFDX dev hub', async () => {
 
 			// Given
 			const
@@ -486,19 +483,19 @@ describe('service/deploy/sfdx.js', () => {
 			config.writeSetting.resolves(expectedOutput);
 			shell.executeCommand.resolves(expectedLoginResult);
 
-			// When - Then
-			return expect(sfdx.login({}))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(config.writeSetting).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-					expect(config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.hub.username', expectedUsername);
-				});
+			// When
+			const output = await sfdx.login({});
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(config.writeSetting).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
+			expect(config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.hub.username', expectedUsername);
 
 		});
 
-		it('should use the Orizuru config file to get the dev hub if the file exists', () => {
+		it('should use the Orizuru config file to get the dev hub if the file exists', async () => {
 
 			// Given
 			const
@@ -526,12 +523,12 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand = sinon.stub();
 
-			// When - Then
-			return expect(sfdx.login(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.not.have.been.called;
-				});
+			// When
+			const output = await sfdx.login(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.not.have.been.called;
 
 		});
 
@@ -539,7 +536,7 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('openOrg', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
 			// Given
 			const
@@ -557,12 +554,12 @@ describe('service/deploy/sfdx.js', () => {
 
 			shell.executeCommand.resolves({});
 
-			// When - Then
-			return expect(sfdx.openOrg(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await sfdx.openOrg(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -570,7 +567,7 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('readSfdxYaml', () => {
 
-		it('should create the default yaml file if it is not found', () => {
+		it('should create the default yaml file if it is not found', async () => {
 
 			// Given
 			const expectedOutput = {
@@ -589,13 +586,15 @@ describe('service/deploy/sfdx.js', () => {
 			fs.readFile.rejects();
 			fs.outputFile.resolves();
 
-			// When - Then
-			return expect(sfdx.readSfdxYaml({}))
-				.to.eventually.eql(expectedOutput);
+			// When
+			const output = await sfdx.readSfdxYaml({});
+
+			// Then
+			expect(output).to.eql(expectedOutput);
 
 		});
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
 			// Given
 			const expectedOutput = {
@@ -613,9 +612,11 @@ describe('service/deploy/sfdx.js', () => {
 
 			fs.readFile.resolves('scratch-org-def: src/apex/config/project-scratch-def.json\nassign-permset: true\npermset-name: OrizuruAdmin\nrun-apex-tests: true\ndelete-scratch-org: false\nshow-scratch-org-url: true\n');
 
-			// When - Then
-			return expect(sfdx.readSfdxYaml({}))
-				.to.eventually.eql(expectedOutput);
+			// When
+			const output = await sfdx.readSfdxYaml({});
+
+			// Then
+			expect(output).to.eql(expectedOutput);
 
 		});
 
@@ -623,7 +624,7 @@ describe('service/deploy/sfdx.js', () => {
 
 	describe('select', () => {
 
-		it('should prompt the user to select the SFDX scratch org application without a new app option', () => {
+		it('should prompt the user to select the SFDX scratch org application without a new app option', async () => {
 
 			// Given
 			const
@@ -653,16 +654,16 @@ describe('service/deploy/sfdx.js', () => {
 			inquirer.prompt.resolves(expectedAnswer);
 			config.writeSetting.resolves(expectedOutput);
 
-			// When - Then
-			return expect(sfdx.select(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
-				});
+			// When
+			const output = await sfdx.select(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 
 		});
 
-		it('should prompt the user to select the SFDX scratch org application with a new app option', () => {
+		it('should prompt the user to select the SFDX scratch org application with a new app option', async () => {
 
 			// Given
 			const
@@ -702,17 +703,17 @@ describe('service/deploy/sfdx.js', () => {
 			config.writeSetting.resolves(expectedOutput);
 			inquirer.prompt.resolves(expectedAnswer);
 
-			// When - Then
-			return expect(sfdx.select(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
-					expect(config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.org.username', expectedScratchOrgUsername);
-				});
+			// When
+			const output = await sfdx.select(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
+			expect(config.writeSetting).to.have.been.calledWith(expectedOutput, 'sfdx.org.username', expectedScratchOrgUsername);
 
 		});
 
-		it('should prompt the user to select the SFDX scratch org with a new app option and create a new app if that option is chosen', () => {
+		it('should prompt the user to select the SFDX scratch org with a new app option and create a new app if that option is chosen', async () => {
 
 			// Given
 			const
@@ -770,17 +771,17 @@ describe('service/deploy/sfdx.js', () => {
 			shell.executeCommand.resolves({ stdout: '{"result": {"username": "test" }}' });
 			config.writeSetting.resolves(expectedOutput);
 
-			// When - Then
-			return expect(sfdx.select(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
-					expect(shell.executeCommand).to.have.been.calledOnce;
-				});
+			// When
+			const output = await sfdx.select(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
+			expect(shell.executeCommand).to.have.been.calledOnce;
 
 		});
 
-		it('should default to the SFDX org provided in the Orizuru config', () => {
+		it('should default to the SFDX org provided in the Orizuru config', async () => {
 
 			// Given
 			const
@@ -848,12 +849,12 @@ describe('service/deploy/sfdx.js', () => {
 			inquirer.prompt.resolves(expectedAnswer);
 			config.writeSetting.resolves(expectedOutput);
 
-			// When - Then
-			return expect(sfdx.select(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
-				});
+			// When
+			const output = await sfdx.select(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 
 		});
 

@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -39,7 +38,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/deploy/namedCredential.js', () => {
@@ -61,14 +59,14 @@ describe('service/deploy/namedCredential.js', () => {
 
 	describe('askQuestions', () => {
 
-		it('should ask the correct questions', () => {
+		it('should ask the correct questions', async () => {
 
 			// Given
 			const
 				expectedAnswers = {
 					name: 'test'
 				},
-				expectedResults = {
+				expectedOutput = {
 					parameters: {
 						namedCredential: expectedAnswers
 					}
@@ -76,8 +74,11 @@ describe('service/deploy/namedCredential.js', () => {
 
 			inquirer.prompt.resolves(expectedAnswers);
 
-			// When - Then
-			return expect(namedCredential.askQuestions({})).to.eventually.eql(expectedResults);
+			// When
+			const result = await namedCredential.askQuestions({});
+
+			// Then
+			expect(result).to.eql(expectedOutput);
 
 		});
 
@@ -85,7 +86,7 @@ describe('service/deploy/namedCredential.js', () => {
 
 	describe('create', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
 			// Given
 			const
@@ -111,13 +112,13 @@ describe('service/deploy/namedCredential.js', () => {
 			expectedInput.conn.metadata.upsert = sinon.stub().resolves();
 			expectedInput.conn.metadata.read = sinon.stub().resolves();
 
-			// When - Then
-			return expect(namedCredential.create(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(expectedInput.conn.metadata.upsert).to.have.been.calledOnce;
-					expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
-				});
+			// When
+			const result = await namedCredential.create(expectedInput);
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(expectedInput.conn.metadata.upsert).to.have.been.calledOnce;
+			expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
 
 		});
 

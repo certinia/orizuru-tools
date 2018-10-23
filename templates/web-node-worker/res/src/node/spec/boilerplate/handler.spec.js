@@ -81,7 +81,7 @@ describe('boilerplate/handler.js', () => {
 				publisherInstance = sinon.stub();
 
 			// When
-			// then
+			// Then
 			expect(handlers.publishHandler({
 				schemasAndHandler,
 				publisherInstance

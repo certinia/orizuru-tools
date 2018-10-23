@@ -27,7 +27,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -39,7 +38,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/init/resource.js', () => {
@@ -55,7 +53,7 @@ describe('service/init/resource.js', () => {
 
 	describe('resources', () => {
 
-		it('should copy a template that does not extend other templates', () => {
+		it('should copy a template that does not extend other templates', async () => {
 
 			// Given
 			const
@@ -80,17 +78,17 @@ describe('service/init/resource.js', () => {
 
 			shell.executeCommand.resolves();
 
-			// When - Then
-			return expect(resource.copy(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledTwice;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await resource.copy(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should copy a template that extends another template', () => {
+		it('should copy a template that extends another template', async () => {
 
 			// Given
 			const
@@ -130,14 +128,14 @@ describe('service/init/resource.js', () => {
 
 			shell.executeCommand.resolves();
 
-			// When - Then
-			return expect(resource.copy(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledThrice;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommandExtendedTemplate, expectedInput);
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommandMainTemplate, expectedInput);
-				});
+			// When
+			const output = await resource.copy(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledThrice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommandExtendedTemplate, expectedInput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommandMainTemplate, expectedInput);
 
 		});
 
@@ -145,7 +143,7 @@ describe('service/init/resource.js', () => {
 
 	describe('deployGitIgnore', () => {
 
-		it('should rename the gitignore file to .gitignore', () => {
+		it('should rename the gitignore file to .gitignore', async () => {
 
 			// Given
 			sinon.stub(path, 'resolve')
@@ -174,13 +172,13 @@ describe('service/init/resource.js', () => {
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// When - Then
-			return expect(resource.renameGitIgnore(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await resource.renameGitIgnore(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 

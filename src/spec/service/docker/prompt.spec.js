@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 
 	inquirer = require('inquirer'),
@@ -36,8 +35,6 @@ const
 	prompt = require('../../../lib/service/docker/prompt'),
 
 	expect = chai.expect;
-
-chai.use(chaiAsPromised);
 
 describe('service/docker/prompt.js', () => {
 
@@ -93,7 +90,7 @@ describe('service/docker/prompt.js', () => {
 
 		});
 
-		it('should create the inquirer prompts for the given services', () => {
+		it('should create the inquirer prompts for the given services', async () => {
 
 			// Given
 			const
@@ -125,12 +122,12 @@ describe('service/docker/prompt.js', () => {
 
 			inquirer.prompt.resolves(expectedAnswer);
 
-			// When/then
-			return expect(prompt.getServicesForProcess(expectedMessage)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(inquirer.prompt.args[0][0][0].choices).to.eql(expectedChoices);
-				});
+			// When
+			const result = await prompt.getServicesForProcess(expectedMessage)(expectedInput);
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(inquirer.prompt.args[0][0][0].choices).to.eql(expectedChoices);
 
 		});
 
@@ -158,10 +155,10 @@ describe('service/docker/prompt.js', () => {
 						},
 						services: expectedServices
 					}
-				},
+				};
 
-				// When
-				services = prompt.getServicesForProcess(expectedMessage)(expectedInput);
+			// When
+			const services = prompt.getServicesForProcess(expectedMessage)(expectedInput);
 
 			// Then
 			expect(services).to.eql(expectedOutput);

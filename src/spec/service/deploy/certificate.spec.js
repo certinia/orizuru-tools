@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -41,7 +40,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/deploy/certificate.js', () => {
@@ -66,20 +64,20 @@ describe('service/deploy/certificate.js', () => {
 
 	describe('checkOpenSSLInstalled', () => {
 
-		it('should check that the OpenSSL is installed', () => {
+		it('should check that the OpenSSL is installed', async () => {
 
 			// Given
 			const expectedCommand = { cmd: 'openssl', args: ['version'] };
 
 			shell.executeCommand = sinon.stub().resolves('OpenSSL 0.9.8zh 14 Jan 2016');
 
-			// When - Then
-			return expect(certificate.checkOpenSSLInstalled({}))
-				.to.eventually.eql({})
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const result = await certificate.checkOpenSSLInstalled({});
+
+			// Then
+			expect(result).to.eql({});
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -87,7 +85,7 @@ describe('service/deploy/certificate.js', () => {
 
 	describe('generate', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
 			// Given
 			const
@@ -124,14 +122,14 @@ describe('service/deploy/certificate.js', () => {
 				command1: { stdout: 'privateKey' }
 			});
 
-			// When - Then
-			return expect(certificate.generate({}))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommands).to.have.been.calledTwice;
-					expect(shell.executeCommands).to.have.been.calledWith(expectedSslCommands);
-					expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
-				});
+			// When
+			const result = await certificate.generate({});
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.been.calledTwice;
+			expect(shell.executeCommands).to.have.been.calledWith(expectedSslCommands);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
 
 		});
 
@@ -139,7 +137,7 @@ describe('service/deploy/certificate.js', () => {
 
 	describe('getOrCreate', () => {
 
-		it('should generate certificate', () => {
+		it('should generate certificate', async () => {
 
 			// Given
 			const
@@ -179,19 +177,19 @@ describe('service/deploy/certificate.js', () => {
 				command1: { stdout: 'privateKey' }
 			});
 
-			// When - Then
-			return expect(certificate.getOrCreate({}))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommands).to.have.been.calledThrice;
-					expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
-					expect(shell.executeCommands).to.have.been.calledWith(expectedSslCommands);
-					expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
-				});
+			// When
+			const result = await certificate.getOrCreate({});
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.been.calledThrice;
+			expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedSslCommands);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
 
 		});
 
-		it('should not generate certificate when it already exists', () => {
+		it('should not generate certificate when it already exists', async () => {
 
 			// Given
 			const
@@ -212,13 +210,13 @@ describe('service/deploy/certificate.js', () => {
 				command1: { stdout: 'privateKey' }
 			});
 
-			// When - Then
-			return expect(certificate.getOrCreate({}))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(shell.executeCommands).to.have.been.calledOnce;
-					expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
-				});
+			// When
+			const result = await certificate.getOrCreate({});
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.been.calledOnce;
+			expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
 
 		});
 

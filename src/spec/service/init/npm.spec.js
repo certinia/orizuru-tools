@@ -27,7 +27,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -37,7 +36,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/init/npm.js', () => {
@@ -47,12 +45,12 @@ describe('service/init/npm.js', () => {
 	});
 
 	afterEach(() => {
-		sinon.restore()
+		sinon.restore();
 	});
 
 	describe('generateApexTransport', () => {
 
-		it('should run the npm run generate-apex-transport command', () => {
+		it('should run the npm run generate-apex-transport command', async () => {
 
 			// Given
 			const
@@ -69,17 +67,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~generate~apex~transport'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// When - Then
-			return expect(npm.generateApexTransport(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.generateApexTransport(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -87,7 +88,7 @@ describe('service/init/npm.js', () => {
 
 	describe('generateDocumentation', () => {
 
-		it('should run the npm run doc command', () => {
+		it('should run the npm run doc command', async () => {
 
 			// Given
 			const
@@ -104,17 +105,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~generate~documentation'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// When - Then
-			return expect(npm.generateDocumentation(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.generateDocumentation(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -122,7 +126,7 @@ describe('service/init/npm.js', () => {
 
 	describe('init', () => {
 
-		it('should run the npm init command', () => {
+		it('should run the npm init command', async () => {
 
 			// Given
 			const
@@ -139,17 +143,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~init'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// When - Then
-			return expect(npm.init(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.init(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -157,7 +164,7 @@ describe('service/init/npm.js', () => {
 
 	describe('install', () => {
 
-		it('should run the npm install command', () => {
+		it('should run the npm install command', async () => {
 
 			// Given
 			const
@@ -174,17 +181,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~install'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// When - Then
-			return expect(npm.install(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.install(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -192,7 +202,7 @@ describe('service/init/npm.js', () => {
 
 	describe('orizuruPostInit', () => {
 
-		it('should run the npm run orizuru-post-init command', () => {
+		it('should run the npm run orizuru-post-init command', async () => {
 
 			// Given
 			const
@@ -209,17 +219,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~orizuru~post~init'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
 			shell.executeCommand.resolves(expectedInput);
 
-			// When - Then
-			return expect(npm.orizuruPostInit(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.orizuruPostInit(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -227,7 +240,7 @@ describe('service/init/npm.js', () => {
 
 	describe('test', () => {
 
-		it('should run the npm test command', () => {
+		it('should run the npm test command', async () => {
 
 			// Given
 			const
@@ -244,17 +257,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~test'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
-			shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedOutput);
 
-			// When - Then
-			return expect(npm.test(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(shell.executeCommand).to.have.been.calledOnce;
-					expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.test(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 

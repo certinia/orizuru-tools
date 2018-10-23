@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -38,7 +37,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/deploy/properties.js', () => {
@@ -54,7 +52,7 @@ describe('service/deploy/properties.js', () => {
 
 	describe('updateProperties', () => {
 
-		it('should add the properties file with the right content', () => {
+		it('should add the properties file with the right content', async () => {
 			const
 				expectedCwd = '/Users/test/git/orizuru-tools',
 				expectedInput = {
@@ -91,16 +89,17 @@ describe('service/deploy/properties.js', () => {
 			fs.readFile.resolves();
 			fs.writeFile.resolves();
 
-			// When - Then
-			return expect(properties.updateProperties(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(fs.readFile).to.have.been.calledOnce;
-					expect(fs.writeFile).to.have.been.calledOnce;
-				});
+			// When
+			const output = await properties.updateProperties(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.readFile).to.have.been.calledOnce;
+			expect(fs.writeFile).to.have.been.calledOnce;
+
 		});
 
-		it('should update an existing properties file', () => {
+		it('should update an existing properties file', async () => {
 			const
 				expectedCwd = '/Users/test/git/orizuru-tools',
 				expectedInput = {
@@ -142,13 +141,16 @@ describe('service/deploy/properties.js', () => {
 			fs.readFile.resolves(readOutput);
 			fs.writeFile.resolves();
 
-			// When - Then
-			return expect(properties.updateProperties(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(fs.readFile).to.have.been.calledOnce;
-					expect(fs.writeFile).to.have.been.calledOnce;
-				});
+			// When
+			const output = await properties.updateProperties(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.readFile).to.have.been.calledOnce;
+			expect(fs.writeFile).to.have.been.calledOnce;
+
 		});
+
 	});
+
 });

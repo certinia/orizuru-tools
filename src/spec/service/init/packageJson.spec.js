@@ -27,7 +27,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -40,7 +39,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/init/packageJson.js', () => {
@@ -97,7 +95,7 @@ describe('service/init/packageJson.js', () => {
 
 		});
 
-		it('should prompt the user if the command line arguments useDefaults option is not set', () => {
+		it('should prompt the user if the command line arguments useDefaults option is not set', async () => {
 
 			// Given
 			const
@@ -116,12 +114,12 @@ describe('service/init/packageJson.js', () => {
 
 			inquirer.prompt.resolves(expectedOutput);
 
-			// When - Then
-			return expect(packageJson.askQuestions(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(inquirer.prompt).to.have.been.calledOnce;
-				});
+			// When
+			const output = await packageJson.askQuestions(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(inquirer.prompt).to.have.been.calledOnce;
 
 		});
 
@@ -165,8 +163,11 @@ describe('service/init/packageJson.js', () => {
 					selectedTemplate
 				};
 
-			// When - Then
-			expect(packageJson.build(expectedInput)).to.eql(expectedOutput);
+			// When
+			const output = packageJson.build(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
 
 		});
 
@@ -174,7 +175,7 @@ describe('service/init/packageJson.js', () => {
 
 	describe('create', () => {
 
-		it('should create the package.json file', () => {
+		it('should create the package.json file', async () => {
 
 			// Given
 			const
@@ -203,12 +204,12 @@ describe('service/init/packageJson.js', () => {
 			fs.readJson.resolves({});
 			fs.writeJson.resolves(expectedPackageJson);
 
-			// When - Then
-			return expect(packageJson.create(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(inquirer.prompt).to.not.have.been.called;
-				});
+			// When
+			const output = await packageJson.create(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(inquirer.prompt).to.not.have.been.called;
 
 		});
 
@@ -216,7 +217,7 @@ describe('service/init/packageJson.js', () => {
 
 	describe('read', () => {
 
-		it('should read the package.json file and add the contents to the config', () => {
+		it('should read the package.json file and add the contents to the config', async () => {
 
 			// Given
 			const
@@ -235,14 +236,14 @@ describe('service/init/packageJson.js', () => {
 
 			fs.readJson.resolves(expectedPackageJson);
 
-			// When - Then
-			return expect(packageJson.read(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(logger.logLn).to.not.have.been.called;
-					expect(fs.readJson).to.have.been.calledOnce;
-					expect(fs.readJson).to.have.been.calledWith('currentWorkingDirectory/currentWorkingDirectory/package.json');
-				});
+			// When
+			const output = await packageJson.read(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(logger.logLn).to.not.have.been.called;
+			expect(fs.readJson).to.have.been.calledOnce;
+			expect(fs.readJson).to.have.been.calledWith('currentWorkingDirectory/currentWorkingDirectory/package.json');
 
 		});
 
@@ -250,7 +251,7 @@ describe('service/init/packageJson.js', () => {
 
 	describe('write', () => {
 
-		it('should write the config.package property to the package.json file', () => {
+		it('should write the config.package property to the package.json file', async () => {
 
 			// Given
 			const
@@ -272,14 +273,14 @@ describe('service/init/packageJson.js', () => {
 
 			fs.writeJson.resolves(expectedPackageJson);
 
-			// When - Then
-			return expect(packageJson.write(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(logger.logLn).to.not.have.been.called;
-					expect(fs.writeJson).to.have.been.calledOnce;
-					expect(fs.writeJson).to.have.been.calledWith('package.json', expectedPackageJson, { spaces: '\t' });
-				});
+			// When
+			const output = await packageJson.write(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(logger.logLn).to.not.have.been.called;
+			expect(fs.writeJson).to.have.been.calledOnce;
+			expect(fs.writeJson).to.have.been.calledWith('package.json', expectedPackageJson, { spaces: '\t' });
 
 		});
 

@@ -28,14 +28,12 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/docker/compose', () => {
@@ -96,7 +94,7 @@ describe('service/docker/compose', () => {
 
 	describe('getAllServices', () => {
 
-		it('should ignore non-yaml files', () => {
+		it('should ignore non-yaml files', async () => {
 
 			// Given
 			const
@@ -123,16 +121,17 @@ describe('service/docker/compose', () => {
 				}
 			});
 
-			// When/then
-			return expect(compose.getAllServices(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.fs.readFileSync).to.not.have.been.called;
-				});
+			// When
+			const output = await compose.getAllServices(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(mocks.fs.readFileSync).to.not.have.been.called;
 
 		});
 
-		it('should ignore files that don\'t contain docker', () => {
+		it('should ignore files that don\'t contain docker', async () => {
 
 			// Given
 			const
@@ -159,16 +158,17 @@ describe('service/docker/compose', () => {
 				}
 			});
 
-			// When/then
-			return expect(compose.getAllServices(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.fs.readFileSync).to.not.have.been.called;
-				});
+			// When
+			const output = await compose.getAllServices(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(mocks.fs.readFileSync).to.not.have.been.called;
 
 		});
 
-		it('should read the services from a given yaml files', () => {
+		it('should read the services from a given yaml files', async () => {
 
 			// Given
 			const
@@ -201,13 +201,13 @@ describe('service/docker/compose', () => {
 			mocks.fs.readFileSync.withArgs(expectedDockerComposeFile).returns(expectedYaml);
 			mocks.path.resolve.returns(expectedDockerComposeFile);
 
-			// When/then
-			return expect(compose.getAllServices(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.fs.readFileSync).to.have.been.calledOnce;
-					expect(mocks.fs.readFileSync).to.have.been.calledWith(expectedDockerComposeFile);
-				});
+			// When
+			const output = await compose.getAllServices(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(mocks.fs.readFileSync).to.have.been.calledOnce;
+			expect(mocks.fs.readFileSync).to.have.been.calledWith(expectedDockerComposeFile);
 
 		});
 
@@ -224,7 +224,7 @@ describe('service/docker/compose', () => {
 
 		});
 
-		it('should call shell executeCommands', () => {
+		it('should call shell executeCommands', async () => {
 
 			// Given
 			const
@@ -260,13 +260,12 @@ describe('service/docker/compose', () => {
 
 			mocks.shell.executeCommands.resolves();
 
-			// When/then
-			return expect(compose.buildImages(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands, {}, expectedInput);
-				});
+			// When
+			await compose.buildImages(expectedInput);
+
+			// Then
+			expect(mocks.shell.executeCommands).to.have.been.calledOnce;
+			expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands, {}, expectedInput);
 
 		});
 
@@ -283,7 +282,7 @@ describe('service/docker/compose', () => {
 
 		});
 
-		it('should call shell executeCommands', () => {
+		it('should call shell executeCommands', async () => {
 
 			// Given
 			const
@@ -319,13 +318,12 @@ describe('service/docker/compose', () => {
 
 			mocks.shell.executeCommands.resolves();
 
-			// When/then
-			return expect(compose.up(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands, {}, expectedInput);
-				});
+			// When
+			await compose.up(expectedInput);
+
+			// Then
+			expect(mocks.shell.executeCommands).to.have.been.calledOnce;
+			expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands, {}, expectedInput);
 
 		});
 

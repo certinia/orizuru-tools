@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -39,7 +38,6 @@ const
 
 	connection = require('../../../lib/service/salesforce/connection');
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/salesforce/connection.js', () => {

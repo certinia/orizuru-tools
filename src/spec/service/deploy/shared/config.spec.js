@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -38,7 +37,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/deploy/shared/config.js', () => {
@@ -55,7 +53,7 @@ describe('service/deploy/shared/config.js', () => {
 
 	describe('createFile', () => {
 
-		it('should create the Orizuru config file', () => {
+		it('should create the Orizuru config file', async () => {
 
 			// Given
 			const
@@ -68,13 +66,13 @@ describe('service/deploy/shared/config.js', () => {
 			fs.mkdirp.resolves();
 			fs.writeJson.resolves();
 
-			// When - Then
-			return expect(configFile.createFile())
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(fs.mkdirp).to.have.been.calledOnce;
-					expect(fs.writeJson).to.have.been.calledOnce;
-				});
+			// When
+			const output = await configFile.createFile();
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.mkdirp).to.have.been.calledOnce;
+			expect(fs.writeJson).to.have.been.calledOnce;
 
 		});
 
@@ -82,7 +80,7 @@ describe('service/deploy/shared/config.js', () => {
 
 	describe('readSettings', () => {
 
-		it('should create the Orizuru config file if the file does not exist', () => {
+		it('should create the Orizuru config file if the file does not exist', async () => {
 
 			// Given
 			const
@@ -98,18 +96,18 @@ describe('service/deploy/shared/config.js', () => {
 			fs.writeJson.resolves();
 			fs.readJson.rejects();
 
-			// When - Then
-			return expect(configFile.readSettings())
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(fs.mkdirp).to.have.been.calledOnce;
-					expect(fs.readJson).to.have.been.calledOnce;
-					expect(fs.writeJson).to.have.been.calledOnce;
-				});
+			// When
+			const output = await configFile.readSettings();
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.mkdirp).to.have.been.calledOnce;
+			expect(fs.readJson).to.have.been.calledOnce;
+			expect(fs.writeJson).to.have.been.calledOnce;
 
 		});
 
-		it('should read the Orizuru config file if the file exists', () => {
+		it('should read the Orizuru config file if the file exists', async () => {
 
 			// Given
 			const
@@ -124,13 +122,13 @@ describe('service/deploy/shared/config.js', () => {
 			fs.mkdirp.resolves();
 			fs.readJson.resolves({});
 
-			// When - Then
-			return expect(configFile.readSettings())
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(fs.mkdirp).to.not.have.been.called;
-					expect(fs.readJson).to.have.been.calledOnce;
-				});
+			// When
+			const output = await configFile.readSettings();
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.mkdirp).to.not.have.been.called;
+			expect(fs.readJson).to.have.been.calledOnce;
 
 		});
 
@@ -138,7 +136,7 @@ describe('service/deploy/shared/config.js', () => {
 
 	describe('writeSetting', () => {
 
-		it('should create the Orizuru config file if the file does not exist and write the setting', () => {
+		it('should create the Orizuru config file if the file does not exist and write the setting', async () => {
 
 			// Given
 			const
@@ -156,18 +154,18 @@ describe('service/deploy/shared/config.js', () => {
 			fs.writeJson.resolves();
 			fs.readJson.rejects();
 
-			// When - Then
-			return expect(configFile.writeSetting({}, 'test', 'test'))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(fs.mkdirp).to.have.been.calledOnce;
-					expect(fs.readJson).to.have.been.calledOnce;
-					expect(fs.writeJson).to.have.been.calledTwice;
-				});
+			// When
+			const output = await configFile.writeSetting({}, 'test', 'test');
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.mkdirp).to.have.been.calledOnce;
+			expect(fs.readJson).to.have.been.calledOnce;
+			expect(fs.writeJson).to.have.been.calledTwice;
 
 		});
 
-		it('should add the setting if the file exist', () => {
+		it('should add the setting if the file exist', async () => {
 
 			// Given
 			const
@@ -191,14 +189,14 @@ describe('service/deploy/shared/config.js', () => {
 			fs.writeJson.resolves();
 			fs.readJson.resolves(expectedreadJsonOutput);
 
-			// When - Then
-			return expect(configFile.writeSetting({}, 'test2.test3', 'test'))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(fs.mkdirp).to.not.have.been.called;
-					expect(fs.readJson).to.have.been.calledOnce;
-					expect(fs.writeJson).to.have.been.calledOnce;
-				});
+			// When
+			const output = await configFile.writeSetting({}, 'test2.test3', 'test');
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.mkdirp).to.not.have.been.called;
+			expect(fs.readJson).to.have.been.calledOnce;
+			expect(fs.writeJson).to.have.been.calledOnce;
 
 		});
 

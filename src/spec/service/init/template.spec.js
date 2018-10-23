@@ -27,7 +27,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -38,7 +37,6 @@ const
 
 	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/init/template.js', () => {
@@ -63,7 +61,7 @@ describe('service/init/template.js', () => {
 		sinon.restore();
 	});
 
-	it('should use the template from the command line argument if the provided template exists', () => {
+	it('should use the template from the command line argument if the provided template exists', async () => {
 
 		// Given
 		const
@@ -105,15 +103,17 @@ describe('service/init/template.js', () => {
 		]);
 		fs.readJson.resolves(expectedPackageJson);
 
-		return expect(template.select(config))
-			.to.eventually.eql(expectedOutput)
-			.then(() => {
-				expect(inquirer.prompt).to.not.have.been.called;
-			});
+		// When
+		const output = await template.select(config);
+
+		// Then
+		expect(output).to.eql(expectedOutput);
+
+		expect(inquirer.prompt).to.not.have.been.called;
 
 	});
 
-	it('should prompt the user for the template if the template provided from the command line does not exist', () => {
+	it('should prompt the user for the template if the template provided from the command line does not exist', async () => {
 
 		// Given
 		const
@@ -161,15 +161,16 @@ describe('service/init/template.js', () => {
 		fs.readJson.resolves(expectedPackageJson);
 		inquirer.prompt.resolves(expectedAnswer);
 
-		return expect(template.select(config))
-			.to.eventually.eql(expectedOutput)
-			.then(() => {
-				expect(inquirer.prompt).to.have.been.calledOnce;
-			});
+		// When
+		const output = await template.select(config);
+
+		// Then
+		expect(output).to.eql(expectedOutput);
+		expect(inquirer.prompt).to.have.been.calledOnce;
 
 	});
 
-	it('should read any extension configuration files', () => {
+	it('should read any extension configuration files', async () => {
 
 		// Given
 		const
@@ -223,11 +224,12 @@ describe('service/init/template.js', () => {
 		fs.readJson.onCall(1).resolves(expectedExtensionPackageJson);
 		inquirer.prompt.resolves(expectedAnswer);
 
-		return expect(template.select(config))
-			.to.eventually.eql(expectedOutput)
-			.then(() => {
-				expect(inquirer.prompt).to.have.been.calledOnce;
-			});
+		// When
+		const output = await template.select(config);
+
+		// Then
+		expect(output).to.eql(expectedOutput);
+		expect(inquirer.prompt).to.have.been.calledOnce;
 
 	});
 

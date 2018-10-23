@@ -28,7 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -40,7 +39,6 @@ const
 	expect = chai.expect;
 
 chai.use(sinonChai);
-chai.use(chaiAsPromised);
 
 describe('resultWriter/service.js', () => {
 
@@ -48,9 +46,9 @@ describe('resultWriter/service.js', () => {
 		sinon.restore();
 	});
 
-	it('should call the appropriate methods when writing a successful response', () => {
+	it('should call the appropriate methods when writing a successful response', async () => {
 
-		// given
+		// Given
 		const
 			conn = sinon.stub(),
 			expectedInput = {
@@ -127,16 +125,16 @@ describe('resultWriter/service.js', () => {
 		sinon.stub(connection, 'fromContext').resolves(conn);
 		sinon.stub(writer, 'sendPlatformEvent').resolves();
 
-		// when / then
-		return expect(service(expectedInput))
-			.to.eventually.be.fulfilled
-			.then(() => {
-				expect(conn.apex.post).to.have.been.calledTwice;
-				expect(conn.apex.post).to.have.been.calledWith('/RouteAPI/', { routes: expectedRoutes });
-				expect(conn.apex.post).to.have.been.calledWith('/WaypointAPI/', { waypoints: expectedWaypoints });
-				expect(writer.sendPlatformEvent).to.have.been.calledTwice;
-				expect(writer.sendPlatformEvent).to.have.been.calledWith(conn, expectedWritingPlatformEvent);
-				expect(writer.sendPlatformEvent).to.have.been.calledWith(conn, expectedCompletedPlatformEvent);
-			});
+		// When
+		await service(expectedInput);
+
+		// Then
+		expect(conn.apex.post).to.have.been.calledTwice;
+		expect(conn.apex.post).to.have.been.calledWith('/RouteAPI/', { routes: expectedRoutes });
+		expect(conn.apex.post).to.have.been.calledWith('/WaypointAPI/', { waypoints: expectedWaypoints });
+		expect(writer.sendPlatformEvent).to.have.been.calledTwice;
+		expect(writer.sendPlatformEvent).to.have.been.calledWith(conn, expectedWritingPlatformEvent);
+		expect(writer.sendPlatformEvent).to.have.been.calledWith(conn, expectedCompletedPlatformEvent);
 	});
+
 });
