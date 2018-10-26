@@ -33,7 +33,7 @@ const
 function readDirectory(dir, opts, fileList) {
 
 	const
-		results = fileList || {},
+		results = fileList,
 		filePaths = fs.readdirSync(dir);
 
 	filePaths.map((filePath) => {
@@ -53,9 +53,9 @@ function readDirectory(dir, opts, fileList) {
 
 		if (addToList) {
 			if (opts.readFile) {
-				results[path.basename(filePath, opts.extension)] = fs.readFileSync(fp).toString();
+				results[fp] = fs.readFileSync(fp).toString();
 			} else {
-				results[path.basename(filePath, opts.extension)] = fp;
+				results.push(fp);
 			}
 		}
 
@@ -66,11 +66,11 @@ function readDirectory(dir, opts, fileList) {
 }
 
 function findFilesWithExtension(directory, extension) {
-	return readDirectory(directory, { extension });
+	return readDirectory(directory, { extension }, []);
 }
 
 function readFilesWithExtension(directory, extension) {
-	return readDirectory(directory, { extension, readFile: true });
+	return readDirectory(directory, { extension, readFile: true }, {});
 }
 
 module.exports = {

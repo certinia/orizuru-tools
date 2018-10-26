@@ -102,9 +102,9 @@ describe('service/docker/compose', () => {
 					}
 				};
 
-			read.findFilesWithExtension.returns({
-				path: expectedDockerComposeFile
-			});
+			read.findFilesWithExtension.returns([
+				expectedDockerComposeFile
+			]);
 
 			fs.readFileSync.withArgs(expectedDockerComposeFile).returns(expectedYaml);
 			path.resolve.returns(expectedDockerComposeFile);

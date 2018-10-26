@@ -112,7 +112,7 @@ describe('lib/util/read', () => {
 			const results = read.findFilesWithExtension('src/index/client/shared', '.avsc');
 
 			// Then
-			expect(results).to.eql({});
+			expect(results).to.eql([]);
 
 		});
 
@@ -127,10 +127,10 @@ describe('lib/util/read', () => {
 			const results = read.findFilesWithExtension('src/index/client/shared', '.js');
 
 			// Then
-			expect(results).to.eql({
-				read: 'src/index/client/shared/read.js',
-				walk: 'src/index/client/shared/walk.js'
-			});
+			expect(results).to.eql([
+				'src/index/client/shared/read.js',
+				'src/index/client/shared/walk.js'
+			]);
 
 		});
 
@@ -145,12 +145,12 @@ describe('lib/util/read', () => {
 			const results = read.findFilesWithExtension('src/index/client', '.js');
 
 			// Then
-			expect(results).to.eql({
-				handler: 'src/index/client/handler.js',
-				read: 'src/index/client/shared/read.js',
-				schema: 'src/index/client/schema.js',
-				walk: 'src/index/client/shared/walk.js'
-			});
+			expect(results).to.eql([
+				'src/index/client/handler.js',
+				'src/index/client/schema.js',
+				'src/index/client/shared/read.js',
+				'src/index/client/shared/walk.js'
+			]);
 
 		});
 
@@ -172,10 +172,10 @@ describe('lib/util/read', () => {
 
 			// Then
 			expect(results).to.eql({
-				handler: 'fileContents',
-				read: 'fileContents',
-				schema: 'fileContents',
-				walk: 'fileContents'
+				'src/index/client/handler.js': 'fileContents',
+				'src/index/client/schema.js': 'fileContents',
+				'src/index/client/shared/read.js': 'fileContents',
+				'src/index/client/shared/walk.js': 'fileContents'
 			});
 
 		});

@@ -44,7 +44,7 @@ function findComposeFiles(config) {
 	return Promise.resolve(config)
 		.then((config) => {
 			const composeFiles = read.findFilesWithExtension(process.cwd(), EXTENSION_YAML);
-			_.set(config, 'docker.compose.files', Object.values(composeFiles));
+			_.set(config, 'docker.compose.files', composeFiles);
 			return config;
 		});
 
