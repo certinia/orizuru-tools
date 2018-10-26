@@ -27,30 +27,53 @@
 'use strict';
 
 const
-	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename } = require('path'),
-	{ readFileSync } = require('fs'),
+	fs = require('fs'),
+	path = require('path');
 
-	EXT = '.avsc',
-	ENCODING = 'utf8';
-
-function getAvscFilesOnPathRecursively(path) {
+function readDirectory(dir, opts, fileList) {
 
 	const
-		DIR = path,
-		FILTER = ({ path }) => path.endsWith(EXT);
+		results = fileList || {},
+		filePaths = fs.readdirSync(dir);
 
-	return _.map(klawSync(DIR, { nodir: true, filter: FILTER }), value => {
-		const { path } = value;
-		// add sharedPath and fileName to the result
-		return {
-			path,
-			sharedPath: dirname(path).substring(DIR.length),
-			fileName: basename(path, EXT),
-			file: readFileSync(path).toString(ENCODING)
-		};
+	filePaths.map((filePath) => {
+
+		const
+			fp = dir + path.sep + filePath,
+			stat = fs.lstatSync(fp),
+
+			isFile = stat.isFile(),
+			isDirectory = stat.isDirectory(),
+
+			addToList = !isDirectory && (isFile && filePath.endsWith(opts.extension));
+
+		if (isDirectory) {
+			readDirectory(fp, opts, results);
+		}
+
+		if (addToList) {
+			if (opts.readFile) {
+				results[path.basename(filePath, opts.extension)] = fs.readFileSync(fp).toString();
+			} else {
+				results[path.basename(filePath, opts.extension)] = fp;
+			}
+		}
+
 	});
+
+	return results;
+
 }
 
-module.exports = { getAvscFilesOnPathRecursively };
+function findFilesWithExtension(directory, extension) {
+	return readDirectory(directory, { extension });
+}
+
+function readFilesWithExtension(directory, extension) {
+	return readDirectory(directory, { extension, readFile: true });
+}
+
+module.exports = {
+	findFilesWithExtension,
+	readFilesWithExtension
+};

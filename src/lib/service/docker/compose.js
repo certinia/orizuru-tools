@@ -29,33 +29,24 @@
 const
 	_ = require('lodash'),
 	fs = require('fs'),
-	klaw = require('klaw'),
 	path = require('path'),
 	yaml = require('js-yaml'),
 
+	read = require('../../util/read'),
 	shell = require('../../util/shell'),
 
-	DOCKER = 'docker',
 	DOCKER_COMPOSE = 'docker-compose',
 
 	EXTENSION_YAML = 'yaml';
 
 function findComposeFiles(config) {
 
-	return new Promise(resolve => {
-		const composeFiles = [];
-		klaw(process.cwd())
-			.on('data', item => {
-				if (item.path.indexOf(DOCKER) > -1) {
-					if (_.tail(item.path.split('.'))[0] === EXTENSION_YAML) {
-						composeFiles.push(item.path);
-					}
-				}
-			})
-			.on('end', () => {
-				resolve(_.set(config, 'docker.compose.files', composeFiles));
-			});
-	}).then(() => config);
+	return Promise.resolve(config)
+		.then((config) => {
+			const composeFiles = read.findFilesWithExtension(process.cwd(), EXTENSION_YAML);
+			_.set(config, 'docker.compose.files', Object.values(composeFiles));
+			return config;
+		});
 
 }
 

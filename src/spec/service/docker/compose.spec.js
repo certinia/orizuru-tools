@@ -28,9 +28,16 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
+
+	fs = require('fs'),
+	path = require('path'),
+
+	read = require('../../../lib/util/read'),
+	shell = require('../../../lib/util/shell'),
+
+	compose = require('../../../lib/service/docker/compose'),
 
 	expect = chai.expect;
 
@@ -38,29 +45,12 @@ chai.use(sinonChai);
 
 describe('service/docker/compose', () => {
 
-	let compose, mocks;
-
 	beforeEach(() => {
 
-		mocks = {};
-		mocks.fs = sinon.stub();
-		mocks.fs.readFileSync = sinon.stub();
-
-		mocks.klaw = sinon.stub();
-
-		mocks.path = {};
-		mocks.path.dirname = sinon.stub().returns('');
-		mocks.path.resolve = sinon.stub();
-
-		mocks.shell = sinon.stub();
-		mocks.shell.executeCommands = sinon.stub();
-
-		compose = proxyquire('../../../lib/service/docker/compose', {
-			klaw: mocks.klaw,
-			'../../util/shell': mocks.shell,
-			path: mocks.path,
-			fs: mocks.fs
-		});
+		sinon.stub(fs, 'readFileSync');
+		sinon.stub(path, 'resolve');
+		sinon.stub(read, 'findFilesWithExtension');
+		sinon.stub(shell, 'executeCommands');
 
 	});
 
@@ -79,13 +69,13 @@ describe('service/docker/compose', () => {
 
 			var services;
 
-			mocks.fs.readFileSync.returns(expectedYaml);
+			fs.readFileSync.returns(expectedYaml);
 
 			// When
 			services = compose.getServices(expectedImageName);
 
 			// Then
-			expect(mocks.fs.readFileSync).to.have.been.calledOnce;
+			expect(fs.readFileSync).to.have.been.calledOnce;
 			expect(services).to.eql([expectedImageName]);
 
 		});
@@ -93,80 +83,6 @@ describe('service/docker/compose', () => {
 	});
 
 	describe('getAllServices', () => {
-
-		it('should ignore non-yaml files', async () => {
-
-			// Given
-			const
-				expectedFile = 'docker.txt',
-				expectedInput = {},
-				expectedOutput = {
-					docker: {
-						compose: {
-							files: []
-						}
-					}
-				};
-
-			mocks.klaw.returns({
-				on: function (type, fn) {
-					switch (type) {
-						case 'data':
-							fn({ path: expectedFile });
-							break;
-						case 'end':
-							fn();
-					}
-					return this;
-				}
-			});
-
-			// When
-			const output = await compose.getAllServices(expectedInput);
-
-			// Then
-			expect(output).to.eql(expectedOutput);
-
-			expect(mocks.fs.readFileSync).to.not.have.been.called;
-
-		});
-
-		it('should ignore files that don\'t contain docker', async () => {
-
-			// Given
-			const
-				expectedFile = 'test.txt',
-				expectedInput = {},
-				expectedOutput = {
-					docker: {
-						compose: {
-							files: []
-						}
-					}
-				};
-
-			mocks.klaw.returns({
-				on: function (type, fn) {
-					switch (type) {
-						case 'data':
-							fn({ path: expectedFile });
-							break;
-						case 'end':
-							fn();
-					}
-					return this;
-				}
-			});
-
-			// When
-			const output = await compose.getAllServices(expectedInput);
-
-			// Then
-			expect(output).to.eql(expectedOutput);
-
-			expect(mocks.fs.readFileSync).to.not.have.been.called;
-
-		});
 
 		it('should read the services from a given yaml files', async () => {
 
@@ -186,28 +102,20 @@ describe('service/docker/compose', () => {
 					}
 				};
 
-			mocks.klaw.returns({
-				on: function (type, fn) {
-					switch (type) {
-						case 'data':
-							fn({ path: expectedDockerComposeFile });
-							break;
-						case 'end':
-							fn();
-					}
-					return this;
-				}
+			read.findFilesWithExtension.returns({
+				path: expectedDockerComposeFile
 			});
-			mocks.fs.readFileSync.withArgs(expectedDockerComposeFile).returns(expectedYaml);
-			mocks.path.resolve.returns(expectedDockerComposeFile);
+
+			fs.readFileSync.withArgs(expectedDockerComposeFile).returns(expectedYaml);
+			path.resolve.returns(expectedDockerComposeFile);
 
 			// When
 			const output = await compose.getAllServices(expectedInput);
 
 			// Then
 			expect(output).to.eql(expectedOutput);
-			expect(mocks.fs.readFileSync).to.have.been.calledOnce;
-			expect(mocks.fs.readFileSync).to.have.been.calledWith(expectedDockerComposeFile);
+			expect(fs.readFileSync).to.have.been.calledOnce;
+			expect(fs.readFileSync).to.have.been.calledWith(expectedDockerComposeFile);
 
 		});
 
@@ -258,14 +166,14 @@ describe('service/docker/compose', () => {
 					}
 				};
 
-			mocks.shell.executeCommands.resolves();
+			shell.executeCommands.resolves();
 
 			// When
 			await compose.buildImages(expectedInput);
 
 			// Then
-			expect(mocks.shell.executeCommands).to.have.been.calledOnce;
-			expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands, {}, expectedInput);
+			expect(shell.executeCommands).to.have.been.calledOnce;
+			expect(shell.executeCommands).to.have.been.calledWith(expectedCommands, {}, expectedInput);
 
 		});
 
@@ -316,14 +224,14 @@ describe('service/docker/compose', () => {
 					}
 				};
 
-			mocks.shell.executeCommands.resolves();
+			shell.executeCommands.resolves();
 
 			// When
 			await compose.up(expectedInput);
 
 			// Then
-			expect(mocks.shell.executeCommands).to.have.been.calledOnce;
-			expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands, {}, expectedInput);
+			expect(shell.executeCommands).to.have.been.calledOnce;
+			expect(shell.executeCommands).to.have.been.calledWith(expectedCommands, {}, expectedInput);
 
 		});
 

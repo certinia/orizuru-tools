@@ -33,10 +33,11 @@ const
 
 	{ resolve } = require('path'),
 
-	getAvscFilesOnPathRecursively = require('../../lib/service/generateApexTransport/getAvscFilesOnPathRecursively'),
 	generate = require('../../lib/service/generateApexTransport/generate'),
 	overwriteFile = require('../../lib/service/generateApexTransport/overwriteFile'),
+
 	logger = require('../../lib/util/logger'),
+	read = require('../../lib/util/read'),
 
 	service = require('../../lib/service/generateApexTransport'),
 
@@ -54,7 +55,7 @@ describe('service/generateApexTransport.js', () => {
 		sinon.stub(logger, 'logEvent');
 
 		sinon.stub(generate, 'generate');
-		sinon.stub(getAvscFilesOnPathRecursively, 'getAvscFilesOnPathRecursively');
+		sinon.stub(read, 'readFilesWithExtension');
 
 		sinon.stub(overwriteFile, 'overwriteFile');
 
@@ -110,15 +111,15 @@ describe('service/generateApexTransport.js', () => {
 				},
 				expectedError = new Error('test');
 
-			getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively.throws(expectedError);
+			read.readFilesWithExtension.throws(expectedError);
 
 			// When
 			await service.generateApexTransport(input);
 
 			// Then
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
+			expect(read.readFilesWithExtension).to.have.been.calledOnce;
 			expect(logger.logError).to.have.been.calledOnce;
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
+			expect(read.readFilesWithExtension).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
 			expect(logger.logError).to.have.been.calledWith(expectedError);
 
 		});
@@ -133,17 +134,17 @@ describe('service/generateApexTransport.js', () => {
 				}
 			};
 
-			getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively.returns([{
+			read.readFilesWithExtension.returns({
 				file: 'a'
-			}]);
+			});
 
 			// When
 			await service.generateApexTransport(input);
 
 			// Then
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
+			expect(read.readFilesWithExtension).to.have.been.calledOnce;
 			expect(logger.logError).to.have.been.calledOnce;
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
+			expect(read.readFilesWithExtension).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
 			expect(logger.logError).to.have.been.calledWith(sinon.match.instanceOf(Error));
 
 		});
@@ -160,19 +161,19 @@ describe('service/generateApexTransport.js', () => {
 				},
 				expectedError = new Error('test');
 
-			getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively.returns([{
+			read.readFilesWithExtension.returns({
 				file: '{ "test": "test" }'
-			}]);
+			});
 			generate.generate.throws(expectedError);
 
 			// When
 			await service.generateApexTransport(input);
 
 			// Then
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
+			expect(read.readFilesWithExtension).to.have.been.calledOnce;
 			expect(generate.generate).to.have.been.calledOnce;
 			expect(logger.logError).to.have.been.calledOnce;
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
+			expect(read.readFilesWithExtension).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
 			expect(generate.generate).to.have.been.calledWith([{ test: 'test' }]);
 			expect(logger.logError).to.have.been.calledWith(expectedError);
 
@@ -190,9 +191,9 @@ describe('service/generateApexTransport.js', () => {
 				},
 				expectedError = new Error('test');
 
-			getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively.returns([{
+			read.readFilesWithExtension.returns({
 				file: '{ "test": "test" }'
-			}]);
+			});
 			generate.generate.returns({
 				cls: 'testCls',
 				xml: 'testXml'
@@ -203,11 +204,11 @@ describe('service/generateApexTransport.js', () => {
 			await service.generateApexTransport(input);
 
 			// Then
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
+			expect(read.readFilesWithExtension).to.have.been.calledOnce;
 			expect(generate.generate).to.have.been.calledOnce;
 			expect(overwriteFile.overwriteFile).to.have.been.calledOnce;
 			expect(logger.logError).to.have.been.calledOnce;
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
+			expect(read.readFilesWithExtension).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
 			expect(generate.generate).to.have.been.calledWith([{ test: 'test' }]);
 			expect(overwriteFile.overwriteFile).to.have.been.calledWith(resolve(process.cwd(), input.argv.outputUrl), 'OrizuruTransport.cls', 'testCls');
 			expect(logger.logError).to.have.been.calledWith(expectedError);
@@ -224,9 +225,9 @@ describe('service/generateApexTransport.js', () => {
 				}
 			};
 
-			getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively.returns([{
+			read.readFilesWithExtension.returns({
 				file: '{ "test": "test" }'
-			}]);
+			});
 			generate.generate.returns({
 				cls: 'testCls',
 				xml: 'testXml'
@@ -237,11 +238,11 @@ describe('service/generateApexTransport.js', () => {
 			await service.generateApexTransport(input);
 
 			// Then
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledOnce;
+			expect(read.readFilesWithExtension).to.have.been.calledOnce;
 			expect(generate.generate).to.have.been.calledOnce;
 			expect(overwriteFile.overwriteFile).to.have.been.calledTwice;
 			expect(logger.log).to.have.been.calledOnce;
-			expect(getAvscFilesOnPathRecursively.getAvscFilesOnPathRecursively).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
+			expect(read.readFilesWithExtension).to.have.been.calledWith(resolve(process.cwd(), input.argv.inputUrl));
 			expect(generate.generate).to.have.been.calledWith([{ test: 'test' }]);
 			expect(overwriteFile.overwriteFile).to.have.been.calledWith(resolve(process.cwd(), input.argv.outputUrl), 'OrizuruTransport.cls', 'testCls');
 			expect(overwriteFile.overwriteFile).to.have.been.calledWith(resolve(process.cwd(), input.argv.outputUrl), 'OrizuruTransport.cls-meta.xml', 'testXml');
