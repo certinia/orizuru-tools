@@ -89,7 +89,7 @@ module.exports = async (event) => {
 
 	logEvent(event);
 
-	const conn = await connection.fromContext(event);
+	const conn = await connection.fromContext(event.context);
 	await createContacts(conn, event);
 	debug('Success!');
 

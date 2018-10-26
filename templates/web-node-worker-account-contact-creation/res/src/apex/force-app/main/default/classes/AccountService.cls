@@ -84,7 +84,7 @@ public class AccountService implements API
 		{
 			inputList.add(accountId);
 		}
-        getConnector().post('callout:Orizuru/api/account', new OrizuruTransport.com_financialforce_Account(inputList), sessionId);
+        getConnector().post('callout:Orizuru/api/com/financialforce/account', new OrizuruTransport.com_financialforce_Account(inputList), sessionId);
     }
     
     private IHerokuConnector getConnector() 

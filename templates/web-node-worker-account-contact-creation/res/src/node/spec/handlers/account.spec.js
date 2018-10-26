@@ -83,6 +83,7 @@ describe('handler/account.js', () => {
 
 			// Then
 			expect(connection.fromContext).to.have.been.calledOnce;
+			expect(connection.fromContext).to.have.been.calledWith(event.context);
 
 			expect(writer.createObject).to.have.been.calledOnce;
 			expect(writer.createObject).to.have.been.calledWithExactly(connectionStub, 'Contact', {
@@ -110,6 +111,7 @@ describe('handler/account.js', () => {
 
 			// Then
 			expect(connection.fromContext).to.have.been.calledOnce;
+			expect(connection.fromContext).to.have.been.calledWith(event.context);
 
 			expect(writer.createObject).to.have.callCount(10);
 
@@ -140,6 +142,7 @@ describe('handler/account.js', () => {
 
 			// Then
 			expect(connection.fromContext).to.have.been.calledOnce;
+			expect(connection.fromContext).to.have.been.calledWith(event.context);
 
 			expect(writer.createObject).to.have.callCount(11);
 
