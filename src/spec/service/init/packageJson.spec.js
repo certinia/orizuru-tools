@@ -75,7 +75,7 @@ describe('service/init/packageJson.js', () => {
 					argv
 				},
 				expectedPackageJson = {
-					name: 'Orizuru',
+					name: 'orizuru',
 					version: '1.0.0',
 					description: '',
 					main: 'src/node/lib/web.js',
@@ -186,7 +186,7 @@ describe('service/init/packageJson.js', () => {
 					argv
 				},
 				expectedPackageJson = {
-					name: 'Orizuru',
+					name: 'orizuru',
 					version: '1.0.0',
 					description: '',
 					main: 'src/node/lib/web.js',

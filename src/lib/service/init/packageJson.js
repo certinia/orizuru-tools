@@ -47,7 +47,7 @@ const
 
 	defaults = {
 		['package']: {
-			name: 'Orizuru',
+			name: 'orizuru',
 			version: '1.0.0',
 			description: '',
 			main: 'src/node/lib/web.js',
