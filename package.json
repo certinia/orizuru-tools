@@ -47,7 +47,7 @@
 		"yargs": "9.0.1"
 	},
 	"devDependencies": {
-		"@financialforcedev/eslint-config": "^3.0.1",
+		"@financialforcedev/eslint-config": "^4.0.0",
 		"@financialforcedev/orizuru": "^5.1.0",
 		"@financialforcedev/orizuru-auth": "^3.0.3",
 		"@financialforcedev/orizuru-openapi": "^2.0.2",
