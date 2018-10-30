@@ -4,19 +4,6 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Debug Web",
-			"program": "${workspaceFolder}/test1/src/node/lib/web.js",
-			"env": {
-				"DEBUG": "*",
-				"JWT_SIGNING_KEY": "test",
-				"OPENID_CLIENT_ID": "test",
-				"OPENID_HTTP_TIMEOUT": "4000",
-				"OPENID_ISSUER_URI": "https://login.salesforce.com"
-			}
-		},
-		{
-			"type": "node",
-			"request": "launch",
 			"name": "Debug Tests",
 			"program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
 			"args": [
