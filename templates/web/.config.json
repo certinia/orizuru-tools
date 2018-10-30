@@ -26,7 +26,7 @@
 			"lint-fix": "eslint src/node --fix",
 			"orizuru-post-init": "echo 'No post init steps'",
 			"pretest": "eslint src/node",
-			"test": "nyc --nycrc-path=src/node/spec/nyc.opts mocha --recursive src/node/spec"
+			"test": "nyc --nycrc-path=src/node/spec/nyc.opts mocha --opts src/node/spec/mocha.opts"
 		}
 	}
 }

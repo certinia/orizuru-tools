@@ -10,7 +10,7 @@
 		"posttest": "node src/systemtests/templates.js",
 		"pretest": "eslint src",
 		"single-test": "nyc --all=false mocha",
-		"test": "nyc --include src mocha --recursive src/spec"
+		"test": "nyc --report-dir=coverage --nycrc-path=src/spec/nyc.opts mocha --opts src/spec/mocha.opts"
 	},
 	"bugs": {
 		"url": "https://github.com/financialforcedev/orizuru-tools/issues"
@@ -53,24 +53,5 @@
 		"proxyquire": "2.1.0",
 		"sinon": "7.1.0",
 		"sinon-chai": "3.2.0"
-	},
-	"nyc": {
-		"check-coverage": true,
-		"per-file": true,
-		"lines": 100,
-		"statements": 100,
-		"functions": 100,
-		"branches": 100,
-		"exclude": [
-			"src/systemtests"
-		],
-		"reporter": [
-			"lcov",
-			"html",
-			"text",
-			"text-summary"
-		],
-		"cache": true,
-		"all": true
 	}
 }
