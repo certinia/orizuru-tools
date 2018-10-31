@@ -44,6 +44,7 @@ const
 	packageInfo = require('pkginfo'),
 
 	debug = require('debug')('web'),
+	path = require('path'),
 
 	openApi = require('@financialforcedev/orizuru-openapi'),
 
@@ -57,7 +58,10 @@ const
 	}),
 
 	// get server
-	{ json, Server } = require('@financialforcedev/orizuru'),
+	{ addStaticRoute, json, Server } = require('@financialforcedev/orizuru'),
+
+	// get default route
+	DEFAULT_ROUTE = addStaticRoute(path.resolve(__dirname, 'web/static')),
 
 	// get all files in our 'schemas' directory
 	schemas = require('./boilerplate/schema/web').getSchemas(),
@@ -132,6 +136,8 @@ serverInstance.on(Server.ERROR, debug);
 serverInstance.on(Server.INFO, debug);
 
 addRoutes(serverInstance);
+
+serverInstance.use('/', DEFAULT_ROUTE);
 
 // start listening to new connections
 serverInstance.listen();
