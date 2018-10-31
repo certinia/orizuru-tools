@@ -15,12 +15,17 @@
 			"size": "free"
 		}
 	},
-	"addons": [{
-		"plan": "cloudamqp:lemur"
-	}],
-	"buildpacks": [{
-		"url": "heroku/nodejs"
-	}, {
-		"url": "heroku/java"
-	}]
+	"addons": [
+		{
+			"plan": "cloudamqp:lemur"
+		}
+	],
+	"buildpacks": [
+		{
+			"url": "heroku/nodejs"
+		},
+		{
+			"url": "heroku/java"
+		}
+	]
 }

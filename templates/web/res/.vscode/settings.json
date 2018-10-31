@@ -1,10 +1,11 @@
 {
-	"files.associations": {
-		"*.avsc": "json"
-	},
 	"editor.detectIndentation": false,
 	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,
+	"files.associations": {
+		"*.avro": "json",
+		"*.avsc": "json"
+	},
 	"files.exclude": {
 		"**/.nyc_output": true,
 		"**/.git": true,
@@ -14,6 +15,7 @@
 		"**/.DS_Store": true,
 		"**/coverage": true
 	},
+	"files.insertFinalNewline": true,
 	"lcov.path": "coverage/lcov.info",
 	"lcov.watch": [
 		{
@@ -22,5 +24,8 @@
 		}
 	],
 	"runCurrentTest.run": "npm run single-test -- ${relativeTestPath}",
-	"terminal.integrated.scrollback": 10000
+	"terminal.integrated.scrollback": 10000,
+	"workbench.colorCustomizations": {
+		"activityBar.foreground": "#0C8EFF"
+	}
 }
