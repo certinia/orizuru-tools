@@ -47,7 +47,7 @@
 		"yargs": "9.0.1"
 	},
 	"devDependencies": {
-		"@financialforcedev/eslint-config": "^3.0.1",
+		"@financialforcedev/eslint-config": "^4.0.0",
 		"@financialforcedev/orizuru": "^5.1.0",
 		"@financialforcedev/orizuru-auth": "^3.0.3",
 		"@financialforcedev/orizuru-openapi": "^2.0.2",
@@ -55,7 +55,6 @@
 		"app-root-path": "2.0.1",
 		"chai": "4.1.2",
 		"chai-as-promised": "7.1.1",
-		"eslint": "4.9.0",
 		"jsdoc": "3.5.5",
 		"mocha": "4.0.1",
 		"nyc": "11.9.0",
