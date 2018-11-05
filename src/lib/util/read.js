@@ -32,9 +32,7 @@ const
 
 function readDirectory(dir, opts, fileList) {
 
-	const
-		results = fileList,
-		filePaths = fs.readdirSync(dir);
+	const filePaths = fs.readdirSync(dir);
 
 	filePaths.map((filePath) => {
 
@@ -48,20 +46,20 @@ function readDirectory(dir, opts, fileList) {
 			addToList = !isDirectory && (isFile && filePath.endsWith(opts.extension));
 
 		if (isDirectory) {
-			readDirectory(fp, opts, results);
+			readDirectory(fp, opts, fileList);
 		}
 
 		if (addToList) {
 			if (opts.readFile) {
-				results[fp] = fs.readFileSync(fp).toString();
+				fileList[fp] = fs.readFileSync(fp).toString();
 			} else {
-				results.push(fp);
+				fileList.push(fp);
 			}
 		}
 
 	});
 
-	return results;
+	return fileList;
 
 }
 
