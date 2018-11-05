@@ -157,7 +157,7 @@ exports.devDependencies = {
 
 // overrode scripts
 exports.scripts = {
-	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schema src/apex/app/main/default/classes",
+	"generate-apex-transport": "orizuru setup generate-apex-transport src/node/lib/schema src/apex/force-app/main/default/classes",
 	"lint-fix": "eslint src/node --fix",
 	"orizuru-post-init": "echo 'No post init steps'",
 	"pretest": "eslint src/node",

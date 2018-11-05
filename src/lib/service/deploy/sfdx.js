@@ -51,7 +51,7 @@ const
 
 	defaultSfdxProjectFile = {
 		packageDirectories: [{
-			path: 'src/apex/app',
+			path: 'src/apex/force-app',
 			'default': true
 		}],
 		namespace: '',
