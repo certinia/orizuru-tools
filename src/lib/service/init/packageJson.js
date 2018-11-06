@@ -38,7 +38,6 @@ const
 	inquirer = require('inquirer'),
 	path = require('path'),
 
-	debug = require('../../util/debug'),
 	logger = require('../../util/logger'),
 	questions = require('../../util/questions'),
 	validators = require('../../util/validators'),
@@ -48,7 +47,7 @@ const
 
 	defaults = {
 		['package']: {
-			name: 'Orizuru',
+			name: 'orizuru',
 			version: '1.0.0',
 			description: '',
 			main: 'src/node/lib/web.js',
@@ -127,8 +126,8 @@ function build(config) {
  * @returns {Object} config - The __unmodified__ configuration object.
  */
 function debugPackageJson(config) {
-	debug.log(config.argv, 'package', `Wrote to ${config.path.package}:`);
-	debug.stringify(config.argv, 'package', config.package);
+	logger.logEvent(`Wrote to ${config.path.package}:`);
+	logger.logEvent(JSON.stringify(config.package, '\t'));
 	return config;
 }
 
@@ -157,7 +156,7 @@ function write(config) {
 
 	return Promise.resolve(config)
 		.then(logger.logEvent('Merging template data into package.json'))
-		.then(config => fs.writeJson(config.path.package, config.package, { spaces: 2 }))
+		.then(config => fs.writeJson(config.path.package, config.package, { spaces: '\t' }))
 		.then(() => debugPackageJson(config))
 		.then(logger.logEvent('Merged template data into package.json'));
 

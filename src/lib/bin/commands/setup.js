@@ -30,7 +30,7 @@ const
 	init = require('./setup/init'),
 	generateApexTransport = require('./setup/generateApexTransport'),
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+	constants = require('../constants/constants');
 
 module.exports = {
 	command: 'setup',
@@ -44,5 +44,5 @@ module.exports = {
 		.updateStrings({
 			'Commands:': 'Setup:'
 		})
-		.epilogue(COPYRIGHT_NOTICE)
+		.epilogue(constants.getCopyrightNotice())
 };

@@ -29,7 +29,7 @@
 const
 	service = require('../../../service/docker'),
 
-	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
+	constants = require('../../constants/constants');
 
 module.exports = {
 	command: 'build-image',
@@ -54,7 +54,6 @@ module.exports = {
 			demandOption: false,
 			type: 'boolean'
 		})
-		.epilogue(COPYRIGHT_NOTICE)
-		.argv,
+		.epilogue(constants.getCopyrightNotice()),
 	handler: (argv) => service.buildImage({ argv })
 };

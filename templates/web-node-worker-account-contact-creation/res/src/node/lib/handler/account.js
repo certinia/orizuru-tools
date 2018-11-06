@@ -27,13 +27,9 @@
 'use strict';
 
 const
-	_ = require('lodash'),
-	debug = require('debug-plus')('account-handler'),
-	jsforce = require('jsforce'),
-
-	grant = require('../boilerplate/auth').grant,
-
-	Connection = jsforce.Connection,
+	debug = require('debug')('account-handler'),
+	connection = require('../service/salesforce/connection'),
+	writer = require('../service/salesforce/writer'),
 
 	CONTACT_SOBJECT_NAME = 'Contact';
 
@@ -42,72 +38,59 @@ const
  */
 function logEvent(event) {
 
-	debug.log('Handled event for schema \'api/account\'...');
-	debug.log('Context:');
-	debug.log(JSON.stringify(event.context));
-	debug.log('Message:');
-	debug.log(JSON.stringify(event.message));
+	debug('Handled event for schema \'api/account\'...');
+	debug('Context:');
+	debug(JSON.stringify(event.context));
+	debug('Message:');
+	debug(JSON.stringify(event.message));
 
-	return event;
-
-}
-
-/*
- * Creates a new connection for the given credentials
- */
-function newConnection(credentials) {
-	return new Connection(credentials);
-}
-
-/*
- * Get an authenticated connection using the credentials from the event
- */
-function getConnection(event) {
-	return grant(event.context.user)
-		.then(newConnection)
-		.then(conn => ({ conn, event }));
 }
 
 /*
  * Creates a contact for each of the account IDs found in the event
  */
-function createContacts(config) {
+async function createContacts(conn, event) {
 
 	const
-		conn = config.conn,
-		event = config.event,
 		message = event.message,
-		contacts = [];
+
+		contacts = message.ids.map((id) => {
+			return {
+				firstName: 'Default contact',
+				lastName: id,
+				accountId: id
+			};
+		}),
+
+		contactChunks = contacts.reduce((results, contact) => {
+			let contactChunk = results.pop();
+			if (contactChunk.length === 10) {
+				results.push(contactChunk);
+				contactChunk = [];
+			}
+			contactChunk.push(contact);
+			results.push(contactChunk);
+			return results;
+		}, [[]]);
 
 	let promise = Promise.resolve();
 
-	_.each(message.ids, id => {
-		contacts.push({
-			firstName: 'Default contact',
-			lastName: id,
-			accountId: id
-		});
-	});
-
-	_.each(_.chunk(contacts, 10), tenContacts => {
+	contactChunks.forEach((tenContacts) => {
 		promise = promise.then(() =>
-			Promise.all(
-				_.map(tenContacts, contact => conn.sobject(CONTACT_SOBJECT_NAME).create(contact))
-			)
+			Promise.all(tenContacts.map((contact) => writer.createObject(conn, CONTACT_SOBJECT_NAME, contact)))
 		);
 	});
 
-	return promise;
+	await promise;
 
 }
 
-module.exports = (event) => {
+module.exports = async (event) => {
 
-	return Promise.resolve(event)
-		.then(logEvent)
-		.then(getConnection)
-		.then(createContacts)
-		.then(() => debug.log('Success!'))
-		.catch(debug.error);
+	logEvent(event);
+
+	const conn = await connection.fromContext(event.context);
+	await createContacts(conn, event);
+	debug('Success!');
 
 };

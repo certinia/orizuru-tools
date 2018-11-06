@@ -28,61 +28,59 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	jsforce = require('jsforce'),
 
-	sandbox = sinon.sandbox.create();
+	connection = require('../../../../lib/service/deploy/shared/connection'),
+
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('service/deploy/shared/connection.js', () => {
 
-	let mocks, connection;
+	let connectionStub;
 
 	beforeEach(() => {
-
-		mocks = {};
-		mocks.jsforce = {};
-		mocks.jsforce.Connection = sandbox.stub();
-
-		connection = proxyquire(root + '/src/lib/service/deploy/shared/connection.js', {
-			jsforce: mocks.jsforce
-		});
-
+		connectionStub = sinon.createStubInstance(jsforce.Connection);
+		sinon.stub(jsforce, 'Connection').returns(connectionStub);
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('create', () => {
 
 		it('should create a jsforce connection', () => {
 
-			// given
-			const expectedInput = {
-				parameters: {
-					sfdx: {
-						org: {
-							credentials: {
-								accessToken: 'testAccessToken',
-								instanceUrl: 'testInstanceUrl'
+			// Given
+			const
+				expectedInput = {
+					parameters: {
+						sfdx: {
+							org: {
+								credentials: {
+									accessToken: 'testAccessToken',
+									instanceUrl: 'testInstanceUrl'
+								}
 							}
 						}
 					}
-				}
-			};
+				},
 
-			// when
-			connection.create(expectedInput);
+				// When
+				result = connection.create(expectedInput);
 
-			// then
-			expect(mocks.jsforce.Connection).to.have.been.calledWithNew;
-			expect(mocks.jsforce.Connection).to.have.been.calledWith(expectedInput.parameters.sfdx.org.credentials);
+			// Then
+			expect(result).to.eql({
+				conn: connectionStub,
+				parameters: expectedInput.parameters
+			});
+			expect(jsforce.Connection).to.have.been.calledWithNew;
+			expect(jsforce.Connection).to.have.been.calledWith(expectedInput.parameters.sfdx.org.credentials);
 
 		});
 

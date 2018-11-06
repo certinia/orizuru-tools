@@ -27,52 +27,43 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	fs = require('fs-extra'),
+	inquirer = require('inquirer'),
 
-	sandbox = sinon.sandbox.create();
+	template = require('../../../lib/service/init/template'),
 
-chai.use(chaiAsPromised);
+	expect = chai.expect;
+
 chai.use(sinonChai);
 
 describe('service/init/template.js', () => {
 
-	let mocks, template;
+	let lstatStub;
 
 	beforeEach(() => {
 
-		mocks = {};
+		lstatStub = {
+			isDirectory: sinon.stub()
+		};
 
-		mocks.lstatSync = sandbox.stub();
-		mocks.lstatSync.isDirectory = sandbox.stub();
+		sinon.stub(fs, 'lstatSync').returns(lstatStub);
+		sinon.stub(fs, 'readdir');
+		sinon.stub(fs, 'readJson');
 
-		mocks.fs = sandbox.stub();
-		mocks.fs.lstatSync = sandbox.stub();
-		mocks.fs.readdir = sandbox.stub();
-		mocks.fs.readJson = sandbox.stub();
-
-		mocks.inquirer = sandbox.stub();
-		mocks.inquirer.prompt = sandbox.stub();
-
-		template = proxyquire(root + '/src/lib/service/init/template', {
-			'fs-extra': mocks.fs,
-			inquirer: mocks.inquirer
-		});
+		sinon.stub(inquirer, 'prompt');
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
-	it('should use the template from the command line argument if the provided template exists', () => {
+	it('should use the template from the command line argument if the provided template exists', async () => {
 
-		// given
+		// Given
 		const
 			expectedTemplate = 'example-template',
 			config = {
@@ -105,24 +96,26 @@ describe('service/init/template.js', () => {
 				templateFolder: `${process.cwd()}/templates`
 			};
 
-		mocks.lstatSync.isDirectory.returns(true);
-		mocks.fs.lstatSync.returns(mocks.lstatSync);
-		mocks.fs.readdir.resolves([
+		lstatStub.isDirectory.returns(true);
+
+		fs.readdir.resolves([
 			expectedTemplate
 		]);
-		mocks.fs.readJson.resolves(expectedPackageJson);
+		fs.readJson.resolves(expectedPackageJson);
 
-		return expect(template.select(config))
-			.to.eventually.eql(expectedOutput)
-			.then(() => {
-				expect(mocks.inquirer.prompt).to.not.have.been.called;
-			});
+		// When
+		const output = await template.select(config);
+
+		// Then
+		expect(output).to.eql(expectedOutput);
+
+		expect(inquirer.prompt).to.not.have.been.called;
 
 	});
 
-	it('should prompt the user for the template if the template provided from the command line does not exist', () => {
+	it('should prompt the user for the template if the template provided from the command line does not exist', async () => {
 
-		// given
+		// Given
 		const
 			expectedTemplate = 'example-template',
 			config = {
@@ -160,25 +153,26 @@ describe('service/init/template.js', () => {
 				templateFolder: `${process.cwd()}/templates`
 			};
 
-		mocks.lstatSync.isDirectory.returns(true);
-		mocks.fs.lstatSync.returns(mocks.lstatSync);
-		mocks.fs.readdir.resolves([
+		lstatStub.isDirectory.returns(true);
+
+		fs.readdir.resolves([
 			expectedTemplate
 		]);
-		mocks.fs.readJson.resolves(expectedPackageJson);
-		mocks.inquirer.prompt.resolves(expectedAnswer);
+		fs.readJson.resolves(expectedPackageJson);
+		inquirer.prompt.resolves(expectedAnswer);
 
-		return expect(template.select(config))
-			.to.eventually.eql(expectedOutput)
-			.then(() => {
-				expect(mocks.inquirer.prompt).to.have.been.calledOnce;
-			});
+		// When
+		const output = await template.select(config);
+
+		// Then
+		expect(output).to.eql(expectedOutput);
+		expect(inquirer.prompt).to.have.been.calledOnce;
 
 	});
 
-	it('should read any extension configuration files', () => {
+	it('should read any extension configuration files', async () => {
 
-		// given
+		// Given
 		const
 			expectedTemplate = 'example-template',
 			config = {},
@@ -221,20 +215,21 @@ describe('service/init/template.js', () => {
 				templateFolder: `${process.cwd()}/templates`
 			};
 
-		mocks.lstatSync.isDirectory.returns(true);
-		mocks.fs.lstatSync.returns(mocks.lstatSync);
-		mocks.fs.readdir.resolves([
+		lstatStub.isDirectory.returns(true);
+
+		fs.readdir.resolves([
 			expectedTemplate
 		]);
-		mocks.fs.readJson.onCall(0).resolves(expectedPackageJson);
-		mocks.fs.readJson.onCall(1).resolves(expectedExtensionPackageJson);
-		mocks.inquirer.prompt.resolves(expectedAnswer);
+		fs.readJson.onCall(0).resolves(expectedPackageJson);
+		fs.readJson.onCall(1).resolves(expectedExtensionPackageJson);
+		inquirer.prompt.resolves(expectedAnswer);
 
-		return expect(template.select(config))
-			.to.eventually.eql(expectedOutput)
-			.then(() => {
-				expect(mocks.inquirer.prompt).to.have.been.calledOnce;
-			});
+		// When
+		const output = await template.select(config);
+
+		// Then
+		expect(output).to.eql(expectedOutput);
+		expect(inquirer.prompt).to.have.been.calledOnce;
 
 	});
 

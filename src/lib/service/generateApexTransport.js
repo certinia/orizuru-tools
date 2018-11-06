@@ -36,11 +36,11 @@ const
 	_ = require('lodash'),
 	path = require('path'),
 
-	getAvscFilesOnPathRecursively = require('./generateApexTransport/getAvscFilesOnPathRecursively').getAvscFilesOnPathRecursively,
-	generate = require('./generateApexTransport/generate').generate,
-	overwriteFile = require('./generateApexTransport/overwriteFile'),
+	generate = require('./generateApexTransport/generate'),
+	writer = require('./generateApexTransport/overwriteFile'),
 
-	logger = require('../util/logger');
+	logger = require('../util/logger'),
+	read = require('../util/read');
 
 function validateArgs(config) {
 	if (!_.isString(_.get(config, 'argv.inputUrl'))) {
@@ -54,9 +54,9 @@ function validateArgs(config) {
 
 function parseSchemas(files) {
 
-	return _.map(files, file => {
+	return Object.values(files).map((file) => {
 		try {
-			return JSON.parse(file.file);
+			return JSON.parse(file);
 		} catch (err) {
 			throw new Error('Contents of .avsc files should be valid json.');
 		}
@@ -68,13 +68,13 @@ function generateClasses(config) {
 
 	const
 		avscFilesPath = path.resolve(process.cwd(), config.argv.inputUrl),
-		files = getAvscFilesOnPathRecursively(avscFilesPath),
+		files = read.readFilesWithExtension(avscFilesPath, '.avsc'),
 		parsedSchemas = parseSchemas(files),
-		result = generate(parsedSchemas),
+		result = generate.generate(parsedSchemas),
 		outputPath = path.resolve(process.cwd(), config.argv.outputUrl);
 
-	return overwriteFile(outputPath, 'OrizuruTransport.cls', result.cls)
-		.then(() => overwriteFile(outputPath, 'OrizuruTransport.cls-meta.xml', result.xml))
+	return writer.overwriteFile(outputPath, 'OrizuruTransport.cls', result.cls)
+		.then(() => writer.overwriteFile(outputPath, 'OrizuruTransport.cls-meta.xml', result.xml))
 		.then(() => config);
 }
 

@@ -28,46 +28,40 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	yargs = require('yargs'),
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
+	constants = require('../../../../lib/bin/constants/constants'),
 
-	service = require(root + '/src/lib/service/docker'),
+	service = require('../../../../lib/service/docker'),
 
-	sandbox = sinon.sandbox.create();
+	cli = require('../../../../lib/bin/commands/docker/startServices'),
+
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('bin/commands/docker/startServices.js', () => {
 
-	let cli, mocks;
-
 	beforeEach(() => {
 
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.option = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+		sinon.stub(constants, 'getCopyrightNotice').returns('(c)');
 
-		cli = proxyquire(root + '/src/lib/bin/commands/docker/startServices', {
-			yargs: mocks.yargs
-		});
+		sinon.stub(yargs, 'epilogue').returnsThis();
+		sinon.stub(yargs, 'option').returnsThis();
+		sinon.stub(yargs, 'usage').returnsThis();
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('start-services');
 		expect(cli.aliases).to.eql(['start', 's', 'ss']);
 		expect(cli.desc).to.eql('Starts the selected Docker services');
@@ -76,35 +70,35 @@ describe('bin/commands/docker/startServices.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
-		cli.builder(mocks.yargs);
+		// When
+		cli.builder(yargs);
 
-		// then
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-		expect(mocks.yargs.option).to.have.been.calledThrice;
-		expect(mocks.yargs.usage).to.have.been.calledOnce;
+		// Then
+		expect(yargs.epilogue).to.have.been.calledOnce;
+		expect(yargs.option).to.have.been.calledThrice;
+		expect(yargs.usage).to.have.been.calledOnce;
 
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.option).to.have.been.calledWith('a', sinon.match.object);
-		expect(mocks.yargs.option).to.have.been.calledWith('d', sinon.match.object);
-		expect(mocks.yargs.option).to.have.been.calledWith('verbose', sinon.match.object);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru docker start-services [SERVICE] [OPTIONS]');
+		expect(yargs.epilogue).to.have.been.calledWith('(c)');
+		expect(yargs.option).to.have.been.calledWith('a', sinon.match.object);
+		expect(yargs.option).to.have.been.calledWith('d', sinon.match.object);
+		expect(yargs.option).to.have.been.calledWith('verbose', sinon.match.object);
+		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru docker start-services [SERVICE] [OPTIONS]');
 
 	});
 
 	it('should call the handler', () => {
 
-		// given
+		// Given
 		const
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
-		sandbox.stub(service, 'startServices');
+		sinon.stub(service, 'startServices');
 
-		// when
+		// When
 		cli.handler(expectedInput);
 
-		// then
+		// Then
 		expect(service.startServices).to.have.been.calledOnce;
 		expect(service.startServices).to.have.been.calledWith(expectedOutput);
 

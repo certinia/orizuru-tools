@@ -27,10 +27,10 @@
 @isTest(SeeAllData=false)
 private class DeliveryRouteMapChooserControllerTest
 {
-	@isTest
-	static void getRoutes_withPlanId_callsSelector()
-	{
-		// Given
+    @isTest
+    static void getRoutes_withPlanId_callsSelector()
+    {
+        // Given
 		Id planId = 'a009E000006Fi28';
 		Set<Id> planIds = new Set<Id>{ planId };
 		DeliveryRoute__c[] routes = new DeliveryRoute__c[]{
@@ -39,31 +39,31 @@ private class DeliveryRouteMapChooserControllerTest
 		};
 
 		StubProvider mocks = new StubProvider();
-		DeliveryRouteSelector mockSelector = (DeliveryRouteSelector) mocks.mock(DeliveryRouteSelector.class);
-		DeliveryRouteSelector.instance = mockSelector;
+        DeliveryRouteSelector mockSelector = (DeliveryRouteSelector) mocks.mock(DeliveryRouteSelector.class);
+        DeliveryRouteSelector.instance = mockSelector;
 
-		mocks.stub(mockSelector, 'selectByPlanIds', new Type[]{ Set<Id>.class }, new Object[]{ planIds }, routes);
-		
-		// When
-		DeliveryRoute__c[] actual = DeliveryRouteMapChooserController.getRoutes(new List<Id>{ planId });
-		
-		// Then
-		System.assertEquals(actual, routes);
-	}  
+        mocks.stub(mockSelector, 'selectByPlanIds', new Type[]{ Set<Id>.class }, new Object[]{ planIds }, routes);
+        
+        // When
+        DeliveryRoute__c[] actual = DeliveryRouteMapChooserController.getRoutes(new List<Id>{ planId });
+        
+        // Then
+        System.assertEquals(actual, routes);
+    }  
 
 	@IsTest
 	private static void getPlanStatus_withId_shouldReturnPlanStatus()
 	{
-		// given
+		// Given
 		String expectedResult = 'NOT STARTED';
 		
 		DeliveryPlan__c plan = new DeliveryPlan__c();
 		insert plan;
 
-		// when
+		// When
 		String result = DeliveryRouteMapChooserController.getPlanStatus(plan.id);
 
-		// then
+		// Then
 		System.assertEquals(expectedResult, result);
 	}
 }

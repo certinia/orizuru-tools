@@ -29,14 +29,11 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -44,21 +41,21 @@ chai.use(sinonChai);
 function createMocks() {
 
 	const
-		execa = sandbox.stub(),
+		execa = sinon.stub(),
 		childProcess = {
-			spawn: sandbox.stub()
+			spawn: sinon.stub()
 		},
 		execaStdout = {
 			stdout: {
-				pipe: sandbox.stub()
+				pipe: sinon.stub()
 			},
-			on: sandbox.stub()
+			on: sinon.stub()
 		},
-		onComplete = sandbox.stub(),
-		onFailure = sandbox.stub(),
-		logging = sandbox.stub();
+		onComplete = sinon.stub(),
+		onFailure = sinon.stub(),
+		logging = sinon.stub();
 
-	execaStdout.stdout.pipe.resume = sandbox.stub();
+	execaStdout.stdout.pipe.resume = sinon.stub();
 	execaStdout.stdout.pipe.returns(execaStdout.stdout.pipe);
 
 	return { childProcess, execa, execaStdout, logging, onComplete, onFailure };
@@ -73,26 +70,26 @@ describe('util/shell.js', () => {
 
 		mocks = createMocks();
 
-		mocks.debug = sandbox.stub().returns(sandbox.stub());
-		mocks.debug.create = sandbox.stub().returnsThis();
-		mocks.debug.create.enable = sandbox.stub();
+		mocks.debug = sinon.stub().returns(sinon.stub());
+		mocks.debug.create = sinon.stub().returnsThis();
+		mocks.debug.create.enable = sinon.stub();
 
 		const spawn = mocks.childProcess.spawn;
 		spawn.returns(spawn);
 
-		spawn.stdout = sandbox.stub();
-		spawn.stdout.pipe = sandbox.stub();
+		spawn.stdout = sinon.stub();
+		spawn.stdout.pipe = sinon.stub();
 		spawn.stdout.pipe.returns(spawn.stdout.pipe);
-		spawn.stdout.pipe.resume = sandbox.stub();
-		spawn.stdout.on = sandbox.stub();
+		spawn.stdout.pipe.resume = sinon.stub();
+		spawn.stdout.on = sinon.stub();
 
-		spawn.stderr = sandbox.stub();
-		spawn.stderr.pipe = sandbox.stub();
+		spawn.stderr = sinon.stub();
+		spawn.stderr.pipe = sinon.stub();
 		spawn.stderr.pipe.returns(spawn.stderr.pipe);
-		spawn.stderr.pipe.resume = sandbox.stub();
-		spawn.stderr.on = sandbox.stub();
+		spawn.stderr.pipe.resume = sinon.stub();
+		spawn.stderr.on = sinon.stub();
 
-		shell = proxyquire(root + '/src/lib/util/shell.js', {
+		shell = proxyquire('../../lib/util/shell', {
 			['child_process']: mocks.childProcess,
 			'./debug': mocks.debug
 		});
@@ -100,26 +97,28 @@ describe('util/shell.js', () => {
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('executeCommand', () => {
 
-		it('should handle config', () => {
+		it('should handle config', async () => {
 
-			// given
+			// Given
 			const
-				expectedConfig = sandbox.stub(),
+				expectedConfig = sinon.stub(),
 				expectedCommand = 'command',
 				expectedArgs = ['args'],
 				expectedOptions = { exitOnError: true },
 				command = { cmd: expectedCommand, args: expectedArgs, opts: expectedOptions };
 
-			mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+			mocks.childProcess.spawn.on = sinon.stub().yields(0);
 
-			// when - then
-			return expect(shell.executeCommand(command, expectedConfig))
-				.to.eventually.eql(expectedConfig);
+			// When
+			const output = await shell.executeCommand(command, expectedConfig);
+
+			// Then
+			expect(output).to.eql(expectedConfig);
 
 		});
 
@@ -132,9 +131,9 @@ describe('util/shell.js', () => {
 				expect(mocks.childProcess.spawn.on).to.have.been.calledOnce;
 			});
 
-			it('if the exitOnError option is false', () => {
+			it('if the exitOnError option is false', async () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -146,40 +145,39 @@ describe('util/shell.js', () => {
 						stdout: ''
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(1);
+				mocks.childProcess.spawn.on = sinon.stub().yields(1);
 
-				// when - then
-				return expect(shell.executeCommand(command))
-					.to.eventually.eql(expectedResult)
-					.then(() => {
-						expect(mocks.childProcess.spawn).to.have.been.calledWithExactly(expectedCommand, expectedArgs);
-					});
+				// When
+				const result = await shell.executeCommand(command);
+
+				// Then
+				expect(result).to.eql(expectedResult);
+				expect(mocks.childProcess.spawn).to.have.been.calledWithExactly(expectedCommand, expectedArgs);
 
 			});
 
-			it('if the exitOnError option is true', () => {
+			it('if the exitOnError option is true', async () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
 					expectedOptions = { exitOnError: true },
 					command = { cmd: expectedCommand, args: expectedArgs, opts: expectedOptions };
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(1);
+				mocks.childProcess.spawn.on = sinon.stub().yields(1);
 
-				// when - then
-				return expect(shell.executeCommand(command))
-					.to.eventually.be.rejectedWith('Command failed')
-					.then(() => {
-						expect(mocks.childProcess.spawn).to.have.been.calledWithExactly(expectedCommand, expectedArgs);
-					});
+				// When
+				await expect(shell.executeCommand(command)).to.eventually.be.rejectedWith('Command failed');
+
+				// Then
+				expect(mocks.childProcess.spawn).to.have.been.calledWithExactly(expectedCommand, expectedArgs);
 
 			});
 
-			it('a success code', () => {
+			it('a success code', async () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -192,14 +190,14 @@ describe('util/shell.js', () => {
 						stdout: ''
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 
-				// when - then
-				return expect(shell.executeCommand(command))
-					.to.eventually.eql(expectedResult)
-					.then(() => {
-						expect(mocks.childProcess.spawn).to.have.been.calledWithExactly(expectedCommand, expectedArgs);
-					});
+				// When
+				const result = await shell.executeCommand(command);
+
+				// Then
+				expect(result).to.eql(expectedResult);
+				expect(mocks.childProcess.spawn).to.have.been.calledWithExactly(expectedCommand, expectedArgs);
 
 			});
 
@@ -207,9 +205,9 @@ describe('util/shell.js', () => {
 
 		describe('should handle logging', () => {
 
-			it('and log out everything in verbose mode', () => {
+			it('and log out everything in verbose mode', async () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -222,22 +220,22 @@ describe('util/shell.js', () => {
 						stdout: 'test'
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
 
-				// when - then
-				return expect(shell.executeCommand(command))
-					.to.eventually.eql(expectedResult)
-					.then(() => {
-						expect(mocks.debug.create.enable).to.have.been.calledOnce;
-						expect(mocks.debug.create.enable).to.have.been.calledWith('shell,shell:output');
-					});
+				// When
+				const result = await shell.executeCommand(command);
+
+				// Then
+				expect(result).to.eql(expectedResult);
+				expect(mocks.debug.create.enable).to.have.been.calledOnce;
+				expect(mocks.debug.create.enable).to.have.been.calledWith('shell,shell:output');
 
 			});
 
-			it('and log out nothing in silent mode', () => {
+			it('and log out nothing in silent mode', async () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -250,21 +248,22 @@ describe('util/shell.js', () => {
 						stdout: 'test'
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
 
-				// when - then
-				return expect(shell.executeCommand(command))
-					.to.eventually.eql(expectedResult)
-					.then(() => {
-						expect(mocks.debug.create.enable).to.not.have.been.called;
-					});
+				// When
+				const result = await shell.executeCommand(command);
+
+				// Then
+				expect(result).to.eql(expectedResult);
+
+				expect(mocks.debug.create.enable).to.not.have.been.called;
 
 			});
 
-			it('and capture stdout', () => {
+			it('and capture stdout', async () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -277,18 +276,20 @@ describe('util/shell.js', () => {
 						stdout: 'test'
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stdout.on.withArgs('data').yields('test');
 
-				// when - then
-				return expect(shell.executeCommand(command))
-					.to.eventually.eql(expectedResult);
+				// When
+				const result = await shell.executeCommand(command);
+
+				// Then
+				expect(result).to.eql(expectedResult);
 
 			});
 
-			it('and capture stderr', () => {
+			it('and capture stderr', async () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -301,18 +302,20 @@ describe('util/shell.js', () => {
 						stdout: ''
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stderr.on.withArgs('data').yields('test');
 
-				// when - then
-				return expect(shell.executeCommand(command))
-					.to.eventually.eql(expectedResult);
+				// When
+				const result = await shell.executeCommand(command);
+
+				// Then
+				expect(result).to.eql(expectedResult);
 
 			});
 
-			it('and log out if the namespace option is set and debug is true', () => {
+			it('and log out if the namespace option is set and debug is true', async () => {
 
-				// given
+				// Given
 				const
 					expectedCommand = 'command',
 					expectedArgs = ['args'],
@@ -325,15 +328,15 @@ describe('util/shell.js', () => {
 						stdout: ''
 					};
 
-				mocks.childProcess.spawn.on = sandbox.stub().yields(0);
+				mocks.childProcess.spawn.on = sinon.stub().yields(0);
 				mocks.childProcess.spawn.stderr.on.withArgs('data').yields('test');
 
-				// when - then
-				return expect(shell.executeCommand(command))
-					.to.eventually.eql(expectedResult)
-					.then(() => {
-						expect(mocks.debug.create.enable).to.have.been.calledOnce;
-					});
+				// When
+				const result = await shell.executeCommand(command);
+
+				// Then
+				expect(result).to.eql(expectedResult);
+				expect(mocks.debug.create.enable).to.have.been.calledOnce;
 
 			});
 
@@ -343,9 +346,9 @@ describe('util/shell.js', () => {
 
 	describe('executeCommands', () => {
 
-		it('should execute each command in turn', () => {
+		it('should execute each command in turn', async () => {
 
-			// given
+			// Given
 			const
 				expectedCommands = [{
 					cmd: 'ls',
@@ -370,13 +373,15 @@ describe('util/shell.js', () => {
 					}
 				};
 
-			mocks.childProcess.spawn.on = sandbox.stub()
+			mocks.childProcess.spawn.on = sinon.stub()
 				.onFirstCall().yields(0)
 				.onSecondCall().yields(1);
 
-			// when - then
-			return expect(shell.executeCommands(expectedCommands, expectedOptions))
-				.to.eventually.eql(expectedResults);
+			// When
+			const result = await shell.executeCommands(expectedCommands, expectedOptions);
+
+			// Then
+			expect(result).to.eql(expectedResults);
 
 		});
 

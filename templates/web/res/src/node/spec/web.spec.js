@@ -28,140 +28,212 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire').noCallThru(),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	pkgInfo = require('pkginfo'),
 
-	schemas = require('../lib/boilerplate/schema'),
+	id = require('../lib/boilerplate/id'),
+	schemas = require('../lib/boilerplate/schema/web'),
 	read = require('../lib/boilerplate/read'),
-	defaultTransport = require('../lib/boilerplate/transport'),
-	orizuru = require('@financialforcedev/orizuru'),
 
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	orizuru = require('@financialforcedev/orizuru'),
+	auth = require('@financialforcedev/orizuru-auth'),
+	transport = require('@financialforcedev/orizuru-transport-rabbitmq'),
+	openApi = require('@financialforcedev/orizuru-openapi'),
+
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('web.js', () => {
 
-	let
-		addGetSpy, addRouteSpy, getServerStub, serverListenSpy,
-		authMiddleware, idMiddleware, middleware,
-		responseWriterStub, throngStub;
+	let serverStubInstance, transportStubInstance, tokenValidatorStub, grantCheckerStub, idStub, jsonStub;
 
 	beforeEach(() => {
-		responseWriterStub = sandbox.stub();
-		authMiddleware = [];
-		middleware = authMiddleware.concat(idMiddleware);
-		serverListenSpy = sandbox.spy();
-		getServerStub = sandbox.stub().returns({
-			listen: serverListenSpy
-		});
-		addRouteSpy = sandbox.spy();
-		addGetSpy = sandbox.spy();
-		sandbox.stub(orizuru, 'Server').callsFake(function () {
-			this.addGet = addGetSpy;
-			this.addRoute = addRouteSpy;
-			this.getServer = getServerStub;
-		});
-		sandbox.stub(read, 'readSchema').returns({ mock: true });
-		sandbox.stub(schemas, 'getWebSchemas').returns([{
-			path: 'api/test1.avsc',
-			sharedPath: '/api',
-			fileName: 'test1'
-		}, {
-			path: 'api/test2.avsc',
-			sharedPath: '/api',
-			fileName: 'test2'
-		}]);
-		orizuru.Server.emitter = {
-			on: sandbox.stub()
-		};
-	});
 
-	afterEach(() => {
-		restore();
-		delete process.env.WEB_CONCURRENCY;
-	});
-
-	it('should create an orizuru server', () => {
-
-		// given
-		proxyquire('../lib/web', {
-			['./boilerplate/auth']: {
-				middleware: authMiddleware
-			},
-			['./boilerplate/id']: {
-				middleware: idMiddleware,
-				responseWriter: responseWriterStub
+		sinon.stub(pkgInfo, 'read').returns({
+			['package']: {
+				description: 'Test Web Server Description',
+				name: 'Test Web Server',
+				version: '1.0.0'
 			}
 		});
 
-		// when - then
-		expect(orizuru.Server).to.have.been.calledOnce;
-		expect(orizuru.Server).to.have.been.calledWithNew;
-		expect(orizuru.Server, defaultTransport);
-
-		expect(addRouteSpy).to.have.been.calledOnce;
-		expect(addRouteSpy).to.have.calledWith({
-			schemaNameToDefinition: {
-				test1: { mock: true },
-				test2: { mock: true }
-			},
-			apiEndpoint: '/api',
-			middlewares: middleware,
-			responseWriter: responseWriterStub
+		sinon.stub(schemas, 'getSchemas').returns({
+			test1: 'api/test1.avsc',
+			test2: 'api/test2.avsc'
 		});
 
-		expect(getServerStub).to.have.been.calledOnce;
+		sinon.stub(read, 'readSchema')
+			.withArgs('api/test1.avsc').returns({ namespace: 'api', name: 'test1' })
+			.withArgs('api/test2.avsc').returns({ namespace: 'api', name: 'test2' });
 
-		expect(serverListenSpy).to.have.been.calledOnce;
-		expect(serverListenSpy).to.have.been.calledWith(8080);
+		sinon.stub(openApi.generator, 'generateV2');
+
+		tokenValidatorStub = sinon.stub();
+		grantCheckerStub = sinon.stub();
+
+		sinon.stub(auth.middleware, 'tokenValidator').returns(tokenValidatorStub);
+		sinon.stub(auth.middleware, 'grantChecker').returns(grantCheckerStub);
+
+		idStub = sinon.stub(id, 'middleware');
+
+		transportStubInstance = sinon.createStubInstance(transport.Transport);
+		sinon.stub(transport, 'Transport').returns(transportStubInstance);
+
+		jsonStub = sinon.stub();
+		sinon.stub(orizuru, 'json').returns(jsonStub);
+
+		serverStubInstance = sinon.createStubInstance(orizuru.Server);
+		serverStubInstance.addRoute.returnsThis();
+		serverStubInstance.listen.returnsThis();
+		serverStubInstance.on.returnsThis();
+		serverStubInstance.use.returnsThis();
+		serverStubInstance.server = sinon.stub();
+		serverStubInstance.server.get = sinon.stub();
+		sinon.stub(orizuru, 'Server').returns(serverStubInstance);
 
 	});
 
-	it('should create an orizuru server cluster', () => {
+	afterEach(() => {
+		delete process.env.ADVERTISE_HOST;
+		delete process.env.ADVERTISE_SCHEME;
+		delete process.env.JWT_SIGNING_KEY;
+		delete process.env.OPENID_CLIENT_ID;
+		delete process.env.OPENID_HTTP_TIMEOUT;
+		delete process.env.OPENID_ISSUER_URI;
+		delete process.env.PORT;
+		delete require.cache[require.resolve('../lib/web')];
+		sinon.restore();
+	});
 
-		// given
-		throngStub = sandbox.stub();
-		throngStub.yields();
-		process.env.WEB_CONCURRENCY = 2;
+	it('should create an orizuru server with the default options', () => {
 
-		proxyquire('../lib/web', {
-			['./boilerplate/auth']: {
-				middleware: authMiddleware
-			},
-			['./boilerplate/id']: {
-				middleware: idMiddleware,
-				responseWriter: responseWriterStub
-			},
-			throng: throngStub
+		// Given
+		// When
+		require('../lib/web');
+
+		// Then
+		expect(transport.Transport).to.have.been.calledOnce;
+		expect(transport.Transport).to.have.been.calledWithNew;
+		expect(transport.Transport).to.have.been.calledWithExactly({
+			url: 'amqp://localhost'
 		});
 
-		// when - then
 		expect(orizuru.Server).to.have.been.calledOnce;
-		expect(orizuru.Server).to.have.been.calledWith(defaultTransport);
-
-		expect(addRouteSpy).to.have.been.calledOnce;
-		expect(addRouteSpy).to.have.been.calledWith({
-			schemaNameToDefinition: {
-				test1: { mock: true },
-				test2: { mock: true }
-			},
-			apiEndpoint: '/api',
-			middlewares: middleware,
-			responseWriter: responseWriterStub
+		expect(orizuru.Server).to.have.been.calledWithNew;
+		expect(orizuru.Server).to.have.been.calledWithExactly({
+			port: 8080,
+			transport: transportStubInstance
 		});
 
-		expect(getServerStub).to.have.been.calledOnce;
+		expect(serverStubInstance.addRoute).to.have.been.calledTwice;
+		expect(serverStubInstance.addRoute).to.have.calledWithExactly({
+			endpoint: '/api/',
+			middleware: [jsonStub, tokenValidatorStub, grantCheckerStub, idStub],
+			schema: { namespace: 'api', name: 'test1' }
+		});
+		expect(serverStubInstance.addRoute).to.have.calledWithExactly({
+			endpoint: '/api/',
+			middleware: [jsonStub, tokenValidatorStub, grantCheckerStub, idStub],
+			schema: { namespace: 'api', name: 'test2' }
+		});
 
-		expect(serverListenSpy).to.have.been.calledOnce;
-		expect(serverListenSpy).to.have.been.calledWith(8080);
+		expect(serverStubInstance.server.get).to.have.been.calledTwice;
+		expect(openApi.generator.generateV2).to.have.been.calledTwice;
+		expect(openApi.generator.generateV2).to.have.been.calledWithExactly({
+			basePath: 'api.api',
+			host: 'localhost:8080',
+			info: {
+				description: 'Test Web Server Description',
+				title: 'Test Web Server',
+				version: '1.0.0'
+			},
+			schemes: ['http']
+		}, { test1: { name: 'test1', namespace: 'api' } });
+		expect(openApi.generator.generateV2).to.have.been.calledWithExactly({
+			basePath: 'api.api',
+			host: 'localhost:8080',
+			info: {
+				description: 'Test Web Server Description',
+				title: 'Test Web Server',
+				version: '1.0.0'
+			},
+			schemes: ['http']
+		}, { test2: { name: 'test2', namespace: 'api' } });
 
-		expect(throngStub).to.have.been.calledOnce;
-		expect(throngStub).to.have.been.calledWith('2', sinon.match.any);
+		expect(serverStubInstance.listen).to.have.been.calledOnce;
+		expect(serverStubInstance.listen).to.have.been.calledWithExactly();
+
+	});
+
+	it('should create an orizuru server with the specified options', () => {
+
+		// Given
+		process.env.ADVERTISE_HOST = 'testHost';
+		process.env.ADVERTISE_SCHEME = 'testScheme';
+		process.env.CLOUDAMQP_URL = 'testCloudAmqpUrl';
+		process.env.JWT_SIGNING_KEY = 'testJwtSigningKey';
+		process.env.OPENID_CLIENT_ID = 'testOpenIdClientId';
+		process.env.OPENID_HTTP_TIMEOUT = '4000';
+		process.env.OPENID_ISSUER_URI = 'testOpenIdIssuerUri';
+		process.env.PORT = '4242';
+
+		// When
+		require('../lib/web');
+
+		// Then
+		expect(transport.Transport).to.have.been.calledOnce;
+		expect(transport.Transport).to.have.been.calledWithNew;
+		expect(transport.Transport).to.have.been.calledWithExactly({
+			url: 'testCloudAmqpUrl'
+		});
+
+		expect(orizuru.Server).to.have.been.calledOnce;
+		expect(orizuru.Server).to.have.been.calledWithNew;
+		expect(orizuru.Server).to.have.been.calledWithExactly({
+			port: 4242,
+			transport: transportStubInstance
+		});
+
+		expect(serverStubInstance.addRoute).to.have.been.calledTwice;
+		expect(serverStubInstance.addRoute).to.have.calledWithExactly({
+			endpoint: '/api/',
+			middleware: [jsonStub, tokenValidatorStub, grantCheckerStub, idStub],
+			schema: { namespace: 'api', name: 'test1' }
+		});
+		expect(serverStubInstance.addRoute).to.have.calledWithExactly({
+			endpoint: '/api/',
+			middleware: [jsonStub, tokenValidatorStub, grantCheckerStub, idStub],
+			schema: { namespace: 'api', name: 'test2' }
+		});
+
+		expect(serverStubInstance.server.get).to.have.been.calledTwice;
+		expect(openApi.generator.generateV2).to.have.been.calledTwice;
+		expect(openApi.generator.generateV2).to.have.been.calledWithExactly({
+			basePath: 'api.api',
+			host: 'testHost',
+			info: {
+				description: 'Test Web Server Description',
+				title: 'Test Web Server',
+				version: '1.0.0'
+			},
+			schemes: ['testScheme']
+		}, { test1: { name: 'test1', namespace: 'api' } });
+		expect(openApi.generator.generateV2).to.have.been.calledWithExactly({
+			basePath: 'api.api',
+			host: 'testHost',
+			info: {
+				description: 'Test Web Server Description',
+				title: 'Test Web Server',
+				version: '1.0.0'
+			},
+			schemes: ['testScheme']
+		}, { test2: { name: 'test2', namespace: 'api' } });
+
+		expect(serverStubInstance.listen).to.have.been.calledOnce;
+		expect(serverStubInstance.listen).to.have.been.calledWithExactly();
 
 	});
 

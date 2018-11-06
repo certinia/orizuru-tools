@@ -28,53 +28,34 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 
-	expect = chai.expect,
+	inquirer = require('inquirer'),
 
-	sandbox = sinon.sandbox.create();
+	prompt = require('../../../lib/service/docker/prompt'),
 
-chai.use(chaiAsPromised);
-
-function createMocks() {
-	return {
-		inquirer: {
-			prompt: sandbox.stub()
-		}
-	};
-}
+	expect = chai.expect;
 
 describe('service/docker/prompt.js', () => {
 
-	let mocks, prompt;
-
 	beforeEach(() => {
-
-		mocks = createMocks();
-
-		prompt = proxyquire(root + '/src/lib/service/docker/prompt', {
-			inquirer: mocks.inquirer
-		});
-
+		sinon.stub(inquirer, 'prompt');
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('getServicesForProcess', () => {
 
 		it('should throw an error for no services', () => {
 
-			// given
+			// Given
 			const
 				expectedMessage = 'testMessage',
 				expectedInput = {};
 
-			// when/then
+			// When/then
 			expect(() => prompt.getServicesForProcess(expectedMessage)(expectedInput))
 				.to.throw('No services found');
 
@@ -82,7 +63,7 @@ describe('service/docker/prompt.js', () => {
 
 		it('should convert a services array to an object', () => {
 
-			// given
+			// Given
 			const
 				expectedMessage = 'testMessage',
 				expectedServiceName = 'testService',
@@ -104,14 +85,14 @@ describe('service/docker/prompt.js', () => {
 					}
 				};
 
-			// when/then
+			// When/then
 			expect(prompt.getServicesForProcess(expectedMessage)(expectedInput)).to.eql(expectedOutput);
 
 		});
 
-		it('should create the inquirer prompts for the given services', () => {
+		it('should create the inquirer prompts for the given services', async () => {
 
-			// given
+			// Given
 			const
 				expectedMessage = 'testMessage',
 				expectedServiceName = 'testService',
@@ -139,20 +120,20 @@ describe('service/docker/prompt.js', () => {
 					}
 				};
 
-			mocks.inquirer.prompt.resolves(expectedAnswer);
+			inquirer.prompt.resolves(expectedAnswer);
 
-			// when/then
-			return expect(prompt.getServicesForProcess(expectedMessage)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.inquirer.prompt.args[0][0][0].choices).to.eql(expectedChoices);
-				});
+			// When
+			const result = await prompt.getServicesForProcess(expectedMessage)(expectedInput);
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(inquirer.prompt.args[0][0][0].choices).to.eql(expectedChoices);
 
 		});
 
 		it('should handle the all option', () => {
 
-			// given
+			// Given
 			const
 				expectedMessage = 'testMessage',
 				expectedServiceName = 'testService',
@@ -174,19 +155,19 @@ describe('service/docker/prompt.js', () => {
 						},
 						services: expectedServices
 					}
-				},
+				};
 
-				// when
-				services = prompt.getServicesForProcess(expectedMessage)(expectedInput);
+			// When
+			const services = prompt.getServicesForProcess(expectedMessage)(expectedInput);
 
-			// then
+			// Then
 			expect(services).to.eql(expectedOutput);
 
 		});
 
 		it('should throw an error if no service is found', () => {
 
-			// given
+			// Given
 			const
 				expectedMessage = 'testMessage',
 				expectedServiceName = 'testService',
@@ -197,7 +178,7 @@ describe('service/docker/prompt.js', () => {
 					}
 				};
 
-			// when/then
+			// When/then
 			expect(() => prompt.getServicesForProcess(expectedMessage)(expectedInput))
 				.to.throw('Service not found: ' + expectedServiceName);
 

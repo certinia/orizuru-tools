@@ -28,65 +28,51 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
 
-	expect = chai.expect,
+	fs = require('fs-extra'),
 
-	sandbox = sinon.sandbox.create();
+	configFile = require('../../../../lib/service/deploy/shared/config'),
 
-chai.use(chaiAsPromised);
+	expect = chai.expect;
+
 chai.use(sinonChai);
 
 describe('service/deploy/shared/config.js', () => {
 
-	let mocks, configFile;
-
 	beforeEach(() => {
-
-		mocks = {};
-
-		mocks.fsextra = {};
-		mocks.fsextra.mkdirp = sandbox.stub();
-		mocks.fsextra.writeJSON = sandbox.stub();
-
-		mocks.fsextra.readJSON = sandbox.stub();
-
-		configFile = proxyquire(root + '/src/lib/service/deploy/shared/config.js', {
-			'fs-extra': mocks.fsextra
-		});
-
+		sinon.stub(fs, 'mkdirp');
+		sinon.stub(fs, 'readJson');
+		sinon.stub(fs, 'writeJson');
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('createFile', () => {
 
-		it('should create the Orizuru config file', () => {
+		it('should create the Orizuru config file', async () => {
 
-			// given
+			// Given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
 				expectedOutput = {
 					file: expectedCwd + '/.orizuru/config.json'
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
-			mocks.fsextra.mkdirp.resolves();
-			mocks.fsextra.writeJSON.resolves();
+			sinon.stub(process, 'cwd').returns(expectedCwd);
+			fs.mkdirp.resolves();
+			fs.writeJson.resolves();
 
-			// when - then
-			return expect(configFile.createFile())
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.fsextra.mkdirp).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeJSON).to.have.been.calledOnce;
-				});
+			// When
+			const output = await configFile.createFile();
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.mkdirp).to.have.been.calledOnce;
+			expect(fs.writeJson).to.have.been.calledOnce;
 
 		});
 
@@ -94,9 +80,9 @@ describe('service/deploy/shared/config.js', () => {
 
 	describe('readSettings', () => {
 
-		it('should create the Orizuru config file if the file does not exist', () => {
+		it('should create the Orizuru config file if the file does not exist', async () => {
 
-			// given
+			// Given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
 				expectedOutput = {
@@ -104,26 +90,26 @@ describe('service/deploy/shared/config.js', () => {
 					orizuru: {}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 
-			mocks.fsextra.mkdirp.resolves();
-			mocks.fsextra.writeJSON.resolves();
-			mocks.fsextra.readJSON.rejects();
+			fs.mkdirp.resolves();
+			fs.writeJson.resolves();
+			fs.readJson.rejects();
 
-			// when - then
-			return expect(configFile.readSettings())
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.fsextra.mkdirp).to.have.been.calledOnce;
-					expect(mocks.fsextra.readJSON).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeJSON).to.have.been.calledOnce;
-				});
+			// When
+			const output = await configFile.readSettings();
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.mkdirp).to.have.been.calledOnce;
+			expect(fs.readJson).to.have.been.calledOnce;
+			expect(fs.writeJson).to.have.been.calledOnce;
 
 		});
 
-		it('should read the Orizuru config file if the file exists', () => {
+		it('should read the Orizuru config file if the file exists', async () => {
 
-			// given
+			// Given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
 				expectedOutput = {
@@ -131,18 +117,18 @@ describe('service/deploy/shared/config.js', () => {
 					orizuru: {}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 
-			mocks.fsextra.mkdirp.resolves();
-			mocks.fsextra.readJSON.resolves({});
+			fs.mkdirp.resolves();
+			fs.readJson.resolves({});
 
-			// when - then
-			return expect(configFile.readSettings())
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.fsextra.mkdirp).to.not.have.been.called;
-					expect(mocks.fsextra.readJSON).to.have.been.calledOnce;
-				});
+			// When
+			const output = await configFile.readSettings();
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.mkdirp).to.not.have.been.called;
+			expect(fs.readJson).to.have.been.calledOnce;
 
 		});
 
@@ -150,9 +136,9 @@ describe('service/deploy/shared/config.js', () => {
 
 	describe('writeSetting', () => {
 
-		it('should create the Orizuru config file if the file does not exist and write the setting', () => {
+		it('should create the Orizuru config file if the file does not exist and write the setting', async () => {
 
-			// given
+			// Given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
 				expectedOutput = {
@@ -162,29 +148,29 @@ describe('service/deploy/shared/config.js', () => {
 					}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 
-			mocks.fsextra.mkdirp.resolves();
-			mocks.fsextra.writeJSON.resolves();
-			mocks.fsextra.readJSON.rejects();
+			fs.mkdirp.resolves();
+			fs.writeJson.resolves();
+			fs.readJson.rejects();
 
-			// when - then
-			return expect(configFile.writeSetting({}, 'test', 'test'))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.fsextra.mkdirp).to.have.been.calledOnce;
-					expect(mocks.fsextra.readJSON).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeJSON).to.have.been.calledTwice;
-				});
+			// When
+			const output = await configFile.writeSetting({}, 'test', 'test');
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.mkdirp).to.have.been.calledOnce;
+			expect(fs.readJson).to.have.been.calledOnce;
+			expect(fs.writeJson).to.have.been.calledTwice;
 
 		});
 
-		it('should add the setting if the file exist', () => {
+		it('should add the setting if the file exist', async () => {
 
-			// given
+			// Given
 			const
 				expectedCwd = '/Users/Joe/GIT/orizuru-tools',
-				expectedReadJsonOutput = {
+				expectedreadJsonOutput = {
 					test: 'test'
 				},
 				expectedOutput = {
@@ -197,20 +183,20 @@ describe('service/deploy/shared/config.js', () => {
 					}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
+			sinon.stub(process, 'cwd').returns(expectedCwd);
 
-			mocks.fsextra.mkdirp.resolves();
-			mocks.fsextra.writeJSON.resolves();
-			mocks.fsextra.readJSON.resolves(expectedReadJsonOutput);
+			fs.mkdirp.resolves();
+			fs.writeJson.resolves();
+			fs.readJson.resolves(expectedreadJsonOutput);
 
-			// when - then
-			return expect(configFile.writeSetting({}, 'test2.test3', 'test'))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.fsextra.mkdirp).to.not.have.been.called;
-					expect(mocks.fsextra.readJSON).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeJSON).to.have.been.calledOnce;
-				});
+			// When
+			const output = await configFile.writeSetting({}, 'test2.test3', 'test');
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.mkdirp).to.not.have.been.called;
+			expect(fs.readJson).to.have.been.calledOnce;
+			expect(fs.writeJson).to.have.been.calledOnce;
 
 		});
 

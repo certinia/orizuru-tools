@@ -38,7 +38,7 @@ const
 			return config;
 		}).catch(err => {
 			config.properties.content = [];
-			logger.logEvent('local.run.properties does not exist');
+			logger.logEvent('.env does not exist');
 			return config;
 		});
 	},
@@ -76,7 +76,7 @@ const
 
 	updateProperties = (config) => {
 		config.properties = {};
-		config.properties.filepath = path.resolve(process.cwd(), 'local.run.properties');
+		config.properties.filepath = path.resolve(process.cwd(), '.env');
 
 		return Promise.resolve(config)
 			.then(readProperties)

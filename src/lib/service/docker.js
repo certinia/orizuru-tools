@@ -29,7 +29,7 @@
 const
 	_ = require('lodash'),
 	ui = require('cliui'),
-	{ logStart, logFinish, logError } = require('../util/logger'),
+	logger = require('../util/logger'),
 
 	docker = require('./docker/docker'),
 	compose = require('./docker/compose'),
@@ -38,26 +38,26 @@ const
 function buildImage(config) {
 
 	return Promise.resolve(config)
-		.then(logStart('Building images'))
+		.then(logger.logStart('Building images'))
 		.then(docker.removeDanglingImages)
 		.then(compose.getAllServices)
 		.then(prompts.getServicesForProcess('Select services to build'))
 		.then(compose.buildImages)
-		.then(logFinish('Built images'))
-		.catch(logError);
+		.then(logger.logFinish('Built images'))
+		.catch(logger.logError);
 
 }
 
 function displayLogs(config) {
 
 	return Promise.resolve(config)
-		.then(logStart('Displaying logs'))
+		.then(logger.logStart('Displaying logs'))
 		.then(docker.listContainers)
 		.then(prompts.getServicesForProcess('Select services for which to display logs'))
 		.then(selectedServices => _.keys(selectedServices))
 		.then(selectedServiceNames => docker.displayLogs(selectedServiceNames))
-		.then(logFinish('Displayed logs'))
-		.catch(logError);
+		.then(logger.logFinish('Displayed logs'))
+		.catch(logger.logError);
 
 }
 
@@ -71,13 +71,13 @@ function listServices(config) {
 				output = ui({ width: 200 }),
 				services = _.get(config, 'docker.services');
 
-			logStart('List services:')(config);
+			logger.logStart('List services:')(config);
 
 			_.each(services, (value, key) => {
 				output.div({ width: 50, padding: [0, 0, 0, 2], text: key }, value);
 			});
 
-			logFinish(output.toString())(config);
+			logger.logFinish(output.toString())(config);
 
 			return config;
 
@@ -88,41 +88,41 @@ function listServices(config) {
 function reset(config) {
 
 	return Promise.resolve(config)
-		.then(logStart('Removing all containers and images'))
+		.then(logger.logStart('Removing all containers and images'))
 		.then(docker.listContainers(true))
 		.then(docker.stopContainers)
 		.then(docker.listContainers(false))
 		.then(docker.removeContainers)
 		.then(docker.listImages(true))
 		.then(docker.removeImages)
-		.then(logFinish('Removed all containers and images'))
-		.catch(logError);
+		.then(logger.logFinish('Removed all containers and images'))
+		.catch(logger.logError);
 
 }
 
 function startServices(config) {
 
 	return Promise.resolve(config)
-		.then(logStart('Start services'))
+		.then(logger.logStart('Start services'))
 		.then(docker.removeDanglingImages)
 		.then(compose.getAllServices)
 		.then(prompts.getServicesForProcess('Select services to start'))
 		.then(compose.up)
-		.then(logFinish('Started services'))
-		.catch(logError);
+		.then(logger.logFinish('Started services'))
+		.catch(logger.logError);
 
 }
 
 function stopServices(config) {
 
 	return Promise.resolve(config)
-		.then(logStart('Stop services'))
+		.then(logger.logStart('Stop services'))
 		.then(docker.removeDanglingImages)
 		.then(compose.getAllServices)
 		.then(prompts.getServicesForProcess('Select services to stop'))
 		.then(docker.stopContainers)
-		.then(logFinish('Stopped services'))
-		.catch(logError);
+		.then(logger.logFinish('Stopped services'))
+		.catch(logger.logError);
 
 }
 

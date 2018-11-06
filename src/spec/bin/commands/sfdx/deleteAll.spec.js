@@ -28,46 +28,40 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	yargs = require('yargs'),
 
-	COPYRIGHT_NOTICE = require(root + '/src/lib/bin/constants/constants').COPYRIGHT_NOTICE,
+	constants = require('../../../../lib/bin/constants/constants'),
 
-	service = require(root + '/src/lib/service/deploy/sfdx'),
+	service = require('../../../../lib/service/deploy/sfdx'),
 
-	sandbox = sinon.sandbox.create();
+	cli = require('../../../../lib/bin/commands/sfdx/deleteAll'),
+
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('bin/commands/sfdx/deleteAll.js', () => {
 
-	let cli, mocks;
-
 	beforeEach(() => {
 
-		mocks = {};
-		mocks.yargs = {};
-		mocks.yargs.epilogue = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.option = sandbox.stub().returns(mocks.yargs);
-		mocks.yargs.usage = sandbox.stub().returns(mocks.yargs);
+		sinon.stub(constants, 'getCopyrightNotice').returns('(c)');
 
-		cli = proxyquire(root + '/src/lib/bin/commands/sfdx/deleteAll', {
-			yargs: mocks.yargs
-		});
+		sinon.stub(yargs, 'epilogue').returnsThis();
+		sinon.stub(yargs, 'option').returnsThis();
+		sinon.stub(yargs, 'usage').returnsThis();
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should have the correct command, description and alias', () => {
 
-		// then
+		// Then
 		expect(cli.command).to.eql('delete-all');
 		expect(cli.aliases).to.eql(['d']);
 		expect(cli.desc).to.eql('Marks all scratch orgs for deletion');
@@ -76,34 +70,34 @@ describe('bin/commands/sfdx/deleteAll.js', () => {
 
 	it('should create the cli', () => {
 
-		// when
-		cli.builder(mocks.yargs);
+		// When
+		cli.builder(yargs);
 
-		// then
-		expect(mocks.yargs.epilogue).to.have.been.calledOnce;
-		expect(mocks.yargs.option).to.have.been.calledTwice;
-		expect(mocks.yargs.usage).to.have.been.calledOnce;
+		// Then
+		expect(yargs.epilogue).to.have.been.calledOnce;
+		expect(yargs.option).to.have.been.calledTwice;
+		expect(yargs.usage).to.have.been.calledOnce;
 
-		expect(mocks.yargs.epilogue).to.have.been.calledWith(COPYRIGHT_NOTICE);
-		expect(mocks.yargs.option).to.have.been.calledWith('d', sinon.match.object);
-		expect(mocks.yargs.option).to.have.been.calledWith('verbose', sinon.match.object);
-		expect(mocks.yargs.usage).to.have.been.calledWith('\nUsage: orizuru sfdx delete-all [OPTIONS]');
+		expect(yargs.epilogue).to.have.been.calledWith('(c)');
+		expect(yargs.option).to.have.been.calledWith('d', sinon.match.object);
+		expect(yargs.option).to.have.been.calledWith('verbose', sinon.match.object);
+		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru sfdx delete-all [OPTIONS]');
 
 	});
 
 	it('should call the handler', () => {
 
-		// given
+		// Given
 		const
 			expectedInput = { debug: true },
 			expectedOutput = { argv: expectedInput };
 
-		sandbox.stub(service, 'deleteAllScratchOrgs');
+		sinon.stub(service, 'deleteAllScratchOrgs');
 
-		// when
+		// When
 		cli.handler(expectedInput);
 
-		// then
+		// Then
 		expect(service.deleteAllScratchOrgs).to.have.been.calledOnce;
 		expect(service.deleteAllScratchOrgs).to.have.been.calledWith(expectedOutput);
 

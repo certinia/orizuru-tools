@@ -29,7 +29,7 @@
 const
 	service = require('../../../service/init'),
 
-	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
+	constants = require('../../constants/constants');
 
 module.exports = {
 	command: 'init',
@@ -67,6 +67,6 @@ module.exports = {
 			demandOption: false,
 			type: 'boolean'
 		})
-		.epilogue(COPYRIGHT_NOTICE),
+		.epilogue(constants.getCopyrightNotice()),
 	handler: (argv) => service.init({ argv })
 };

@@ -28,36 +28,33 @@
 
 const
 	chai = require('chai'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('util/debug.js', () => {
 
 	beforeEach(() => {
-		delete require.cache[root + '/src/lib/util/debug.js'];
+		delete require.cache[require.resolve('../../lib/util/debug')];
 
-		sandbox.stub(process.stderr, 'write');
+		sinon.stub(process.stderr, 'write');
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('addBufferFormatter', () => {
 
 		it('should log each line individually', () => {
 
-			// given
+			// Given
 			const
 				input = 'test\nlogging\nthese\nnew\nlines\n',
-				debug = require(root + '/src/lib/util/debug.js');
+				debug = require('../../lib/util/debug');
 
 			var debugInstance;
 
@@ -66,10 +63,10 @@ describe('util/debug.js', () => {
 			debugInstance = debug.create('instance');
 			debug.addBufferFormatter(debugInstance);
 
-			// when
+			// When
 			debugInstance('%b', input);
 
-			// then
+			// Then
 			expect(process.stderr.write).to.have.callCount(5);
 			expect(process.stderr.write.args[0][0]).to.contain('test');
 			expect(process.stderr.write.args[1][0]).to.contain('logging');
@@ -81,10 +78,10 @@ describe('util/debug.js', () => {
 
 		it('should replace undefined with a blank string', () => {
 
-			// given
+			// Given
 			const
 				input = undefined,
-				debug = require(root + '/src/lib/util/debug.js');
+				debug = require('../../lib/util/debug');
 
 			var debugInstance;
 
@@ -93,10 +90,10 @@ describe('util/debug.js', () => {
 			debugInstance = debug.create('instance');
 			debug.addBufferFormatter(debugInstance);
 
-			// when
+			// When
 			debugInstance('%b', input);
 
-			// then
+			// Then
 			expect(process.stderr.write).to.have.been.calledOnce;
 			expect(process.stderr.write.args[0][0]).to.contain('');
 
@@ -108,15 +105,15 @@ describe('util/debug.js', () => {
 
 		it('should log a message if debug is true', () => {
 
-			// given
+			// Given
 			const
 				input = 'test',
-				debug = require(root + '/src/lib/util/debug.js');
+				debug = require('../../lib/util/debug');
 
-			// when
+			// When
 			debug.log({ debug: true }, 'test', input);
 
-			// then
+			// Then
 			expect(process.stderr.write).to.have.been.calledOnce;
 			expect(process.stderr.write.args[0][0]).to.contain(input);
 
@@ -124,15 +121,15 @@ describe('util/debug.js', () => {
 
 		it('should not log a message in silent mode', () => {
 
-			// given
+			// Given
 			const
 				input = 'test',
-				debug = require(root + '/src/lib/util/debug.js');
+				debug = require('../../lib/util/debug');
 
-			// when
+			// When
 			debug.log({ silent: true, debug: false }, 'test', input);
 
-			// then
+			// Then
 			expect(process.stderr.write).to.not.have.been.calledWith(input);
 
 		});
@@ -143,15 +140,15 @@ describe('util/debug.js', () => {
 
 		it('should log a message', () => {
 
-			// given
+			// Given
 			const
 				input = { test: 'test' },
-				debug = require(root + '/src/lib/util/debug.js');
+				debug = require('../../lib/util/debug');
 
-			// when
+			// When
 			debug.stringify({ debug: true }, 'test', input);
 
-			// then
+			// Then
 			expect(process.stderr.write).to.have.been.calledOnce;
 
 		});

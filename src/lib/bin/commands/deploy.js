@@ -32,57 +32,55 @@ const
 
 	service = require('../../service/deploy'),
 
-	COPYRIGHT_NOTICE = require('../constants/constants').COPYRIGHT_NOTICE;
+	constants = require('../constants/constants');
 
 module.exports = {
 	command: 'deploy',
 	aliases: ['d'],
 	desc: 'Executes Deployment commands',
-	builder: (yargs) => {
-		return yargs
-			.usage('\nUsage: orizuru deploy COMMAND')
-			.command(certificate)
-			.command(connectedApp)
-			.options('apex', {
-				alias: 'a',
-				describe: 'Apex deploy',
-				demandOption: false,
-				type: 'boolean'
-			})
-			.options('debug', {
-				alias: 'd',
-				describe: 'Turn on debug logging',
-				demandOption: false,
-				type: 'boolean'
-			})
-			.options('full', {
-				alias: 'f',
-				describe: 'Full deploy',
-				demandOption: false,
-				type: 'boolean'
-			})
-			.options('heroku', {
-				alias: 'h',
-				describe: 'Heroku deploy',
-				demandOption: false,
-				type: 'boolean'
-			})
-			.options('silent', {
-				alias: 's',
-				describe: 'Turn off all logging',
-				demandOption: false,
-				type: 'boolean'
-			})
-			.options('verbose', {
-				describe: 'Turn on all logging',
-				demandOption: false,
-				type: 'boolean'
-			})
-			.updateStrings({
-				'Commands:': 'Deployment:'
-			})
-			.help('help')
-			.epilogue(COPYRIGHT_NOTICE);
-	},
+	builder: (yargs) => yargs
+		.usage('\nUsage: orizuru deploy COMMAND')
+		.command(certificate)
+		.command(connectedApp)
+		.options('apex', {
+			alias: 'a',
+			describe: 'Apex deploy',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.options('debug', {
+			alias: 'd',
+			describe: 'Turn on debug logging',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.options('full', {
+			alias: 'f',
+			describe: 'Full deploy',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.options('heroku', {
+			alias: 'h',
+			describe: 'Heroku deploy',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.options('silent', {
+			alias: 's',
+			describe: 'Turn off all logging',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.options('verbose', {
+			describe: 'Turn on all logging',
+			demandOption: false,
+			type: 'boolean'
+		})
+		.updateStrings({
+			'Commands:': 'Deployment:'
+		})
+		.help('help')
+		.epilogue(constants.getCopyrightNotice()),
 	handler: (argv) => service.run({ argv })
 };

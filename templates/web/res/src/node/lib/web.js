@@ -28,121 +28,116 @@
 
 const
 
-	CONCURRENCY = process.env.WEB_CONCURRENCY || 1,
-	PORT = process.env.PORT || 8080,
+	// Get all the environmenr variables
+	CLOUDAMQP_URL = process.env.CLOUDAMQP_URL || 'amqp://localhost',
+	PORT = parseInt(process.env.PORT, 10) || 8080,
 	ADVERTISE_HOST = process.env.ADVERTISE_HOST || 'localhost:8080',
 	ADVERTISE_SCHEME = process.env.ADVERTISE_SCHEME || 'http',
+	JWT_SIGNING_KEY = process.env.JWT_SIGNING_KEY,
+	OPENID_CLIENT_ID = process.env.OPENID_CLIENT_ID,
+	OPENID_HTTP_TIMEOUT = parseInt(process.env.OPENID_HTTP_TIMEOUT, 10),
+	OPENID_ISSUER_URI = process.env.OPENID_ISSUER_URI,
 
 	OPEN_API_EXT = '.json',
 
 	// get utils
-	_ = require('lodash'),
-	throng = require('throng'),
-	debug = require('debug-plus')('web'),
-	openapiGenerator = require('@financialforcedev/orizuru-openapi').generator,
+	packageInfo = require('pkginfo'),
+
+	debug = require('debug')('web'),
+	path = require('path'),
+
+	openApi = require('@financialforcedev/orizuru-openapi'),
 
 	{ readSchema } = require('./boilerplate/read'),
 
 	// define transport
-	transport = require('./boilerplate/transport'),
+	{ Transport } = require('@financialforcedev/orizuru-transport-rabbitmq'),
+
+	transport = new Transport({
+		url: CLOUDAMQP_URL
+	}),
 
 	// get server
-	{ Server } = require('@financialforcedev/orizuru'),
+	{ addStaticRoute, json, Server } = require('@financialforcedev/orizuru'),
+
+	// get default route
+	DEFAULT_ROUTE = addStaticRoute(path.resolve(__dirname, 'web/static')),
 
 	// get all files in our 'schemas' directory
-	schemas = require('./boilerplate/schema').getWebSchemas(),
+	schemas = require('./boilerplate/schema/web').getSchemas(),
 
-	// get server middleware
-	auth = require('./boilerplate/auth'),
+	// get auth middleware
+	auth = require('@financialforcedev/orizuru-auth'),
+
+	authEnv = {
+		jwtSigningKey: JWT_SIGNING_KEY,
+		openidClientId: OPENID_CLIENT_ID,
+		openidHTTPTimeout: OPENID_HTTP_TIMEOUT,
+		openidIssuerURI: OPENID_ISSUER_URI
+	},
+
 	id = require('./boilerplate/id'),
 
-	middlewares = auth.middleware.concat(id.middleware),
-
-	// prepare routeInfo so we can define a server route for each unique sharedPath
-	getRouteInfos = () => {
-		// group the schemas by sharedPath
-		const schemasBySharedPath = _.groupBy(schemas, 'sharedPath');
-
-		return _.map(schemasBySharedPath, (schemasForPath, sharedPath) => {
-			// store each Avro schema's contents against its filename
-			const schemaNameToDefinition = _.reduce(schemasForPath, (result, schema) => {
-				const
-					fileName = schema.fileName,
-					path = schema.path;
-
-				debug.log('Found schema \'%s\' at \'%s\'', fileName, sharedPath);
-				result[fileName] = readSchema(path);
-
-				return result;
-			}, {});
-
-			return {
-				schemaNameToDefinition,
-				apiEndpoint: sharedPath,
-				middlewares,
-				responseWriter: id.responseWriter
-			};
-		});
-	},
+	middlewares = [json()].concat(
+		auth.middleware.tokenValidator(authEnv),
+		auth.middleware.grantChecker(authEnv)
+	).concat([id.middleware]),
 
 	// read package.json properties
 	getPackageInfo = () => {
-		require('pkginfo')(module, 'version', 'name', 'description');
+		const resolvedPackage = packageInfo.read(module, __dirname).package;
 
 		return {
-			version: module.exports.version,
-			title: module.exports.name,
-			description: module.exports.description
+			version: resolvedPackage.version,
+			title: resolvedPackage.name,
+			description: resolvedPackage.description
 		};
 	},
 
 	// add server routes
-	addRoutes = (serverInstance, routeInfos) => {
+	addRoutes = (serverInstance) => {
+
 		// read package.json properties
 		const info = getPackageInfo();
 
-		_.each(routeInfos, routeInfo => {
-			debug.log('Adding route(s) for \'%s\'', routeInfo.apiEndpoint);
-			_.each(routeInfo.schemaNameToDefinition, (schemaContent, schemaName) => {
-				debug.log('Adding route \'%s\'', schemaName);
-			});
+		Object.values(schemas).map((schema) => {
+
+			const
+				fullSchema = readSchema(schema),
+				openApiEndpoint = (`.api.${fullSchema.namespace}.${fullSchema.name}`).replace(/\./g, '/').replace('_', '.') + OPEN_API_EXT;
 
 			// add the route
-			serverInstance.addRoute(routeInfo);
+			serverInstance.addRoute({
+				endpoint: '/api/',
+				middleware: middlewares,
+				schema: fullSchema
+			});
 
 			// add the Open API handler
-			serverInstance.addGet({
-				path: routeInfo.apiEndpoint + OPEN_API_EXT,
-				requestHandler: openapiGenerator.generateV2({
-					info,
-					host: ADVERTISE_HOST,
-					basePath: routeInfo.apiEndpoint,
-					schemes: [ADVERTISE_SCHEME]
-				}, routeInfo.schemaNameToDefinition)
-			});
+			serverInstance.server.get(openApiEndpoint, openApi.generator.generateV2({
+				info,
+				basePath: 'api.' + fullSchema.namespace.replace(/\./g, '/').replace('_', '.'),
+				host: ADVERTISE_HOST,
+				schemes: [ADVERTISE_SCHEME]
+			}, { [fullSchema.name]: fullSchema }));
+
 		});
+
 	},
 
 	// start the web server and start listening for connections
-	serve = () => {
-		const
-			routeInfos = getRouteInfos(),
-			serverInstance = new Server(transport);
-
-		addRoutes(serverInstance, routeInfos);
-
-		// get the express server and listen to a port
-		serverInstance.getServer().listen(PORT);
-	};
+	serverInstance = new Server({
+		port: PORT,
+		transport
+	});
 
 // debug out errors and info
-Server.emitter.on(Server.emitter.ERROR, debug.error);
-Server.emitter.on(Server.emitter.INFO, debug.log);
+serverInstance.on(Server.ERROR, debug);
+serverInstance.on(Server.INFO, debug);
 
-if (CONCURRENCY > 1) {
-	// start multiple web servers
-	throng(CONCURRENCY, serve);
-} else {
-	// start a web server
-	serve();
-}
+addRoutes(serverInstance);
+
+serverInstance.use('/', DEFAULT_ROUTE);
+
+// start listening to new connections
+serverInstance.listen();

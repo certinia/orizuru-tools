@@ -28,64 +28,56 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
 
-	expect = chai.expect,
+	inquirer = require('inquirer'),
 
-	logger = require(root + '/src/lib/util/logger'),
+	logger = require('../../../lib/util/logger'),
+	shell = require('../../../lib/util/shell'),
 
-	sandbox = sinon.sandbox.create();
+	certificate = require('../../../lib/service/deploy/certificate'),
 
-chai.use(chaiAsPromised);
+	expect = chai.expect;
+
 chai.use(sinonChai);
 
 describe('service/deploy/certificate.js', () => {
 
-	let mocks, certificate;
-
 	beforeEach(() => {
 
-		mocks = {};
-		mocks.shell = {};
-		mocks.inquirer = sandbox.stub();
-		mocks.inquirer.prompt = sandbox.stub();
+		sinon.stub(shell, 'executeCommand');
+		sinon.stub(shell, 'executeCommands');
 
-		sandbox.stub(logger, 'logStart');
-		sandbox.stub(logger, 'logEvent');
-		sandbox.stub(logger, 'logLn');
-		sandbox.stub(logger, 'logFinish');
+		sinon.stub(inquirer, 'prompt');
 
-		certificate = proxyquire(root + '/src/lib/service/deploy/certificate.js', {
-			inquirer: mocks.inquirer,
-			'../../util/shell': mocks.shell
-		});
+		sinon.stub(logger, 'logStart');
+		sinon.stub(logger, 'logEvent');
+		sinon.stub(logger, 'logLn');
+		sinon.stub(logger, 'logFinish');
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('checkOpenSSLInstalled', () => {
 
-		it('should check that the OpenSSL is installed', () => {
+		it('should check that the OpenSSL is installed', async () => {
 
-			// given
+			// Given
 			const expectedCommand = { cmd: 'openssl', args: ['version'] };
 
-			mocks.shell.executeCommand = sandbox.stub().resolves('OpenSSL 0.9.8zh 14 Jan 2016');
+			shell.executeCommand = sinon.stub().resolves('OpenSSL 0.9.8zh 14 Jan 2016');
 
-			// when - then
-			return expect(certificate.checkOpenSSLInstalled({}))
-				.to.eventually.eql({})
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const result = await certificate.checkOpenSSLInstalled({});
+
+			// Then
+			expect(result).to.eql({});
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -93,9 +85,9 @@ describe('service/deploy/certificate.js', () => {
 
 	describe('generate', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
-			// given
+			// Given
 			const
 				expectedSslCommands = [{
 					cmd: 'openssl',
@@ -123,21 +115,21 @@ describe('service/deploy/certificate.js', () => {
 					}
 				};
 
-			mocks.inquirer.prompt.resolves(expectedCertificateDetails);
+			inquirer.prompt.resolves(expectedCertificateDetails);
 
-			mocks.shell.executeCommands = sandbox.stub().resolves({
+			shell.executeCommands = sinon.stub().resolves({
 				command0: { stdout: 'publicKey' },
 				command1: { stdout: 'privateKey' }
 			});
 
-			// when - then
-			return expect(certificate.generate({}))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedSslCommands);
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
-				});
+			// When
+			const result = await certificate.generate({});
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.been.calledTwice;
+			expect(shell.executeCommands).to.have.been.calledWith(expectedSslCommands);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
 
 		});
 
@@ -145,9 +137,9 @@ describe('service/deploy/certificate.js', () => {
 
 	describe('getOrCreate', () => {
 
-		it('should generate certificate', () => {
+		it('should generate certificate', async () => {
 
-			// given
+			// Given
 			const
 				expectedSslCommands = [{
 					cmd: 'openssl',
@@ -175,31 +167,31 @@ describe('service/deploy/certificate.js', () => {
 					}
 				};
 
-			mocks.inquirer.prompt.resolves(expectedCertificateDetails);
+			inquirer.prompt.resolves(expectedCertificateDetails);
 
-			mocks.shell.executeCommands = sandbox.stub().resolves();
-			mocks.shell.executeCommands.onCall(0).rejects();
+			shell.executeCommands = sinon.stub().resolves();
+			shell.executeCommands.onCall(0).rejects();
 
-			mocks.shell.executeCommands.onCall(2).resolves({
+			shell.executeCommands.onCall(2).resolves({
 				command0: { stdout: 'publicKey' },
 				command1: { stdout: 'privateKey' }
 			});
 
-			// when - then
-			return expect(certificate.getOrCreate({}))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.been.calledThrice;
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedSslCommands);
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
-				});
+			// When
+			const result = await certificate.getOrCreate({});
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.been.calledThrice;
+			expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedSslCommands);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
 
 		});
 
-		it('should not generate certificate when it already exists', () => {
+		it('should not generate certificate when it already exists', async () => {
 
-			// given
+			// Given
 			const
 
 				expectedReadCommands = [
@@ -213,18 +205,18 @@ describe('service/deploy/certificate.js', () => {
 					}
 				};
 
-			mocks.shell.executeCommands = sandbox.stub().resolves({
+			shell.executeCommands = sinon.stub().resolves({
 				command0: { stdout: 'publicKey' },
 				command1: { stdout: 'privateKey' }
 			});
 
-			// when - then
-			return expect(certificate.getOrCreate({}))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
-				});
+			// When
+			const result = await certificate.getOrCreate({});
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.been.calledOnce;
+			expect(shell.executeCommands).to.have.been.calledWith(expectedReadCommands);
 
 		});
 

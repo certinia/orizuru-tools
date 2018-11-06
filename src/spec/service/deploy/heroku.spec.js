@@ -29,55 +29,43 @@
 const
 	chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	fs = require('fs-extra'),
+	inquirer = require('inquirer'),
 
-	sandbox = sinon.sandbox.create();
+	config = require('../../../lib/service/deploy/shared/config'),
+	shell = require('../../../lib/util/shell'),
+
+	heroku = require('../../../lib/service/deploy/heroku'),
+
+	expect = chai.expect;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/deploy/heroku.js', () => {
 
-	let mocks, heroku;
-
 	beforeEach(() => {
 
-		mocks = {};
-
-		mocks.config = {};
-		mocks.config.writeSetting = sandbox.stub();
-
-		mocks.fs = sandbox.stub();
-		mocks.fs.readJSON = sandbox.stub();
-
-		mocks.inquirer = {};
-		mocks.inquirer.prompt = sandbox.stub();
-
-		mocks.shell = {};
-
-		heroku = proxyquire(root + '/src/lib/service/deploy/heroku.js', {
-			'fs-extra': mocks.fs,
-			inquirer: mocks.inquirer,
-			'./shared/config': mocks.config,
-			'../../util/shell': mocks.shell
-		});
+		sinon.stub(config, 'writeSetting');
+		sinon.stub(fs, 'readJson');
+		sinon.stub(inquirer, 'prompt');
+		sinon.stub(shell, 'executeCommand');
+		sinon.stub(shell, 'executeCommands');
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('addAddOns', () => {
 
-		it('should create the add-ons specified in the app.json, filtering out existing addons', () => {
+		it('should create the add-ons specified in the app.json, filtering out existing addons', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -110,18 +98,18 @@ describe('service/deploy/heroku.js', () => {
 					cmd: 'heroku'
 				}];
 
-			mocks.shell.executeCommand = sandbox.stub().resolves({
+			shell.executeCommand = sinon.stub().resolves({
 				stdout: '[{ "plan": { "name": "test:filter" } }]'
 			});
-			mocks.shell.executeCommands = sandbox.stub().resolves();
+			shell.executeCommands = sinon.stub().resolves();
 
-			// when - then
-			return expect(heroku.addAddOns(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedQueryCommand);
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCreateCommands);
-				});
+			// When
+			const output = await heroku.addAddOns(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedQueryCommand);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedCreateCommands);
 
 		});
 
@@ -129,9 +117,9 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('addBuildpacks', () => {
 
-		it('should add the build packs specified in the app.json', () => {
+		it('should add the build packs specified in the app.json', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -163,14 +151,14 @@ describe('service/deploy/heroku.js', () => {
 					cmd: 'heroku'
 				}];
 
-			mocks.shell.executeCommands = sandbox.stub().resolves();
+			shell.executeCommands = sinon.stub().resolves();
 
-			// when - then
-			return expect(heroku.addBuildpacks(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: false });
-				});
+			// When
+			const output = await heroku.addBuildpacks(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.calledWith(expectedCommand, { exitOnError: false });
 
 		});
 
@@ -178,9 +166,9 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('addFormation', () => {
 
-		it('should add the dyno formation specified in the app.json', () => {
+		it('should add the dyno formation specified in the app.json', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -217,14 +205,14 @@ describe('service/deploy/heroku.js', () => {
 					args: ['ps:scale', 'worker=2:standard-2x', '-a', expectedAppName]
 				}];
 
-			mocks.shell.executeCommands = sandbox.stub().resolves();
+			shell.executeCommands = sinon.stub().resolves();
 
-			// when - then
-			return expect(heroku.addFormation(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.calledWith(expectedCommand);
-				});
+			// When
+			const output = await heroku.addFormation(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.calledWith(expectedCommand);
 
 		});
 
@@ -232,20 +220,20 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('checkHerokuCliInstalled', () => {
 
-		it('should check that the Heroku CLI is installed', () => {
+		it('should check that the Heroku CLI is installed', async () => {
 
-			// given
+			// Given
 			const expectedCommand = { cmd: 'heroku', args: ['version'] };
 
-			mocks.shell.executeCommand = sandbox.stub().resolves('heroku-toolbelt/3.43.9999 (x86_64-darwin10.8.0) ruby/1.9.3\nheroku-cli/6.14.36-15f8a25 (darwin-x64) node-v8.7.0');
+			shell.executeCommand = sinon.stub().resolves('heroku-toolbelt/3.43.9999 (x86_64-darwin10.8.0) ruby/1.9.3\nheroku-cli/6.14.36-15f8a25 (darwin-x64) node-v8.7.0');
 
-			// when - then
-			return expect(heroku.checkHerokuCliInstalled({}))
-				.to.eventually.eql({})
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await heroku.checkHerokuCliInstalled({});
+
+			// Then
+			expect(output).to.eql({});
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -253,9 +241,9 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('createNewApp', () => {
 
-		it('should create a new Heroku app', () => {
+		it('should create a new Heroku app', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -268,15 +256,15 @@ describe('service/deploy/heroku.js', () => {
 				expectedCommand = { cmd: 'heroku', args: ['create', '--json'] },
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });
+			shell.executeCommand = sinon.stub().resolves({ stdout: `{"name":"${expectedAppName}"}` });
 
-			// when - then
-			return expect(heroku.createNewApp(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await heroku.createNewApp(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -284,9 +272,9 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('createNewOrganizationApp', () => {
 
-		it('should create a new Heroku app in the expected organization', () => {
+		it('should create a new Heroku app in the expected organization', async () => {
 
-			// given
+			// Given
 			const
 				expectedTeam = 'research',
 				expectedAppName = 'rocky-shore-45862',
@@ -301,18 +289,18 @@ describe('service/deploy/heroku.js', () => {
 				expectedAppCommand = { cmd: 'heroku', args: ['create', '-t', expectedTeam, '--json'] },
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand = sandbox.stub().withArgs(expectedOrgCommand).resolves({ stdout: `[{"name":"${expectedTeam}"}]` });
-			mocks.inquirer.prompt = sandbox.stub().resolves({ heroku: { organization: expectedTeam } });
-			mocks.shell.executeCommand = sandbox.stub().withArgs(expectedAppCommand).resolves({ stdout: `{"name":"${expectedAppName}"}` });
+			shell.executeCommand = sinon.stub().withArgs(expectedOrgCommand).resolves({ stdout: `[{"name":"${expectedTeam}"}]` });
+			inquirer.prompt = sinon.stub().resolves({ heroku: { organization: expectedTeam } });
+			shell.executeCommand = sinon.stub().withArgs(expectedAppCommand).resolves({ stdout: `{"name":"${expectedAppName}"}` });
 
-			// when - then
-			return expect(heroku.createNewOrganizationApp(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedOrgCommand);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedAppCommand);
-				});
+			// When
+			const output = await heroku.createNewOrganizationApp(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedOrgCommand);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedAppCommand);
 
 		});
 
@@ -320,73 +308,76 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('checkWorkingChanges', () => {
 
-		it('should resolve if there are working changes and the user responds yes to prompt', () => {
+		it('should resolve if there are working changes and the user responds yes to prompt', async () => {
 
-			// given
+			// Given
 			const
 				shellOutput = {
 					stdout: ':100644 100644 a65538bf48cb14f8cb616072be2a7ecbd0d30a9e 0000000000000000000000000000000000000000 M\tpath/to/file/file.js'
 				};
 
-			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
-			mocks.inquirer.prompt = sandbox.stub().resolves({ ignoreChanges: true });
+			shell.executeCommand = sinon.stub().resolves();
+			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
+			inquirer.prompt = sinon.stub().resolves({ ignoreChanges: true });
 
-			// when - then
-			return expect(heroku.checkWorkingChanges({}))
-				.to.eventually.eql({})
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
-				});
+			// When
+			const output = await heroku.checkWorkingChanges({});
+
+			// Then
+			expect(output).to.eql({});
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(inquirer.prompt).to.have.been.calledOnce;
+
 		});
 
-		it('should reject if there are working changes and the user responds no to prompt', () => {
+		it('should reject if there are working changes and the user responds no to prompt', async () => {
 
-			// given
+			// Given
 			const
 				shellOutput = {
 					stdout: ':100644 100644 a65538bf48cb14f8cb616072be2a7ecbd0d30a9e 0000000000000000000000000000000000000000 M\tpath/to/file/file.js'
 				};
 
-			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
-			mocks.inquirer.prompt = sandbox.stub().resolves({ ignoreChanges: false });
+			shell.executeCommand = sinon.stub().resolves();
+			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
+			inquirer.prompt = sinon.stub().resolves({ ignoreChanges: false });
 
-			// when - then
-			return expect(heroku.checkWorkingChanges({}))
-				.to.eventually.be.rejectedWith('Aborting deploy due to uncomitted changes')
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
-				});
+			// When
+			await expect(heroku.checkWorkingChanges({})).to.eventually.be.rejectedWith('Aborting deploy due to uncomitted changes');
+
+			// Then
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(inquirer.prompt).to.have.been.calledOnce;
+
 		});
 
-		it('should resolve if there are no working changes', () => {
+		it('should resolve if there are no working changes', async () => {
 
-			// given
+			// Given
 			const
 				shellOutput = {
 					stdout: ''
 				};
 
-			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
+			shell.executeCommand = sinon.stub().resolves();
+			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['diff-index', 'HEAD'] }).resolves(shellOutput);
 
-			// when - then
-			return expect(heroku.checkWorkingChanges({}))
-				.to.eventually.eql({})
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-				});
+			// When
+			const output = await heroku.checkWorkingChanges({});
+
+			// Then
+			expect(output).to.eql({});
+			expect(shell.executeCommand).to.have.been.calledOnce;
+
 		});
+
 	});
 
 	describe('deployCurrentBranch', () => {
 
-		it('should deploy the current branch to Heroku', () => {
+		it('should deploy the current branch to Heroku', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -412,19 +403,19 @@ describe('service/deploy/heroku.js', () => {
 				},
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand = sandbox.stub().resolves();
-			mocks.shell.executeCommand = sandbox.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] }).resolves({ stdout: 'master' });
+			shell.executeCommand = sinon.stub().resolves();
+			shell.executeCommand = sinon.stub().withArgs({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] }).resolves({ stdout: 'master' });
 
-			// when - then
-			return expect(heroku.deployCurrentBranch(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.callCount(5);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: false } });
-					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'add', 'autodeploy', 'https://git.heroku.com/rocky-shore-45862.git'] });
-					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] });
-					expect(mocks.shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['push', 'autodeploy', 'master:master', '-f'], opts: { namespace: 'deploy' } });
-				});
+			// When
+			const output = await heroku.deployCurrentBranch(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.callCount(5);
+			expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'remove', 'autodeploy'], opts: { exitOnError: false } });
+			expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['remote', 'add', 'autodeploy', 'https://git.heroku.com/rocky-shore-45862.git'] });
+			expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['rev-parse', '--abbrev-ref', 'HEAD'] });
+			expect(shell.executeCommand).to.have.been.calledWith({ cmd: 'git', args: ['push', 'autodeploy', 'master:master', '-f'], opts: { namespace: 'deploy' } });
 
 		});
 
@@ -432,9 +423,9 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('getAllApps', () => {
 
-		it('should get all the current Heroku apps', () => {
+		it('should get all the current Heroku apps', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -449,15 +440,15 @@ describe('service/deploy/heroku.js', () => {
 				expectedCommand = { cmd: 'heroku', args: ['apps', '--all', '--json'] },
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
+			shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
 
-			// when - then
-			return expect(heroku.getAllApps(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand);
-				});
+			// When
+			const output = await heroku.getAllApps(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
 
 		});
 
@@ -465,9 +456,9 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('readAppJson', () => {
 
-		it('should read the app.json file', () => {
+		it('should read the app.json file', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -496,16 +487,19 @@ describe('service/deploy/heroku.js', () => {
 					}
 				};
 
-			mocks.fs.readJSON.resolves({ name: 'rocky-shore-45862' });
+			fs.readJson.resolves({ name: 'rocky-shore-45862' });
 
-			// when - then
-			return expect(heroku.readAppJson(expectedInput)).to.eventually.eql(expectedOutput);
+			// When
+			const output = await heroku.readAppJson(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
 
 		});
 
-		it('should throw an error if app.json doesn\'t exist', () => {
+		it('should throw an error if app.json doesn\'t exist', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -518,10 +512,10 @@ describe('service/deploy/heroku.js', () => {
 					}
 				};
 
-			mocks.fs.readJSON.rejects(new Error('test'));
+			fs.readJson.rejects(new Error('test'));
 
-			// when - then
-			return expect(heroku.readAppJson(expectedInput)).to.eventually.be.rejectedWith('app.json is required in the root of your project when deploying to heroku.');
+			// When
+			await expect(heroku.readAppJson(expectedInput)).to.eventually.be.rejectedWith('app.json is required in the root of your project when deploying to heroku.');
 
 		});
 
@@ -529,9 +523,9 @@ describe('service/deploy/heroku.js', () => {
 
 	describe('select', () => {
 
-		it('should prompt the user to select the Heroku application without a new app option', () => {
+		it('should prompt the user to select the Heroku application without a new app option', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -562,22 +556,21 @@ describe('service/deploy/heroku.js', () => {
 					}
 				};
 
-			mocks.inquirer.prompt.resolves(expectedAnswer);
-			mocks.config.writeSetting.resolves();
+			inquirer.prompt.resolves(expectedAnswer);
+			config.writeSetting.resolves();
 
-			// when - then
-			return expect(heroku.select(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
-					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
-				});
+			// When
+			await heroku.select(expectedInput);
+
+			// Then
+			expect(inquirer.prompt).to.have.been.calledOnce;
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 
 		});
 
-		it('should prompt the user to select the Heroku application with a new app option', () => {
+		it('should prompt the user to select the Heroku application with a new app option', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
@@ -613,22 +606,21 @@ describe('service/deploy/heroku.js', () => {
 					['default']: '<<Create new Heroku App>>'
 				}];
 
-			mocks.inquirer.prompt.resolves(expectedAnswer);
-			mocks.config.writeSetting.resolves();
+			inquirer.prompt.resolves(expectedAnswer);
+			config.writeSetting.resolves();
 
-			// when - then
-			return expect(heroku.select(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
-					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
-				});
+			// When
+			await heroku.select(expectedInput);
+
+			// Then
+			expect(inquirer.prompt).to.have.been.calledOnce;
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 
 		});
 
-		it('should prompt the user to select the Heroku application with a new app option and create a new app if that option is chosen', () => {
+		it('should prompt the user to select the Heroku application with a new app option and create a new app if that option is chosen', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
@@ -662,24 +654,23 @@ describe('service/deploy/heroku.js', () => {
 					['default']: '<<Create new Heroku App>>'
 				}];
 
-			mocks.inquirer.prompt.resolves(expectedAnswer);
-			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
-			mocks.config.writeSetting.resolves();
+			inquirer.prompt.resolves(expectedAnswer);
+			shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
+			config.writeSetting.resolves();
 
-			// when - then
-			return expect(heroku.select(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
-					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-				});
+			// When
+			await heroku.select(expectedInput);
+
+			// Then
+			expect(inquirer.prompt).to.have.been.calledOnce;
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
+			expect(shell.executeCommand).to.have.been.calledOnce;
 
 		});
 
-		it('should prompt the user to select the Heroku application with a new app option and create a new team app if that option is chosen', () => {
+		it('should prompt the user to select the Heroku application with a new app option and create a new team app if that option is chosen', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedAnswer = {
@@ -713,24 +704,23 @@ describe('service/deploy/heroku.js', () => {
 					['default']: '<<Create new Heroku App>>'
 				}];
 
-			mocks.inquirer.prompt.resolves(expectedAnswer);
-			mocks.shell.executeCommand = sandbox.stub().resolves({ stdout: '{}' });
-			mocks.config.writeSetting.resolves();
+			inquirer.prompt.resolves(expectedAnswer);
+			shell.executeCommand = sinon.stub().resolves({ stdout: '{}' });
+			config.writeSetting.resolves();
 
-			// when - then
-			return expect(heroku.select(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledTwice;
-					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-				});
+			// When
+			await heroku.select(expectedInput);
+
+			// Then
+			expect(inquirer.prompt).to.have.been.calledTwice;
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
+			expect(shell.executeCommand).to.have.been.calledTwice;
 
 		});
 
-		it('should default to the Heroku org provided in the Orizuru config', () => {
+		it('should default to the Heroku org provided in the Orizuru config', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedAppName2 = 'rocky-shore-45861',
@@ -776,14 +766,13 @@ describe('service/deploy/heroku.js', () => {
 					}
 				};
 
-			mocks.inquirer.prompt.resolves(expectedAnswer);
+			inquirer.prompt.resolves(expectedAnswer);
 
-			// when - then
-			return expect(heroku.select(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledWith(expectedChoices);
-				});
+			// When
+			await heroku.select(expectedInput);
+
+			// Then
+			expect(inquirer.prompt).to.have.been.calledWith(expectedChoices);
 
 		});
 

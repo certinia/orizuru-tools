@@ -28,71 +28,59 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
 
 	inquirer = require('inquirer'),
+	jsforce = require('jsforce'),
 	openUrl = require('openurl'),
 	request = require('request-promise'),
 
 	configFile = require('../../../lib/service/deploy/shared/config'),
 	htmlParser = require('../../../lib/util/htmlParser'),
+	shell = require('../../../lib/util/shell'),
 
-	expect = chai.expect,
+	connectedApp = require('../../../lib/service/deploy/connectedApp'),
 
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/deploy/connectedApp.js', () => {
 
-	let mocks, connectedApp;
+	let connectionStub;
 
 	beforeEach(() => {
 
-		mocks = {};
+		connectionStub = sinon.createStubInstance(jsforce.Connection);
+		sinon.stub(jsforce, 'Connection').returns(connectionStub);
 
-		mocks.conn = {};
-		mocks.conn.query = sandbox.stub();
+		sinon.stub(openUrl, 'open');
 
-		mocks.shell = {};
+		sinon.stub(configFile, 'writeSetting');
+		sinon.stub(inquirer, 'prompt');
+		sinon.stub(htmlParser, 'parseScripts');
+		sinon.stub(request, 'get');
 
-		mocks.jsforce = {};
-		mocks.jsforce.Connection = sandbox.stub();
-
-		sandbox.stub(openUrl, 'open');
-
-		sandbox.stub(configFile, 'writeSetting');
-		sandbox.stub(inquirer, 'prompt');
-		sandbox.stub(htmlParser, 'parseScripts');
-		sandbox.stub(request, 'get');
-
-		connectedApp = proxyquire(root + '/src/lib/service/deploy/connectedApp.js', {
-			jsforce: mocks.jsforce,
-			'../../util/shell': mocks.shell
-		});
+		sinon.stub(shell, 'executeCommands');
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('askQuestions', () => {
 
-		it('should ask the correct questions', () => {
+		it('should ask the correct questions', async () => {
 
-			// given
+			// Given
 			const
 				expectedAnswers = {
 					name: 'test',
 					email: 'test@test.com'
 				},
-				expectedResults = {
+				expectedOutput = {
 					parameters: {
 						connectedApp: expectedAnswers
 					}
@@ -100,8 +88,11 @@ describe('service/deploy/connectedApp.js', () => {
 
 			inquirer.prompt.resolves(expectedAnswers);
 
-			// when - then
-			return expect(connectedApp.askQuestions({})).to.eventually.eql(expectedResults);
+			// When
+			const output = await connectedApp.askQuestions({});
+
+			// Then
+			expect(output).to.eql(expectedOutput);
 
 		});
 
@@ -109,12 +100,12 @@ describe('service/deploy/connectedApp.js', () => {
 
 	describe('create', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
-					conn: sandbox.stub(),
+					conn: sinon.stub(),
 					parameters: {
 						connectedApp: {
 							name: 'TestApp',
@@ -135,16 +126,16 @@ describe('service/deploy/connectedApp.js', () => {
 				};
 
 			expectedInput.conn.metadata = {};
-			expectedInput.conn.metadata.upsert = sandbox.stub().resolves();
-			expectedInput.conn.metadata.read = sandbox.stub().resolves();
+			expectedInput.conn.metadata.upsert = sinon.stub().resolves();
+			expectedInput.conn.metadata.read = sinon.stub().resolves();
 
-			// when - then
-			return expect(connectedApp.create(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(expectedInput.conn.metadata.upsert).to.have.been.calledOnce;
-					expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
-				});
+			// When
+			const result = await connectedApp.create(expectedInput);
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(expectedInput.conn.metadata.upsert).to.have.been.calledOnce;
+			expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
 
 		});
 
@@ -152,9 +143,9 @@ describe('service/deploy/connectedApp.js', () => {
 
 	describe('install', () => {
 
-		it('should navigate to the correct url', () => {
+		it('should navigate to the correct url', async () => {
 
-			// given
+			// Given
 			const
 				expectedInstanceUrl = 'testInstance',
 				expectedInstallLink = '/testLink',
@@ -175,10 +166,14 @@ describe('service/deploy/connectedApp.js', () => {
 							}
 						}
 					}
-				};
+				},
+				expectedOutput = expectedInput;
 
-			// when - then
-			expect(connectedApp.install(expectedInput)).to.eql(expectedInput);
+			// When
+			const result = await connectedApp.install(expectedInput);
+
+			// Then
+			expect(result).to.eql(expectedOutput);
 
 		});
 
@@ -186,9 +181,9 @@ describe('service/deploy/connectedApp.js', () => {
 
 	describe('list', () => {
 
-		it('should query the Salesforce org for the ConnectedApplications', () => {
+		it('should query the Salesforce org for the ConnectedApplications', async () => {
 
-			// given
+			// Given
 			const
 				expectedRecords = {
 					records: [{
@@ -196,18 +191,20 @@ describe('service/deploy/connectedApp.js', () => {
 						email: 'test@test.com'
 					}]
 				},
-				expectedResults = {
-					conn: mocks.conn,
+				expectedOutput = {
+					conn: connectionStub,
 					connected: {
 						apps: expectedRecords.records
 					}
 				};
 
-			mocks.conn.query.resolves(expectedRecords);
+			connectionStub.query.resolves(expectedRecords);
 
-			// when - then
-			return expect(connectedApp.list({ conn: mocks.conn }))
-				.to.eventually.eql(expectedResults);
+			// When
+			const result = await connectedApp.list({ conn: connectionStub });
+
+			// Then
+			expect(result).to.eql(expectedOutput);
 
 		});
 
@@ -215,9 +212,9 @@ describe('service/deploy/connectedApp.js', () => {
 
 	describe('generateInstallUrl', () => {
 
-		it('should create the installUrl for the connected app', () => {
+		it('should create the installUrl for the connected app', async () => {
 
-			// given
+			// Given
 			const
 				expectedConnectedAppId = 'testConnectedAppId',
 				expectedOutput = {
@@ -239,13 +236,13 @@ describe('service/deploy/connectedApp.js', () => {
 					`\nif (this.SfdcApp && this.SfdcApp.projectOneNavigator) { SfdcApp.projectOneNavigator.handleRedirect('/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=06P1D00000000Er&id=${expectedConnectedAppId}'); }  else \nif (window.location.replace){ \nwindow.location.replace('/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=06P1D00000000Er&id=${expectedConnectedAppId}');\n} else {;\nwindow.location.href ='/app/mgmt/forceconnectedapps/forceAppDetail.apexp?applicationId=06P1D00000000Er&id=${expectedConnectedAppId}';\n} \n`
 				]);
 
-			// when then
-			return expect(connectedApp.generateInstallUrl({}))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(request.get).to.have.been.calledTwice;
-					expect(htmlParser.parseScripts).to.have.been.calledTwice;
-				});
+			// When
+			const result = await connectedApp.generateInstallUrl({});
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(request.get).to.have.been.calledTwice;
+			expect(htmlParser.parseScripts).to.have.been.calledTwice;
 
 		});
 
@@ -253,9 +250,9 @@ describe('service/deploy/connectedApp.js', () => {
 
 	describe('select', () => {
 
-		it('should prompt the user to select a connecte app', () => {
+		it('should prompt the user to select a connecte app', async () => {
 
-			// given
+			// Given
 			const
 				expectedConnectedAppId = 'testId',
 				expectedConnectedApp = {
@@ -302,12 +299,12 @@ describe('service/deploy/connectedApp.js', () => {
 			configFile.writeSetting.resolves(expectedOutput);
 			inquirer.prompt.resolves(expectedAnswers);
 
-			// when - then
-			return expect(connectedApp.select(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(configFile.writeSetting).to.have.been.calledWith(expectedOutput, 'connected.app.id', expectedConnectedAppId);
-				});
+			// When
+			const result = await connectedApp.select(expectedInput);
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(configFile.writeSetting).to.have.been.calledWith(expectedOutput, 'connected.app.id', expectedConnectedAppId);
 
 		});
 
@@ -315,9 +312,9 @@ describe('service/deploy/connectedApp.js', () => {
 
 	describe('updateHerokuConfigVariables', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
-			// given
+			// Given
 			const
 				expectedAppName = 'rocky-shore-45862',
 				expectedInput = {
@@ -352,14 +349,14 @@ describe('service/deploy/connectedApp.js', () => {
 				}],
 				expectedOutput = expectedInput;
 
-			mocks.shell.executeCommands = sandbox.stub().resolves({});
+			shell.executeCommands = sinon.stub().resolves({});
 
-			// when - then
-			return expect(connectedApp.updateHerokuConfigVariables(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommands).to.have.been.calledWith(expectedCommands);
-				});
+			// When
+			const result = await connectedApp.updateHerokuConfigVariables(expectedInput);
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedCommands);
 
 		});
 

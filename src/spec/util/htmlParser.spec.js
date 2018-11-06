@@ -28,34 +28,31 @@
 
 const
 	chai = require('chai'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	htmlParser = require('../../lib/util/htmlParser'),
 
-	htmlParser = require(root + '/src/lib/util/htmlParser'),
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('util/htmlParser.js', () => {
 
-	afterEach(() => sandbox.restore());
+	afterEach(() => sinon.restore());
 
 	describe('parseScripts', () => {
 
 		it('should parse the scripts from a html page ', () => {
 
-			// given
+			// Given
 			const
 				html = '<html><body><p>test</p><script>test script</script></body></html>',
 
-				// when
+				// When
 				scripts = htmlParser.parseScripts({ html });
 
-			// then
+			// Then
 			expect(scripts).to.eql(['test script']);
 
 		});

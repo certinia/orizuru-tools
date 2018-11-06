@@ -30,35 +30,35 @@ private class DeliveryRouteSelectorTest {
 	@IsTest
 	private static void selectByIds_null_emptyList()
 	{
-		//Given
+		// Given
 		DeliveryRoute__c[] expected = new DeliveryRoute__c[]{};
 		DeliveryRouteSelector selector = DeliveryRouteSelector.newInstance();
 		
-		//When
+		// When
 		DeliveryRoute__c[] actual = selector.selectByIds(null);
 
-		//Then
+		// Then
 		System.assertEquals(expected, actual);
 	}
-	
-	@IsTest
+    
+    @IsTest
 	private static void selectByIds_emptySet_emptyList()
 	{
-		//Given
+		// Given
 		DeliveryRoute__c[] expected = new DeliveryRoute__c[]{};
 		DeliveryRouteSelector selector = DeliveryRouteSelector.newInstance();
 		
-		//When
+		// When
 		DeliveryRoute__c[] actual = selector.selectByIds(new Set<Id>());
 
-		//Then
+		// Then
 		System.assertEquals(expected, actual);
 	}
-	
-	@IsTest
+    
+    @IsTest
 	private static void selectByIds_setWithIdAndResults_resultsReturned()
 	{
-		//Given
+		// Given
 		DeliveryPlan__c[] plans = new DeliveryPlan__c[]{
 			new DeliveryPlan__c(),
 			new DeliveryPlan__c()
@@ -69,52 +69,52 @@ private class DeliveryRouteSelectorTest {
 			new DeliveryRoute__c(DeliveryPlan__c = plans[0].Id),
 			new DeliveryRoute__c(DeliveryPlan__c = plans[1].Id)
 		};
-		insert routes;
+        insert routes;
 
 		DeliveryRouteSelector selector = DeliveryRouteSelector.newInstance();
 		
-		//When
-		DeliveryRoute__c[] actual = selector.selectByIds(new Set<Id>{
-			routes[0].Id
-		});
+		// When
+        DeliveryRoute__c[] actual = selector.selectByIds(new Set<Id>{
+            routes[0].Id
+        });
 
-		//Then
+		// Then
 		System.assertEquals(1, actual.size());
 		System.assertEquals(actual[0].Id, routes[0].Id);
 	}
-	
+    
 	@IsTest
 	private static void selectByPlanIds_null_emptyList()
 	{
-		//Given
+		// Given
 		DeliveryRoute__c[] expected = new DeliveryRoute__c[]{};
 		DeliveryRouteSelector selector = DeliveryRouteSelector.newInstance();
 		
-		//When
+		// When
 		DeliveryRoute__c[] actual = selector.selectByPlanIds(null);
 
-		//Then
+		// Then
 		System.assertEquals(expected, actual);
 	}
-	
-	@IsTest
+    
+    @IsTest
 	private static void selectByPlanIds_emptySet_emptyList()
 	{
-		//Given
+		// Given
 		DeliveryRoute__c[] expected = new DeliveryRoute__c[]{};
 		DeliveryRouteSelector selector = DeliveryRouteSelector.newInstance();
 		
-		//When
+		// When
 		DeliveryRoute__c[] actual = selector.selectByPlanIds(new Set<Id>());
 
-		//Then
+		// Then
 		System.assertEquals(expected, actual);
 	}
-	
-	@IsTest
+    
+    @IsTest
 	private static void selectByPlanIds_setWithIdAndResults_resultsReturned()
 	{
-		//Given
+		// Given
 		DeliveryPlan__c[] plans = new DeliveryPlan__c[]{
 			new DeliveryPlan__c(),
 			new DeliveryPlan__c()
@@ -125,18 +125,18 @@ private class DeliveryRouteSelectorTest {
 			new DeliveryRoute__c(DeliveryPlan__c = plans[0].Id),
 			new DeliveryRoute__c(DeliveryPlan__c = plans[1].Id)
 		};
-		insert routes;
+        insert routes;
 
 		DeliveryRouteSelector selector = DeliveryRouteSelector.newInstance();
 		
-		//When
-		DeliveryRoute__c[] actual = selector.selectByPlanIds(new Set<Id>{
-			plans[0].Id
-		});
+		// When
+        DeliveryRoute__c[] actual = selector.selectByPlanIds(new Set<Id>{
+            plans[0].Id
+        });
 
-		//Then
+		// Then
 		System.assertEquals(1, actual.size());
 		System.assertEquals(actual[0].Id, routes[0].Id);
 	}
-	
+    
 }

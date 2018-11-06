@@ -28,43 +28,31 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	proxyquire = require('proxyquire'),
 
-	expect = chai.expect,
+	fs = require('fs-extra'),
 
-	sandbox = sinon.sandbox.create();
+	properties = require('../../../lib/service/deploy/properties'),
 
-chai.use(chaiAsPromised);
+	expect = chai.expect;
+
 chai.use(sinonChai);
 
 describe('service/deploy/properties.js', () => {
 
-	let mocks, properties;
-
 	beforeEach(() => {
-
-		mocks = {};
-
-		mocks.fsextra = {};
-		mocks.fsextra.readFile = sandbox.stub();
-		mocks.fsextra.writeFile = sandbox.stub();
-
-		properties = proxyquire(root + '/src/lib/service/deploy/properties.js', {
-			'fs-extra': mocks.fsextra
-		});
+		sinon.stub(fs, 'readFile');
+		sinon.stub(fs, 'writeFile');
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('updateProperties', () => {
 
-		it('should add the properties file with the right content', () => {
+		it('should add the properties file with the right content', async () => {
 			const
 				expectedCwd = '/Users/test/git/orizuru-tools',
 				expectedInput = {
@@ -87,7 +75,7 @@ describe('service/deploy/properties.js', () => {
 						}
 					},
 					properties: {
-						filepath: '/Users/test/git/orizuru-tools/local.run.properties',
+						filepath: '/Users/test/git/orizuru-tools/.env',
 						content: [
 							'JWT_SIGNING_KEY="-----BEGIN RSA PRIVATE KEY-----\\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\\nCdHiDY5XGE=\\n-----END RSA PRIVATE KEY----"',
 							'OPENID_CLIENT_ID=consumerKey',
@@ -97,20 +85,22 @@ describe('service/deploy/properties.js', () => {
 					}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
-			mocks.fsextra.readFile.resolves();
-			mocks.fsextra.writeFile.resolves();
+			sinon.stub(process, 'cwd').returns(expectedCwd);
+			fs.readFile.resolves();
+			fs.writeFile.resolves();
 
-			// when - then
-			return expect(properties.updateProperties(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.fsextra.readFile).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeFile).to.have.been.calledOnce;
-				});
+			// When
+			const output = await properties.updateProperties(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.readFile).to.have.been.calledOnce;
+			expect(fs.writeFile).to.have.been.calledOnce;
+
 		});
 
-		it('should update an existing properties file', () => {
+		it('should update an existing properties file', async () => {
+
 			const
 				expectedCwd = '/Users/test/git/orizuru-tools',
 				expectedInput = {
@@ -124,7 +114,7 @@ describe('service/deploy/properties.js', () => {
 					}
 				},
 				readOutput =
-				'JWT_SIGNING_KEY="notSameKey"\nOPENID_CLIENT_ID=anotherKey\nOPENID_ISSUER_URI=https://test.salesforce.com/\nOPENID_HTTP_TIMEOUT=4000\nDEBUG=*',
+					'JWT_SIGNING_KEY="notSameKey"\nOPENID_CLIENT_ID=anotherKey\nOPENID_ISSUER_URI=https://test.salesforce.com/\nOPENID_HTTP_TIMEOUT=4000\nDEBUG=*',
 				expectedOutput = {
 					certificate: {
 						privateKey: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAzzmovbx9CSPO52BxJeE8oPLS1cEKzg+UpMQNpt4oX1rhPnrN\nCdHiDY5XGE=\n-----END RSA PRIVATE KEY----'
@@ -135,7 +125,7 @@ describe('service/deploy/properties.js', () => {
 						}
 					},
 					properties: {
-						filepath: '/Users/test/git/orizuru-tools/local.run.properties',
+						filepath: '/Users/test/git/orizuru-tools/.env',
 						content: [
 							'#JWT_SIGNING_KEY="notSameKey"',
 							'#OPENID_CLIENT_ID=anotherKey',
@@ -148,17 +138,20 @@ describe('service/deploy/properties.js', () => {
 					}
 				};
 
-			sandbox.stub(process, 'cwd').returns(expectedCwd);
-			mocks.fsextra.readFile.resolves(readOutput);
-			mocks.fsextra.writeFile.resolves();
+			sinon.stub(process, 'cwd').returns(expectedCwd);
+			fs.readFile.resolves(readOutput);
+			fs.writeFile.resolves();
 
-			// when - then
-			return expect(properties.updateProperties(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.fsextra.readFile).to.have.been.calledOnce;
-					expect(mocks.fsextra.writeFile).to.have.been.calledOnce;
-				});
+			// When
+			const output = await properties.updateProperties(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(fs.readFile).to.have.been.calledOnce;
+			expect(fs.writeFile).to.have.been.calledOnce;
+
 		});
+
 	});
+
 });

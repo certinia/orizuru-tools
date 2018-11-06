@@ -28,8 +28,6 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
@@ -43,11 +41,10 @@ const
 	sfdx = require('../../lib/service/deploy/sfdx'),
 	logger = require('../../lib/util/logger'),
 
-	expect = chai.expect,
+	service = require('../../lib/service/connectedApp'),
 
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
-chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('service/connectedApp.js', () => {
@@ -57,159 +54,140 @@ describe('service/connectedApp.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
-		mocks.shell = sandbox.stub();
-		mocks.shell.executeCommand = sandbox.stub();
+		mocks.shell = sinon.stub();
+		mocks.shell.executeCommand = sinon.stub();
 
-		sandbox.stub(configFile, 'createFile');
-		sandbox.stub(configFile, 'readSettings');
-		sandbox.stub(configFile, 'writeSetting');
+		sinon.stub(configFile, 'createFile');
+		sinon.stub(configFile, 'readSettings');
+		sinon.stub(configFile, 'writeSetting');
 
-		sandbox.stub(certificate, 'getOrCreate');
+		sinon.stub(certificate, 'getOrCreate');
 
-		sandbox.stub(connection, 'create');
+		sinon.stub(connection, 'create');
 
-		sandbox.stub(connectedApp, 'askQuestions');
-		sandbox.stub(connectedApp, 'create');
-		sandbox.stub(connectedApp, 'generateInstallUrl');
-		sandbox.stub(connectedApp, 'list');
-		sandbox.stub(connectedApp, 'select');
-		sandbox.stub(connectedApp, 'updateHerokuConfigVariables');
+		sinon.stub(connectedApp, 'askQuestions');
+		sinon.stub(connectedApp, 'create');
+		sinon.stub(connectedApp, 'generateInstallUrl');
+		sinon.stub(connectedApp, 'list');
+		sinon.stub(connectedApp, 'select');
+		sinon.stub(connectedApp, 'updateHerokuConfigVariables');
 
-		sandbox.stub(heroku, 'getAllApps');
-		sandbox.stub(heroku, 'select');
+		sinon.stub(heroku, 'getAllApps');
+		sinon.stub(heroku, 'select');
 
-		sandbox.stub(inquirer, 'prompt');
+		sinon.stub(inquirer, 'prompt');
 
-		sandbox.stub(logger, 'logEvent');
-		sandbox.stub(logger, 'logError');
+		sinon.stub(logger, 'logEvent');
+		sinon.stub(logger, 'logError');
 
-		sandbox.stub(sfdx, 'checkSfdxInstalled');
-		sandbox.stub(sfdx, 'checkSfdxProjectFileExists');
-		sandbox.stub(sfdx, 'checkSfdxFolderExists');
-		sandbox.stub(sfdx, 'display');
-		sandbox.stub(sfdx, 'getAllScratchOrgs');
-		sandbox.stub(sfdx, 'login').resolves({});
-		sandbox.stub(sfdx, 'select');
+		sinon.stub(sfdx, 'checkSfdxInstalled');
+		sinon.stub(sfdx, 'checkSfdxProjectFileExists');
+		sinon.stub(sfdx, 'checkSfdxFolderExists');
+		sinon.stub(sfdx, 'display');
+		sinon.stub(sfdx, 'getAllScratchOrgs');
+		sinon.stub(sfdx, 'login').resolves({});
+		sinon.stub(sfdx, 'select');
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('create', () => {
 
-		it('should throw an error if the type is not found', () => {
+		it('should throw an error if the type is not found', async () => {
 
-			// given
-			const service = proxyquire('../../lib/service/connectedApp.js', {
-				'../../util/shell': mocks.shell
-			});
-
+			// Given
 			inquirer.prompt.resolves({
 				type: 'New Connected App 2'
 			});
 
-			// when - then
-			return expect(service.create({}))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(logger.logError).to.have.been.calledOnce;
-				});
+			// When
+			await service.create({});
+
+			// Then
+			expect(logger.logError).to.have.been.calledOnce;
 
 		});
 
-		it('should call the correct functions when creating a new connected app', () => {
+		it('should call the correct functions when creating a new connected app', async () => {
 
-			// given
-			const service = proxyquire('../../lib/service/connectedApp.js', {
-				'../../util/shell': mocks.shell
-			});
-
+			// Given
 			inquirer.prompt.resolves({
 				type: 'New Connected App'
 			});
 
-			// when - then
-			return expect(service.create({}))
-				.to.eventually.be.fulfilled
-				.then(() => {
+			// When
+			await service.create({});
 
-					expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
+			// Then
+			expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
 
-					expect(sfdx.checkSfdxProjectFileExists).to.have.been.calledAfter(sfdx.checkSfdxInstalled);
-					expect(sfdx.checkSfdxFolderExists).to.have.been.calledAfter(sfdx.checkSfdxProjectFileExists);
-					expect(configFile.readSettings).to.have.been.calledAfter(sfdx.checkSfdxFolderExists);
-					expect(sfdx.login).to.have.been.calledAfter(configFile.readSettings);
-					expect(heroku.getAllApps).to.have.been.calledAfter(sfdx.login);
-					expect(sfdx.getAllScratchOrgs).to.have.been.calledAfter(heroku.getAllApps);
-					expect(sfdx.select).to.have.been.have.been.calledOnce.and.calledAfter(sfdx.getAllScratchOrgs);
+			expect(sfdx.checkSfdxProjectFileExists).to.have.been.calledAfter(sfdx.checkSfdxInstalled);
+			expect(sfdx.checkSfdxFolderExists).to.have.been.calledAfter(sfdx.checkSfdxProjectFileExists);
+			expect(configFile.readSettings).to.have.been.calledAfter(sfdx.checkSfdxFolderExists);
+			expect(sfdx.login).to.have.been.calledAfter(configFile.readSettings);
+			expect(heroku.getAllApps).to.have.been.calledAfter(sfdx.login);
+			expect(sfdx.getAllScratchOrgs).to.have.been.calledAfter(heroku.getAllApps);
+			expect(sfdx.select).to.have.been.have.been.calledOnce.and.calledAfter(sfdx.getAllScratchOrgs);
 
-					expect(certificate.getOrCreate).to.have.been.calledOnce;
+			expect(certificate.getOrCreate).to.have.been.calledOnce;
 
-					expect(connection.create).to.have.been.calledOnce;
+			expect(connection.create).to.have.been.calledOnce;
 
-					expect(connectedApp.askQuestions).to.have.been.calledOnce;
-					expect(connectedApp.create).to.have.been.calledOnce;
-					expect(connectedApp.generateInstallUrl).to.have.been.calledOnce;
-					expect(connectedApp.list).to.have.been.calledOnce;
-					expect(connectedApp.select).to.have.been.calledOnce;
-					expect(connectedApp.updateHerokuConfigVariables).to.have.been.calledOnce;
+			expect(connectedApp.askQuestions).to.have.been.calledOnce;
+			expect(connectedApp.create).to.have.been.calledOnce;
+			expect(connectedApp.generateInstallUrl).to.have.been.calledOnce;
+			expect(connectedApp.list).to.have.been.calledOnce;
+			expect(connectedApp.select).to.have.been.calledOnce;
+			expect(connectedApp.updateHerokuConfigVariables).to.have.been.calledOnce;
 
-					expect(heroku.getAllApps).to.have.been.calledOnce;
-					expect(heroku.select).to.have.been.calledOnce;
+			expect(heroku.getAllApps).to.have.been.calledOnce;
+			expect(heroku.select).to.have.been.calledOnce;
 
-					expect(sfdx.display).to.have.been.calledOnce;
-					expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
-					expect(sfdx.login).to.have.been.calledOnce;
-					expect(sfdx.select).to.have.been.calledOnce;
-
-				});
+			expect(sfdx.display).to.have.been.calledOnce;
+			expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
+			expect(sfdx.login).to.have.been.calledOnce;
+			expect(sfdx.select).to.have.been.calledOnce;
 
 		});
 
-		it('should call the correct functions when creating a new connected app', () => {
+		it('should call the correct functions when creating a new connected app', async () => {
 
-			// given
-			const service = proxyquire('../../lib/service/connectedApp.js', {
-				'../../util/shell': mocks.shell
-			});
-
+			// Given
 			inquirer.prompt.resolves({
 				type: 'Existing Connected App In Scratch Org'
 			});
 
-			// when - then
-			return expect(service.create({}))
-				.to.eventually.be.fulfilled
-				.then(() => {
+			// When
+			await service.create({});
 
-					expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
+			// Then
+			expect(sfdx.checkSfdxInstalled).to.have.been.calledOnce;
 
-					expect(sfdx.checkSfdxProjectFileExists).to.have.been.calledAfter(sfdx.checkSfdxInstalled);
-					expect(sfdx.checkSfdxFolderExists).to.have.been.calledAfter(sfdx.checkSfdxProjectFileExists);
-					expect(configFile.readSettings).to.have.been.calledAfter(sfdx.checkSfdxFolderExists);
-					expect(sfdx.login).to.have.been.calledAfter(configFile.readSettings);
-					expect(sfdx.select).to.have.been.have.been.calledTwice.and.calledAfter(sfdx.getAllScratchOrgs);
+			expect(sfdx.checkSfdxProjectFileExists).to.have.been.calledAfter(sfdx.checkSfdxInstalled);
+			expect(sfdx.checkSfdxFolderExists).to.have.been.calledAfter(sfdx.checkSfdxProjectFileExists);
+			expect(configFile.readSettings).to.have.been.calledAfter(sfdx.checkSfdxFolderExists);
+			expect(sfdx.login).to.have.been.calledAfter(configFile.readSettings);
+			expect(sfdx.select).to.have.been.have.been.calledTwice.and.calledAfter(sfdx.getAllScratchOrgs);
 
-					expect(connection.create).to.have.been.calledOnce;
+			expect(connection.create).to.have.been.calledOnce;
 
-					expect(connectedApp.generateInstallUrl).to.have.been.calledOnce;
-					expect(connectedApp.list).to.have.been.calledOnce;
-					expect(connectedApp.select).to.have.been.calledOnce;
+			expect(connectedApp.generateInstallUrl).to.have.been.calledOnce;
+			expect(connectedApp.list).to.have.been.calledOnce;
+			expect(connectedApp.select).to.have.been.calledOnce;
 
-					expect(sfdx.display).to.have.been.calledTwice;
-					expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
-					expect(sfdx.login).to.have.been.calledOnce;
-					expect(sfdx.select).to.have.been.calledTwice;
+			expect(sfdx.display).to.have.been.calledTwice;
+			expect(sfdx.getAllScratchOrgs).to.have.been.calledOnce;
+			expect(sfdx.login).to.have.been.calledOnce;
+			expect(sfdx.select).to.have.been.calledTwice;
 
-					expect(connectedApp.askQuestions).to.not.have.been.called;
-					expect(connectedApp.create).to.not.have.been.called;
-					expect(connectedApp.updateHerokuConfigVariables).to.not.have.been.called;
-					expect(heroku.getAllApps).to.not.have.been.called;
-					expect(heroku.select).to.not.have.been.called;
-
-				});
+			expect(connectedApp.askQuestions).to.not.have.been.called;
+			expect(connectedApp.create).to.not.have.been.called;
+			expect(connectedApp.updateHerokuConfigVariables).to.not.have.been.called;
+			expect(heroku.getAllApps).to.not.have.been.called;
+			expect(heroku.select).to.not.have.been.called;
 
 		});
 

@@ -1,0 +1,21 @@
+{
+	"all": true,
+	"branches": 100,
+	"cache": true,
+	"check-coverage": true,
+	"exclude": [
+		"coverage",
+		"src/systemtests",
+		"templates"
+	],
+	"functions": 100,
+	"lines": 100,
+	"per-file": true,
+	"reporter": [
+		"lcov",
+		"html",
+		"text",
+		"text-summary"
+	],
+	"statements": 100
+}

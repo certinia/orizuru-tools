@@ -28,62 +28,57 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	shell = require('../../../lib/util/shell'),
 
-	sandbox = sinon.sandbox.create();
+	docker = require('../../../lib/service/docker/docker'),
 
-chai.use(chaiAsPromised);
+	expect = chai.expect;
+
 chai.use(sinonChai);
 
 describe('service/docker/docker', () => {
 
-	let docker, mocks;
-
 	beforeEach(() => {
-
-		mocks = {};
-		mocks.shell = sandbox.stub();
-		mocks.shell.executeCommand = sandbox.stub();
-
-		docker = proxyquire(root + '/src/lib/service/docker/docker', {
-			'../../util/shell': mocks.shell
-		});
-
+		sinon.stub(shell, 'executeCommand');
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('displayLogs', () => {
 
-		it('should handle no containers', () => {
+		it('should handle no containers', async () => {
 
-			// given
-			const expectedInput = {
-				docker: {
-					containers: []
-				}
-			};
+			// Given
+			const
+				expectedInput = {
+					docker: {
+						containers: []
+					}
+				},
+				expectedOutput = {
+					docker: {
+						containers: []
+					}
+				};
 
-			// when/then
-			return expect(docker.displayLogs(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.not.have.been.called;
-				});
+			// When
+			const output = await docker.displayLogs(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommand).to.not.have.been.called;
 
 		});
 
-		it('should handle one containers', () => {
+		it('should handle one containers', async () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId = '855da641126a',
 				expectedInput = {
@@ -101,23 +96,29 @@ describe('service/docker/docker', () => {
 						},
 						namespace: 'docker'
 					}
+				},
+				expectedOutput = {
+					docker: {
+						container: expectedContainerId,
+						containers: expectedContainerId
+					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedContainerId);
+			shell.executeCommand.resolves(expectedContainerId);
 
-			// when/then
-			return expect(docker.displayLogs(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.displayLogs(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle multiple containers', () => {
+		it('should handle multiple containers', async () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId1 = '855da641126a',
 				expectedContainerId2 = '6cd97630122b',
@@ -146,20 +147,26 @@ describe('service/docker/docker', () => {
 						},
 						namespace: 'docker'
 					}
-				}];
+				}],
+				expectedOutput = {
+					docker: {
+						container: expectedContainerId2,
+						containers: [expectedContainerId1, expectedContainerId2]
+					}
+				};
 
-			mocks.shell.executeCommand
+			shell.executeCommand
 				.onFirstCall().resolves(expectedContainerId1)
 				.onSecondCall().resolves(expectedContainerId2);
 
-			// when/then
-			return expect(docker.displayLogs(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
-				});
+			// When
+			const output = await docker.displayLogs(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 
 		});
 
@@ -167,9 +174,9 @@ describe('service/docker/docker', () => {
 
 	describe('findContainersForImage', () => {
 
-		it('should handle no containers for an image', () => {
+		it('should handle no containers for an image', async () => {
 
-			// given
+			// Given
 			const
 				expectedImageId = 'af9748170b0',
 				expectedInput = {
@@ -209,21 +216,21 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.findContainersForImage(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.findContainersForImage(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle containers for an image', () => {
+		it('should handle containers for an image', async () => {
 
-			// given
+			// Given
 			const
 				expectedImageId = 'af9748170b0',
 				expectedInput = {
@@ -264,15 +271,15 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.findContainersForImage(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.findContainersForImage(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -280,9 +287,9 @@ describe('service/docker/docker', () => {
 
 	describe('findDanglingImages', () => {
 
-		it('should handle no dangling images', () => {
+		it('should handle no dangling images', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -311,21 +318,21 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.findDanglingImages(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.findDanglingImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle dangling images', () => {
+		it('should handle dangling images', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -359,15 +366,15 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.findDanglingImages(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.findDanglingImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -375,9 +382,9 @@ describe('service/docker/docker', () => {
 
 	describe('listContainers', () => {
 
-		it('should handle no containers', () => {
+		it('should handle no containers', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -406,21 +413,21 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.listContainers(true)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listContainers(true)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should return only the running containers if the only running option is set', () => {
+		it('should return only the running containers if the only running option is set', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -452,21 +459,21 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.listContainers(true)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listContainers(true)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should return all containers if the only running option is not set', () => {
+		it('should return all containers if the only running option is not set', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -498,15 +505,15 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.listContainers(false)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listContainers(false)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -514,9 +521,9 @@ describe('service/docker/docker', () => {
 
 	describe('listImages', () => {
 
-		it('should handle no images', () => {
+		it('should handle no images', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -545,21 +552,21 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.listImages(true)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listImages(true)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should return only the orizuru images with the only ffdc images option', () => {
+		it('should return only the orizuru images with the only ffdc images option', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -591,21 +598,21 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.listImages(true)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listImages(true)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should return all images without the only ffdc Images option', () => {
+		it('should return all images without the only ffdc Images option', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommand = {
@@ -637,15 +644,15 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.listImages(false)(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.listImages(false)(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -653,27 +660,34 @@ describe('service/docker/docker', () => {
 
 	describe('removeContainers', () => {
 
-		it('should handle no containers', () => {
+		it('should handle no containers', async () => {
 
-			// given
-			const expectedInput = {
-				docker: {
-					containers: []
-				}
-			};
+			// Given
+			const
+				expectedInput = {
+					docker: {
+						containers: []
+					}
+				},
+				expectedOutput = {
+					docker: {
+						containers: []
+					}
+				};
 
-			// when/then
-			return expect(docker.removeContainers(expectedInput))
-				.to.eventually.deep.equal(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.not.have.been.called;
-				});
+			// When
+			const output = await docker.removeContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommand).to.not.have.been.called;
 
 		});
 
-		it('should handle one container', () => {
+		it('should handle one container', async () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId = '855da641126a',
 				expectedInput = {
@@ -706,21 +720,21 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.removeContainers(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.removeContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle multiple containers', () => {
+		it('should handle multiple containers', async () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId1 = '855da641126a',
 				expectedContainerId2 = '6cd97630122b',
@@ -770,18 +784,18 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand
+			shell.executeCommand
 				.onFirstCall().resolves(expectedCommandOutput[0])
 				.onSecondCall().resolves(expectedCommandOutput[1]);
 
-			// when/then
-			return expect(docker.removeContainers(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
-				});
+			// When
+			const output = await docker.removeContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 
 		});
 
@@ -789,27 +803,34 @@ describe('service/docker/docker', () => {
 
 	describe('removeImages', () => {
 
-		it('should handle no images', () => {
+		it('should handle no images', async () => {
 
-			// given
-			const expectedInput = {
-				docker: {
-					images: []
-				}
-			};
+			// Given
+			const
+				expectedInput = {
+					docker: {
+						images: []
+					}
+				},
+				expectedOutput = {
+					docker: {
+						images: []
+					}
+				};
 
-			// when/then
-			return expect(docker.removeImages(expectedInput))
-				.to.eventually.deep.equal(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.not.have.been.called;
-				});
+			// When
+			const output = await docker.removeImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommand).to.not.have.been.called;
 
 		});
 
-		it('should handle one image', () => {
+		it('should handle one image', async () => {
 
-			// given
+			// Given
 			const
 				expectedImageId = '855da641126a',
 				expectedInput = {
@@ -842,21 +863,21 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.removeImages(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.removeImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle multiple images', () => {
+		it('should handle multiple images', async () => {
 
-			// given
+			// Given
 			const
 				expectedImageId1 = '855da641126a',
 				expectedImageId2 = '6cd97630122b',
@@ -906,18 +927,18 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand
+			shell.executeCommand
 				.onFirstCall().resolves(expectedCommandOutput[0])
 				.onSecondCall().resolves(expectedCommandOutput[1]);
 
-			// when/then
-			return expect(docker.removeImages(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
-				});
+			// When
+			const output = await docker.removeImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 
 		});
 
@@ -925,9 +946,9 @@ describe('service/docker/docker', () => {
 
 	describe('removeDanglingImages', () => {
 
-		it('should handle no dangling images', () => {
+		it('should handle no dangling images', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedCommandOutput = {
@@ -936,22 +957,24 @@ describe('service/docker/docker', () => {
 							stdout: ''
 						}
 					}
-				};
+				},
+				expectedOutput = expectedCommandOutput;
 
-			mocks.shell.executeCommand.resolves(expectedCommandOutput);
+			shell.executeCommand.resolves(expectedCommandOutput);
 
-			// when/then
-			return expect(docker.removeDanglingImages(expectedInput))
-				.to.eventually.be.fulfilled
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-				});
+			// When
+			const output = await docker.removeDanglingImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommand).to.have.been.calledOnce;
 
 		});
 
-		it('should remove a single dangling image', () => {
+		it('should remove a single dangling image', async () => {
 
-			// given
+			// Given
 			const
 				expectedImageId = '855da6411260',
 				expectedContainerId = 'b55da6411260',
@@ -985,19 +1008,19 @@ describe('service/docker/docker', () => {
 					}
 				};
 
-			mocks.shell.executeCommand
+			shell.executeCommand
 				.onCall(0).resolves(expectedCommandOutput[0])
 				.onCall(1).resolves(expectedCommandOutput[1])
 				.onCall(2).resolves(expectedCommandOutput[1])
 				.onCall(3).resolves(expectedCommandOutput[1])
 				.onCall(4).resolves(expectedCommandOutput[0]);
 
-			// when/then
-			return expect(docker.removeDanglingImages(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.callCount(5);
-				});
+			// When
+			const output = await docker.removeDanglingImages(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.callCount(5);
 
 		});
 
@@ -1005,27 +1028,34 @@ describe('service/docker/docker', () => {
 
 	describe('stopContainers', () => {
 
-		it('should handle no containers', () => {
+		it('should handle no containers', async () => {
 
-			// given
-			const expectedInput = {
-				docker: {
-					containers: []
-				}
-			};
+			// Given
+			const
+				expectedInput = {
+					docker: {
+						containers: []
+					}
+				},
+				expectedOutput = {
+					docker: {
+						containers: []
+					}
+				};
 
-			// when/then
-			return expect(docker.stopContainers(expectedInput))
-				.to.eventually.deep.equal(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.not.have.been.called;
-				});
+			// When
+			const output = await docker.stopContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommand).to.not.have.been.called;
 
 		});
 
-		it('should handle one containers', () => {
+		it('should handle one containers', async () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId = '855da641126a',
 				expectedInput = {
@@ -1043,23 +1073,29 @@ describe('service/docker/docker', () => {
 						},
 						namespace: 'docker'
 					}
+				},
+				expectedOutput = {
+					docker: {
+						container: expectedContainerId,
+						containers: expectedContainerId
+					}
 				};
 
-			mocks.shell.executeCommand.resolves(expectedContainerId);
+			shell.executeCommand.resolves(expectedContainerId);
 
-			// when/then
-			return expect(docker.stopContainers(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await docker.stopContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
-		it('should handle multiple containers', () => {
+		it('should handle multiple containers', async () => {
 
-			// given
+			// Given
 			const
 				expectedContainerId1 = '855da641126a',
 				expectedContainerId2 = '6cd97630122b',
@@ -1088,20 +1124,26 @@ describe('service/docker/docker', () => {
 						},
 						namespace: 'docker'
 					}
-				}];
+				}],
+				expectedOutput = {
+					docker: {
+						container: expectedContainerId2,
+						containers: [expectedContainerId1, expectedContainerId2]
+					}
+				};
 
-			mocks.shell.executeCommand
+			shell.executeCommand
 				.onFirstCall().resolves(expectedContainerId1)
 				.onSecondCall().resolves(expectedContainerId2);
 
-			// when/then
-			return expect(docker.stopContainers(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledTwice;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
-				});
+			// When
+			const output = await docker.stopContainers(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledTwice;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[0], expectedInput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommands[1], expectedInput);
 
 		});
 

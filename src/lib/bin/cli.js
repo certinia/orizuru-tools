@@ -47,9 +47,9 @@ return yargs
 	.showHelpOnFail(true)
 	.help('h')
 	.alias('h', 'help')
-	.version(constants.VERSION)
+	.version(constants.getVersion())
 	.alias('v', 'version')
-	.epilogue(constants.COPYRIGHT_NOTICE)
+	.epilogue(constants.getCopyrightNotice())
 	.strict(true)
 	.wrap(yargs.terminalWidth())
 	.argv;

@@ -28,18 +28,11 @@
 
 const
 	_ = require('lodash'),
+	fs = require('fs'),
+	path = require('path'),
+
 	connection = require('../service/salesforce/connection'),
 	writer = require('../service/salesforce/writer'),
-
-	dataToCreate = {
-		accounts: require('./createData/sampleData/Account.json').records,
-		contacts: require('./createData/sampleData/Contact.json').records,
-		orders: require('./createData/sampleData/Order.json').records,
-		vehicles: require('./createData/sampleData/Vehicle__c.json').records,
-		vehicleTypes: require('./createData/sampleData/VehicleType__c.json').records,
-		warehouses: require('./createData/sampleData/Warehouse__c.json').records,
-		warehouseContacts: require('./createData/sampleData/WarehouseContacts.json').records
-	},
 
 	CREATED_ACCOUNTS = { message: 'Created Accounts', status: 'CREATED_ACCOUNTS' },
 	CREATED_CONTACTS = { message: 'Created Contacts', status: 'CREATED_CONTACTS' },
@@ -48,6 +41,31 @@ const
 	CREATED_WAREHOUSES = { message: 'Created Warehouses', status: 'CREATED_WAREHOUSES' },
 	CREATED_VEHICLES = { message: 'Created Vehicles', status: 'CREATED_VEHICLES' },
 	CREATED_ORDERS = { message: 'Created Orders', status: 'CREATED_ORDERS' },
+
+	readRecords = (relativePath) => {
+		const
+			filePath = path.resolve(__dirname, relativePath),
+			buffer = fs.readFileSync(filePath),
+			contents = buffer.toString(),
+			json = JSON.parse(contents);
+		return json.records;
+	},
+
+	getDataToCreate = (result) => {
+
+		result.dataToCreate = {
+			accounts: readRecords('./createData/sampleData/Account.json'),
+			contacts: readRecords('./createData/sampleData/Contact.json'),
+			orders: readRecords('./createData/sampleData/Order.json'),
+			vehicles: readRecords('./createData/sampleData/Vehicle__c.json'),
+			vehicleTypes: readRecords('./createData/sampleData/VehicleType__c.json'),
+			warehouses: readRecords('./createData/sampleData/Warehouse__c.json'),
+			warehouseContacts: readRecords('./createData/sampleData/WarehouseContacts.json')
+		};
+
+		return result;
+
+	},
 
 	getConnection = ({ context, incomingMessage }) => {
 		return connection.fromContext(context)
@@ -66,7 +84,7 @@ const
 
 		const conn = result.conn;
 
-		return createObjects({ conn, objName: 'Account', data: dataToCreate.accounts })
+		return createObjects({ conn, objName: 'Account', data: result.dataToCreate.accounts })
 			.then(accounts => {
 				return sendDataGeneratorStepEvent({ conn, status: CREATED_ACCOUNTS, incomingMessage: result.incomingMessage })
 					.then(() => {
@@ -82,7 +100,7 @@ const
 		const
 			conn = result.conn,
 
-			contactsToCreate = _.map(dataToCreate.contacts, (record, count) => {
+			contactsToCreate = _.map(result.dataToCreate.contacts, (record, count) => {
 				record.AccountId = result.Accounts[count].id;
 				return record;
 			});
@@ -103,7 +121,7 @@ const
 		const
 			conn = result.conn,
 
-			contactsToCreate = _.map(dataToCreate.warehouseContacts, (record, count) => {
+			contactsToCreate = _.map(result.dataToCreate.warehouseContacts, (record, count) => {
 				record.AccountId = result.Accounts[count].id;
 				return record;
 			});
@@ -123,11 +141,11 @@ const
 
 		const conn = result.conn;
 
-		return createObjects({ conn, objName: 'VehicleType__c', data: dataToCreate.vehicleTypes })
+		return createObjects({ conn, objName: 'VehicleType__c', data: result.dataToCreate.vehicleTypes })
 			.then(vehicleTypes => {
 				return sendDataGeneratorStepEvent({ conn, status: CREATED_VEHICLE_TYPE, incomingMessage: result.incomingMessage })
 					.then(() => {
-						result.VehicleTypes = vehicleTypes;
+						result.VehicleTypes__c = vehicleTypes;
 						return result;
 					});
 			});
@@ -140,7 +158,7 @@ const
 			conn = result.conn,
 			WarehouseContacts = result.WarehouseContacts,
 
-			warehousesToCreate = _.map(dataToCreate.warehouses, (record, count) => {
+			warehousesToCreate = _.map(result.dataToCreate.warehouses, (record, count) => {
 				record.Contact__c = WarehouseContacts[count].id;
 				return record;
 			});
@@ -149,7 +167,7 @@ const
 			.then(warehouses => {
 				return sendDataGeneratorStepEvent({ conn, status: CREATED_WAREHOUSES, incomingMessage: result.incomingMessage })
 					.then(() => {
-						result.Warehouses = warehouses;
+						result.Warehouses__c = warehouses;
 						return result;
 					});
 			});
@@ -160,13 +178,14 @@ const
 
 		const
 			conn = result.conn,
-			VehicleTypes = result.VehicleTypes,
-			Warehouses = result.Warehouses,
+			VehicleTypes__c = result.VehicleTypes__c,
+			Warehouses__c = result.Warehouses__c,
 			WarehouseContacts = result.WarehouseContacts,
 
-			vehiclesToCreate = _.map(dataToCreate.vehicles, (record, count) => {
-				record.VehicleType__c = VehicleTypes[0].id;
-				record.Warehouse__c = Warehouses[count % _.size(WarehouseContacts)].id;
+			vehiclesToCreate = _.map(result.dataToCreate.vehicles, (record, count) => {
+				record.VehicleType__c = VehicleTypes__c[0].id;
+				record.Warehouse__c = Warehouses__c[count % _.size(WarehouseContacts)].id;
+
 				return record;
 			});
 
@@ -174,7 +193,7 @@ const
 			.then(vehicles => {
 				return sendDataGeneratorStepEvent({ conn, status: CREATED_VEHICLES, incomingMessage: result.incomingMessage })
 					.then(() => {
-						result.Vehicles = vehicles;
+						result.Vehicles__c = vehicles;
 						return result;
 					});
 			});
@@ -187,9 +206,10 @@ const
 			Accounts = result.Accounts,
 			Contacts = result.Contacts,
 
-			vehiclesToCreate = _.map(dataToCreate.orders, (record, count) => {
+			vehiclesToCreate = _.map(result.dataToCreate.orders, (record, count) => {
 				record.AccountId = Accounts[count].id;
 				record.ShipToContactId = Contacts[count].id;
+
 				return record;
 			});
 
@@ -204,8 +224,8 @@ const
 	};
 
 module.exports = ({ message, context }) => {
-
 	return getConnection({ context, incomingMessage: message })
+		.then(getDataToCreate)
 		.then(createAccounts)
 		.then(createContacts)
 		.then(createWarehouseContacts)
@@ -213,5 +233,4 @@ module.exports = ({ message, context }) => {
 		.then(createWarehouses)
 		.then(createVehicles)
 		.then(createOrders);
-
 };

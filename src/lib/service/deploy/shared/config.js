@@ -38,7 +38,7 @@ const
 			orizuruFile = path.resolve(process.cwd(), '.orizuru', 'config.json');
 
 		return fs.mkdirp(orizuruFolder)
-			.then(() => fs.writeJSON(orizuruFile, {}))
+			.then(() => fs.writeJson(orizuruFile, {}))
 			.then(() => {
 				config = config || {};
 				config.file = orizuruFile;
@@ -50,7 +50,7 @@ const
 	readSettings = (config) => {
 
 		const filePath = path.resolve(process.cwd(), '.orizuru', 'config.json');
-		return fs.readJSON(filePath)
+		return fs.readJson(filePath)
 			.then(result => {
 				config = config || {};
 				config.file = filePath;
@@ -72,7 +72,7 @@ const
 		return readSettings(config)
 			.then(config => {
 				const newData = _.merge({}, config.orizuru, setting);
-				return fs.writeJSON(config.file, newData, { spaces: '\t' })
+				return fs.writeJson(config.file, newData, { spaces: '\t' })
 					.then(() => {
 						config.orizuru = newData;
 						return config;

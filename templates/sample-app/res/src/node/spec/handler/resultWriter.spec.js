@@ -30,31 +30,27 @@ const
 	chai = require('chai'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
-	chaiAsPromised = require('chai-as-promised'),
 
 	service = require('../../lib/handler/resultWriter'),
 
 	connection = require('../../lib/service/salesforce/connection'),
 	writer = require('../../lib/service/salesforce/writer'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
-chai.use(chaiAsPromised);
 
 describe('resultWriter/service.js', () => {
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
-	it('should call the appropriate methods when writing a successful response', () => {
+	it('should call the appropriate methods when writing a successful response', async () => {
 
-		// given
+		// Given
 		const
-			conn = sandbox.stub(),
+			conn = sinon.stub(),
 			expectedInput = {
 				conn,
 				message: {
@@ -123,22 +119,22 @@ describe('resultWriter/service.js', () => {
 				status: 'COMPLETED'
 			};
 
-		conn.apex = sandbox.stub();
-		conn.apex.post = sandbox.stub().resolves([{ Id: 'myFakeId' }, { Id: 'anotherFakeId' }]);
+		conn.apex = sinon.stub();
+		conn.apex.post = sinon.stub().resolves([{ Id: 'myFakeId' }, { Id: 'anotherFakeId' }]);
 
-		sandbox.stub(connection, 'fromContext').resolves(conn);
-		sandbox.stub(writer, 'sendPlatformEvent').resolves();
+		sinon.stub(connection, 'fromContext').resolves(conn);
+		sinon.stub(writer, 'sendPlatformEvent').resolves();
 
-		// when / then
-		return expect(service(expectedInput))
-			.to.eventually.be.fulfilled
-			.then(() => {
-				expect(conn.apex.post).to.have.been.calledTwice;
-				expect(conn.apex.post).to.have.been.calledWith('/RouteAPI/', { routes: expectedRoutes });
-				expect(conn.apex.post).to.have.been.calledWith('/WaypointAPI/', { waypoints: expectedWaypoints });
-				expect(writer.sendPlatformEvent).to.have.been.calledTwice;
-				expect(writer.sendPlatformEvent).to.have.been.calledWith(conn, expectedWritingPlatformEvent);
-				expect(writer.sendPlatformEvent).to.have.been.calledWith(conn, expectedCompletedPlatformEvent);
-			});
+		// When
+		await service(expectedInput);
+
+		// Then
+		expect(conn.apex.post).to.have.been.calledTwice;
+		expect(conn.apex.post).to.have.been.calledWith('/RouteAPI/', { routes: expectedRoutes });
+		expect(conn.apex.post).to.have.been.calledWith('/WaypointAPI/', { waypoints: expectedWaypoints });
+		expect(writer.sendPlatformEvent).to.have.been.calledTwice;
+		expect(writer.sendPlatformEvent).to.have.been.calledWith(conn, expectedWritingPlatformEvent);
+		expect(writer.sendPlatformEvent).to.have.been.calledWith(conn, expectedCompletedPlatformEvent);
 	});
+
 });

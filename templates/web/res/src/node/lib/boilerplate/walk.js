@@ -27,39 +27,49 @@
 'use strict';
 
 const
-	_ = require('lodash'),
-	klawSync = require('klaw-sync'),
-	{ dirname, basename, resolve } = require('path');
+	fs = require('fs'),
+	path = require('path');
 
-/**
- * @typedef FileInfo
- * @property {string} path - The full path to the file.
- * @property {string} sharedPath - The relative path to the file.
- * @property {string} fileName - The last portion of the file path without the extension.
- */
-
-/**
- * Get all files in the given folder with the given extension.
- *
- * @param {string} folder - The folder
- * @param {string} extension - The file extension
- * @returns {FileInfo[]} - The file information.
- */
-function walk(folder, extension) {
+function readDirectory(dir, opts, fileList) {
 
 	const
-		directory = resolve(__dirname, '..', folder),
-		filter = ({ path }) => path.endsWith(extension);
+		results = fileList || {},
+		filePaths = fs.readdirSync(dir);
 
-	return _.map(klawSync(directory, { nodir: true, filter }), value => {
-		const { path } = value;
-		return {
-			path,
-			sharedPath: dirname(path).substring(directory.length),
-			fileName: basename(path, extension)
-		};
+	filePaths.map((filePath) => {
+
+		const
+			fp = dir + path.sep + filePath,
+			stat = fs.lstatSync(fp),
+
+			isFile = stat.isFile(),
+			isDirectory = stat.isDirectory(),
+
+			addToList = !isDirectory && (isFile && filePath.endsWith(opts.extension));
+
+		if (isDirectory) {
+			readDirectory(fp, opts, results);
+		}
+
+		if (addToList) {
+			results[path.basename(filePath, opts.extension)] = fp;
+		}
+
 	});
 
+	return results;
+
+}
+
+/**
+ * Get all files in the given directory with the given extension.
+ * @private
+ * @param {string} directory - The directory to scan.
+ * @param {string} extension - The extension for which to search.
+ * @returns {string[]} The list of file paths.
+ */
+function walk(directory, extension) {
+	return readDirectory(directory, { extension });
 }
 
 module.exports = {

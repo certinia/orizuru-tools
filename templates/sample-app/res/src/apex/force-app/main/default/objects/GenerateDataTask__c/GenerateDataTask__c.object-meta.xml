@@ -57,7 +57,6 @@
     <nameField>
         <displayFormat>Generate Data Task {0}</displayFormat>
         <label>Generate Data Task Name</label>
-		<startingNumber>1</startingNumber>
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Generate Data Tasks</pluralLabel>

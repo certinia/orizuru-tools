@@ -28,63 +28,57 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	inquirer = require('inquirer'),
+	jsforce = require('jsforce'),
 
-	sandbox = sinon.sandbox.create();
+	namedCredential = require('../../../lib/service/deploy/namedCredential'),
 
-chai.use(chaiAsPromised);
+	expect = chai.expect;
+
 chai.use(sinonChai);
 
 describe('service/deploy/namedCredential.js', () => {
 
-	let mocks, namedCredential;
+	let connectionStub;
 
 	beforeEach(() => {
 
-		mocks = {};
+		connectionStub = sinon.createStubInstance(jsforce.Connection);
+		sinon.stub(jsforce, 'Connection').returns(connectionStub);
 
-		mocks.jsforce = {};
-		mocks.jsforce.Connection = sandbox.stub();
-
-		mocks.inquirer = sandbox.stub();
-		mocks.inquirer.prompt = sandbox.stub();
-
-		namedCredential = proxyquire(root + '/src/lib/service/deploy/namedCredential.js', {
-			inquirer: mocks.inquirer,
-			jsforce: mocks.jsforce
-		});
+		sinon.stub(inquirer, 'prompt');
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('askQuestions', () => {
 
-		it('should ask the correct questions', () => {
+		it('should ask the correct questions', async () => {
 
-			// given
+			// Given
 			const
 				expectedAnswers = {
 					name: 'test'
 				},
-				expectedResults = {
+				expectedOutput = {
 					parameters: {
 						namedCredential: expectedAnswers
 					}
 				};
 
-			mocks.inquirer.prompt.resolves(expectedAnswers);
+			inquirer.prompt.resolves(expectedAnswers);
 
-			// when - then
-			return expect(namedCredential.askQuestions({})).to.eventually.eql(expectedResults);
+			// When
+			const result = await namedCredential.askQuestions({});
+
+			// Then
+			expect(result).to.eql(expectedOutput);
 
 		});
 
@@ -92,12 +86,12 @@ describe('service/deploy/namedCredential.js', () => {
 
 	describe('create', () => {
 
-		it('should execute the correct commands', () => {
+		it('should execute the correct commands', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
-					conn: sandbox.stub(),
+					conn: sinon.stub(),
 					connectedApp: {
 						name: 'testConnectedAppName'
 					},
@@ -115,16 +109,16 @@ describe('service/deploy/namedCredential.js', () => {
 				expectedOutput = expectedInput;
 
 			expectedInput.conn.metadata = {};
-			expectedInput.conn.metadata.upsert = sandbox.stub().resolves();
-			expectedInput.conn.metadata.read = sandbox.stub().resolves();
+			expectedInput.conn.metadata.upsert = sinon.stub().resolves();
+			expectedInput.conn.metadata.read = sinon.stub().resolves();
 
-			// when - then
-			return expect(namedCredential.create(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(expectedInput.conn.metadata.upsert).to.have.been.calledOnce;
-					expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
-				});
+			// When
+			const result = await namedCredential.create(expectedInput);
+
+			// Then
+			expect(result).to.eql(expectedOutput);
+			expect(expectedInput.conn.metadata.upsert).to.have.been.calledOnce;
+			expect(expectedInput.conn.metadata.read).to.have.been.calledOnce;
 
 		});
 

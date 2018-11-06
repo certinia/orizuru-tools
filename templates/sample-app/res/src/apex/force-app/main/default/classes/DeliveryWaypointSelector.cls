@@ -26,29 +26,30 @@
 
 public with sharing class DeliveryWaypointSelector
 {
-	@testVisible
-	private static DeliveryWaypointSelector instance = null;
+    @testVisible
+    private static DeliveryWaypointSelector instance = null;
 
-	public static DeliveryWaypointSelector newInstance()
-	{
-		if (instance == null)
-		{
-			instance = new DeliveryWaypointSelector();
-		}
+    public static DeliveryWaypointSelector newInstance()
+    {
+        if (instance == null)
+        {
+            instance = new DeliveryWaypointSelector();
+        }
 
-		return instance;
-	}
+        return instance;
+    }
 
-	public DeliveryWaypoint__c[] selectByDeliveryRouteIds(Set<Id> deliveryRouteIds)
-	{
-		if (deliveryRouteIds == null || deliveryRouteIds.size() == 0) {
-			return new List<DeliveryWaypoint__c>();
-		}
-		return [
-			SELECT Id, WaypointNumber__c, DeliveryRoute__c, Order__r.ShipToContact.MailingLongitude, Order__r.ShipToContact.MailingLatitude
-			FROM DeliveryWaypoint__c 
-			WHERE DeliveryRoute__c = :deliveryRouteIds
-			ORDER BY WaypointNumber__c ASC
-		];
-	}
+    public DeliveryWaypoint__c[] selectByDeliveryRouteIds(Set<Id> deliveryRouteIds)
+    {
+        if (deliveryRouteIds == null || deliveryRouteIds.size() == 0) {
+            return new List<DeliveryWaypoint__c>();
+        }
+        return [
+            SELECT Id, WaypointNumber__c, DeliveryRoute__c, Order__r.ShipToContact.MailingLongitude, Order__r.ShipToContact.MailingLatitude
+            FROM DeliveryWaypoint__c 
+            WHERE DeliveryRoute__c = :deliveryRouteIds
+            ORDER BY WaypointNumber__c ASC
+        ];
+    }
+	
 }

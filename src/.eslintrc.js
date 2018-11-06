@@ -24,9 +24,14 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- 'use strict';
- 
- module.exports = {
-     'extends': '@financialforcedev'
- };
- 
+'use strict';
+
+module.exports = {
+	'extends': '@financialforcedev',
+	overrides: [{
+		files: ['*.spec.js'],
+		rules: {
+			'one-var': 'off'
+		}
+	}]
+};

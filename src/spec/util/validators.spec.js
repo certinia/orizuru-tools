@@ -25,11 +25,11 @@
  */
 
 'use strict';
+
 const
-	root = require('app-root-path'),
 	chai = require('chai'),
 
-	validators = require(root + '/src/lib/util/validators'),
+	validators = require('../../lib/util/validators'),
 
 	expect = chai.expect;
 
@@ -39,7 +39,7 @@ describe('util/validators.js', () => {
 
 		it('should return true', () => {
 
-			// given - when - then
+			// Given - when - then
 			expect(validators.valid()).to.eql(true);
 
 		});
@@ -50,20 +50,20 @@ describe('util/validators.js', () => {
 
 		it('should return an error if the result is empty', () => {
 
-			// given
+			// Given
 			const result = undefined;
 
-			// when/then
+			// When/then
 			expect(validators.validateNotEmpty(result)).to.eql('You must provide a value.');
 
 		});
 
 		it('should return true if the result is not empty', () => {
 
-			// given
+			// Given
 			const result = 'test';
 
-			// when/then
+			// When/then
 			expect(validators.validateNotEmpty(result)).to.eql(true);
 
 		});
@@ -74,10 +74,10 @@ describe('util/validators.js', () => {
 
 		it('should return an error if the result is empty', () => {
 
-			// given
+			// Given
 			const result = undefined;
 
-			// when/then
+			// When/then
 			expect(validators.validateHexColor(result)).to.eql('You must provide a valid HEX color, e.g. FF0000.');
 
 		});
@@ -86,21 +86,21 @@ describe('util/validators.js', () => {
 
 			it('Test 1', () => {
 
-				// given/when/then
+				// Given/when/then
 				expect(validators.validateHexColor('AAA00G')).to.eql('You must provide a valid HEX color, e.g. FF0000.');
 
 			});
 
 			it('Test 2', () => {
 
-				// given/when/then
+				// Given/when/then
 				expect(validators.validateHexColor('AAA00')).to.eql('You must provide a valid HEX color, e.g. FF0000.');
 
 			});
 
 			it('Test 3', () => {
 
-				// given/when/then
+				// Given/when/then
 				expect(validators.validateHexColor('12345X')).to.eql('You must provide a valid HEX color, e.g. FF0000.');
 
 			});
@@ -109,10 +109,10 @@ describe('util/validators.js', () => {
 
 		it('should return true if the result is a hex color', () => {
 
-			// given
+			// Given
 			const result = 'FF0000';
 
-			// when/then
+			// When/then
 			expect(validators.validateHexColor(result)).to.eql(true);
 
 		});

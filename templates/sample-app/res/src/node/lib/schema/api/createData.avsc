@@ -2,8 +2,10 @@
 	"namespace": "com.financialforce.orizuru.problem.avro",
 	"name": "createData",
 	"type": "record",
-	"fields": [{
-		"name": "generateDataTaskId",
-		"type": "string"
-	}]
+	"fields": [
+		{
+			"name": "generateDataTaskId",
+			"type": "string"
+		}
+	]
 }

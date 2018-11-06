@@ -31,10 +31,9 @@ const
 	proxyquire = require('proxyquire').noCallThru(),
 	sinon = require('sinon'),
 
-	expect = chai.expect,
+	fs = require('fs'),
 
-	sandbox = sinon.sandbox.create(),
-	restore = sandbox.restore.bind(sandbox);
+	expect = chai.expect;
 
 describe('boilerplate/read.js', () => {
 
@@ -43,29 +42,33 @@ describe('boilerplate/read.js', () => {
 	beforeEach(() => {
 
 		mocks = {};
-		mocks.fsextra = {};
-		mocks.fsextra.readJsonSync = sandbox.stub();
-
 		mocks.requiredFile = {};
 
+		mocks.path = {};
+		mocks.path.resolve = sinon.stub();
+
 		read = proxyquire('../../lib/boilerplate/read', {
-			'fs-extra': mocks.fsextra,
+			path: mocks.path,
 			requiredFile: mocks.requiredFile
 		});
+
+		sinon.stub(fs, 'readFileSync');
+
 	});
 
 	afterEach(() => {
-		restore();
+		sinon.restore();
 	});
 
 	describe('readSchema', () => {
 
 		it('should read a schema file to json', () => {
 
-			// given
-			mocks.fsextra.readJsonSync.returns({ a: 'b' });
+			// Given
+			fs.readFileSync.returns(Buffer.from(JSON.stringify({ a: 'b' })));
 
-			// when - then
+			// When
+			// Then
 			expect(read.readSchema('blah')).to.eql({
 				a: 'b'
 			});
@@ -78,7 +81,11 @@ describe('boilerplate/read.js', () => {
 
 		it('should read a handler file', () => {
 
-			// when - then
+			// Given
+			mocks.path.resolve.returns('requiredFile');
+
+			// When
+			// Then
 			expect(read.readHandler('requiredFile')).to.eql(mocks.requiredFile);
 
 		});

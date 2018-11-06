@@ -29,15 +29,13 @@
 const
 	service = require('../../../service/connectedApp'),
 
-	COPYRIGHT_NOTICE = require('../../constants/constants').COPYRIGHT_NOTICE;
+	constants = require('../../constants/constants');
 
 module.exports = {
 	command: ['connected-app', 'ca'],
 	description: 'Creates a new Connected App',
-	builder: yargs => {
-		return yargs
-			.usage('\nUsage: orizuru deploy connected-app')
-			.epilogue(COPYRIGHT_NOTICE);
-	},
+	builder: yargs => yargs
+		.usage('\nUsage: orizuru deploy connected-app')
+		.epilogue(constants.getCopyrightNotice()),
 	handler: (argv) => service.create({ argv })
 };

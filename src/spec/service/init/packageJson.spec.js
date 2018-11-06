@@ -27,61 +27,46 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
-	root = require('app-root-path'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	fs = require('fs-extra'),
+	inquirer = require('inquirer'),
 
-	logger = require(root + '/src/lib/util/logger'),
+	logger = require('../../../lib/util/logger'),
 
-	sandbox = sinon.sandbox.create();
+	packageJson = require('../../../lib/service/init/packageJson'),
 
-chai.use(chaiAsPromised);
+	expect = chai.expect;
+
 chai.use(sinonChai);
 
 describe('service/init/packageJson.js', () => {
 
-	let packageJson, mocks;
-
 	beforeEach(() => {
 
-		mocks = {};
+		sinon.stub(process, 'cwd').returns('currentWorkingDirectory');
 
-		mocks.debug = sandbox.stub();
-		mocks.debug.log = sandbox.stub();
-		mocks.debug.stringify = sandbox.stub();
+		sinon.stub(fs, 'readJson');
+		sinon.stub(fs, 'writeJson');
 
-		mocks.fs = sandbox.stub();
-		mocks.fs.readJson = sandbox.stub();
-		mocks.fs.writeJson = sandbox.stub();
+		sinon.stub(inquirer, 'prompt');
 
-		mocks.inquirer = sandbox.stub();
-		mocks.inquirer.prompt = sandbox.stub();
-
-		sandbox.stub(logger, 'logEvent');
-		sandbox.stub(logger, 'logFinish');
-		sandbox.stub(logger, 'logLn');
-
-		packageJson = proxyquire(root + '/src/lib/service/init/packageJson', {
-			'fs-extra': mocks.fs,
-			inquirer: mocks.inquirer,
-			'../../util/debug': mocks.debug
-		});
+		sinon.stub(logger, 'logEvent');
+		sinon.stub(logger, 'logFinish');
+		sinon.stub(logger, 'logLn');
 
 	});
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	describe('askQuestions', () => {
 
 		it('should use the default package.json if the command line arguments useDefaults option is set', () => {
 
-			// given
+			// Given
 			const
 				argv = {
 					useDefaults: true
@@ -90,7 +75,7 @@ describe('service/init/packageJson.js', () => {
 					argv
 				},
 				expectedPackageJson = {
-					name: 'Orizuru',
+					name: 'orizuru',
 					version: '1.0.0',
 					description: '',
 					main: 'src/node/lib/web.js',
@@ -102,17 +87,17 @@ describe('service/init/packageJson.js', () => {
 					'package': expectedPackageJson
 				};
 
-			// when
+			// When
 			expect(packageJson.askQuestions(expectedInput)).to.eql(expectedOutput);
 
-			// then
-			expect(mocks.inquirer.prompt).to.not.have.been.called;
+			// Then
+			expect(inquirer.prompt).to.not.have.been.called;
 
 		});
 
-		it('should prompt the user if the command line arguments useDefaults option is not set', () => {
+		it('should prompt the user if the command line arguments useDefaults option is not set', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {},
 				expectedPackageJson = {
@@ -127,14 +112,14 @@ describe('service/init/packageJson.js', () => {
 					'package': expectedPackageJson
 				};
 
-			mocks.inquirer.prompt.resolves(expectedOutput);
+			inquirer.prompt.resolves(expectedOutput);
 
-			// when - then
-			return expect(packageJson.askQuestions(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.inquirer.prompt).to.have.been.calledOnce;
-				});
+			// When
+			const output = await packageJson.askQuestions(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(inquirer.prompt).to.have.been.calledOnce;
 
 		});
 
@@ -144,7 +129,7 @@ describe('service/init/packageJson.js', () => {
 
 		it('should build the package.json from the config', () => {
 
-			// given
+			// Given
 			const
 				expectedPackageJson = {
 					name: '@financialforcedev/orizuru-tools',
@@ -178,8 +163,11 @@ describe('service/init/packageJson.js', () => {
 					selectedTemplate
 				};
 
-			// when - then
-			expect(packageJson.build(expectedInput)).to.eql(expectedOutput);
+			// When
+			const output = packageJson.build(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
 
 		});
 
@@ -187,9 +175,9 @@ describe('service/init/packageJson.js', () => {
 
 	describe('create', () => {
 
-		it('should create the package.json file', () => {
+		it('should create the package.json file', async () => {
 
-			// given
+			// Given
 			const
 				argv = {
 					useDefaults: true
@@ -198,7 +186,7 @@ describe('service/init/packageJson.js', () => {
 					argv
 				},
 				expectedPackageJson = {
-					name: 'Orizuru',
+					name: 'orizuru',
 					version: '1.0.0',
 					description: '',
 					main: 'src/node/lib/web.js',
@@ -209,19 +197,19 @@ describe('service/init/packageJson.js', () => {
 					argv,
 					'package': expectedPackageJson,
 					path: {
-						'package': `${process.cwd()}/package.json`
+						'package': 'currentWorkingDirectory/currentWorkingDirectory/package.json'
 					}
 				};
 
-			mocks.fs.readJson.resolves({});
-			mocks.fs.writeJson.resolves(expectedPackageJson);
+			fs.readJson.resolves({});
+			fs.writeJson.resolves(expectedPackageJson);
 
-			// when - then
-			return expect(packageJson.create(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(mocks.inquirer.prompt).to.not.have.been.called;
-				});
+			// When
+			const output = await packageJson.create(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(inquirer.prompt).to.not.have.been.called;
 
 		});
 
@@ -229,9 +217,9 @@ describe('service/init/packageJson.js', () => {
 
 	describe('read', () => {
 
-		it('should read the package.json file and add the contents to the config', () => {
+		it('should read the package.json file and add the contents to the config', async () => {
 
-			// given
+			// Given
 			const
 				expectedPackageJson = {
 					name: '@financialforcedev/orizuru-tools',
@@ -242,20 +230,20 @@ describe('service/init/packageJson.js', () => {
 				expectedOutput = {
 					'package': expectedPackageJson,
 					path: {
-						'package': `${process.cwd()}/package.json`
+						'package': 'currentWorkingDirectory/currentWorkingDirectory/package.json'
 					}
 				};
 
-			mocks.fs.readJson.resolves(expectedPackageJson);
+			fs.readJson.resolves(expectedPackageJson);
 
-			// when - then
-			return expect(packageJson.read(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(logger.logLn).to.not.have.been.called;
-					expect(mocks.fs.readJson).to.have.been.calledOnce;
-					expect(mocks.fs.readJson).to.have.been.calledWith(root + '/package.json');
-				});
+			// When
+			const output = await packageJson.read(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(logger.logLn).to.not.have.been.called;
+			expect(fs.readJson).to.have.been.calledOnce;
+			expect(fs.readJson).to.have.been.calledWith('currentWorkingDirectory/currentWorkingDirectory/package.json');
 
 		});
 
@@ -263,9 +251,9 @@ describe('service/init/packageJson.js', () => {
 
 	describe('write', () => {
 
-		it('should write the config.package property to the package.json file', () => {
+		it('should write the config.package property to the package.json file', async () => {
 
-			// given
+			// Given
 			const
 				expectedPackageJson = {
 					name: '@financialforcedev/orizuru-tools',
@@ -278,21 +266,21 @@ describe('service/init/packageJson.js', () => {
 					},
 					'package': expectedPackageJson,
 					path: {
-						'package': `${process.cwd()}/package.json`
+						'package': 'package.json'
 					}
 				},
 				expectedOutput = expectedInput;
 
-			mocks.fs.writeJson.resolves(expectedPackageJson);
+			fs.writeJson.resolves(expectedPackageJson);
 
-			// when - then
-			return expect(packageJson.write(expectedInput))
-				.to.eventually.eql(expectedOutput)
-				.then(() => {
-					expect(logger.logLn).to.not.have.been.called;
-					expect(mocks.fs.writeJson).to.have.been.calledOnce;
-					expect(mocks.fs.writeJson).to.have.been.calledWith(root + '/package.json', expectedPackageJson, { spaces: 2 });
-				});
+			// When
+			const output = await packageJson.write(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(logger.logLn).to.not.have.been.called;
+			expect(fs.writeJson).to.have.been.calledOnce;
+			expect(fs.writeJson).to.have.been.calledWith('package.json', expectedPackageJson, { spaces: '\t' });
 
 		});
 

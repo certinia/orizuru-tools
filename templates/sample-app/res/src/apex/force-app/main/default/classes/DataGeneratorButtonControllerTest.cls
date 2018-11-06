@@ -30,7 +30,7 @@ private class DataGeneratorButtonControllerTest
 	@IsTest
 	private static void generateData_ShouldCallTheHerokuConnectorGenerateDataMethod()
 	{
-		//Given
+		// Given
 		StubProvider mocks = new StubProvider();
 
 		HerokuConnectorForSampleApp mockConnector = (HerokuConnectorForSampleApp)mocks.mock(HerokuConnectorForSampleApp.class);
@@ -38,42 +38,42 @@ private class DataGeneratorButtonControllerTest
 
 		mocks.stub(mockConnector, 'generateData', new Type[]{ String.class }, new Object[]{ 'Test' }, null);
 
-		//When
+		// When
 		DataGeneratorButtonController.generateData('Test');
 
-		//Then
+		// Then
 		System.assertEquals(1, mocks.getCallCount(mockConnector, 'generateData', new Type[]{ String.class }, new Object[]{ 'Test' }));
 	}
 
 	@IsTest
 	private static void getTaskStatus_withId_shouldReturnTaskComplete()
 	{
-		// given
+		// Given
 		String expectedResult = 'NOT STARTED';
 		
 		GenerateDataTask__c task = new GenerateDataTask__c();
 		insert task;
 
-		// when
+		// When
 		String result = DataGeneratorButtonController.getTaskStatus(task.id);
 
-		// then
+		// Then
 		System.assertEquals(expectedResult, result);
 	}
 
 	@IsTest
 	private static void sendInitialPlatformEvent_withId_shouldReturnSuccess()
 	{
-		// given
+		// Given
 		GenerateDataTask__c task = new GenerateDataTask__c();
 		insert task;
 
-		// when
+		// When
 		Test.startTest();
 		Boolean result = DataGeneratorButtonController.sendInitialPlatformEvent(task.id);
 		Test.stopTest();
 
-		// then
+		// Then
 		System.assertEquals(true, result);
 	}
 }

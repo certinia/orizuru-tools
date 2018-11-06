@@ -27,42 +27,32 @@
 
 const
 	chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
-	expect = chai.expect,
+	shell = require('../../../lib/util/shell'),
 
-	sandbox = sinon.sandbox.create();
+	npm = require('../../../lib/service/init/npm'),
 
-chai.use(chaiAsPromised);
+	expect = chai.expect;
+
 chai.use(sinonChai);
 
 describe('service/init/npm.js', () => {
 
-	let mocks, npm;
-
 	beforeEach(() => {
-
-		mocks = {};
-
-		mocks.shell = sandbox.stub();
-		mocks.shell.executeCommand = sandbox.stub();
-
-		npm = proxyquire('../../../lib/service/init/npm', {
-			'../../util/shell': mocks.shell
-		});
-
+		sinon.stub(shell, 'executeCommand');
 	});
 
-	afterEach(() => sandbox.restore());
+	afterEach(() => {
+		sinon.restore();
+	});
 
 	describe('generateApexTransport', () => {
 
-		it('should run the npm run generate-apex-transport command', () => {
+		it('should run the npm run generate-apex-transport command', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -77,17 +67,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~generate~apex~transport'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
-			return expect(npm.generateApexTransport(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.generateApexTransport(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -95,9 +88,9 @@ describe('service/init/npm.js', () => {
 
 	describe('generateDocumentation', () => {
 
-		it('should run the npm run doc command', () => {
+		it('should run the npm run doc command', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -112,17 +105,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~generate~documentation'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
-			return expect(npm.generateDocumentation(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.generateDocumentation(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -130,9 +126,9 @@ describe('service/init/npm.js', () => {
 
 	describe('init', () => {
 
-		it('should run the npm init command', () => {
+		it('should run the npm init command', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -147,17 +143,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~init'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
-			return expect(npm.init(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.init(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -165,9 +164,9 @@ describe('service/init/npm.js', () => {
 
 	describe('install', () => {
 
-		it('should run the npm install command', () => {
+		it('should run the npm install command', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -182,17 +181,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~install'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
-			return expect(npm.install(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.install(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -200,9 +202,9 @@ describe('service/init/npm.js', () => {
 
 	describe('orizuruPostInit', () => {
 
-		it('should run the npm run orizuru-post-init command', () => {
+		it('should run the npm run orizuru-post-init command', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -217,17 +219,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~orizuru~post~init'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedInput);
 
-			// when - then
-			return expect(npm.orizuruPostInit(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.orizuruPostInit(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 
@@ -235,9 +240,9 @@ describe('service/init/npm.js', () => {
 
 	describe('test', () => {
 
-		it('should run the npm test command', () => {
+		it('should run the npm test command', async () => {
 
-			// given
+			// Given
 			const
 				expectedInput = {
 					test: 'input'
@@ -252,17 +257,20 @@ describe('service/init/npm.js', () => {
 						},
 						namespace: 'npm~test'
 					}
+				},
+				expectedOutput = {
+					test: 'input'
 				};
 
-			mocks.shell.executeCommand.resolves(expectedInput);
+			shell.executeCommand.resolves(expectedOutput);
 
-			// when - then
-			return expect(npm.test(expectedInput))
-				.to.eventually.eql(expectedInput)
-				.then(() => {
-					expect(mocks.shell.executeCommand).to.have.been.calledOnce;
-					expect(mocks.shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
-				});
+			// When
+			const output = await npm.test(expectedInput);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledOnce;
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand, expectedInput);
 
 		});
 

@@ -28,99 +28,71 @@
 
 const
 	chai = require('chai'),
-	proxyquire = require('proxyquire'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
 
+	constants = require('../../lib/bin/constants/constants'),
+
 	yargs = require('yargs'),
 
-	expect = chai.expect,
-
-	sandbox = sinon.sandbox.create();
+	expect = chai.expect;
 
 chai.use(sinonChai);
 
 describe('bin/cli.js', () => {
 
+	beforeEach(() => {
+
+		sinon.stub(constants, 'getCopyrightNotice').returns('(c)');
+		sinon.stub(constants, 'getVersion').returns('1.0.0');
+
+		sinon.stub(yargs, 'alias').returnsThis();
+		sinon.stub(yargs, 'command').returnsThis();
+		sinon.stub(yargs, 'demandCommand').returnsThis();
+		sinon.stub(yargs, 'epilogue').returnsThis();
+		sinon.stub(yargs, 'help').returnsThis();
+		sinon.stub(yargs, 'showHelpOnFail').returnsThis();
+		sinon.stub(yargs, 'strict').returnsThis();
+		sinon.stub(yargs, 'terminalWidth').returns(200);
+		sinon.stub(yargs, 'usage').returnsThis();
+		sinon.stub(yargs, 'version').returnsThis();
+		sinon.stub(yargs, 'wrap').returnsThis();
+		sinon.stub(yargs, 'exitProcess').returnsThis();
+
+	});
+
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
 
 	it('should create the base cli', () => {
 
-		// given
-		const
-			terminalWidth = 200,
-			mockConstants = { VERSION: '1.0.0', COPYRIGHT_NOTICE: '(c) test' },
-			mockYargs = yargs('my-command');
+		// Given
+		// When
+		require('../../lib/bin/cli');
 
-		sandbox.stub(mockYargs, 'alias').returnsThis();
-		sandbox.stub(mockYargs, 'command').returnsThis();
-		sandbox.stub(mockYargs, 'demandCommand').returnsThis();
-		sandbox.stub(mockYargs, 'epilogue').returnsThis();
-		sandbox.stub(mockYargs, 'help').returnsThis();
-		sandbox.stub(mockYargs, 'showHelpOnFail').returnsThis();
-		sandbox.stub(mockYargs, 'strict').returnsThis();
-		sandbox.stub(mockYargs, 'terminalWidth').returns(terminalWidth);
-		sandbox.stub(mockYargs, 'usage').returnsThis();
-		sandbox.stub(mockYargs, 'version').returnsThis();
-		sandbox.stub(mockYargs, 'wrap').returnsThis();
+		// Then
+		expect(yargs.alias).to.have.been.calledTwice;
+		expect(yargs.command).to.have.callCount(4);
+		expect(yargs.demandCommand).to.have.been.calledOnce;
+		expect(yargs.epilogue).to.have.been.calledOnce;
+		expect(yargs.help).to.have.been.calledOnce;
+		expect(yargs.showHelpOnFail).to.have.been.calledOnce;
+		expect(yargs.strict).to.have.been.calledOnce;
+		expect(yargs.usage).to.have.been.calledOnce;
+		expect(yargs.version).to.have.been.calledOnce;
+		expect(yargs.wrap).to.have.been.calledOnce;
 
-		// when
-		proxyquire('../../lib/bin/cli', {
-			'./constants/constants': mockConstants,
-			yargs: mockYargs
-		});
-
-		// then
-		expect(mockYargs.alias).to.have.been.calledTwice;
-		expect(mockYargs.command).to.have.callCount(4);
-		expect(mockYargs.demandCommand).to.have.been.calledOnce;
-		expect(mockYargs.epilogue).to.have.been.calledOnce;
-		expect(mockYargs.help).to.have.been.calledOnce;
-		expect(mockYargs.showHelpOnFail).to.have.been.calledOnce;
-		expect(mockYargs.strict).to.have.been.calledOnce;
-		expect(mockYargs.usage).to.have.been.calledOnce;
-		expect(mockYargs.version).to.have.been.calledOnce;
-		expect(mockYargs.wrap).to.have.been.calledOnce;
-
-		expect(mockYargs.usage).to.have.been.calledWith('\nUsage: orizuru COMMAND');
-		expect(mockYargs.demandCommand).to.have.been.calledWith(2, 'Run \'orizuru --help\' for more information on a command.\n');
-		expect(mockYargs.showHelpOnFail).to.have.been.calledWith(true);
-		expect(mockYargs.help).to.have.been.calledWith('h');
-		expect(mockYargs.alias).to.have.been.calledWith('h', 'help');
-		expect(mockYargs.alias).to.have.been.calledWith('v', 'version');
-		expect(mockYargs.strict).to.have.been.calledWith(true);
-		expect(mockYargs.version).to.have.been.calledWith('1.0.0');
-		expect(mockYargs.epilogue).to.have.been.calledWith('(c) test');
-		expect(mockYargs.wrap).to.have.been.calledWith(terminalWidth);
-
-	});
-
-	it('should show the help if a command is not found', () => {
-
-		// given
-		const
-			mockPublish = {
-				command: 'my-command'
-			},
-			mockYargs = yargs('my-not-command --my-arg=my-value');
-
-		sandbox.stub(mockYargs, 'exit').returns(mockYargs);
-		sandbox.stub(mockYargs, 'showHelp');
-
-		// stub the internal _getLoggerInstance method so that no logging is output
-		sandbox.stub(mockYargs, '_getLoggerInstance').returns({ error: sandbox.stub() });
-
-		// when
-		proxyquire('../../lib/bin/cli', {
-			'./commands/publish': mockPublish,
-			yargs: mockYargs
-		});
-
-		// the
-		expect(mockYargs.showHelp).to.have.been.calledOnce;
-		expect(mockYargs.exit).to.have.been.called;
+		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru COMMAND');
+		expect(yargs.demandCommand).to.have.been.calledWith(2, 'Run \'orizuru --help\' for more information on a command.\n');
+		expect(yargs.showHelpOnFail).to.have.been.calledWith(true);
+		expect(yargs.help).to.have.been.calledWith('h');
+		expect(yargs.alias).to.have.been.calledWith('h', 'help');
+		expect(yargs.alias).to.have.been.calledWith('v', 'version');
+		expect(yargs.strict).to.have.been.calledWith(true);
+		expect(yargs.version).to.have.been.calledWith('1.0.0');
+		expect(yargs.epilogue).to.have.been.calledWith('(c)');
+		expect(yargs.wrap).to.have.been.calledWith(200);
 
 	});
 
