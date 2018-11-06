@@ -68,7 +68,7 @@ describe('service/deploy/sfdx.js', () => {
 		sinon.stub(fs, 'readFileSync');
 		sinon.stub(fs, 'writeJson');
 
-		sinon.stub(logger, 'logEvent').resolves();
+		sinon.stub(logger, 'logEvent').returns(sinon.stub());
 
 	});
 
@@ -458,6 +458,176 @@ describe('service/deploy/sfdx.js', () => {
 			// Then
 			expect(output).to.eql(expectedOutput);
 			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
+
+		});
+
+	});
+
+	describe('getInstalledPackageList', () => {
+
+		it('should execute the correct commands', async () => {
+
+			// Given
+			const
+				input = {
+					orizuru: {
+						sfdx: {
+							org: {
+								username: 'testUsername'
+							}
+						}
+					}
+				},
+				expectedCommand = { cmd: 'sfdx', args: ['force:package:installed:list', '-u', 'testUsername', '--json'] },
+				expectedOutput = {
+					orizuru: {
+						sfdx: {
+							org: {
+								username: 'testUsername'
+							}
+						}
+					},
+					sfdx: {
+						org: {
+							installedPackageVersionIds: [
+								'testSubscriberPackageVersionId'
+							],
+							installedPackages: [
+								{
+									Id: 'testId',
+									SubscriberPackageVersionId: 'testSubscriberPackageVersionId'
+								}
+							],
+							username: 'testUsername'
+						}
+					}
+				};
+
+			shell.executeCommand.resolves({ stdout: '{"status": 0,"result": [{"Id": "testId","SubscriberPackageVersionId": "testSubscriberPackageVersionId"}]}' });
+
+			// When
+			const output = await sfdx.getInstalledPackageList(input);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommand).to.have.been.calledWith(expectedCommand);
+
+		});
+
+	});
+
+	describe('installPackages', () => {
+
+		it('should ignore any packages that have been installed in the org already', async () => {
+
+			// Given
+			const
+				input = {
+					orizuru: {
+						sfdx: {
+							org: {
+								username: 'testUsername'
+							}
+						}
+					},
+					sfdx: {
+						org: {
+							installedPackageVersionIds: [
+								'testPackageId'
+							],
+							packagesToInstall: {
+								testPackageId: 'testPackageName'
+							}
+						}
+					}
+				},
+				expectedOutput = {
+					orizuru: {
+						sfdx: {
+							org: {
+								username: 'testUsername'
+							}
+						}
+					},
+					sfdx: {
+						org: {
+							installedPackageVersionIds: [
+								'testPackageId'
+							],
+							packagesToInstall: {
+								testPackageId: 'testPackageName'
+							}
+						}
+					}
+				};
+
+			shell.executeCommands.resolves();
+
+			// When
+			const output = await sfdx.installPackages(input);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+
+			expect(shell.executeCommands).to.not.have.been.called;
+
+		});
+
+		it('should install any packages that have not been installed in the org already', async () => {
+
+			// Given
+			const
+				input = {
+					orizuru: {
+						sfdx: {
+							org: {
+								username: 'testUsername'
+							}
+						}
+					},
+					sfdx: {
+						org: {
+							packagesToInstall: {
+								testPackageId: 'testPackageName'
+							}
+						}
+					}
+				},
+				expectedCommands = [{
+					cmd: 'sfdx',
+					args: ['force:package:install', '-p', 'testPackageId', '-u', 'testUsername', '-r', '-w', '100', '--json'],
+					opts: {
+						logging: {
+							finish: 'Installed package testPackageId',
+							start: 'Installing package testPackageId'
+						}
+					}
+				}],
+				expectedOutput = {
+					orizuru: {
+						sfdx: {
+							org: {
+								username: 'testUsername'
+							}
+						}
+					},
+					sfdx: {
+						org: {
+							packagesToInstall: {
+								testPackageId: 'testPackageName'
+							}
+						}
+					}
+				};
+
+			shell.executeCommands.resolves();
+
+			// When
+			const output = await sfdx.installPackages(input);
+
+			// Then
+			expect(output).to.eql(expectedOutput);
+			expect(shell.executeCommands).to.have.been.calledWith(expectedCommands);
 
 		});
 

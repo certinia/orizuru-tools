@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2018, FinancialForce.com, inc
+ * Copyright (c) 2018, FinancialForce.com, inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,62 +27,32 @@
 'use strict';
 
 const
-	certificate = require('./deploy/certificate'),
-	connectedApp = require('./deploy/connectedApp'),
-	packages = require('./deploy/packages'),
+	service = require('../../../service/deploy/packages'),
 
-	service = require('../../service/deploy'),
-
-	constants = require('../constants/constants');
+	constants = require('../../constants/constants');
 
 module.exports = {
-	command: 'deploy',
-	aliases: ['d'],
-	desc: 'Executes Deployment commands',
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru deploy COMMAND')
-		.command(certificate)
-		.command(connectedApp)
-		.command(packages)
-		.options('apex', {
-			alias: 'a',
-			describe: 'Apex deploy',
-			demandOption: false,
-			type: 'boolean'
+	command: 'packages',
+	aliases: ['p'],
+	desc: 'Installs the list of packages in the selected scratch org',
+	builder: yargs => yargs
+		.usage('\nUsage: orizuru deploy packages [OPTIONS]')
+		.option('file', {
+			describe: 'The file from which to read the packages',
+			demandOption: true,
+			type: 'string'
 		})
-		.options('debug', {
-			alias: 'd',
+		.option('d', {
+			alias: 'debug',
 			describe: 'Turn on debug logging',
 			demandOption: false,
 			type: 'boolean'
 		})
-		.options('full', {
-			alias: 'f',
-			describe: 'Full deploy',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.options('heroku', {
-			alias: 'h',
-			describe: 'Heroku deploy',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.options('silent', {
-			alias: 's',
-			describe: 'Turn off all logging',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.options('verbose', {
+		.option('verbose', {
 			describe: 'Turn on all logging',
 			demandOption: false,
 			type: 'boolean'
 		})
-		.updateStrings({
-			'Commands:': 'Deployment:'
-		})
-		.help('help')
 		.epilogue(constants.getCopyrightNotice()),
-	handler: (argv) => service.run({ argv })
+	handler: (argv) => service.deploy({ argv })
 };
