@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2018, FinancialForce.com, inc
+ * Copyright (c) 2018, FinancialForce.com, inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,62 +27,47 @@
 'use strict';
 
 const
-	certificate = require('./deploy/certificate'),
-	connectedApp = require('./deploy/connectedApp'),
-	packages = require('./deploy/packages'),
+	_ = require('lodash'),
+	fs = require('fs-extra'),
+	path = require('path'),
 
-	service = require('../../service/deploy'),
+	configFile = require('./shared/config'),
 
-	constants = require('../constants/constants');
+	logger = require('../../util/logger'),
+	sfdx = require('./sfdx');
+
+async function deploy(config) {
+
+	logger.logStart('Installing packages...')(config);
+
+	_.set(config, 'options.includeNew.sfdx', true);
+
+	await sfdx.checkSfdxInstalled(config);
+	await sfdx.checkSfdxProjectFileExists(config);
+	await sfdx.checkSfdxFolderExists(config);
+
+	logger.logEvent('Reading .orizuru config')(config);
+	await configFile.readSettings(config);
+
+	await sfdx.login(config);
+
+	logger.logEvent('Reading .salesforcedx.yaml')(config);
+	await sfdx.readSfdxYaml(config);
+
+	logger.logEvent('Finding existing scratch orgs')(config);
+	await sfdx.getAllScratchOrgs(config);
+	await sfdx.select(config);
+
+	await sfdx.getInstalledPackageList(config);
+
+	_.set(config, 'sfdx.org.packagesToInstall', fs.readJsonSync(path.resolve(process.cwd(), config.argv.file)));
+
+	await sfdx.installPackages(config);
+
+	logger.logFinish('Finished Installing Packages')(config);
+
+}
 
 module.exports = {
-	command: 'deploy',
-	aliases: ['d'],
-	desc: 'Executes Deployment commands',
-	builder: (yargs) => yargs
-		.usage('\nUsage: orizuru deploy COMMAND')
-		.command(certificate)
-		.command(connectedApp)
-		.command(packages)
-		.options('apex', {
-			alias: 'a',
-			describe: 'Apex deploy',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.options('debug', {
-			alias: 'd',
-			describe: 'Turn on debug logging',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.options('full', {
-			alias: 'f',
-			describe: 'Full deploy',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.options('heroku', {
-			alias: 'h',
-			describe: 'Heroku deploy',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.options('silent', {
-			alias: 's',
-			describe: 'Turn off all logging',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.options('verbose', {
-			describe: 'Turn on all logging',
-			demandOption: false,
-			type: 'boolean'
-		})
-		.updateStrings({
-			'Commands:': 'Deployment:'
-		})
-		.help('help')
-		.epilogue(constants.getCopyrightNotice()),
-	handler: (argv) => service.run({ argv })
+	deploy
 };

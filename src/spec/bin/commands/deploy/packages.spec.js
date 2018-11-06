@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2018, FinancialForce.com, inc
+ * Copyright (c) 2018, FinancialForce.com, inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -33,28 +33,24 @@ const
 
 	yargs = require('yargs'),
 
-	constants = require('../../../lib/bin/constants/constants'),
+	constants = require('../../../../lib/bin/constants/constants'),
 
-	service = require('../../../lib/service/deploy'),
-	deployCommand = require('../../../lib/bin/commands/deploy'),
+	service = require('../../../../lib/service/deploy/packages'),
 
-	cli = require('../../../lib/bin/commands/deploy'),
+	cli = require('../../../../lib/bin/commands/deploy/packages'),
 
 	expect = chai.expect;
 
 chai.use(sinonChai);
 
-describe('bin/commands/deploy.js', () => {
+describe('bin/commands/deploy/packages.js', () => {
 
 	beforeEach(() => {
 
 		sinon.stub(constants, 'getCopyrightNotice').returns('(c)');
 
-		sinon.stub(yargs, 'command').returnsThis();
 		sinon.stub(yargs, 'epilogue').returnsThis();
-		sinon.stub(yargs, 'help').returnsThis();
-		sinon.stub(yargs, 'options').returnsThis();
-		sinon.stub(yargs, 'updateStrings').returnsThis();
+		sinon.stub(yargs, 'option').returnsThis();
 		sinon.stub(yargs, 'usage').returnsThis();
 
 	});
@@ -63,46 +59,47 @@ describe('bin/commands/deploy.js', () => {
 		sinon.restore();
 	});
 
+	it('should have the correct command, description and alias', () => {
+
+		// Then
+		expect(cli.command).to.eql('packages');
+		expect(cli.aliases).to.eql(['p']);
+		expect(cli.desc).to.eql('Installs the list of packages in the selected scratch org');
+
+	});
+
 	it('should create the cli', () => {
 
 		// When
 		cli.builder(yargs);
 
 		// Then
-		expect(yargs.command).to.have.been.calledThrice;
 		expect(yargs.epilogue).to.have.been.calledOnce;
-		expect(yargs.options).to.have.callCount(6);
-		expect(yargs.updateStrings).to.have.been.calledOnce;
+		expect(yargs.option).to.have.been.calledThrice;
 		expect(yargs.usage).to.have.been.calledOnce;
 
 		expect(yargs.epilogue).to.have.been.calledWith('(c)');
-		expect(yargs.updateStrings).to.have.been.calledWith({ 'Commands:': 'Deployment:' });
-		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy COMMAND');
+		expect(yargs.option).to.have.been.calledWith('d', sinon.match.object);
+		expect(yargs.option).to.have.been.calledWith('verbose', sinon.match.object);
+		expect(yargs.usage).to.have.been.calledWith('\nUsage: orizuru deploy packages [OPTIONS]');
 
 	});
 
-	it('should have the correct command, description and alias', () => {
-
-		// Then
-		expect(cli.command).to.eql('deploy');
-		expect(cli.aliases).to.eql(['d']);
-		expect(cli.desc).to.eql('Executes Deployment commands');
-
-	});
-
-	it('should have a handler that calls the init service', () => {
+	it('should call the handler', () => {
 
 		// Given
-		const { handler } = deployCommand;
+		const
+			expectedInput = { debug: true },
+			expectedOutput = { argv: expectedInput };
 
-		sinon.stub(service, 'run');
+		sinon.stub(service, 'deploy');
 
 		// When
-		handler('test');
+		cli.handler(expectedInput);
 
 		// Then
-		expect(service.run).to.have.been.calledOnce;
-		expect(service.run).to.have.been.calledWith({ argv: 'test' });
+		expect(service.deploy).to.have.been.calledOnce;
+		expect(service.deploy).to.have.been.calledWith(expectedOutput);
 
 	});
 
