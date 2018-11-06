@@ -37,7 +37,7 @@ const
 	path = require('path'),
 
 	generate = require('./generateApexTransport/generate'),
-	overwriteFile = require('./generateApexTransport/overwriteFile'),
+	writer = require('./generateApexTransport/overwriteFile'),
 
 	logger = require('../util/logger'),
 	read = require('../util/read');
@@ -73,8 +73,8 @@ function generateClasses(config) {
 		result = generate.generate(parsedSchemas),
 		outputPath = path.resolve(process.cwd(), config.argv.outputUrl);
 
-	return overwriteFile.overwriteFile(outputPath, 'OrizuruTransport.cls', result.cls)
-		.then(() => overwriteFile.overwriteFile(outputPath, 'OrizuruTransport.cls-meta.xml', result.xml))
+	return writer.overwriteFile(outputPath, 'OrizuruTransport.cls', result.cls)
+		.then(() => writer.overwriteFile(outputPath, 'OrizuruTransport.cls-meta.xml', result.xml))
 		.then(() => config);
 }
 
