@@ -235,7 +235,7 @@ async function installPackages(config) {
 		packagesToInstall = _.difference(packagesToInstallFromConfigFile, installedPackages),
 		installPackageCommands = packagesToInstall.map((packageToInstall) => getInstallPackageCommand(packageToInstall, config.orizuru.sfdx.org.username));
 
-	alreadyInstalledPackages.map((installedPackage) => {
+	alreadyInstalledPackages.forEach((installedPackage) => {
 		logger.logEvent(`Already installed package: ${installedPackage}`)(config);
 	});
 
