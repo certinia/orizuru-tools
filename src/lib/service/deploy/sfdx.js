@@ -195,22 +195,76 @@ function deploy(config) {
 
 }
 
+async function getInstalledPackageList(config) {
+
+	const
+		username = config.orizuru.sfdx.org.username,
+		installedPackageListCommand = { cmd: 'sfdx', args: ['force:package:installed:list', '-u', username, '--json'] },
+		result = await shell.executeCommand(installedPackageListCommand),
+		installedPackages = JSON.parse(result.stdout).result;
+
+	logger.logEvent(`Finding existing packages installed in org: ${username}`)(config);
+
+	_.set(config, 'sfdx.org.username', username);
+	_.set(config, 'sfdx.org.installedPackages', installedPackages);
+	return _.set(config, 'sfdx.org.installedPackageVersionIds', installedPackages.map((installedPackage) => installedPackage.SubscriberPackageVersionId));
+
+}
+
+function getInstallPackageCommand(packageId, username) {
+	return {
+		cmd: 'sfdx',
+		args: ['force:package:install', '-p', packageId, '-u', username, '-r', '-w', '100', '--json'],
+		opts: {
+			logging: {
+				start: `Installing package ${packageId}`,
+				finish: `Installed package ${packageId}`
+			}
+		}
+	};
+}
+
+async function installPackages(config) {
+
+	const
+		packagesToInstallFromConfigFile = Object.keys(config.sfdx.org.packagesToInstall),
+		installedPackages = config.sfdx.org.installedPackageVersionIds,
+
+		alreadyInstalledPackages = _.intersection(packagesToInstallFromConfigFile, installedPackages),
+
+		packagesToInstall = _.difference(packagesToInstallFromConfigFile, installedPackages),
+		installPackageCommands = packagesToInstall.map((packageToInstall) => getInstallPackageCommand(packageToInstall, config.orizuru.sfdx.org.username));
+
+	alreadyInstalledPackages.map((installedPackage) => {
+		logger.logEvent(`Already installed package: ${installedPackage}`)(config);
+	});
+
+	if (installPackageCommands.length > 0) {
+		await shell.executeCommands(installPackageCommands, { exitOnError: true }, config);
+	}
+
+	return config;
+
+}
+
 function openOrg(config) {
 	const orgOpenCommands = { cmd: 'sfdx', args: ['force:org:open', '-u', `${config.parameters.sfdx.org.username}`] };
 	return shell.executeCommand(orgOpenCommands, config);
 }
 
-function readSfdxYaml(config) {
+async function readSfdxYaml(config) {
 
-	return fs.readFile(path.resolve(process.cwd(), '.salesforcedx.yaml'))
-		.then(result => {
-			const dxYaml = yaml.safeLoad(result);
-			return _.set(config, 'sfdx.yaml', dxYaml);
-		})
-		.catch(error => {
-			return fs.outputFile('./.salesforcedx.yaml', defaultSfdxYamlFile, { spaces: 4 })
-				.then(() => _.set(config, 'sfdx.yaml', yaml.safeLoad(defaultSfdxYamlFile)));
-		});
+	try {
+
+		const
+			result = await fs.readFile(path.resolve(process.cwd(), '.salesforcedx.yaml')),
+			dxYaml = yaml.safeLoad(result);
+		return _.set(config, 'sfdx.yaml', dxYaml);
+
+	} catch (error) {
+		await fs.outputFile('./.salesforcedx.yaml', defaultSfdxYamlFile, { spaces: 4 });
+		return _.set(config, 'sfdx.yaml', yaml.safeLoad(defaultSfdxYamlFile));
+	}
 
 }
 
@@ -254,6 +308,8 @@ module.exports = {
 	deploy,
 	display,
 	getAllScratchOrgs,
+	getInstalledPackageList,
+	installPackages,
 	login,
 	openOrg,
 	readSfdxYaml,
