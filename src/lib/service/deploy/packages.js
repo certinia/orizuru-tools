@@ -38,33 +38,39 @@ const
 
 async function deploy(config) {
 
-	logger.logStart('Installing packages...')(config);
+	try {
 
-	_.set(config, 'options.includeNew.sfdx', true);
+		logger.logStart('Installing packages...')(config);
 
-	await sfdx.checkSfdxInstalled(config);
-	await sfdx.checkSfdxProjectFileExists(config);
-	await sfdx.checkSfdxFolderExists(config);
+		_.set(config, 'options.includeNew.sfdx', true);
 
-	logger.logEvent('Reading .orizuru config')(config);
-	await configFile.readSettings(config);
+		await sfdx.checkSfdxInstalled(config);
+		await sfdx.checkSfdxProjectFileExists(config);
+		await sfdx.checkSfdxFolderExists(config);
 
-	await sfdx.login(config);
+		logger.logEvent('Reading .orizuru config')(config);
+		await configFile.readSettings(config);
 
-	logger.logEvent('Reading .salesforcedx.yaml')(config);
-	await sfdx.readSfdxYaml(config);
+		await sfdx.login(config);
 
-	logger.logEvent('Finding existing scratch orgs')(config);
-	await sfdx.getAllScratchOrgs(config);
-	await sfdx.select(config);
+		logger.logEvent('Reading .salesforcedx.yaml')(config);
+		await sfdx.readSfdxYaml(config);
 
-	await sfdx.getInstalledPackageList(config);
+		logger.logEvent('Finding existing scratch orgs')(config);
+		await sfdx.getAllScratchOrgs(config);
+		await sfdx.select(config);
 
-	_.set(config, 'sfdx.org.packagesToInstall', fs.readJsonSync(path.resolve(process.cwd(), config.argv.file)));
+		await sfdx.getInstalledPackageList(config);
 
-	await sfdx.installPackages(config);
+		_.set(config, 'sfdx.org.packagesToInstall', fs.readJsonSync(path.resolve(process.cwd(), config.argv.file)));
 
-	logger.logFinish('Finished Installing Packages')(config);
+		await sfdx.installPackages(config);
+
+		logger.logFinish('Finished Installing Packages')(config);
+
+	} catch (error) {
+		logger.logError(new Error('Failed to install packages'));
+	}
 
 }
 

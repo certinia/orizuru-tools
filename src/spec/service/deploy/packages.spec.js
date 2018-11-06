@@ -61,13 +61,35 @@ describe('service/deploy/packages.js', () => {
 		sinon.stub(sfdx, 'getInstalledPackageList');
 		sinon.stub(sfdx, 'installPackages');
 
+		sinon.stub(logger, 'logError');
 		sinon.stub(logger, 'logEvent').returns(sinon.stub());
 		sinon.stub(logger, 'logFinish').returns(sinon.stub());
 		sinon.stub(logger, 'logStart').returns(sinon.stub());
 
 	});
 
+	afterEach(() => {
+		sinon.restore();
+	});
+
 	describe('deploy', () => {
+
+		it('should handle an error in the process', async () => {
+
+			// Given
+			configFile.readSettings.rejects('error');
+
+			// When
+			await packages.deploy({
+				argv: {
+					file: 'testFile'
+				}
+			});
+
+			// Then
+			expect(logger.logError).to.have.been.calledOnce;
+
+		});
 
 		it('should invoke the correct commands', async () => {
 
