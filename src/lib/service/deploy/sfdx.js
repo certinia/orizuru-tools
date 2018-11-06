@@ -56,7 +56,7 @@ const
 		}],
 		namespace: '',
 		sfdcLoginUrl: 'https://login.salesforce.com',
-		sourceApiVersion: '41.0'
+		sourceApiVersion: '44.0'
 	};
 
 function login(config) {
